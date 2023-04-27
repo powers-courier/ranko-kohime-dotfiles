@@ -253,31 +253,6 @@ nnoremap <C-H> <C-W><C-H>
 " =============================== Abbreviations ===============================
 iabbrev ssig --<cr>Ranko Kohime<cr>ranko.kohime@runbox.com
 
-" ======================== Filetype-specific settings =========================
-
-augroup filetypedetect
-    autocmd!
-
-    " Set filetype to conf for .conf files
-    autocmd BufNewFile,BufRead *.conf set filetype=conf
-
-    " Set filetype to sh for .func files
-    " (Because they're shell scripts, but I don't want to use .sh)
-    autocmd BufNewFile,BufRead *.func set filetype=sh
-
-    " Set filetype to markdown for .md files
-    autocmd BufNewFile,BufRead *.md set filetype=markdown
-
-    " Vim files are not autodetected?!
-    autocmd BufNewFile,BufRead *.vim set filetype=vim
-
-    " Set filetype to lisp for .el files
-    autocmd BufNewFile,BufRead *.el set filetype=lisp
-
-    " Set filetype to ansible for all yaml files
-    autocmd BufNewFile,BufRead *.yaml,*.yml set filetype=ansible
-augroup END
-
 " ===============  Github Copilot (https://copilot.github.com/) ===============
 
 " From https://github.com/community/community/discussions/12426#discussioncomment-3102062

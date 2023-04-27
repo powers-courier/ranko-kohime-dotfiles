@@ -1,0 +1,1 @@
+autocmd BufNewFile,BufRead *.func set filetype=sh

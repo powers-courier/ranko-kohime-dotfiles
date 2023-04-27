@@ -1,0 +1,28 @@
+# Games
+export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0
+export SDL_VIDEO_FULLSCREEN_DISPLAY=0
+
+# Paths
+XDG_CONFIG_HOME=$HOME/.config
+XDG_DATA_HOME=$HOME/.local/share
+XDG_CACHE_HOME=$HOME/.cache
+PATH=$PATH:/home/ranko/.local/bin:/home/ranko/bin
+
+# VIM
+export VIMDOTDIR="$XDG_CONFIG_HOME/nvim"
+
+# Other stuff
+export NMON=lmdn.
+export EDITOR=nvim.appimage
+export VISUAL=nvim.appimage
+
+# Cheat Manager
+export DEFAULT_CHEAT_DIR=/home/ranko/Documents/cheat
+export CHEATCOLORS=true
+
+# Because QT and Input hot-plugging equals SADNESS!  :(
+# What mean this? ^^^^^^^^^^^^^^^
+QT_XCB_NO_XI2_MOUSE=1
+
+# Why does QT hate GTK?  (No love from qt5ct)
+QT_QPA_PLATFORMTHEME=qt5ct

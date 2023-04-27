@@ -1,0 +1,125 @@
+#+TITLE: My Emacs Configuration
+#+AUTHOR: Ranko Kohime
+#+EMAIL: ranko.kohime@runbox.com
+#+STARTUP: content
+
+* Org Mode
+
+** Enable Org Mode (is this superfluos?)
+  #+BEGIN_SRC emacs-lisp
+    (require 'org)
+  #+END_SRC
+
+** Set font lock for Org Mode, just in case
+  #+BEGIN_SRC emacs-lisp
+    (add-hook 'org-mode-hook #'turn-on-font-lock)
+  #+END_SRC
+
+** Enable org-tempo
+  #+BEGIN_SRC emacs-lisp
+    (require 'org-tempo)
+  #+END_SRC
+
+** Set the agenda key, in case it's not set
+  #+BEGIN_SRC emacs-lisp
+    (global-set-key "\C-ca" 'org-agenda)
+  #+END_SRC
+
+** Set keywords for Org Mode
+  #+BEGIN_SRC emacs-lisp
+    (setq org-todo-keywords
+      '((sequence "TODO" "STRT" "WAIT" "DONE"))
+    )
+  #+END_SRC
+
+** Set org-startup-folded
+  #+BEGIN_SRC emacs-lisp
+    ;;(setq org-startup-folded content)
+  #+END_SRC
+
+
+* Key Bindings
+
+** Make ESC quit prompts
+  #+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  #+END_SRC
+
+;; Set leader key to Space (if it isn't already set)
+;; Set <leader>x to cut to system clipboard
+;; Set <leader>c to copy to system clipboard
+;; Set <leader>v to paste from system clipboard
+;; Set <leader>s to save
+;; Set <leader>w to save and close the current buffer
+;; Set <leader>e to open a file
+
+
+* General Settings
+
+** Enable custom themes
+   Default to theme "Cherry Blossom"
+   https://github.com/inlinestyle/emacs-cherry-blossom-theme
+  #+BEGIN_SRC emacs-lisp
+    (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+    (custom-set-variables
+      '(custom-enabled-themes
+        '(cherry-blossom)
+      )
+      '(custom-safe-themes
+        '("2aa073a18b2ba860d24d2cd857bcce34d7107b6967099be646d9c95f53ef3643" default)
+      )
+    )
+  #+END_SRC
+
+** Inhibit the startup message
+  #+BEGIN_SRC emacs-lisp
+    (setq inhibit-startup-message t)
+  #+END_SRC
+
+** Disable the GUI Toolbar
+  #+BEGIN_SRC emacs-lisp
+    (if window-system
+      (tool-bar-mode 0)
+    )
+  #+END_SRC
+
+** Disable the Menubar
+  #+BEGIN_SRC emacs-lisp
+    (menu-bar-mode -1)
+  #+END_SRC
+
+** Enable CUA mode for C-x, C-c, C-v
+  #+BEGIN_SRC emacs-lisp
+    (custom-set-variables
+    '(cua-mode t nil (cua-base))
+    )
+  #+END_SRC
+
+** Enable line numbers, and make them a bit pretty
+  #+BEGIN_SRC emacs-lisp
+    (global-display-line-numbers-mode)
+    (setq linum-format "%4d \u2502 ")
+  #+END_SRC
+
+** Highlight the current row and column to make the cursor easy to find
+   Possibly may use Crosshairs:
+   https://github.com/emacsmirror/crosshairs/blob/master/crosshairs.el
+  #+BEGIN_SRC emacs-lisp
+    (global-hl-line-mode 1)
+  #+END_SRC
+** Show fill column indicator (Line 80)
+  #+BEGIN_SRC emacs-lisp
+    (global-display-fill-column-indicator-mode 1)
+    (setq fill-column 80)
+  #+END_SRC
+
+** Enable file history with recentf, and periodically save the list
+   https://www.emacswiki.org/emacs/RecentFiles
+  #+BEGIN_SRC emacs-lisp
+    (recentf-mode 1)
+    (setq recentf-max-menu-items 25)
+    (setq recentf-max-saved-items 25)
+    (global-set-key "\C-x\ \C-r" 'recentf-open-files)
+
+    (run-at-time nil (* 15 60) 'recentf-save-list)
+  #+END_SRC

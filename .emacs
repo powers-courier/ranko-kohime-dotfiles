@@ -1,2 +1,2 @@
 (package-initialize)
-(org-babel-load-file "~/.config/shell/Emacs.org")
+(org-babel-load-file "~/.emacs.d/Emacs.org")

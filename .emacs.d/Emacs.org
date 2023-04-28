@@ -34,7 +34,7 @@
 
 ** Set org-startup-folded
   #+BEGIN_SRC emacs-lisp
-    ;;(setq org-startup-folded content)
+    (setq org-startup-folded 'content)
   #+END_SRC
 
 
@@ -54,22 +54,7 @@
 ;; Set <leader>e to open a file
 
 
-* General Settings
-
-** Enable custom themes
-   Default to theme "Cherry Blossom"
-   https://github.com/inlinestyle/emacs-cherry-blossom-theme
-  #+BEGIN_SRC emacs-lisp
-    (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-    (custom-set-variables
-      '(custom-enabled-themes
-        '(cherry-blossom)
-      )
-      '(custom-safe-themes
-        '("2aa073a18b2ba860d24d2cd857bcce34d7107b6967099be646d9c95f53ef3643" default)
-      )
-    )
-  #+END_SRC
+* Visual Settings
 
 ** Inhibit the startup message
   #+BEGIN_SRC emacs-lisp
@@ -88,17 +73,10 @@
     (menu-bar-mode -1)
   #+END_SRC
 
-** Enable CUA mode for C-x, C-c, C-v
+** Show fill column indicator (Line 80)
   #+BEGIN_SRC emacs-lisp
-    (custom-set-variables
-    '(cua-mode t nil (cua-base))
-    )
-  #+END_SRC
-
-** Enable line numbers, and make them a bit pretty
-  #+BEGIN_SRC emacs-lisp
-    (global-display-line-numbers-mode)
-    (setq linum-format "%4d \u2502 ")
+    (global-display-fill-column-indicator-mode 1)
+    (setq fill-column 80)
   #+END_SRC
 
 ** Highlight the current row and column to make the cursor easy to find
@@ -107,11 +85,61 @@
   #+BEGIN_SRC emacs-lisp
     (global-hl-line-mode 1)
   #+END_SRC
-** Show fill column indicator (Line 80)
+
+** Enable line numbers, and make them a bit pretty
   #+BEGIN_SRC emacs-lisp
-    (global-display-fill-column-indicator-mode 1)
-    (setq fill-column 80)
+    (global-display-line-numbers-mode)
+    (setq linum-format "%4d \u2502 ")
   #+END_SRC
+
+
+* General Settings
+
+** Enable Melpa package repository
+   #+BEGIN_SRC emacs-lisp
+     (require 'package)
+     (add-to-list
+       'package-archives
+       '("melpa" . "https://melpa.org/packages/")
+     )
+   #+END_SRC
+
+** Enable custom themes
+   Default to theme "Cherry Blossom"
+   https://github.com/inlinestyle/emacs-cherry-blossom-theme
+  #+BEGIN_SRC emacs-lisp
+    (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+    (custom-set-variables
+      '(custom-enabled-themes
+        '(cherry-blossom)
+      )
+      '(custom-safe-themes
+        '("2aa073a18b2ba860d24d2cd857bcce34d7107b6967099be646d9c95f53ef3643" default)
+      )
+    )
+  #+END_SRC
+
+** Enable CUA mode for C-x, C-c, C-v
+  #+BEGIN_SRC emacs-lisp
+    (custom-set-variables
+      '(cua-mode t nil
+        (cua-base)
+      )
+    )
+  #+END_SRC
+
+** Highlight parentheses
+   #+BEGIN_SRC emacs-lisp
+     (require 'highlight-parentheses)
+     (define-globalized-minor-mode
+       global-highlight-parentheses-mode
+       highlight-parentheses-mode
+       (lambda nil
+         (highlight-parentheses-mode t)
+       )
+     )
+     (global-highlight-parentheses-mode t)
+   #+END_SRC
 
 ** Enable file history with recentf, and periodically save the list
    https://www.emacswiki.org/emacs/RecentFiles

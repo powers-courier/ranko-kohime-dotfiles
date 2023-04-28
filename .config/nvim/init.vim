@@ -271,5 +271,5 @@ function! SuggestOneWord()
 endfunction
 
 " Will enable later, haven't decided on keymaps yet
-imap <script><expr> <C-l> SuggestOneWord()
-imap <script><expr> <C-k> SuggestOneCharacter()
+inoremap <script><expr> <C-l> SuggestOneWord()
+"inoremap <script><expr> <C-k> SuggestOneCharacter()

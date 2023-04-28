@@ -130,6 +130,7 @@
 
 ** Highlight parentheses
    #+BEGIN_SRC emacs-lisp
+     [
      (require 'highlight-parentheses)
      (define-globalized-minor-mode
        global-highlight-parentheses-mode
@@ -139,6 +140,7 @@
        )
      )
      (global-highlight-parentheses-mode t)
+     ]
    #+END_SRC
 
 ** Enable file history with recentf, and periodically save the list

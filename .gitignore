@@ -1,1 +1,11 @@
 *~
+.sudo_as_admin_successful
+.npm/
+.wget-hsts
+.lesshst
+.config/shell/Emacs.el
+.gitconfig
+.ansible/
+.cache/
+.zcompdump*
+.local/state/

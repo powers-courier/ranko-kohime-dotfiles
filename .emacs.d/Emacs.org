@@ -110,6 +110,7 @@
 ** Highlight parentheses
    #+BEGIN_SRC emacs-lisp
      ;;(require 'highlight-parentheses)
+     (show-paren-mode t)
      (custom-set-variables
        '(show-paren-highlight-openparen t)
        '(show-paren-ring-bell-on-mismatch t)

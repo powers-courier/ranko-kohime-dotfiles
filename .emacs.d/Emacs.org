@@ -91,7 +91,7 @@
 ** Show fill column indicator (Line 80)
   #+BEGIN_SRC emacs-lisp
     (global-display-fill-column-indicator-mode 1)
-    (setq fill-column 80)
+    (setq-default fill-column 80)
   #+END_SRC
 
 ** Highlight the current row and column to make the cursor easy to find
@@ -109,8 +109,15 @@
 
 ** Highlight parentheses
    #+BEGIN_SRC emacs-lisp
+     ;;(require 'highlight-parentheses)
+     (custom-set-variables
+       '(show-paren-highlight-openparen t)
+       '(show-paren-ring-bell-on-mismatch t)
+       '(show-paren-when-point-in-periphery t)
+       '(show-paren-when-point-inside-paren t)
+     )
      [
-     (require 'highlight-parentheses)
+
      (define-globalized-minor-mode
        global-highlight-parentheses-mode
        highlight-parentheses-mode

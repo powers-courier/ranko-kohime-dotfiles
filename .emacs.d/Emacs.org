@@ -3,8 +3,28 @@
 #+EMAIL: ranko.kohime@runbox.com
 #+STARTUP: content
 
-* Org Mode
+* Packages
+** Enable Melpa package repository
+   #+BEGIN_SRC emacs-lisp
+     (require 'package)
+     (add-to-list
+       'package-archives
+       '("melpa" . "https://melpa.org/packages/")
+     )
+   #+END_SRC
 
+** Install use-package if not already installed
+   #+BEGIN_SRC emacs-lisp
+     (unless (package-installed-p 'use-package)
+       (package-refresh-contents)
+       (package-install 'use-package))
+
+     (eval-when-compile
+       (require 'use-package))
+   #+END_SRC
+
+
+* Org Mode
 ** Enable Org Mode (is this superfluos?)
   #+BEGIN_SRC emacs-lisp
     (require 'org)
@@ -39,7 +59,6 @@
 
 
 * Key Bindings
-
 ** Make ESC quit prompts
   #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -55,7 +74,6 @@
 
 
 * Visual Settings
-
 ** Enable custom themes
    Default to theme "Cherry Blossom"
    https://github.com/inlinestyle/emacs-cherry-blossom-theme
@@ -112,6 +130,7 @@
      ;;(require 'highlight-parentheses)
      (show-paren-mode t)
      (custom-set-variables
+       '(show-paren-style 'parenthesis)
        '(show-paren-highlight-openparen t)
        '(show-paren-ring-bell-on-mismatch t)
        '(show-paren-when-point-in-periphery t)
@@ -132,16 +151,6 @@
 
 
 * General Settings
-
-** Enable Melpa package repository
-   #+BEGIN_SRC emacs-lisp
-     (require 'package)
-     (add-to-list
-       'package-archives
-       '("melpa" . "https://melpa.org/packages/")
-     )
-   #+END_SRC
-
 ** Enable CUA mode for C-x, C-c, C-v
   #+BEGIN_SRC emacs-lisp
     (custom-set-variables

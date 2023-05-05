@@ -5,7 +5,6 @@
 .wget-hsts
 .lesshst
 .config/shell/Emacs.el
-.gitconfig
 .ansible/
 .cache/
 .zcompdump*

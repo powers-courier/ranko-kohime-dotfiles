@@ -17,7 +17,8 @@ Reminder: Disable code blocks by wrapping in square brackets [ ]
 
 ** Install use-package if not already installed
    #+BEGIN_SRC emacs-lisp
-     (unless (package-installed-p 'use-package)
+     (unless 
+       (package-installed-p 'use-package)
        (package-refresh-contents)
        (package-install 'use-package))
 

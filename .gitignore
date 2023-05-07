@@ -20,3 +20,7 @@
 .local/bin/
 .local/share/nvim/
 .local/share/ranger/
+.mozilla/
+Documents/
+Downloads/
+

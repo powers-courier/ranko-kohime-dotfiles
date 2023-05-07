@@ -57,7 +57,7 @@ Reminder: Disable code blocks by wrapping in square brackets [ ]
 
 ** Set org-startup-folded
   #+BEGIN_SRC emacs-lisp
-    (setq org-startup-folded 'content)
+    (setq-default org-startup-folded 'content)
   #+END_SRC
 
 

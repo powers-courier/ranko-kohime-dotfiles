@@ -3,6 +3,8 @@
 #+EMAIL: ranko.kohime@runbox.com
 #+STARTUP: content
 
+Reminder: Disable code blocks by wrapping in square brackets [ ]
+
 * Packages
 ** Enable Melpa package repository
    #+BEGIN_SRC emacs-lisp

@@ -156,11 +156,13 @@ Reminder: Disable code blocks by wrapping in square brackets [ ]
 * General Settings
 ** Enable CUA mode for C-x, C-c, C-v
    #+BEGIN_SRC emacs-lisp
+     [
      (custom-set-variables
        '(cua-mode t nil
          (cua-base)
        )
      )
+     ]
    #+END_SRC
 
 ** Enable file history with recentf, and periodically save the list

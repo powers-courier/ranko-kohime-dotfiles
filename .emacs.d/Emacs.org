@@ -156,11 +156,13 @@ Reminder: Disable code blocks by wrapping in square brackets [ ]
 * General Settings
 ** Enable CUA mode for C-x, C-c, C-v
    #+BEGIN_SRC emacs-lisp
+     [
      (custom-set-variables
        '(cua-mode t nil
          (cua-base)
        )
      )
+     ]
    #+END_SRC
 
 ** Enable file history with recentf, and periodically save the list
@@ -172,4 +174,34 @@ Reminder: Disable code blocks by wrapping in square brackets [ ]
      (global-set-key "\C-x\ \C-r" 'recentf-open-files)
 
      (run-at-time nil (* 15 60) 'recentf-save-list)
+   #+END_SRC
+
+* And Finally
+** The Success Message
+   This abomination is beautiful, fight me.
+   #+BEGIN_SRC emacs-lisp
+     (setq initial-scratch-message
+       (concat
+         ";;                  .,-:;//;:=,\n"
+         ";;              . :H@@@MM@M#H/.,+%;,\n"
+         ";;           ,/X+ +M@@M@MM%=,-%HMMM@X/,\n"
+         ";;         -+@MM; $M@@MH+-,;XMMMM@MMMM@+-\n"
+         ";;        ;@M@@M- XM@X;. -+XXXXXHHH@M@M#@/.\n"
+         ";;      ,%MM@@MH ,@%=             .---=-=:=,.\n"
+         ";;      =@#@@@MX.,                -%HX$$%%%:;\n"
+         ";;     =-./@M@M$                   .;@MMMM@MM:\n"
+         ";;     X@/ -$MM/░█▀▀░█▄█░█▀█░█▀▀░█▀▀. +MM@@@M$\n"
+         ";;    ,@M@H: :@:░█▀▀░█░█░█▀█░█░░░▀▀█. =X#@@@@-\n"
+         ";;    ,@@@MMX, .░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀/H- ;@M@M=\n"
+         ";;    .H@@@@M@+,                    %MM+..%#$.\n"
+         ";;     /MMMM@MMH/.                  XM@MH; =;\n"
+         ";;      /%+%$XHH@$=              , .H@@@@MX,\n"
+         ";;       .=--------.           -%H.,@@@@@MX,\n"
+         ";;       .%MM@@@HHHXX$$$%+- .:$MMX =M@@MM%.\n"
+         ";;         =XMMM@MM@MM#H;,-+HMM@M+ /MMMX=\n"
+         ";;           =%@M@M#@$-.=$@MM@@@M; %M%=\n"
+         ";;             ,:+$+-,/H#MMMMMMM@= =,\n"
+         ";;                   =++%%%%+/:-.\n"
+       )
+     )
    #+END_SRC

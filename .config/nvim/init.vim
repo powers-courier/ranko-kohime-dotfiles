@@ -223,7 +223,7 @@ nnoremap <C-u> <ESC>vBUe
 nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel
 nnoremap <leader>' viw<esc>a'<esc>bi'<esc>lel
 
-    " Quote selected
+    " Quote selected text (does not work with visual block or line)
 vnoremap <leader>" <esc>`<i"<esc>`>la"<esc>
 vnoremap <leader>' <esc>`<i'<esc>`>la'<esc>
 

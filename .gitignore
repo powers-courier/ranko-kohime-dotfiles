@@ -30,4 +30,5 @@ Pictures/
 .steampid
 .sudo_as_admin_successful
 .wget-hsts
+.Xauthority
 .zcompdump*

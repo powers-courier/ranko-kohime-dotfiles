@@ -104,7 +104,7 @@ filetype plugin indent on
     " Enable syntax highlighting
 syntax on
 
-    "Toggle whether the pasting includes or excludes indents
+    "Toggle whether the pasting includes or excludes indents (Needs fixed)
 set pastetoggle=<F2>
 
     " Disable showmode, as it is superfluous with vim-airline installed
@@ -202,6 +202,12 @@ let mapleader = " "
 
     " Delete a line
 nnoremap \ dd
+
+" Move 1 more lines up or down in normal and visual selection modes.
+nnoremap K :m .-2<CR>==
+nnoremap J :m .+1<CR>==
+vnoremap K :m '<-2<CR>gv=gv
+vnoremap J :m '>+1<CR>gv=gv
 
     " *Normal* keybindings for Cut/Copy/Paste on desktop
 vnoremap <leader>x "+d

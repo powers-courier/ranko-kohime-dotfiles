@@ -62,6 +62,7 @@ Plug 'tpope/vim-speeddating'
 " All of your Plugins must be added before the following line
 call plug#end()
 
+runtime github_copilot.vim
 
 " ============================== Plugin settings ==============================
   " Airline
@@ -225,7 +226,7 @@ nnoremap <leader>e :e<space>
 inoremap <C-u> <ESC>vBUea
 nnoremap <C-u> <ESC>vBUe
 
-    " Quote word
+    " Quote word (reminder: does NOT conflict with next mapping)
 nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel
 nnoremap <leader>' viw<esc>a'<esc>bi'<esc>lel
 
@@ -251,6 +252,7 @@ inoremap jk <esc>
 "inoremap (<cr> (<cr>)<c-o>0<tab>
 
 " Navigate splits using Ctrl+h/j/k/l
+" This appears to use uppercase, but works with lowercase?
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
@@ -259,23 +261,3 @@ nnoremap <C-H> <C-W><C-H>
 " =============================== Abbreviations ===============================
 iabbrev ssig --<cr>Ranko Kohime<cr>ranko.kohime@runbox.com
 
-" ===============  Github Copilot (https://copilot.github.com/) ===============
-
-" From https://github.com/community/community/discussions/12426#discussioncomment-3102062
-" Functions to accept partial suggestions, and keymaps to use them
-
-function! SuggestOneCharacter()
-    let suggestion = copilot#Accept("")
-    let bar = copilot#TextQueuedForInsertion()
-    return bar[0]
-endfunction
-
-function! SuggestOneWord()
-    let suggestion = copilot#Accept("")
-    let bar = copilot#TextQueuedForInsertion()
-    return split(bar, '[ .]\zs')[0]
-endfunction
-
-" Will enable later, haven't decided on keymaps yet
-"inoremap <script><expr> <C-l> SuggestOneWord()
-"inoremap <script><expr> <C-k> SuggestOneCharacter()

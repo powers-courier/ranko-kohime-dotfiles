@@ -21,6 +21,7 @@ Downloads/
 .local/state/
 .mozilla/
 .npm/
+.password-store/
 Pictures/
 .pulse-cookie
 .ssh/id_*

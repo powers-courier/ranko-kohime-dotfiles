@@ -132,3 +132,4 @@ alias sg1000='picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow 
 alias surveysays='sed -i -e '/SurveyDate/ s/"[0-9].*"/"'$(date +%Y-%m-%d -d "1 year ago")'"/' ~/.steam/steam/config/config.vdf'
 # Transfer whole disk
 # dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
+alias pass=' GNUPGHOME=~/.password-store/.gnupg pass'

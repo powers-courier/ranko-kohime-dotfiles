@@ -1,0 +1,364 @@
+#+TITLE: My NeoVim Configuration
+#+AUTHOR: Ranko Kohime
+#+EMAIL: ranko.kohime@runbox.com
+#+STARTUP: content
+
+* Plugin management
+** Call Plug
+    #+BEGIN_SRC lua
+      call plug#begin('~/.config/nvim/plugged')
+    #+END_SRC
+
+    " Monokai Pro Color Scheme (NeoVim)
+Plug 'loctvl842/monokai-pro.nvim'
+
+    " Noodle Timer (Gonna find a better solution for this)
+"Plug 'yukiomoto/noodle.vim'
+
+    " Airline Status Bar & Themes
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
+    " Animated Indentations
+Plug 'huy-hng/anyline.nvim'
+    " ...and it's dependency, nvim-treesitter
+Plug 'nvim-treesitter/nvim-treesitter'
+
+    " Git Wrapper
+Plug 'tpope/vim-fugitive'
+
+    " Dev Icons
+Plug 'ryanoasis/vim-devicons'
+
+    " Markdown
+Plug 'godlygeek/tabular'
+Plug 'preservim/vim-markdown'
+        " Shortcut keys for vim-markdown:
+            " zr: reduces fold level throughout the buffer
+            " zR: opens all folds
+            " zm: increases fold level throughout the buffer
+            " zM: folds everything all the way
+            " za: open a fold your cursor is on
+            " zA: open a fold your cursor is on recursively
+            " zc: close a fold your cursor is on
+            " zC: close a fold your cursor is on recursively
+
+    " Python
+      " Code formatting
+Plug 'psf/black'
+
+    " Teach yourself the right way
+      " Disable arrow keys when overused
+Plug 'takac/vim-hardtime'
+
+    " Code snippet suggestions
+"Plug 'sirver/ultisnips'
+"Plug 'phenomenes/ansible-snippets'
+
+    " Pairing for Quotations, brackets, etc...
+Plug 'tmsvg/pear-tree'
+
+    " Requires Node.js, 
+Plug 'github/copilot.vim'
+
+    " Emacs Org Mode for Neovim
+Plug 'jceb/vim-orgmode'
+    " ...and it's dependency, vim-speeddating
+Plug 'tpope/vim-speeddating'
+
+
+" All of your Plugins must be added before the following line
+call plug#end()
+
+runtime github_copilot.vim
+
+" ============================== Plugin settings ==============================
+  " Airline
+    " Smarter tab line
+    " Automatically displays all buffers when there's only one tab open.
+let g:airline#extensions#tabline#enabled = 1
+    " Status bar on top
+let g:airline_statusline_ontop = 1
+    " Use Devicons
+let g:airline_powerline_fonts = 1
+    " Set Airline theme
+let g:airline_theme='google_dark'
+
+    " Enable Hardtime by default
+let g:hardtime_default_on = 0
+
+    " Enable smart pairing with pear-tree
+    " Smart pairs are disabled by default:
+let g:pear_tree_smart_openers = 0
+let g:pear_tree_smart_closers = 0
+let g:pear_tree_smart_backspace = 0
+
+
+* General Config
+** Change color scheme
+    #+BEGIN_SRC lua
+      vim.opt.background = "dark"
+      vim.opt.colorscheme = "vim-monokai-tasty"
+    #+END_SRC
+
+** Enable syntax highlighting
+   #+BEGIN_SRC lua
+     vim.cmd('syntax on')
+   #+END_SRC
+
+** Toggle whether the pasting includes or excludes indents (Needs fixed)
+   #+BEGIN_SRC lua
+     vim.o.pastetoggle = '<F2>'
+   #+END_SRC
+
+** Disable showmode, as it is superfluous with vim-airline installed
+   #+BEGIN_SRC lua
+     vim.opt.showmode = false
+   #+END_SRC
+
+** Set encoding (Needed for vim-devicons)
+   #+BEGIN_SRC lua
+     vim.opt.encoding = "UTF-8"
+   #+END_SRC
+
+** TABS TABS TABS
+   Replace tabs with spaces
+   Tabs output to spaces
+   Affects indenting
+   Automatically indent newlines
+   And smarten up those tabs!
+   #+BEGIN_SRC lua
+     vim.opt.expandtab = true
+     vim.opt.softtabstop = 2
+     vim.opt.shiftwidth = 2
+     vim.opt.autoindent = true
+     vim.opt.smarttab = true
+   #+END_SRC
+
+** Show line numbers on the left, relative to cursor position
+   #+BEGIN_SRC lua
+     vim.opt.number = true
+     vim.opt.relativenumber = true
+   #+END_SRC
+
+** We can do without the bottom "ruler"
+   #+BEGIN_SRC lua
+     vim.opt.noruler = true
+   #+END_SRC
+
+** Highlight the cursor, so we know where it bloody is
+   #+BEGIN_SRC lua
+     vim.opt.cursorline = true
+     vim.opt.cursorcolumn = true
+   #+END_SRC
+
+** Also highlight columns 80 and 120, for size visibility
+   #+BEGIN_SRC lua
+     vim.opt.colorcolumn = "80,120"
+     vim.cmd('highlight ColorColumn ctermbg=red guibg=red')
+   #+END_SRC
+
+** Allow backspace in insert mode
+   #+BEGIN_SRC lua
+     vim.opt.backspace = "indent,eol,start"
+   #+END_SRC
+
+** Store lots of :cmdline history
+   #+BEGIN_SRC lua
+     vim.opt.history = 1000
+   #+END_SRC
+
+** Show incomplete cmds down the bottom
+   #+BEGIN_SRC lua
+     vim.opt.wildmenu = true
+   #+END_SRC
+
+** Reload files changed outside vim
+   #+BEGIN_SRC lua
+     vim.opt.autoread = true
+   #+END_SRC
+
+** Disable visual mouse mode
+   #+BEGIN_SRC lua
+     vim.opt.mouse = ""
+   #+END_SRC
+
+** Since we have airline-vim, we don't need the built-in statusline
+   #+BEGIN_SRC lua
+     vim.opt.statusline = 0
+   #+END_SRC
+
+** Move viewport with cursor plus offset
+   #+BEGIN_SRC lua
+     vim.opt.scrolloff = 10
+   #+END_SRC
+
+** Make a backup before writing files
+   #+BEGIN_SRC lua
+     vim.opt.backup = true
+   #+END_SRC
+
+** Enable spellchecking
+   #+BEGIN_SRC lua
+     vim.opt.spell = true
+     vim.opt.spelllang = "en"
+   #+END_SRC
+
+** Split behavior
+   #+BEGIN_SRC lua
+     vim.opt.splitbelow = true
+     vim.opt.splitright = true
+   #+END_SRC
+
+** Search behavior
+   Highlight search terms...
+   ...dynamically as they are typed.
+   Ignore case during /-style searches, plus...
+   Case-sensitive searches only if capital letter in search text
+   #+BEGIN_SRC lua
+     vim.opt.hlsearch = true
+     vim.opt.incsearch = true
+     vim.opt.ignorecase = true
+     vim.opt.smartcase = true
+   #+END_SRC
+
+** Don't ask to save when switching buffers
+   #+BEGIN_SRC lua
+     vim.opt.hidden = true
+   #+END_SRC
+
+** Tab completion file suffixes
+   Suffixes that get lower priority when doing tab completion for filenames.
+   These are files we are not likely to want to edit or read.
+   #+BEGIN_SRC lua
+     vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.png,.jpg"
+   #+END_SRC
+
+
+* Keymappings
+  You can be more specific about when you want mappings to apply by using
+  nmap, vmap, and imap. These tell Vim to only use the mapping in normal,
+  visual, or insert mode respectively.
+
+** Keymapping functions
+   #+BEGIN_SRC lua
+     function map(mode, shortcut, command)
+       vim.api.nvim_set_keymap(mode, shortcut, command, { noremap = true, silent = true })
+     end
+
+     function nmap(shortcut, command)
+       map('n', shortcut, command)
+     end
+
+     function vmap(shortcut, command)
+       map('v', shortcut, command)
+     end
+
+     function imap(shortcut, command)
+       map('i', shortcut, command)
+     end
+   #+END_SRC
+
+** Set Leader key
+   #+BEGIN_SRC lua
+     nmap('<Space>', '<Nop>')
+     vmap('<Space>', '<Nop>')
+     vim.g.mapleader = " "
+   #+END_SRC
+
+** Disable Ex mode keys
+   https://vi.stackexchange.com/questions/457/does-ex-mode-have-any-practical-use
+   See usage of Q below in Buffer handling
+   #+BEGIN_SRC lua
+     vim.api.nvim_set_keymap('n', 'q:', '<Nop>', { noremap = false, silent = true })
+     vim.api.nvim_set_keymap('n', 'Q', '<Nop>', { noremap = true, silent = true })
+   #+END_SRC
+
+
+** Delete a line with \
+   #+BEGIN_SRC lua
+     nmap('\', 'dd')
+   #+END_SRC
+
+** Move 1 more lines up or down in normal and visual selection modes
+   #+BEGIN_SRC lua
+     nmap('K', ':m .-2<CR>==')
+     nmap('J', ':m .+1<CR>==')
+     vmap('K', ':m \'<-2<CR>gv=gv')
+     vmap('J', ':m \'>+1<CR>gv=gv')
+   #+END_SRC
+
+** Cut, Copy, Paste
+   "Normal" keybindings for Cut/Copy/Paste on desktop
+   Visual for Cut/Copy, Insert/Normal for pasting
+   #+BEGIN_SRC lua
+     vmap('<leader>x', '"+x')
+     vmap('<leader>c', '"+y')
+     nmap('<leader>v', '"+p')
+     imap('<leader>v', '<C-r>+')
+   #+END_SRC
+
+** Saving and opening files
+   #+BEGIN_SRC lua
+     nmap('<C-s>', ':w<CR>')
+     nmap('<leader>s', ':w<CR>')
+     nmap('<leader>e', ':e<space>')
+   #+END_SRC
+
+** Upper CASE WORD, lower case word
+   #+BEGIN_SRC lua
+     nmap('<leader>u', 'gUiw')
+     nmap('<leader>l', 'guiw')
+   #+END_SRC
+
+** Quote word
+   #+BEGIN_SRC lua
+     nmap('<leader>"', 'viw<ESC>a"<ESC>bi"<ESC>lel')
+     nmap('<leader>\'', 'viw<ESC>a\'<ESC>bi\'<ESC>lel')
+   #+END_SRC
+
+** Quote selected text (does not work with visual block or line)
+   Not sure about this one, leaving the original recipe here for now
+   #+BEGIN_SRC lua
+     vmap('<leader>"', 's"<ESC>bi"<ESC>lel')
+     vmap('<leader>\'', 's\'<ESC>bi\'<ESC>lel')
+   #+END_SRC
+      vnoremap <leader>" <esc>`<i"<esc>`>la"<esc>
+      vnoremap <leader>' <esc>`<i'<esc>`>la'<esc>
+
+** Buffer handling
+*** Close current buffer
+    #+BEGIN_SRC lua
+      nmap('<leader>w', ':bd<CR>')
+    #+END_SRC
+*** Next and Previous buffers on Up and Down respectively
+    #+BEGIN_SRC lua
+      nmap('<leader>k', ':bn<CR>')
+      nmap('<leader>j', ':bp<CR>')
+    #+END_SRC
+*** Select buffer from list
+    #+BEGIN_SRC lua
+      nmap('<leader>b', ':buffers<CR>:buffer<space>')
+    #+END_SRC
+
+** Map jk as <esc> in Insert mode
+   #+BEGIN_SRC lua
+     imap('jk', '<esc>')
+   #+END_SRC
+
+** Navigate splits using Ctrl+h/j/k/l
+   Again, leaving the original recipe here for now
+   #+BEGIN_SRC lua
+     nmap('<C-h>', '<C-w>h')
+     nmap('<C-j>', '<C-w>j')
+     nmap('<C-k>', '<C-w>k')
+     nmap('<C-l>', '<C-w>l')
+     #+END_SRC
+      nnoremap <C-J> <C-W><C-J>
+      nnoremap <C-K> <C-W><C-K>
+      nnoremap <C-L> <C-W><C-L>
+      nnoremap <C-H> <C-W><C-H>
+
+" =============================== Abbreviations ===============================
+iabbrev ssig --<cr>Ranko Kohime<cr>ranko.kohime@runbox.com
+

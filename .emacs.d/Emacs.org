@@ -5,6 +5,20 @@
 
 Reminder: Disable code blocks by wrapping in square brackets [ ]
 
+https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
+
+
+Cyberpunk Theme
+https://github.com/n3mo/cyberpunk-theme.el
+
+Monokai Theme
+https://github.com/oneKelvinSmith/monokai-emacs
+
+Doom Emacs requires rg, or ripgrep
+Also requires fd, or find
+and one of the following: markedjs, pandoc, or multimarkdown
+
+
 * Packages
 ** Enable Melpa package repository
    #+BEGIN_SRC emacs-lisp
@@ -26,6 +40,53 @@ Reminder: Disable code blocks by wrapping in square brackets [ ]
        (require 'use-package))
    #+END_SRC
 
+** TODO Packages to install
+   #+BEGIN_SRC emacs-lisp
+     [
+     (custom-set-variables
+       '(package-selected-packages
+         '(
+           ansible
+           ansible-doc
+           ansible-vault
+           evil
+           evil-org
+           exercism
+           git
+           markdown-mode
+           org-beautify-theme
+           org-evil
+           paradox
+           use-package
+           xhair
+         )
+       )
+     )
+     ]
+   #+END_SRC
+
+** Enable Git integration
+   #+BEGIN_SRC emacs-lisp
+   [
+   (use-package git
+     :ensure t
+   )
+   ]
+   #+END_SRC
+
+** TODO Enable ChatGPT integration
+   https://github.com/rksm/org-ai
+   #+BEGIN_SRC emacs-lisp
+     [
+     (use-package org-ai
+       :ensure t
+       :commands (org-ai-mode org-ai-global-mode)
+       :init
+       (add-hook 'org-mode-hook #'org-ai-mode)
+       (org-ai-global-mode)
+     )
+     ]
+   #+END_SRC
 
 * Org Mode
 ** Enable Org Mode (is this superfluos?)
@@ -94,7 +155,7 @@ Reminder: Disable code blocks by wrapping in square brackets [ ]
 
 ** Inhibit the startup message
   #+BEGIN_SRC emacs-lisp
-    (setq inhibit-startup-message t)
+    [(setq inhibit-startup-message t)]
   #+END_SRC
 
 ** Disable the GUI Toolbar

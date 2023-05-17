@@ -3,6 +3,7 @@
 #+EMAIL: ranko.kohime@runbox.com
 #+STARTUP: content
 
+* Notes
 Reminder: Disable code blocks by wrapping in square brackets [ ]
 
 https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
@@ -20,16 +21,15 @@ and one of the following: markedjs, pandoc, or multimarkdown
 
 
 * Packages
-** Enable Melpa package repository
+** DONE Enable Melpa package repository
    #+BEGIN_SRC emacs-lisp
      (require 'package)
      (add-to-list
        'package-archives
-       '("melpa" . "https://melpa.org/packages/")
-     )
+       '("melpa" . "https://melpa.org/packages/") t)
    #+END_SRC
 
-** Install use-package if not already installed
+** DONE Install use-package if not already installed
    #+BEGIN_SRC emacs-lisp
      (unless 
        (package-installed-p 'use-package)
@@ -42,8 +42,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
 
 ** TODO Packages to install
    #+BEGIN_SRC emacs-lisp
-     [
-     (custom-set-variables
+     [(custom-set-variables
        '(package-selected-packages
          '(
            ansible
@@ -52,144 +51,133 @@ and one of the following: markedjs, pandoc, or multimarkdown
            evil
            evil-org
            exercism
-           git
            markdown-mode
            org-beautify-theme
            org-evil
            paradox
-           use-package
-           xhair
-         )
-       )
-     )
-     ]
+           xhair)))]
    #+END_SRC
 
-** Enable Git integration
+** TODO Enable Git integration
    #+BEGIN_SRC emacs-lisp
-   [
-   (use-package git
-     :ensure t
-   )
-   ]
+   (use-package magit
+     :ensure t)
+   (global-set-key (kbd "C-c g") 'magit-file-dispatch)
    #+END_SRC
 
 ** TODO Enable ChatGPT integration
    https://github.com/rksm/org-ai
    #+BEGIN_SRC emacs-lisp
-     [
-     (use-package org-ai
+     [(use-package org-ai
        :ensure t
        :commands (org-ai-mode org-ai-global-mode)
        :init
        (add-hook 'org-mode-hook #'org-ai-mode)
-       (org-ai-global-mode)
-     )
-     ]
+       (org-ai-global-mode))]
    #+END_SRC
 
+
 * Org Mode
-** Enable Org Mode (is this superfluos?)
+** TODO Enable Org Mode (is this superfluos?)
   #+BEGIN_SRC emacs-lisp
     (require 'org)
   #+END_SRC
 
-** Set font lock for Org Mode, just in case
+** TODO Set font lock for Org Mode, just in case
   #+BEGIN_SRC emacs-lisp
     (add-hook 'org-mode-hook #'turn-on-font-lock)
   #+END_SRC
 
-** Enable org-tempo
+** TODO Enable org-tempo
   #+BEGIN_SRC emacs-lisp
     (require 'org-tempo)
   #+END_SRC
 
-** Set the agenda key, in case it's not set
+** TODO Set the agenda key, in case it's not set
   #+BEGIN_SRC emacs-lisp
     (global-set-key "\C-ca" 'org-agenda)
   #+END_SRC
 
-** Set keywords for Org Mode
+** DONE Set keywords for Org Mode
   #+BEGIN_SRC emacs-lisp
     (setq org-todo-keywords
-      '((sequence "TODO" "STRT" "WAIT" "DONE"))
-    )
+      '((sequence "TODO" "STRT" "WAIT" "DONE")))
   #+END_SRC
 
-** Set org-startup-folded
+** TODO Set org-startup-folded
   #+BEGIN_SRC emacs-lisp
     (setq-default org-startup-folded 'content)
   #+END_SRC
 
 
 * Key Bindings
-** Make ESC quit prompts
+** DONE Make ESC quit prompts
   #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
   #+END_SRC
 
-;; Set leader key to Space (if it isn't already set)
-;; Set <leader>x to cut to system clipboard
-;; Set <leader>c to copy to system clipboard
-;; Set <leader>v to paste from system clipboard
-;; Set <leader>s to save
-;; Set <leader>w to save and close the current buffer
-;; Set <leader>e to open a file
+** TODO Set leader key to Space
+   ;; Set leader key to Space (if it isn't already set)
+
+** TODO Set leader-based keys
+   ;; Set <leader>x to cut to system clipboard
+   ;; Set <leader>c to copy to system clipboard
+   ;; Set <leader>v to paste from system clipboard
+   ;; Set <leader>s to save
+   ;; Set <leader>w to save and close the current buffer
+   ;; Set <leader>e to open a file
 
 
 * Visual Settings
-** Enable custom themes
+** DONE Enable custom themes
    Default to theme "Cherry Blossom"
    https://github.com/inlinestyle/emacs-cherry-blossom-theme
   #+BEGIN_SRC emacs-lisp
     (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
     (custom-set-variables
       '(custom-enabled-themes
-        '(cherry-blossom)
-      )
+        '(cherry-blossom))
       '(custom-safe-themes
-        '("2aa073a18b2ba860d24d2cd857bcce34d7107b6967099be646d9c95f53ef3643" default)
-      )
-    )
+        '("2aa073a18b2ba860d24d2cd857bcce34d7107b6967099be646d9c95f53ef3643" default)))
   #+END_SRC
 
-** Inhibit the startup message
+** DONE Inhibit the startup message
   #+BEGIN_SRC emacs-lisp
-    [(setq inhibit-startup-message t)]
+    (setq inhibit-startup-message t)
   #+END_SRC
 
-** Disable the GUI Toolbar
+** DONE Disable the GUI Toolbar
   #+BEGIN_SRC emacs-lisp
     (if window-system
-      (tool-bar-mode 0)
-    )
+      (tool-bar-mode 0))
   #+END_SRC
 
-** Disable the Menubar
+** DONE Disable the Menubar
   #+BEGIN_SRC emacs-lisp
     (menu-bar-mode -1)
   #+END_SRC
 
-** Show fill column indicator (Line 80)
+** TODO Show fill column indicator (Line 80)
   #+BEGIN_SRC emacs-lisp
     (global-display-fill-column-indicator-mode 1)
+    [(display-fill-column-indicator-character )]
     (setq-default fill-column 80)
   #+END_SRC
 
-** Highlight the current row and column to make the cursor easy to find
+** TODO Highlight the current row and column to make the cursor easy to find
    Possibly may use Crosshairs:
    https://github.com/emacsmirror/crosshairs/blob/master/crosshairs.el
   #+BEGIN_SRC emacs-lisp
     (global-hl-line-mode 1)
   #+END_SRC
 
-** Enable line numbers, and make them a bit pretty
+** TODO Enable line numbers, and make them a bit pretty
   #+BEGIN_SRC emacs-lisp
     (global-display-line-numbers-mode)
     (setq linum-format "%4d \u2502 ")
   #+END_SRC
 
-** Highlight parentheses
+** TODO Highlight parentheses
    #+BEGIN_SRC emacs-lisp
      ;;(require 'highlight-parentheses)
      (show-paren-mode t)
@@ -198,35 +186,32 @@ and one of the following: markedjs, pandoc, or multimarkdown
        '(show-paren-highlight-openparen t)
        '(show-paren-ring-bell-on-mismatch t)
        '(show-paren-when-point-in-periphery t)
-       '(show-paren-when-point-inside-paren t)
-     )
-     [
-
-     (define-globalized-minor-mode
+       '(show-paren-when-point-inside-paren t))
+     [(define-globalized-minor-mode
        global-highlight-parentheses-mode
        highlight-parentheses-mode
        (lambda nil
-         (highlight-parentheses-mode t)
-       )
-     )
-     (global-highlight-parentheses-mode t)
-     ]
+         (highlight-parentheses-mode t)))
+     (global-highlight-parentheses-mode t)]
    #+END_SRC
+
+** TODO Address useless whitespace
+   https://emacsdocs.org/docs/emacs/Useless-Whitespace
+   #+begin_src emacs-lisp
+     (setq-default show-trailing-whitespace t)
+     (setq-default indicate-empty-lines t)
+   #+end_src
 
 
 * General Settings
-** Enable CUA mode for C-x, C-c, C-v
+** TODO Enable CUA mode for C-x, C-c, C-v
    #+BEGIN_SRC emacs-lisp
-     [
-     (custom-set-variables
+     [(custom-set-variables
        '(cua-mode t nil
-         (cua-base)
-       )
-     )
-     ]
+         (cua-base)))]
    #+END_SRC
 
-** Enable file history with recentf, and periodically save the list
+** DONE Enable file history with recentf, and periodically save the list
    https://www.emacswiki.org/emacs/RecentFiles
    #+BEGIN_SRC emacs-lisp
      (recentf-mode 1)
@@ -237,8 +222,13 @@ and one of the following: markedjs, pandoc, or multimarkdown
      (run-at-time nil (* 15 60) 'recentf-save-list)
    #+END_SRC
 
+
+* Collaborative Editing
+  https://code.librehq.com/qhong/crdt.el/
+
+
 * And Finally
-** The Success Message
+** DONE The Success Message
    This abomination is beautiful, fight me.
    #+BEGIN_SRC emacs-lisp
      (setq initial-scratch-message
@@ -262,7 +252,5 @@ and one of the following: markedjs, pandoc, or multimarkdown
          ";;         =XMMM@MM@MM#H;,-+HMM@M+ /MMMX=\n"
          ";;           =%@M@M#@$-.=$@MM@@@M; %M%=\n"
          ";;             ,:+$+-,/H#MMMMMMM@= =,\n"
-         ";;                   =++%%%%+/:-.\n"
-       )
-     )
+         ";;                   =++%%%%+/:-.\n"))
    #+END_SRC

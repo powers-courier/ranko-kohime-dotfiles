@@ -3,6 +3,8 @@
 #+EMAIL: ranko.kohime@runbox.com
 #+STARTUP: content
 
+https://www.notonlycode.org/neovim-lua-config/
+
 * Plugin management
 ** Call Plug
     #+BEGIN_SRC lua
@@ -288,6 +290,11 @@ let g:pear_tree_smart_backspace = 0
      vmap('J', ':m \'>+1<CR>gv=gv')
    #+END_SRC
 
+** Fix Join line
+   #+BEGIN_SRC lua
+     nmap('<leader>J', ':join<CR>')
+   #+END_SRC
+
 ** Cut, Copy, Paste
    "Normal" keybindings for Cut/Copy/Paste on desktop
    Visual for Cut/Copy, Insert/Normal for pasting
@@ -354,11 +361,9 @@ let g:pear_tree_smart_backspace = 0
      nmap('<C-k>', '<C-w>k')
      nmap('<C-l>', '<C-w>l')
      #+END_SRC
-      nnoremap <C-J> <C-W><C-J>
-      nnoremap <C-K> <C-W><C-K>
-      nnoremap <C-L> <C-W><C-L>
-      nnoremap <C-H> <C-W><C-H>
 
-" =============================== Abbreviations ===============================
-iabbrev ssig --<cr>Ranko Kohime<cr>ranko.kohime@runbox.com
+* Abbreviations
+** Signature
+   #+BEGIN_SRC lua
+     vim.cmd [[iabbrev ssig --<cr>Ranko Kohime<cr>ranko.kohime@runbox.com
 

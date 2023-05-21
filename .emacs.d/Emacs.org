@@ -110,6 +110,23 @@ and one of the following: markedjs, pandoc, or multimarkdown
     (setq-default org-startup-folded 'content)
   #+END_SRC
 
+** Enable list decoration bullets
+   #+begin_src emacs-lisp
+     (add-hook 'org-mode-hook
+	       (lambda ()
+		 (org-bullets-mode t)))
+   #+end_src
+
+** DONE Hide leading stars in lists
+   #+begin_src emacs-lisp
+     (setq org-hide-leading-stars t)
+   #+end_src
+
+   Change header fold indicator
+   (setq org-ellipsis "")
+   Use syntax highlighting in source blocks while editing
+   (setq org-src-fontify-natively t)
+
 
 * Key Bindings
 ** DONE Make ESC quit prompts
@@ -205,6 +222,12 @@ and one of the following: markedjs, pandoc, or multimarkdown
 
 
 * General Settings
+** DONE Set personal information
+   #+begin_src emacs-lisp
+     (setq user-full-name "Ranko Kohime"
+	   user-mail-address "ranko.kohime@runbox.com")
+   #+end_src
+
 ** TODO Enable CUA mode for C-x, C-c, C-v
    #+BEGIN_SRC emacs-lisp
      [(custom-set-variables

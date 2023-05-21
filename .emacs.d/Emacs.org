@@ -115,7 +115,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
     (setq-default org-startup-folded 'content)
   #+END_SRC
 
-** Enable list decoration bullets
+** Enable list decoration bullets (It's broken)
    #+begin_src emacs-lisp
      (add-hook 'org-mode-hook
 	       (lambda ()
@@ -127,7 +127,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
      (setq org-hide-leading-stars t)
    #+end_src
 
-** Change header fold indicator
+** DONE Change header fold indicator
    #+begin_src emacs-lisp
      (setq org-ellipsis " ⤶")
    #+end_src

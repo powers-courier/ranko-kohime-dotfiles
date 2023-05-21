@@ -4,6 +4,7 @@
 .bash_logout
 .cache/
 .config/github-copilot/
+.config/mpv/watch_later/
 .config/nvim/spell/en.utf-8.add.spl
 .config/shell/Emacs.el
 Desktop/

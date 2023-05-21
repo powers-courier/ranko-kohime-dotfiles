@@ -58,7 +58,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
            xhair)))]
    #+END_SRC
 
-** TODO Enable Git integration
+** DONE Enable Git integration with Magit
    #+BEGIN_SRC emacs-lisp
    (use-package magit
      :ensure t)
@@ -68,32 +68,33 @@ and one of the following: markedjs, pandoc, or multimarkdown
 ** TODO Enable ChatGPT integration
    https://github.com/rksm/org-ai
    #+BEGIN_SRC emacs-lisp
-     [(use-package org-ai
+     (use-package org-ai
        :ensure t
        :commands (org-ai-mode org-ai-global-mode)
        :init
        (add-hook 'org-mode-hook #'org-ai-mode)
-       (org-ai-global-mode))]
+       (org-ai-global-mode))
    #+END_SRC
 
 
-* Org Mode
-** TODO Enable Org Mode (is this superfluos?)
+* DONE Org Mode
+** DONE Enable Org Mode (is this superfluos?)
   #+BEGIN_SRC emacs-lisp
     (require 'org)
   #+END_SRC
 
-** TODO Set font lock for Org Mode, just in case
+** DONE Set font lock for Org Mode, just in case
   #+BEGIN_SRC emacs-lisp
     (add-hook 'org-mode-hook #'turn-on-font-lock)
   #+END_SRC
 
-** TODO Enable org-tempo
-  #+BEGIN_SRC emacs-lisp
-    (require 'org-tempo)
-  #+END_SRC
+** DONE Enable org-tempo
+   Expands e.g. <s to code blocks
+   #+BEGIN_SRC emacs-lisp
+     (require 'org-tempo)
+   #+END_SRC
 
-** TODO Set the agenda key, in case it's not set
+** DONE Set the agenda key, in case it's not set
   #+BEGIN_SRC emacs-lisp
     (global-set-key "\C-ca" 'org-agenda)
   #+END_SRC
@@ -104,7 +105,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
       '((sequence "TODO" "STRT" "WAIT" "DONE")))
   #+END_SRC
 
-** TODO Set org-startup-folded
+** DONE Set org-startup-folded
   #+BEGIN_SRC emacs-lisp
     (setq-default org-startup-folded 'content)
   #+END_SRC

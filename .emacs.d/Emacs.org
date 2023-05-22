@@ -20,6 +20,12 @@ Also requires fd, or find
 and one of the following: markedjs, pandoc, or multimarkdown
 
 
+* DONE Premable
+  #+begin_src emacs-lisp
+    (add-to-list 'load-path "~/.emacs.d/custom")
+  #+end_src
+
+
 * Packages
 ** DONE Enable Melpa package repository
    #+BEGIN_SRC emacs-lisp

@@ -121,11 +121,13 @@ and one of the following: markedjs, pandoc, or multimarkdown
     (setq-default org-startup-folded 'content)
   #+END_SRC
 
-** Enable list decoration bullets (It's broken)
+** DONE Enable list decoration bullets
    #+begin_src emacs-lisp
+     (use-package org-superstar
+	      :ensure t)
      (add-hook 'org-mode-hook
 	       (lambda ()
-		 (org-bullets-mode t)))
+		 (org-superstar-mode 1 )))
    #+end_src
 
 ** DONE Hide leading stars in lists

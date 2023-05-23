@@ -122,6 +122,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
 
 ** DONE Enable list decoration bullets
    #+begin_src emacs-lisp
+     https://github.com/integral-dw/org-superstar-mode
      (use-package org-superstar
 	      :ensure t)
      (add-hook 'org-mode-hook

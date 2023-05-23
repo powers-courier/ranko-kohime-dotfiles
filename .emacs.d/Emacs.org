@@ -168,7 +168,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
    ;; Set <leader>e to open a file
 
 
-* Visual Settings
+* TODO Visual Settings
 ** DONE Enable custom themes
    Default to theme "Cherry Blossom"
    https://github.com/inlinestyle/emacs-cherry-blossom-theme
@@ -258,7 +258,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
    #+end_src
 
 
-* General Settings
+* TODO General Settings
 ** DONE Set personal information
    #+begin_src emacs-lisp
      (setq user-full-name "Ranko Kohime"
@@ -291,11 +291,11 @@ and one of the following: markedjs, pandoc, or multimarkdown
    #+end_src
 
 
-* Collaborative Editing
+* TODO Collaborative Editing
   [[https://code.librehq.com/qhong/crdt.el/][crdt.el Git Repo]]
 
 
-* And Finally
+* DONE And Finally…
 ** DONE The Success Message
    #+BEGIN_SRC emacs-lisp
      (setq initial-scratch-message

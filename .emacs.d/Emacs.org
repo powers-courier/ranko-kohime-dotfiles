@@ -36,6 +36,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
    #+END_SRC
 
 ** DONE Install use-package if not already installed
+   [[https://github.com/jwiegley/use-package][use-package GitHub]]
    #+BEGIN_SRC emacs-lisp
      (unless 
        (package-installed-p 'use-package)
@@ -65,13 +66,14 @@ and one of the following: markedjs, pandoc, or multimarkdown
 
 ** DONE Enable Git integration with Magit
    #+BEGIN_SRC emacs-lisp
-   (use-package magit
-     :ensure t)
-   (global-set-key (kbd "C-c g") 'magit-file-dispatch)
+     [[https://magit.vc/][Magit Website]]
+     (use-package magit
+       :ensure t)
+     (global-set-key (kbd "C-c g") 'magit-file-dispatch)
    #+END_SRC
 
 ** TODO Enable ChatGPT integration
-   https://github.com/rksm/org-ai
+   [[https://github.com/rksm/org-ai][org-ai GitHub]]
    #+BEGIN_SRC emacs-lisp
      (use-package org-ai
        :ensure t

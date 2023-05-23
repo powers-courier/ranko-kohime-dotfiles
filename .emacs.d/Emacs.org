@@ -194,11 +194,11 @@ and one of the following: markedjs, pandoc, or multimarkdown
   #+END_SRC
 
 ** TODO Show fill column indicator (Line 80)
-  #+BEGIN_SRC emacs-lisp
-    (global-display-fill-column-indicator-mode 1)
-    [(display-fill-column-indicator-character )]
-    (setq-default fill-column 80)
-  #+END_SRC
+   #+BEGIN_SRC emacs-lisp
+     (global-display-fill-column-indicator-mode 1)
+     (setq-default display-fill-column-indicator-character "‖")
+     (setq-default fill-column 80)
+   #+END_SRC
 
 ** DONE Highlight the current row and column to make the cursor easy to find
    C-c SPC to flash xhair

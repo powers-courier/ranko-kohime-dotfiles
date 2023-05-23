@@ -246,6 +246,14 @@ and one of the following: markedjs, pandoc, or multimarkdown
      (setq-default indicate-empty-lines t)
    #+end_src
 
+** TODO Highlight indentation
+   [[https://github.com/DarthFennec/highlight-indent-guides][highlight-indent-guides GitHub]]
+   #+begin_src emacs-lisp
+     (use-package highlight-indent-guides
+       :ensure t)
+     (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+   #+end_src
+
 
 * General Settings
 ** DONE Set personal information

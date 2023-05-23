@@ -137,16 +137,16 @@ and one of the following: markedjs, pandoc, or multimarkdown
 
 ** DONE Change header fold indicator
    #+begin_src emacs-lisp
-     (setq org-ellipsis " ⤶")
+     (setq-default org-ellipsis " ⤶")
    #+end_src
 
-** Use syntax highlighting in source blocks while editing
+** DONE Use syntax highlighting in source blocks while editing
    #+begin_src emacs-lisp
      (setq org-src-fontify-natively t)
    #+end_src
 
 
-* Key Bindings
+* TODO Key Bindings
 ** DONE Make ESC quit prompts
   #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "<escape>") 'keyboard-escape-quit)

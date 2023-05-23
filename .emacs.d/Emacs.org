@@ -21,9 +21,11 @@ and one of the following: markedjs, pandoc, or multimarkdown
 
 
 * DONE Premable
-  #+begin_src emacs-lisp
-    (add-to-list 'load-path "~/.emacs.d/custom")
-  #+end_src
+** DONE Enable custom load-path
+   [[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]
+   #+begin_src emacs-lisp
+     (add-to-list 'load-path "~/.emacs.d/custom")
+   #+end_src
 
 
 * Packages

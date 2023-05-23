@@ -239,8 +239,8 @@ and one of the following: markedjs, pandoc, or multimarkdown
      (global-highlight-parentheses-mode t)]
    #+END_SRC
 
-** TODO Address useless whitespace
-   https://emacsdocs.org/docs/emacs/Useless-Whitespace
+** DONE Address useless whitespace
+   [[https://emacsdocs.org/docs/emacs/Useless-Whitespace][Emacs Docs 14.16: Useless-Whitespace]]
    #+begin_src emacs-lisp
      (setq-default show-trailing-whitespace t)
      (setq-default indicate-empty-lines t)

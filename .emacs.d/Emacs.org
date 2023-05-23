@@ -65,8 +65,8 @@ and one of the following: markedjs, pandoc, or multimarkdown
    #+END_SRC
 
 ** DONE Enable Git integration with Magit
+   [[https://magit.vc/][Magit Website]]
    #+BEGIN_SRC emacs-lisp
-     [[https://magit.vc/][Magit Website]]
      (use-package magit
        :ensure t)
      (global-set-key (kbd "C-c g") 'magit-file-dispatch)

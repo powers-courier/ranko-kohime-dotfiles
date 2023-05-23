@@ -60,8 +60,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
            markdown-mode
            org-beautify-theme
            org-evil
-           paradox
-           xhair)))]
+           paradox)))]
    #+END_SRC
 
 ** DONE Enable Git integration with Magit
@@ -200,12 +199,13 @@ and one of the following: markedjs, pandoc, or multimarkdown
     (setq-default fill-column 80)
   #+END_SRC
 
-** TODO Highlight the current row and column to make the cursor easy to find
-   Possibly may use Crosshairs:
-   https://github.com/emacsmirror/crosshairs/blob/master/crosshairs.el
-  #+BEGIN_SRC emacs-lisp
-    (global-hl-line-mode 1)
-  #+END_SRC
+** DONE Highlight the current row and column to make the cursor easy to find
+   C-c SPC to flash xhair
+   #+BEGIN_SRC emacs-lisp
+     (use-package xhair
+	      :ensure t)
+     (global-set-key (kbd "C-c SPC") 'xhair-flash)
+   #+END_SRC
 
 ** TODO Enable line numbers, and make them a bit pretty
   #+BEGIN_SRC emacs-lisp

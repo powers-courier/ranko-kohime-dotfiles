@@ -214,6 +214,11 @@ and one of the following: markedjs, pandoc, or multimarkdown
     (setq linum-format "%4d \u2502 ")
   #+END_SRC
 
+** DONE Show column numbers
+   #+begin_src emacs-lisp
+     (setq-default column-number-mode t)
+   #+end_src
+
 ** TODO Highlight parentheses
    #+BEGIN_SRC emacs-lisp
      ;;(require 'highlight-parentheses)

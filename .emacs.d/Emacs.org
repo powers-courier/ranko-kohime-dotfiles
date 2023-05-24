@@ -253,7 +253,18 @@ and one of the following: markedjs, pandoc, or multimarkdown
    [[https://github.com/DarthFennec/highlight-indent-guides][highlight-indent-guides GitHub]]
    #+begin_src emacs-lisp
      (use-package highlight-indent-guides
-       :ensure t)
+                  :ensure t)
+     (custom-set-variables
+        '(highlight-indent-guides-method 'character)
+        '(highlight-indent-guides-responsive 'stack))
+     (custom-set-faces
+       '(line-number-current-line
+         ((t (:foreground "black"
+              :background "yellow"
+              :inherit line-number))))
+       '(shadow ((t (:background "color-235"
+                     :foreground "#999999")))))
+     (add-hook 'org-mode-hook 'highlight-indent-guides-mode)
      (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
    #+end_src
 

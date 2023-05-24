@@ -213,11 +213,11 @@ and one of the following: markedjs, pandoc, or multimarkdown
    #+END_SRC
 
 ** TODO Enable line numbers, and make them a bit pretty
-  #+BEGIN_SRC emacs-lisp
-    (global-display-line-numbers-mode)
-    (custom-set-variables
-     '(display-line-numbers-type 'visual))
-  #+END_SRC
+   #+BEGIN_SRC emacs-lisp
+     (global-display-line-numbers-mode)
+     (custom-set-variables
+       '(display-line-numbers-type 'visual))
+   #+END_SRC
 
 ** DONE Show column numbers
    #+begin_src emacs-lisp

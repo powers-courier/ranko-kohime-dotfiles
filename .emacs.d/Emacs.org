@@ -90,6 +90,12 @@ and one of the following: markedjs, pandoc, or multimarkdown
        )
    #+end_src
 
+** DONE Install unicode-emoticons
+   #+begin_src emacs-lisp
+     (use-package unicode-emoticons
+                  :ensure t)
+   #+end_src
+
 
 * DONE Org Mode
 ** DONE Enable Org Mode (is this superfluos?)

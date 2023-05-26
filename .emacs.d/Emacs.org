@@ -238,11 +238,6 @@ and one of the following: markedjs, pandoc, or multimarkdown
      (global-display-line-numbers-mode)
      (custom-set-variables
        '(display-line-numbers-type 'visual))
-   #+END_SRC
-
-** DONE Show column numbers
-   #+begin_src emacs-lisp
-     (setq-default column-number-mode t)
    #+end_src
 
 ** TODO Highlight parentheses
@@ -301,6 +296,20 @@ and one of the following: markedjs, pandoc, or multimarkdown
      (setq-default scroll-margin 5)
    #+end_src
 
+
+* Modeline
+** Appearance
+** Content
+*** DONE Show line and column numbers in mode line
+    #+begin_src emacs-lisp
+      (setq-default line-number-mode t)
+      (setq-default column-number-mode t)
+    #+end_src
+
+*** DONE Show clock in mode line
+    #+begin_src emacs-lisp
+      (setq-default display-time-mode t)
+    #+end_src
 
 
 * TODO General Settings

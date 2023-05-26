@@ -162,7 +162,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
 
 ** DONE Change header fold indicator
    #+begin_src emacs-lisp
-     (setq-default org-ellipsis " ⤶")
+     (setq-default org-ellipsis "◀")
    #+end_src
 
 ** DONE Use syntax highlighting in source blocks while editing

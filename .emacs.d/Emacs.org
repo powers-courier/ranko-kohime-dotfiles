@@ -319,6 +319,11 @@ and one of the following: markedjs, pandoc, or multimarkdown
          (use-package))))
    #+end_src
 
+** DONE Spaces instead of tabs
+   [[https://www.emacswiki.org/emacs/NoTabs][Emacs Wiki: No Tabs]]
+   #+begin_src emacs-lisp
+     (setq-default indent-tabs-mode nil)
+   #+end_src
 
 * TODO Collaborative Editing
   [[https://code.librehq.com/qhong/crdt.el/][crdt.el Git Repo]]

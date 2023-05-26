@@ -95,7 +95,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
      (use-package org-ai
        :ensure t
        :commands (org-ai-mode
-		  org-ai-global-mode)
+                  org-ai-global-mode)
        :init
        (add-hook 'org-mode-hook #'org-ai-mode) ; enable org-ai in org-mode
        (org-ai-global-mode) ; installs global keybindings on C-c M-a
@@ -149,10 +149,10 @@ and one of the following: markedjs, pandoc, or multimarkdown
      [[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode GitHub]]
      #+begin_src emacs-lisp
      (use-package org-superstar
-	      :ensure t)
+                  :ensure t)
      (add-hook 'org-mode-hook
-	       (lambda ()
-		 (org-superstar-mode 1 )))
+               (lambda ()
+                 (org-superstar-mode 1 )))
    #+end_src
 
 ** DONE Hide leading stars in lists
@@ -229,7 +229,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
    C-c SPC to flash xhair
    #+begin_src emacs-lisp
      (use-package xhair
-	      :ensure t)
+              :ensure t)
      (global-set-key (kbd "C-c SPC") 'xhair-flash)
    #+end_src
 

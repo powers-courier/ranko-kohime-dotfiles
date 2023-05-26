@@ -54,9 +54,6 @@ and one of the following: markedjs, pandoc, or multimarkdown
      [(custom-set-variables
        '(package-selected-packages
          '(
-           ansible
-           ansible-doc
-           ansible-vault
            evil
            evil-org
            exercism
@@ -66,6 +63,24 @@ and one of the following: markedjs, pandoc, or multimarkdown
            paradox)))]
    #+end_src
 
+** TODO Install and configure Ansible packages
+   #+begin_src emacs-lisp
+     (use-package ansible
+                  :ensure t)
+     (add-hook 'yaml-mode-hook '(lambda () (ansible 1)))
+
+     (use-package ansible-doc
+                  :ensure t)
+     (use-package ansible-vault
+                  :ensure t)
+                  (setq-default
+                   ansible-vault-password-file
+                   "~/.ansible/vault_pass")
+     (use-package autocomplete
+                  :ensure t)
+     (use-package yasnippet
+                  :ensure t)
+   #+end_src
 ** DONE Enable Git integration with Magit
    [[https://magit.vc/][Magit Website]]
    #+begin_src emacs-lisp

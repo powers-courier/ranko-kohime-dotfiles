@@ -298,7 +298,31 @@ and one of the following: markedjs, pandoc, or multimarkdown
 
 
 * Modeline
+  Reminder: there is also a [[https://www.emacswiki.org/emacs/HeaderLine][Header Line]]
 ** Appearance
+   Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]?
+*** mode-line-format
+    [[https://www.emacswiki.org/emacs/ModeLineConfiguration][Mode Line Configuration]]
+    [#+begin_src emacs-lisp
+      (setq-default mode-line-format
+                    (list
+                      "%e" mode-line-front-space
+                      (:propertize
+                       	("" mode-line-mule-info
+                            mode-line-client
+                            mode-line-modified
+                            mode-line-remote)
+   	                        display (min-width (5.0)))
+                       mode-line-frame-identification
+                       mode-line-buffer-identification
+                       "   "
+                       mode-line-position
+                       (vc-mode vc-mode)
+                       "  "
+                       mode-line-modes
+                       mode-line-misc-info
+                       mode-line-end-spaces))
+    #+end_src]
 ** Content
 *** DONE Show line and column numbers in mode line
     #+begin_src emacs-lisp

@@ -188,6 +188,21 @@ Expands e.g. <s to code blocks
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 #+end_src
 
+** DONE Enable Evil mode
+#+begin_src emacs-lisp
+  (use-package evil
+               :ensure t
+               :init (setq-default evil-want-C-i-jump nil)
+                     (setq-default evil-shift-width 2))
+  (evil-mode t)
+#+end_src
+
+** DONE Enable evil-org
+#+begin_src emacs-lisp
+  (use-package evil-org
+               :ensure t)
+  (require 'evil-org)
+#+end_src
 ** TODO Set leader key to Space
 ;; Set leader key to Space (if it isn't already set)
 

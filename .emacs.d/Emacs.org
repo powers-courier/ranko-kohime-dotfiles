@@ -22,279 +22,283 @@ and one of the following: markedjs, pandoc, or multimarkdown
 
 * DONE Premable
 ** DONE Enable custom load-path
-   [[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]
-   #+begin_src emacs-lisp
-     (add-to-list 'load-path "~/.emacs.d/custom")
-   #+end_src
+[[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "~/.emacs.d/custom")
+#+end_src
 
 
 * Packages
 ** DONE Enable Melpa package repository
-   #+begin_src emacs-lisp
-     (require 'package)
-     (add-to-list
-       'package-archives
-       '("melpa" . "https://melpa.org/packages/") t)
-   #+end_src
+#+begin_src emacs-lisp
+  (require 'package)
+  (add-to-list
+    'package-archives
+    '("melpa" . "https://melpa.org/packages/") t)
+#+end_src
 
 ** DONE Install use-package if not already installed
-   [[https://github.com/jwiegley/use-package][use-package GitHub]]
-   #+begin_src emacs-lisp
-     (unless 
-       (package-installed-p 'use-package)
-       (package-refresh-contents)
-       (package-install 'use-package))
+[[https://github.com/jwiegley/use-package][use-package GitHub]]
+#+begin_src emacs-lisp
+  (unless
+    (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
 
-     (eval-when-compile
-       (require 'use-package))
-   #+end_src
+  (eval-when-compile
+    (require 'use-package))
+#+end_src
 
 ** TODO Packages to install
-   #+begin_src emacs-lisp
-     [(custom-set-variables
-       '(package-selected-packages
-         '(
-           evil
-           evil-org
-           exercism
-           markdown-mode
-           org-beautify-theme
-           org-evil
-           paradox)))]
-   #+end_src
+#+begin_src emacs-lisp
+  [(custom-set-variables
+    '(package-selected-packages
+      '(
+        evil
+        evil-org
+        exercism
+        markdown-mode
+        org-beautify-theme
+        org-evil
+        paradox)))]
+#+end_src
 
 ** TODO Install and configure Ansible packages
-   #+begin_src emacs-lisp
-     (use-package ansible
-                  :ensure t)
-     (add-hook 'yaml-mode-hook '(lambda () (ansible 1)))
+#+begin_src emacs-lisp
+  (use-package ansible
+               :ensure t)
+  (add-hook 'yaml-mode-hook '(lambda () (ansible 1)))
 
-     (use-package ansible-doc
-                  :ensure t)
-     (use-package ansible-vault
-                  :ensure t)
-                  (setq-default
-                   ansible-vault-password-file
-                   "~/.ansible/vault_pass")
-     (use-package autocomplete
-                  :ensure t)
-     (use-package yasnippet
-                  :ensure t)
-   #+end_src
+  (use-package ansible-doc
+               :ensure t)
+  (use-package ansible-vault
+               :ensure t)
+               (setq-default
+                ansible-vault-password-file
+                "~/.ansible/vault_pass")
+  (use-package autocomplete
+               :ensure t)
+  (use-package yasnippet
+               :ensure t)
+#+end_src
 ** DONE Enable Git integration with Magit
-   [[https://magit.vc/][Magit Website]]
-   #+begin_src emacs-lisp
-     (use-package magit
-       :ensure t)
-     (global-set-key (kbd "C-c g") 'magit-file-dispatch)
-   #+end_src
+[[https://magit.vc/][Magit Website]]
+#+begin_src emacs-lisp
+  (use-package magit
+    :ensure t)
+  (global-set-key (kbd "C-c g") 'magit-file-dispatch)
+#+end_src
 
 ** TODO Enable ChatGPT integration
-   [[https://github.com/rksm/org-ai][org-ai GitHub]]
-   #+begin_src emacs-lisp
-     (use-package org-ai
-       :ensure t
-       :commands (org-ai-mode
-                  org-ai-global-mode)
-       :init
-       (add-hook 'org-mode-hook #'org-ai-mode) ; enable org-ai in org-mode
-       (org-ai-global-mode) ; installs global keybindings on C-c M-a
-       :config
-       ;(setq org-ai-default-chat-model "gpt-4") ; if you are on the gpt-4 beta:
-       ;(org-ai-install-yasnippets) ; if you are using yasnippet and want `ai` snippets
-       )
-   #+end_src
+[[https://github.com/rksm/org-ai][org-ai GitHub]]
+#+begin_src emacs-lisp
+  (use-package org-ai
+    :ensure t
+    :commands (org-ai-mode
+               org-ai-global-mode)
+    :init
+    (add-hook 'org-mode-hook #'org-ai-mode) ; enable org-ai in org-mode
+    (org-ai-global-mode) ; installs global keybindings on C-c M-a
+    :config
+    ;(setq org-ai-default-chat-model "gpt-4") ; if you are on the gpt-4 beta:
+    ;(org-ai-install-yasnippets) ; if you are using yasnippet and want `ai` snippets
+    )
+#+end_src
 
 ** DONE Install unicode-emoticons
-   #+begin_src emacs-lisp
-     (use-package unicode-emoticons
-                  :ensure t)
-   #+end_src
+#+begin_src emacs-lisp
+  (use-package unicode-emoticons
+               :ensure t)
+#+end_src
 
 
 * DONE Org Mode
 ** DONE Enable Org Mode (is this superfluos?)
-  #+begin_src emacs-lisp
-    (require 'org)
-  #+end_src
+#+begin_src emacs-lisp
+  (require 'org)
+#+end_src
 
 ** DONE Set font lock for Org Mode, just in case
-  #+begin_src emacs-lisp
-    (add-hook 'org-mode-hook #'turn-on-font-lock)
-  #+end_src
+#+begin_src emacs-lisp
+  (add-hook 'org-mode-hook #'turn-on-font-lock)
+#+end_src
 
 ** DONE Enable org-tempo
-   Expands e.g. <s to code blocks
-   #+begin_src emacs-lisp
-     (require 'org-tempo)
-   #+end_src
+Expands e.g. <s to code blocks
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+#+end_src
 
+** DONE Set indent mode
+#+begin_src emacs-lisp
+  (setq-default org-indent-mode t)
+#+end_src
 ** DONE Set the agenda key, in case it's not set
-  #+begin_src emacs-lisp
-    (global-set-key "\C-ca" 'org-agenda)
-  #+end_src
+#+begin_src emacs-lisp
+  (global-set-key "\C-ca" 'org-agenda)
+#+end_src
 
 ** DONE Set keywords for Org Mode
-  #+begin_src emacs-lisp
-    (setq org-todo-keywords
-      '((sequence "TODO" "STRT" "WAIT" "DONE")))
-  #+end_src
+#+begin_src emacs-lisp
+  (setq org-todo-keywords
+    '((sequence "TODO" "STRT" "WAIT" "DONE")))
+#+end_src
 
 ** DONE Set org-startup-folded
-  #+begin_src emacs-lisp
-    (setq-default org-startup-folded 'content)
-  #+end_src
+#+begin_src emacs-lisp
+  (setq-default org-startup-folded 'content)
+#+end_src
 
 ** DONE Enable list decoration bullets
-     [[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode GitHub]]
-     #+begin_src emacs-lisp
-     (use-package org-superstar
-                  :ensure t)
-     (add-hook 'org-mode-hook
-               (lambda ()
-                 (org-superstar-mode 1 )))
-   #+end_src
+[[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode GitHub]]
+#+begin_src emacs-lisp
+(use-package org-superstar
+             :ensure t)
+(add-hook 'org-mode-hook
+          (lambda ()
+            (org-superstar-mode 1 )))
+#+end_src
 
 ** DONE Hide leading stars in lists
-   #+begin_src emacs-lisp
-     (setq org-hide-leading-stars t)
-   #+end_src
+#+begin_src emacs-lisp
+  (setq org-hide-leading-stars t)
+#+end_src
 
 ** DONE Change header fold indicator
-   #+begin_src emacs-lisp
-     (setq-default org-ellipsis "◀")
-   #+end_src
+#+begin_src emacs-lisp
+  (setq-default org-ellipsis "◀")
+#+end_src
 
 ** DONE Use syntax highlighting in source blocks while editing
-   #+begin_src emacs-lisp
-     (setq org-src-fontify-natively t)
-   #+end_src
+#+begin_src emacs-lisp
+  (setq org-src-fontify-natively t)
+#+end_src
 
 
 * TODO Key Bindings
 ** DONE Make ESC quit prompts
-  #+begin_src emacs-lisp
-    (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  #+end_src
+#+begin_src emacs-lisp
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+#+end_src
 
 ** TODO Set leader key to Space
-   ;; Set leader key to Space (if it isn't already set)
+;; Set leader key to Space (if it isn't already set)
 
 ** TODO Set leader-based keys
-   ;; Set <leader>x to cut to system clipboard
-   ;; Set <leader>c to copy to system clipboard
-   ;; Set <leader>v to paste from system clipboard
-   ;; Set <leader>s to save
-   ;; Set <leader>w to save and close the current buffer
-   ;; Set <leader>e to open a file
+;; Set <leader>x to cut to system clipboard
+;; Set <leader>c to copy to system clipboard
+;; Set <leader>v to paste from system clipboard
+;; Set <leader>s to save
+;; Set <leader>w to save and close the current buffer
+;; Set <leader>e to open a file
 
 
 * TODO Visual Settings
 ** DONE Enable custom themes
-   Default to theme "Cherry Blossom"
-   https://github.com/inlinestyle/emacs-cherry-blossom-theme
-  #+begin_src emacs-lisp
-    (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-    (custom-set-variables
-      '(custom-enabled-themes
-        '(cherry-blossom))
-      '(custom-safe-themes
-        '("2aa073a18b2ba860d24d2cd857bcce34d7107b6967099be646d9c95f53ef3643" default)))
-  #+end_src
+Default to theme "Cherry Blossom"
+https://github.com/inlinestyle/emacs-cherry-blossom-theme
+#+begin_src emacs-lisp
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+  (custom-set-variables
+    '(custom-enabled-themes
+      '(cherry-blossom))
+    '(custom-safe-themes
+      '("2aa073a18b2ba860d24d2cd857bcce34d7107b6967099be646d9c95f53ef3643" default)))
+#+end_src
 
 ** DONE Inhibit the startup message
-  #+begin_src emacs-lisp
-    (setq inhibit-startup-message t)
-  #+end_src
+#+begin_src emacs-lisp
+  (setq inhibit-startup-message t)
+#+end_src
 
 ** DONE Disable the GUI Toolbar
-  #+begin_src emacs-lisp
-    (if window-system
-      (tool-bar-mode 0))
-  #+end_src
+#+begin_src emacs-lisp
+  (if window-system
+    (tool-bar-mode 0))
+#+end_src
 
 ** DONE Disable the Menubar
-  #+begin_src emacs-lisp
-    (menu-bar-mode -1)
-  #+end_src
+#+begin_src emacs-lisp
+  (menu-bar-mode -1)
+#+end_src
 
 ** TODO Show fill column indicator (Line 80)
-   #+begin_src emacs-lisp
-     (global-display-fill-column-indicator-mode 1)
-     (setq-default display-fill-column-indicator-character "‖")
-     (setq-default fill-column 80)
-   #+end_src
+#+begin_src emacs-lisp
+  (global-display-fill-column-indicator-mode 1)
+  (setq-default display-fill-column-indicator-character "‖")
+  (setq-default fill-column 80)
+#+end_src
 
 ** DONE Highlight the current row and column to make the cursor easy to find
-   C-c SPC to flash xhair
-   #+begin_src emacs-lisp
-     (use-package xhair
-              :ensure t)
-     (global-set-key (kbd "C-c SPC") 'xhair-flash)
-   #+end_src
+C-c SPC to flash xhair
+#+begin_src emacs-lisp
+  (use-package xhair
+               :ensure t)
+  (global-set-key (kbd "C-c SPC") 'xhair-flash)
+#+end_src
 
 ** TODO Enable line numbers, and make them a bit pretty
-   #+begin_src emacs-lisp
-     (global-display-line-numbers-mode)
-     (custom-set-variables
-       '(display-line-numbers-type 'visual))
-   #+end_src
+#+begin_src emacs-lisp
+  (global-display-line-numbers-mode)
+  (custom-set-variables
+    '(display-line-numbers-type 'visual))
+#+end_src
 
 ** TODO Highlight parentheses
-   #+begin_src emacs-lisp
-     ;;(require 'highlight-parentheses)
-     (show-paren-mode t)
-     (custom-set-variables
-       '(show-paren-style 'parenthesis)
-       '(show-paren-highlight-openparen t)
-       '(show-paren-ring-bell-on-mismatch t)
-       '(show-paren-when-point-in-periphery t)
-       '(show-paren-when-point-inside-paren t))
-     [(define-globalized-minor-mode
-       global-highlight-parentheses-mode
-       highlight-parentheses-mode
-       (lambda nil
-         (highlight-parentheses-mode t)))
-     (global-highlight-parentheses-mode t)]
-   #+end_src
+#+begin_src emacs-lisp
+  ;;(require 'highlight-parentheses)
+  (show-paren-mode t)
+  (custom-set-variables
+    '(show-paren-style 'parenthesis)
+    '(show-paren-highlight-openparen t)
+    '(show-paren-ring-bell-on-mismatch t)
+    '(show-paren-when-point-in-periphery t)
+    '(show-paren-when-point-inside-paren t))
+  [(define-globalized-minor-mode
+    global-highlight-parentheses-mode
+    highlight-parentheses-mode
+    (lambda nil
+      (highlight-parentheses-mode t)))
+  (global-highlight-parentheses-mode t)]
+#+end_src
 
 ** DONE Address useless whitespace
-   [[https://emacsdocs.org/docs/emacs/Useless-Whitespace][Emacs Docs 14.16: Useless-Whitespace]]
-   #+begin_src emacs-lisp
-     (setq-default show-trailing-whitespace t)
-     (setq-default indicate-empty-lines t)
-   #+end_src
+[[https://emacsdocs.org/docs/emacs/Useless-Whitespace][Emacs Docs 14.16: Useless-Whitespace]]
+#+begin_src emacs-lisp
+  (setq-default show-trailing-whitespace t)
+  (setq-default indicate-empty-lines t)
+#+end_src
 
 ** TODO Highlight indentation
-   [[https://github.com/DarthFennec/highlight-indent-guides][highlight-indent-guides GitHub]]
-   #+begin_src emacs-lisp
-     (use-package highlight-indent-guides
-                  :ensure t)
-     (custom-set-variables
-        '(highlight-indent-guides-method 'character)
-        '(highlight-indent-guides-responsive 'stack))
-     (custom-set-faces
-       '(line-number-current-line
-         ((t (:foreground "black"
-              :background "yellow"
-              :inherit line-number))))
-       '(shadow ((t (:background "color-235"
-                     :foreground "#999999")))))
-     (add-hook 'org-mode-hook 'highlight-indent-guides-mode)
-     (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-   #+end_src
+[[https://github.com/DarthFennec/highlight-indent-guides][highlight-indent-guides GitHub]]
+#+begin_src emacs-lisp
+  (use-package highlight-indent-guides
+               :ensure t)
+  (custom-set-variables
+   '(highlight-indent-guides-method 'column)
+   '(highlight-indent-guides-responsive 'stack))
+  (custom-set-faces
+    '(line-number-current-line
+      ((t (:foreground "black"
+           :background "yellow"
+           :inherit line-number))))
+    '(shadow ((t (:background "color-235"
+                  :foreground "#999999")))))
+  (add-hook 'org-mode-hook 'highlight-indent-guides-mode)
+  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+#+end_src
 
 ** DONE RULER MODE! (Suck it, Vim)
-   [[https://www.emacswiki.org/emacs/RulerMode][Emacs Wiki: Ruler Mode]]
-   #+begin_src emacs-lisp
-     [(setq-default ruler-mode)]
-     (add-hook 'find-file-hook (lambda () (ruler-mode 1)))
-   #+end_src
+[[https://www.emacswiki.org/emacs/RulerMode][Emacs Wiki: Ruler Mode]]
+#+begin_src emacs-lisp
+  [(setq-default ruler-mode)]
+  (add-hook 'find-file-hook (lambda () (ruler-mode 1)))
+#+end_src
 
 ** DONE Scrolloff (move viewport when point approaches top or bottom of screen)
-   #+begin_src emacs-lisp
-     (setq-default scroll-margin 5)
-   #+end_src
+#+begin_src emacs-lisp
+  (setq-default scroll-margin 5)
+#+end_src
 
 
 * Modeline
@@ -302,89 +306,90 @@ and one of the following: markedjs, pandoc, or multimarkdown
 ** Appearance
    Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]?
 *** mode-line-format
-    [[https://www.emacswiki.org/emacs/ModeLineConfiguration][Mode Line Configuration]]
-    [#+begin_src emacs-lisp
-      (setq-default mode-line-format
-                    (list
-                      "%e" mode-line-front-space
-                      (:propertize
-                       	("" mode-line-mule-info
-                            mode-line-client
-                            mode-line-modified
-                            mode-line-remote)
-   	                        display (min-width (5.0)))
-                       mode-line-frame-identification
-                       mode-line-buffer-identification
-                       "   "
-                       mode-line-position
-                       (vc-mode vc-mode)
-                       "  "
-                       mode-line-modes
-                       mode-line-misc-info
-                       mode-line-end-spaces))
-    #+end_src]
+[[https://www.emacswiki.org/emacs/ModeLineConfiguration][Mode Line Configuration]]
+[#+begin_src emacs-lisp
+   (setq-default mode-line-format
+     (list
+       "%e" mode-line-front-space
+       (:propertize
+         ("" mode-line-mule-info
+             mode-line-client
+             mode-line-modified
+             mode-line-remote)
+         display (min-width (5.0)))
+         mode-line-frame-identification
+         mode-line-buffer-identification
+         "   "
+         mode-line-position
+         (vc-mode vc-mode)
+         "  "
+         mode-line-modes
+         mode-line-misc-info
+         mode-line-end-spaces))
+#+end_src]
 ** Content
 *** DONE Show line and column numbers in mode line
-    #+begin_src emacs-lisp
-      (setq-default line-number-mode t)
-      (setq-default column-number-mode t)
-    #+end_src
+#+begin_src emacs-lisp
+  (setq-default line-number-mode t)
+  (setq-default column-number-mode t)
+#+end_src
 
 *** DONE Show clock in mode line
-    #+begin_src emacs-lisp
-      (setq-default display-time-mode t)
-    #+end_src
+#+begin_src emacs-lisp
+  (setq-default display-time-mode t)
+#+end_src
 
 
 * TODO General Settings
 ** DONE Set personal information
-   #+begin_src emacs-lisp
-     (setq user-full-name "Ranko Kohime"
-           user-mail-address "ranko.kohime@runbox.com")
-   #+end_src
+#+begin_src emacs-lisp
+  (setq user-full-name "Ranko Kohime"
+        user-mail-address "ranko.kohime@runbox.com")
+#+end_src
 
 ** TODO Enable CUA mode for C-x, C-c, C-v
-   #+begin_src emacs-lisp
-     [(custom-set-variables
-       '(cua-mode t nil
-         (cua-base)))]
-   #+end_src
+#+begin_src emacs-lisp
+  [(custom-set-variables
+    '(cua-mode t nil
+      (cua-base)))]
+#+end_src
 
 ** DONE Enable file history with recentf, and periodically save the list
-   https://www.emacswiki.org/emacs/RecentFiles
-   #+begin_src emacs-lisp
-     (recentf-mode 1)
-     (setq recentf-max-menu-items 25)
-     (setq recentf-max-saved-items 25)
-     (global-set-key "\C-x\ \C-r" 'recentf-open-files)
-     (run-at-time nil (* 15 60) 'recentf-save-list)
-   #+end_src
+[[https://www.emacswiki.org/emacs/RecentFiles][Emacs Wiki: Recent Files]]
+#+begin_src emacs-lisp
+  (recentf-mode 1)
+  (setq recentf-max-menu-items 25)
+  (setq recentf-max-saved-items 25)
+  (global-set-key "\C-x\ \C-r" 'recentf-open-files)
+  (run-at-time nil (* 15 60) 'recentf-save-list)
+#+end_src
 
 ** DONE Suppress certain types of startup messages
-   #+begin_src emacs-lisp
-     (custom-set-variables
-       '(warning-suppress-types '((comp)
-         (use-package))))
-   #+end_src
+#+begin_src emacs-lisp
+  (custom-set-variables
+    '(warning-suppress-types '((comp)
+      (use-package))))
+#+end_src
 
 ** DONE Spaces instead of tabs
-   [[https://www.emacswiki.org/emacs/NoTabs][Emacs Wiki: No Tabs]]
-   #+begin_src emacs-lisp
-     (setq-default indent-tabs-mode nil)
-   #+end_src
+[[https://www.emacswiki.org/emacs/NoTabs][Emacs Wiki: No Tabs]]
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+end_src
+
 
 * TODO Collaborative Editing
-  [[https://code.librehq.com/qhong/crdt.el/][crdt.el Git Repo]]
+[[https://code.librehq.com/qhong/crdt.el/][crdt.el Git Repo]]
 
 
 * DONE And Finally…
 ** DONE The Success Message
-   #+begin_src emacs-lisp
-     (setq initial-scratch-message
-           (concat
-             ";;░█▀▀░█▄█░█▀█░█▀▀░█▀▀\n"
-             ";;░█▀▀░█░█░█▀█░█░░░▀▀█\n"
-             ";;░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀\n"
-             "\n"
-             ";;  Task Failed Successfully.\n"))
-   #+end_src
+#+begin_src emacs-lisp
+  (setq initial-scratch-message
+        (concat
+          ";;░█▀▀░█▄█░█▀█░█▀▀░█▀▀\n"
+          ";;░█▀▀░█░█░█▀█░█░░░▀▀█\n"
+          ";;░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀\n"
+          "\n"
+          ";;  Task Failed Successfully.\n"))
+#+end_src

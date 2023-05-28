@@ -111,6 +111,12 @@ and one of the following: markedjs, pandoc, or multimarkdown
                :ensure t)
 #+end_src
 
+** TODO Enable password-store integration
+#+begin_src emacs-lisp
+  (use-package password-store
+               :ensure t)
+#+end_src
+
 
 * DONE Org Mode
 ** DONE Enable Org Mode (is this superfluos?)

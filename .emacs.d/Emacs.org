@@ -138,6 +138,7 @@ Expands e.g. <s to code blocks
 ** DONE Set indent mode
 #+begin_src emacs-lisp
   (setq-default org-indent-mode t)
+  (setq-default org-startup-indented t)
 #+end_src
 ** DONE Set the agenda key, in case it's not set
 #+begin_src emacs-lisp

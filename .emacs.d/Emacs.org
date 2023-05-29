@@ -173,7 +173,8 @@ Expands e.g. <s to code blocks
 
 ** DONE Change header fold indicator
 #+begin_src emacs-lisp
-  (setq-default org-ellipsis "◀")
+  (setq-default org-ellipsis " §")
+  (set-face-underline 'org-ellipsis nil)
 #+end_src
 
 ** DONE Use syntax highlighting in source blocks while editing

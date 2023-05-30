@@ -18,7 +18,7 @@ alias kill=' kill'
 alias kall=' killall'
 alias man=' man'
 alias mkdir=' mkdir'
-alias pass=' pass'
+alias pass='EDITOR=/usr/bin/nano GNUPGHOME=~/.password-store/.gnupg pass'
 alias rm=' rm'
 alias ssh=' ssh'
 

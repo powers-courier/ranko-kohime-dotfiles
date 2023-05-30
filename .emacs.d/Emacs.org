@@ -67,7 +67,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
 #+begin_src emacs-lisp
   (use-package ansible
                :ensure t)
-  (add-hook 'yaml-mode-hook '(lambda () (ansible 1)))
+  (add-hook 'yaml-mode-hook #'(lambda () (ansible 1)))
 
   (use-package ansible-doc
                :ensure t)

@@ -205,6 +205,7 @@ C-c SPC to flash xhair
 #+end_src
 
 ** TODO Highlight indentation
+Double check this in GUI mode, not satisfactory in terminal
 [[https://github.com/DarthFennec/highlight-indent-guides][highlight-indent-guides GitHub]]
 #+begin_src emacs-lisp
   (use-package highlight-indent-guides
@@ -336,6 +337,7 @@ Expands e.g. <s to code blocks
    Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]?
 *** mode-line-format
 [[https://www.emacswiki.org/emacs/ModeLineConfiguration][Mode Line Configuration]]
+[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html][Mode Line Variables]]
 [#+begin_src emacs-lisp
    (setq-default mode-line-format
      (list

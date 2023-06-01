@@ -271,11 +271,11 @@ Expands e.g. <s to code blocks
 ** DONE Enable list decoration bullets
 [[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode GitHub]]
 #+begin_src emacs-lisp
-(use-package org-superstar
-             :ensure t)
-(add-hook 'org-mode-hook
-          (lambda ()
-            (org-superstar-mode 1 )))
+  (use-package org-superstar
+               :ensure t)
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (org-superstar-mode 1 )))
 #+end_src
 
 ** DONE Hide leading stars in lists

@@ -294,6 +294,16 @@ Expands e.g. <s to code blocks
   (setq org-src-fontify-natively t)
 #+end_src
 
+** DONE Enable block wrapping using wrap-region
+[[https://github.com/rejeep/wrap-region.el][Wrap Region GitHub]]
+Does not work with Evil mode!
+#+begin_src emacs-lisp
+  (use-package wrap-region
+               :ensure t)
+  (wrap-region-global-mode t)
+  (wrap-region-add-wrapper "#+BEGIN_SRC emacs-lisp\n" "#+END_SRC" "#" 'org-mode)
+#+end_src
+
 
 * TODO Key Bindings
 ** DONE Make ESC quit prompts

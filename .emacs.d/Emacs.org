@@ -348,26 +348,45 @@ Does not work with Evil mode!
 *** mode-line-format
 [[https://www.emacswiki.org/emacs/ModeLineConfiguration][Mode Line Configuration]]
 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html][Mode Line Variables]]
-[#+begin_src emacs-lisp
-   (setq-default mode-line-format
-     (list
-       "%e" mode-line-front-space
-       (:propertize
-         ("" mode-line-mule-info
-             mode-line-client
-             mode-line-modified
-             mode-line-remote)
-         display (min-width (5.0)))
-         mode-line-frame-identification
-         mode-line-buffer-identification
-         "   "
-         mode-line-position
-         (vc-mode vc-mode)
-         "  "
-         mode-line-modes
-         mode-line-misc-info
-         mode-line-end-spaces))
-#+end_src]
+#+begin_src emacs-lisp
+  [(setq-default mode-line-format
+    (list
+      "%e" mode-line-front-space
+               ; %e is out of memory warning
+               ; front-space evaluates to dash (-) if in terminal
+      (:propertize
+        ("" evil-mode-line-tag
+            "  "
+            mode-line-mule-info
+            mode-line-client
+            mode-line-modified
+               ; ‘**’ if the buffer is modified
+               ; ‘--’ if the buffer is not modified
+               ; ‘%%’ if the buffer is read only
+               ; and ‘%*’ if the buffer is read only and modified.
+            mode-line-remote)
+        display (min-width (5.0)))
+        mode-line-frame-identification
+               ; This variable identifies the current frame. Its default
+               ; value displays " " if you are using a window system which
+               ; can show multiple frames, or "-%F " on an ordinary
+               ; terminal which shows only one frame at a time.
+        mode-line-buffer-identification
+               ; File name currently open, or special buffer
+        "   "
+        mode-line-position
+        (vc-mode vc-mode)
+               ; Git indicator
+        "  "
+        mode-line-modes
+               ; Yeah I have no clue
+        mode-line-misc-info
+        mode-line-end-spaces
+        " "
+        display-time-string
+               ; Show clock at right end of mode line
+        " "))]
+#+end_src
 ** Content
 *** DONE Show line and column numbers in mode line
 #+begin_src emacs-lisp

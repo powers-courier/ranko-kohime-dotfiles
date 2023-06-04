@@ -303,7 +303,7 @@ Does not work with Evil mode!
   (use-package wrap-region
                :ensure t)
   (wrap-region-global-mode t)
-  (wrap-region-add-wrapper "#+BEGIN_SRC emacs-lisp\n" "#+END_SRC" "#" 'org-mode)
+  (wrap-region-add-wrapper "#+begin_src \n" "#+end_src" "#" 'org-mode)
 #+end_src
 
 

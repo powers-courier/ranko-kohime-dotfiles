@@ -26,7 +26,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
 ** DONE Enable custom load-path
 [[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "~/.emacs.d/custom")
+  (add-to-list 'load-path "~/.config/emacs/custom")
 #+end_src
 
 

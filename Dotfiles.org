@@ -301,9 +301,19 @@ Does not work with Evil mode!
   (wrap-region-add-wrapper "#+begin_src \n" "#+end_src" "#" 'org-mode)
 #+end_src
 
+*** TODO Add org-ac for auto completion
+(use-package org-ac
+             :ensure t)
 
-* TODO Key Bindings
-** DONE Make ESC quit prompts
+*** TODO Auto-tangling
+(use-package org-auto-tangle
+             :ensure t
+             :defer t
+             :hook (org-mode . org-auto-tangle-mode))
+(setq-default org-auto-tangle-default t)
+
+** TODO Key Bindings
+*** DONE Make ESC quit prompts
 #+begin_src emacs-lisp
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 #+end_src

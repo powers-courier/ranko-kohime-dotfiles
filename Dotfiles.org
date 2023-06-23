@@ -2123,3 +2123,213 @@ Use "AVG" to get a mean average. Default percentiles are 97+AVG+1+0.1
 #+end_src
 
 
+* MPV
+:properties:
+:header-args+: :tangle .config/mpv/mpv.conf
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments both
+:end:
+** Playback
+*** Save playback position when exiting player before end of video
+#+begin_src conf
+save-position-on-quit
+#+end_src
+
+*** Do not close the window on exit
+#+begin_src conf
+#keep-open=yes
+#+end_src
+
+*** Don't allow a new window to have a size larger than 90% of the screen size
+#+begin_src conf
+autofit-larger=90%x90%
+#+end_src
+
+*** Force window
+Do not wait with showing the video window until it has loaded. (This will
+resize the window once video is loaded. Also always shows a window with
+audio.)
+#+begin_src conf
+force-window=immediate
+#+end_src
+
+*** Disable the On Screen Controller (OSC).
+#+begin_src conf
+#osc=no
+#+end_src
+
+*** Force starting with centered window
+#+begin_src conf
+geometry=50%:50%
+#+end_src
+
+** Video Settings
+*** Maintain original video aspect ratio
+#+begin_src conf
+keepaspect=yes
+#+end_src
+
+*** Start in fullscreen mode by default.
+#+begin_src conf
+fs=no
+#+end_src
+
+*** Keep the player window on top of all other windows.
+#+begin_src conf
+ontop=yes
+#+end_src
+
+*** Video sync
+Force video to lock on the display's refresh rate, and change video and audio
+speed to some degree to ensure synchronous playback - can cause problems
+with some drivers and desktop environments.
+#+begin_src conf
+video-sync=display-resample
+#+end_src
+
+*** Video rendering
+**** Rendering preset
+Specify high quality video rendering preset (for --vo=gpu only)
+Can cause performance problems with some drivers and GPUs.
+#+begin_src conf
+profile=gpu-hq
+#+end_src
+
+**** Video output
+#+begin_src conf
+vo=gpu
+#+end_src
+
+**** Hardware decoding
+Enable hardware decoding if available. Often, this does not work with all
+video outputs, but should work well with default settings on most systems.
+If performance or energy usage is an issue, forcing the vdpau or vaapi VOs
+may or may not help.
+#+begin_src conf
+hwdec=auto
+#+end_src
+
+**** GPU context
+#+begin_src conf
+#gpu-context=wayland
+#+end_src
+
+** Audio Settings
+*** Default audio device
+Specify default audio device. You can list devices with: --audio-device=help
+The option takes the device string (the stuff between the '...').
+#+begin_src conf
+#audio-device=alsa/default
+#+end_src
+
+*** Pitch correction
+Do not filter audio to keep pitch when changing playback speed.
+#+begin_src conf
+#audio-pitch-correction=no
+#+end_src
+
+*** Force channel count
+Output 5.1 audio natively, and upmix/downmix audio with a different format.
+#+begin_src conf
+#audio-channels=5.1
+#+end_src
+
+*** Automatic remixing
+Disable any automatic remix, _if_ the audio output accepts the audio format.
+of the currently played file. See caveats mentioned in the manpage.
+(The default is "auto-safe", see manpage.)
+#+begin_src conf
+#audio-channels=auto
+#+end_src
+
+*** Maximum volume limit
+#+begin_src conf
+volume-max=250
+#+end_src
+
+** Subtitles
+*** Display ${lang} subtitles if available
+#+begin_src conf
+#slang=en
+#+end_src
+
+*** Play Finnish audio if available, fall back to English otherwise.
+#+begin_src conf
+#alang=fi,en
+#+end_src
+
+*** Subtitle encoding
+# Change subtitle encoding. For Arabic subtitles use 'cp1256'.
+# If the file seems to be valid UTF-8, prefer UTF-8.
+# (You can add '+' in front of the codepage to force it.)
+#+begin_src conf
+#sub-codepage=cp1256
+#+end_src
+
+** Screenshots
+*** Set screenshot type to PNG
+#+begin_src conf
+screenshot-format=png
+#+end_src
+
+*** Set screenshot folder
+#+begin_src conf
+screenshot-directory=~/Downloads
+#+end_src
+
+** General
+*** User agent
+Pretend to be a web browser. Might fix playback with some streaming sites,
+but also will break with shoutcast streams.
+#+begin_src conf
+#user-agent="Mozilla/5.0"
+#+end_src
+
+*** Cache settings
+**** Use 300MB input cache by default. The cache is enabled for network streams only.
+#+begin_src conf
+cache-default=307200
+#+end_src
+
+**** Use 300MB input cache for everything, even local files.
+#+begin_src conf
+cache=307200
+#+end_src
+
+**** Cache pause
+Disable the behavior that the player will pause if the cache goes below a
+certain fill size.
+#+begin_src conf
+cache-pause=no
+#+end_src
+
+*** Demuxer read ahead
+Read ahead about 5 seconds of audio and video packets.
+#+begin_src conf
+demuxer-readahead-secs=5.0
+#+end_src
+
+*** Cache read ahead
+Raise readahead from demuxer-readahead-secs to this value if a cache is active.
+#+begin_src conf
+#cache-secs=50.0
+#+end_src
+
+*** Additional config files
+You can also include other configuration files.
+#+begin_src conf
+#include=/path/to/the/file/you/want/to/include
+#+end_src
+
+** Profiles
+The options declared as part of profiles override global default settings,
+but only take effect when the profile is active.
+
+The following profile can be enabled on the command line with: --profile=eye-cancer
+
+#+begin_src conf
+[eye-cancer]
+sharpen=5
+#+end_src
+
+

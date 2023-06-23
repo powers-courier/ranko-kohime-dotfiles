@@ -986,6 +986,410 @@ persistent_logging: false
   #highlight_damage: false
 
 
+* Bash Menu
+:properties:
+:header-args+: :tangle .local/bin/menu.sh
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments both
+:end:
+
+** Notes
+# Reminder, curly braces {} keep current shell context
+# while paraentheses () spawn a new subshell
+
+[[https://devhints.io/bash][Bash script cheatsheet]]
+
+** Preamble
+*** Set shebang for the tangled script
+#+begin_src bash
+#!/bin/bash
+#+end_src
+
+*** [[https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/][Safer bash scripts with 'set -euxo pipefail']]
+-E: Allows traps to continue to work with -e
+-e: Exit immediately upon any error
+-u: Unset variables trigger an exit
+-x: Print each command before running
+-o pipefail: Allow any process in a pipe to trigger failure, instead of end process
+
+#+begin_src bash
+#set -Eeuxo pipefail
+#+end_src
+
+*** Get script directory for use in the rest of the script
+(This may be superfluos if it's all one flat file)
+[[https://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself][Reliable way for a Bash script to get the full path to itself]]
+#+begin_src bash
+SCRIPTPATH=$(dirname `readlink -f "$0"`)
+#+end_src
+
+*** Source easybashgui
+#+begin_src bash
+source ~/.local/bin/easybashgui/easybashgui
+#+end_src
+
+*** Set variables
+**** Global
+***** Legacy? dialog variables
+#+begin_src bash
+DIALOGRC="${SCRIPTPATH}/functions/dialogrc"
+dialogBackTitle="Bash Menu!"
+#+end_src
+
+***** Import DBUS session address for notify-send
+#+begin_src bash
+#source /home/ranko/.config/dbus_session.txt
+#+end_src
+
+**** Ansibibble
+#+begin_src bash
+dirAnsibibble=~/.ansible
+#+end_src
+
+**** CPU
+***** AMD
+#+begin_src bash
+cpuCPUFreq=/sys/devices/system/cpu/cpufreq
+cpuAMDMaxPerf=${cpuCPUFreq}/policy0/scaling_max_freq
+cpuAMDMinPerf=${cpuCPUFreq}/policy0/scaling_min_freq
+cpuAMDTurbo=${cpuCPUFreq}/boost
+#+end_src
+***** Intel
+#+begin_src bash
+cpuIntelPstate=/sys/devices/system/cpu/intel_pstate
+cpuIntelMaxPerf=${cpuIntelPstate}/max_perf_pct
+cpuIntelMinPerf=${cpuIntelPstate}/min_perf_pct
+cpuIntelNoTurbo=${cpuIntelPstate}/no_turbo
+#+end_src
+
+***** Alternate MinPerf for excessively low Intel min clocks
+8th Gen Intel U-series, for example
+#+begin_src bash
+cpuIntelAltMinPerfPercent=20
+#+end_src
+
+**** Energy
+#+begin_src bash
+menuEnergyLocation="/sys/class/power_supply"
+#+end_src
+# Use charge_contol_end_threshold for Asus laptops
+
+**** Optical Ripping
+***** Set default optical drive path
+#+begin_src bash
+opticalActiveDrive=/dev/sr0
+#+end_src
+
+**** SSH
+#+begin_src bash
+HOME_IP=`dig +short myip.opendns.com @resolver1.opendns.com`
+#+end_src
+
+** Menus
+*** menuAnsible
+#+begin_src bash
+menuAnsible()
+{
+  menuAnsibleChoice="$(dialogRunner \
+    'Ansibibble' \
+    'A' 'Install Ansible' \
+    'B' 'Setup Desktop Environment' \
+    )"
+  case "$menuAnsibleChoice" in
+    A) functionAnsibleInstall;;
+    B) functionAnsibleSetupDesktop;;
+    *) echo "Error: $menuAnsibleChoice is not a valid option"; exit 1;;
+  esac
+}
+#+end_src
+
+*** menuCPU
+#+begin_src bash
+menuCPU()
+{
+  menuCPUChoice="$(dialogRunner \
+    'CPU Control' \
+    'A' 'Toggle Turbo Boost' \
+    'B' 'Set max_perf_pct' \
+    'C' 'Set min_perf_pct' \
+    )"
+  case "$menuCPUChoice" in
+    A) functionCPUTurboToggle;;
+    B) functionCPUSetMaxPerfPct;;
+    C) functionCPUSetMinPerfPct;;
+  esac
+}
+#+end_src
+
+*** menuDisk
+#+begin_src bash
+menuDisk()
+{
+  while :
+    do
+    menu_cd_logic
+    read -n 1 opt
+    case $opt in
+
+    #https://stackoverflow.com/questions/26619222/bash-scripting-asking-user-for-input-file-how-to-make-tab-completion-work
+    A|a) echo -e "\n"; read -e -p "FULL PATH of device to use: " CD_ACTIVE_DRIVE;;
+    B|b) CD_FILENAME=$(dialog --title "Select output filename" --stdout --title "Please choose a file to write to" --fselect /tmp/ 20 50);;
+        #echo -e "\n"; read -e -p "Filename to write to: " CD_FILENAME;;
+    C|c) echo -e "\n"; disktype $CD_ACTIVE_DRIVE; read enterKey;;
+    D|d) dvd_rip;;
+    E|e) cd_ddrescue;;
+    F|f) cd_multitrack_rip;;
+    G|g) cd_multitrack_rawrip;;
+      1) flac_enc;;
+      2) ogg_enc;;
+      3) ogg_mono_enc;;
+      4) ogg_flac_enc;;
+      5) ogg_mono_flac_enc;;
+      9) cd_md5_paranoid_compare;;
+
+    Q|q|X|x) break;;
+          *) invalid;;
+
+    esac
+  done
+}
+#+end_src
+
+*** menuEnergy
+#+begin_src bash
+menu_energy()
+{
+  while :
+    do
+      menu_energy_logic
+      read -n 1 opt
+      case $opt in
+        1) menu_energy_test_input BAT0 start;;
+        2) menu_energy_test_input BAT0 stop;;
+        A|a) menu_energy_test_input BAT1 start;;
+        B|b) menu_energy_test_input BAT1 stop;;
+        Q|X|q|x) break;;
+        *) invalid;;
+      esac
+  done
+}
+#+end_src
+
+*** menuMain
+#+begin_src bash
+menuMain()
+{
+  menuMainChoice="$(dialogRunner \
+    'Main Menu' \
+    'A' 'Ansibibble' \
+    'C' 'CPU' \
+    'D' 'Drives' \
+    'E' 'Energy' \
+    'F' 'Fix Bugs' \
+    'M' 'Matrix' \
+    'N' 'Networking' \
+    'O' 'Optical' \
+    'P' 'Podcast' \
+    'R' 'Rodentia' \
+    'S' 'SSH' \
+    'W' 'Wireguard' \
+  )"
+  case "$menuMainChoice" in
+    A) menuAnsible;;
+    C) menuCPU;;
+    D) menuDrives;;
+    E) menuEnergy;;
+    F) menuBugFix;;
+    M) cmatrix;;
+    N) menuNetworks;;
+    O) menuOptical;;
+    P) menuPodcast;;
+    R) menuMouse;;
+    S) menuSSH;;
+    W) menuWireguard;;
+    *) echo "Error: $menuMainChoice is not a valid option"; exit 1;;
+  esac
+}
+#+end_src
+*** menuNetwork
+#+begin_src bash
+menu_net()
+{
+  while :
+    do
+      read -n 1 opt
+      case $opt in
+        A|a) echo -e "Not implemented";;
+        N|n) menu_nmap;;
+      esac
+    done
+}
+#+end_src
+
+*** menuNmap
+#+begin_src bash
+menu_nmap()
+{
+  while :
+    do
+      read -n 1 opt
+      case $opt in
+        A|a) nmap -sP ${IP_Range}
+      esac
+    done
+}
+#+end_src
+
+*** menuSSH
+#+begin_src bash
+menu_ssh()
+{
+  while :
+    do
+    screen_clear
+    menu_top
+    menu_cwd
+    menu_middle_lower_center
+    print_ssh_menu
+    menu_bottom sub
+
+    read -n 1 opt
+    case $opt in
+      A|a) ssh -N -L localhost:21000:192.168.0.22:22 home || ssh_error;;
+      B|b) ssh -N -L localhost:22000:192.168.1.22:22 askremote || ssh_error;;
+      C|c) sshuttle --dns -r localhost:21000 192.168.0.0/24 || ssh_error;;
+      D|d) sshuttle --dns --exclude $HOME_IP -r localhost:21000 0/0 || ssh_error;;
+      E|e) sshuttle --dns -r localhost:22000 192.168.0.0/23 || ssh_error;;
+      F|f) sshuttle --dns --exclude $HOME_IP -r localhost:22000 0/0 || ssh_error;;
+      1) true;;
+      2) true;;
+      3) true;;
+      4) true;;
+      5) true;;
+
+      Q|X|q|x) break;;
+            *) invalid;;
+    esac
+  done
+}
+#+end_src
+
+*** menuWireguard
+#+begin_src bash
+menu_wireguard()
+{
+while :
+  do
+  tput clear
+  tput civis
+  menu_top
+  menu_wg_status
+  menu_middle_lower_center
+  menu_space "Local Utilities" "Network Utilities"
+  menu_middle
+  menu_bottom sub
+
+  read -n 1 opt
+  case $opt in
+
+    1) break;;
+    2) break;;
+    3) break;;
+
+    A) break;;
+    B) break;;
+
+    Q|X|q|x) break;;
+          *) invalid;;
+  esac
+done
+}
+#+end_src
+
+** Functions
+*** Disk
+**** Flash
+**** Optical
+***** ddrescue disk to file
+-b sets sector size (default 512)
+-c sets cluster size (default 128)
+-d use direct disc access for input file
+-J reread latest good sector after every error
+-O reopen input file after every read error
+-r exit after <n> retry passes (-1=infinity) (default 0)
+-R reverse the direction of all passes
+-T maximum time since last successful read, in seconds?
+-v be verbose (a 2nd -v gives more)
+#+begin_src bash
+cd_ddrescue()
+{
+  ddrescue -dOvv -r 5 -b 2048 -T 7200 \
+  $CD_ACTIVE_DRIVE $CD_FILENAME.iso $CD_FILENAME.map &&\
+  ddrescuelog -d $CD_FILENAME.map &&\
+  eject $CD_ACTIVE_DRIVE || cd_rip_error
+}
+#+end_src
+***** Rip Audio or mixed mode CD to bin/cue/toc
+[[http://dalvikplanet.blogspot.com/2017/08/how-to-image-multitrack-audio-cd-to-bin.html][How to image multitrack audio cd to bin and cue on macOS]]
+
+#+begin_src bash
+cd_multitrack_rawrip()
+{
+  mkcue $CD_ACTIVE_DRIVE > $CD_FILENAME.cue &&\
+  cdrdao read-cd --read-raw --device $CD_ACTIVE_DRIVE --datafile \
+  $CD_FILENAME.bin $CD_FILENAME.toc &&\
+  eject $CD_ACTIVE_DRIVE || cd_rip_error
+}
+#+end_src
+
+***** Rip Audio CD to per-track WAV files
+#+begin_src bash
+rip_cd()
+{
+  clear
+  echo -e  "Currently working in: `pwd`\n\n"
+  echo -en "Currently available drives: "; ls /dev/sr*
+  echo -en "\n\tType the NUMBER of the drive to rip from: "
+  read -n 1 cd_drive
+  cdparanoia -Bwd /dev/sr$cd_drive
+  eject /dev/sr$cd_drive
+  echo -e "\n\n\tDone."
+  read enterKey
+}
+#+end_src
+**** Spinning Rust
+*** Energy
+*** Rodentia (Mouse/Trackpad/Trackpoint)
+#+begin_src bash
+trackpoint()
+{
+echo 200 > /sys/devices/platform/i8042/serio1/serio2/sensitivity
+    if [ $? = "0" ];
+        then
+            echo -e "\n\t Success";
+        else
+            echo -e "\n\t Failure!";
+    fi
+echo 200 > /sys/devices/platform/i8042/serio1/serio2/speed
+    if [ $? = "0" ];
+        then
+            echo -e "\n\t Success";
+        else
+            echo -e "\n\t Failure!";
+    fi
+xinput --set-prop 'Logitech Trackball' 255 2
+xinput --set-prop 'Logitech Trackball' 257 50
+}
+#+end_src
+
+*** SSH
+** Epilogue
+Call the menuMain function when the script starts
+#+begin_src bash
+menuMain;
+#+end_src
+
+
 [[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]
 #+begin_src emacs-lisp
   (add-to-list 'load-path "~/.config/emacs/custom")

@@ -53,11 +53,9 @@ Plug 'tmsvg/pear-tree'
     " Requires Node.js, 
 Plug 'github/copilot.vim'
 
-    " Emacs Org Mode for Neovim
-Plug 'jceb/vim-orgmode'
-    " ...and it's dependency, vim-speeddating
-Plug 'tpope/vim-speeddating'
 
+Plug 'nvim-orgmode/orgmode'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " All of your Plugins must be added before the following line
 call plug#end()

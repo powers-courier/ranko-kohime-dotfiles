@@ -2613,6 +2613,7 @@ Discourage exccessive use of arrow/hjkl keys
 #+begin_src lua
 "takac/vim-hardtime",
 #+end_src
+
 **** Markdown
 #+begin_src lua
 {
@@ -2633,9 +2634,7 @@ zc: close a fold your cursor is on
 zC: close a fold your cursor is on recursively
 
 **** Github Copilot
-Requires external dependencies
-+ Node.js
-+ 
+Requires external dependency Node.js
 
 #+begin_src lua
 "github/copilot.vim",
@@ -2645,10 +2644,6 @@ Requires external dependencies
 " Python
 " Code formatting
 Plug 'psf/black'
-
-    " Teach yourself the right way
-      " Disable arrow keys when overused
-
 
     " Code snippet suggestions
 "Plug 'sirver/ultisnips'
@@ -2954,12 +2949,12 @@ These are files we are not likely to want to edit or read.
 vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.png,.jpg"
 #+end_src
 
-
 ** Abbreviations
 *** Signature
 #+begin_src lua
   vim.cmd [[iabbrev ssig --<cr>Ranko Kohime<cr>ranko.kohime@runbox.com
 #+end_src
+
 
 * Shell
 ** aliasrc

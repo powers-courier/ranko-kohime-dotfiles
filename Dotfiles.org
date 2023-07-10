@@ -1496,13 +1496,13 @@ menuMain;
 *** DONE Enable custom themes
 Default to theme [[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]]
 #+begin_src emacs-lisp
-    (use-package cyberpunk-theme
-                 :ensure t)
-    (custom-set-variables
-      '(custom-enabled-themes
-        '(cyberpunk))
-      '(custom-safe-themes
-        '("e9d47d6d41e42a8313c81995a60b2af6588e9f01a1cf19ca42669a7ffd5c2fde" default)))
+  (use-package cyberpunk-theme
+               :ensure t)
+  (custom-set-variables
+    '(custom-enabled-themes
+      '(cyberpunk))
+    '(custom-safe-themes
+      '("e9d47d6d41e42a8313c81995a60b2af6588e9f01a1cf19ca42669a7ffd5c2fde" default)))
 #+end_src
 
 *** DONE Inhibit the startup message

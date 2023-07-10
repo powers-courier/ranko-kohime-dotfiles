@@ -1396,6 +1396,11 @@ menuMain;
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
+** Preamble
+*** Disable writing to init.el
+#+begin_src emacs-lisp
+  (setq custom-file "/dev/null")
+#+end_src
 ** Packages
 *** DONE Preamble
 **** DONE Enable custom load-path

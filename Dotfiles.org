@@ -994,8 +994,9 @@ persistent_logging: false
 :end:
 
 ** Notes
-# Reminder, curly braces {} keep current shell context
-# while paraentheses () spawn a new subshell
+*** Function parentheses
+Reminder, curly braces {} keep current shell context
+while paraentheses () spawn a new subshell
 
 [[https://devhints.io/bash][Bash script cheatsheet]]
 

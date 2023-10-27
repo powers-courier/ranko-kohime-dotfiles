@@ -2980,9 +2980,9 @@ alias lll=' ls -AhlF |less'
 *** Editors
 #+begin_src bash
 alias e='emacs'
-alias v=' ~/.local/bin/nvim.appimage'
-alias vi=' ~/.local/bin/nvim.appimage'
-alias vim=' ~/.local/bin/nvim.appimage'
+alias v=' $HOME/.local/bin/nvim.appimage'
+alias vi=' $HOME/.local/bin/nvim.appimage'
+alias vim=' $HOME/.local/bin/nvim.appimage'
 #+end_src
 
 *** Exits
@@ -3030,7 +3030,7 @@ alias ssh=' ssh'
 
 *** Pass
 #+begin_src bash
-alias pass=' EDITOR=/usr/bin/nano GNUPGHOME=~/.password-store/.gnupg pass'
+alias pass=' EDITOR=/usr/bin/nano GNUPGHOME=$HOME/.password-store/.gnupg pass'
 #+end_src
 
 *** X server root access

@@ -3424,3 +3424,11 @@ setopt extended_glob
 #+begin_src bash
 setopt RM_STAR_WAIT
 #+end_src
+
+**** Aliases
+source $HOME/.config/shell/aliasrc
+
+**** Custom environment variables
+source $HOME/.config/shell/environment
+ZDOTDIR=$HOME/.config/shell
+

@@ -3039,6 +3039,7 @@ alias allowroot='xhost +local:root'    # Allow root access to X server
 alias denyroot='xhost -'               # Deny root access to X server
 #+end_src
 
+*** Unsorted
 alias micfix='watch -n 0.1 pactl set-source-volume alsa_input.pci-0000_00_1b.0.analog-stereo 6554'
 alias tag=' easytag .; exfalso .; exit'
 alias vgain='vorbisgain -a *.ogg'
@@ -3119,7 +3120,7 @@ alias sg='picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --
 
 ** bashrc
 :properties:
-:header-args+: :tangle .bashrc
+:header-args+: :tangle ~/.bashrc
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
@@ -3272,21 +3273,46 @@ fi
 
 ** Environment
 :properties:
-:header-args+: :tangle .config/shell/environment
+:header-args+: :tangle ~/.profile
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
 
-*** Cheat Manager
+*** XDG Specifications
+These need to be before all the other variables.
 #+begin_src bash
-export DEFAULT_CHEAT_DIR=/home/ranko/Documents/cheat
+XDG_CACHE_HOME=$HOME/.cache
+XDG_CONFIG_HOME=$HOME/.config
+XDG_DATA_HOME=$HOME/.local/share
+XDG_STATE_HOME=$HOME/.local/state
+#+end_src
+
+*** Paths
+#+begin_src bash
+PATH=$PATH:$HOME/.local/bin
+#+end_src
+
+*** Application Specific
+**** cheat
+#+begin_src bash
+export DEFAULT_CHEAT_DIR=$HOME/Documents/cheat
 export CHEATCOLORS=true
+#+end_src
+
+**** nmon
+#+begin_src bash
+export NMON=lmdn.
+#+end_src
+
+**** vim
+#+begin_src bash
+export VIMDOTDIR="$XDG_CONFIG_HOME/vim"
 #+end_src
 
 *** EDITOR
 #+begin_src bash
-export EDITOR=nvim.appimage
-export VISUAL=nvim.appimage
+export EDITOR=$HOME/.local/bin/nvim.appimage
+export VISUAL=$HOME/.local/bin/nvim.appimage
 #+end_src
 
 *** Games
@@ -3295,26 +3321,19 @@ export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0
 export SDL_VIDEO_FULLSCREEN_DISPLAY=0
 #+end_src
 
-*** nmon
-#+begin_src bash
-export NMON=lmdn.
-#+end_src
-
-*** Paths
-#+begin_src bash
-XDG_CONFIG_HOME=$HOME/.config
-XDG_DATA_HOME=$HOME/.local/share
-XDG_CACHE_HOME=$HOME/.cache
-PATH=$PATH:/home/ranko/.local/bin:/home/ranko/bin
-#+end_src
-
 *** Other stuff
 # Because QT and Input hot-plugging equals SADNESS!  :(
 # What mean this? ^^^^^^^^^^^^^^^
-QT_XCB_NO_XI2_MOUSE=1
+# QT_XCB_NO_XI2_MOUSE=1
 
 # Why does QT hate GTK?  (No love from qt5ct)
-QT_QPA_PLATFORMTHEME=qt5ct
+# QT_QPA_PLATFORMTHEME=qt5ct
+
+*** Shell Specific
+**** zsh
+#+begin_src bash
+ZDOTDIR=$XDG_CONFIG_HOME/zsh
+#+end_src
 
 *** Systemctl Paging
 Uncomment the following line if you don't like systemctl's auto-paging feature:

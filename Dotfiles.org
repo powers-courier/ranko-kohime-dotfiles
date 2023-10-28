@@ -3326,3 +3326,46 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
 #+begin_src bash
 export VIMDOTDIR="$XDG_CONFIG_HOME/nvim"
 #+end_src
+**** History
+***** Don't add command to history if prepended with a space
+#+begin_src bash
+setopt HIST_IGNORE_SPACE
+#+end_src
+
+***** Don't overwrite history file
+#+begin_src bash
+setopt APPEND_HISTORY
+#+end_src
+
+***** Set filename and path of history file (Disabled)
+#HISTFILE=$HOME/.config/shell/shell-history/history-`whoami`@`cat /etc/hostname`
+
+***** Set history to an unreasonably large size
+#+begin_src bash
+HISTSIZE=999999999
+SAVEHIST=999999999
+#+end_src
+
+***** Add timestamps to each command
+#+begin_src bash
+HIST_STAMPS="yyyy-mm-dd"
+#+end_src
+
+***** History deduplication
+****** Ignore all dups
+If a new command line being added to the history list duplicates an older one,
+the older command is removed from the list (even if it is not the previous event)
+#+begin_src bash
+setopt HIST_IGNORE_ALL_DUPS
+#+end_src
+
+****** Do not enter command lines into the history list if they are duplicates of the previous event
+#+begin_src bash
+setopt HIST_IGNORE_DUPS
+#+end_src
+
+****** When writing out the history file, older commands that duplicate newer ones are omitted
+#+begin_src bash
+setopt HIST_SAVE_NO_DUPS
+#+end_src
+

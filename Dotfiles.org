@@ -3369,3 +3369,39 @@ setopt HIST_IGNORE_DUPS
 setopt HIST_SAVE_NO_DUPS
 #+end_src
 
+**** Custom Options
+***** Changing directories and the Stack
+****** Automatically change directory if "command" is a valid folder
+#+begin_src bash
+setopt AUTO_CD
+#+end_src
+
+****** Add previous directory to the stack automatically
+#+begin_src bash
+setopt AUTO_PUSHD
+#+end_src
+
+****** Try to prepend a "command" with ~ if folder exists within home directory before giving up
+#+begin_src bash
+setopt CDABLE_VARS
+#+end_src
+
+****** Don’t push multiple copies of the same directory onto the directory stack
+#+begin_src bash
+setopt PUSHD_IGNORE_DUPS
+#+end_src
+
+***** Beep on errors
+#+begin_src bash
+setopt beep
+#+end_src
+
+***** Extended globglobglobglobblobBobLoblawsLawBlog
+#+begin_src bash
+setopt extended_glob
+#+end_src
+
+***** Force a countdown timer when rm with asterisk
+#+begin_src bash
+setopt RM_STAR_WAIT
+#+end_src

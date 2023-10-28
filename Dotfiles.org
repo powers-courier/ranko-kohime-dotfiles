@@ -4,23 +4,6 @@
 #+startup: content
 ;#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments both
 
-* Notes
-Reminder: Disable code blocks by wrapping in square brackets [ ]
-
-https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
-
-
-Cyberpunk Theme
-https://github.com/n3mo/cyberpunk-theme.el
-
-Monokai Theme
-https://github.com/oneKelvinSmith/monokai-emacs
-
-Doom Emacs requires rg, or ripgrep
-Also requires fd, or find
-and one of the following: markedjs, pandoc, or multimarkdown
-
-
 * Alacritty
 :properties:
 :header-args+: :tangle .config/alacritty/alacritty.yml
@@ -1397,6 +1380,23 @@ menuMain;
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
+
+** Notes
+*** Reminder: Disable code blocks by wrapping in square brackets [ ]
+
+*** Formatting Lisp
+https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
+
+*** Cyberpunk Theme
+https://github.com/n3mo/cyberpunk-theme.el
+
+*** Monokai Theme
+https://github.com/oneKelvinSmith/monokai-emacs
+
+Doom Emacs requires rg, or ripgrep
+Also requires fd, or find
+and one of the following: markedjs, pandoc, or multimarkdown
+
 ** Preamble
 *** Disable writing to init.el
 #+begin_src emacs-lisp

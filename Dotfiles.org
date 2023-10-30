@@ -3271,7 +3271,7 @@ if ! shopt -oq posix; then
 fi
 #+end_src
 
-** Environment
+** Environment (~/.profile)
 :properties:
 :header-args+: :tangle ~/.profile
 :header-args+: :tangle-mode (identity #o444)
@@ -3341,7 +3341,146 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
 #export SYSTEMD_PAGER=
 #+end_src
 
-*** VIM
+** tmux
+*** Set terminal colors
+#+begin_src bash
+set -g default-terminal "screen-256color"
+#+end_src
+
+*** Set parent terminal title to reflect current window in tmux session 
+#+begin_src bash
+set -g set-titles on
+set -g set-titles-string "#I:#W"
+#+end_src
+
+*** Start index of window/pane with 1, because we're humans, not computers
+**** Windows
+#+begin_src bash
+set -g base-index 1
+#+end_src
+
+**** Panes
+#+begin_src bash
+set-window-option -g pane-base-index 1
+#+end_src
+
+*** Renumber windows automatically on close
+#+begin_src bash
+set-option -g renumber-windows on
+#+end_src
+
+*** Set reasonable history limit
+#+begin_src bash
+set -g history-limit 100000
+#+end_src
+
+*** Not sure if we want mouse support yet, so let's disable it for now
+#+begin_src bash
+set -g mouse off
+#+end_src
+
+*** Color scheme
+#+begin_src
+set -g status-bg colour237
+setw -g window-status-style fg=colour208
+setw -g window-status-current-style fg=colour232,bg=colour244
+setw -g pane-active-border-style fg=colour82,bg=colour82
+#+end_src
+
+*** Status line
+*** Left
+#+begin_src
+set -g status-left-length 1
+set -g status-left ""
+#+end_src
+
+*** Status Bar Options
+#+begin_src
+set -g status-justify left
+set -g monitor-activity on
+set -g visual-activity on
+#+end_src
+
+*** Right
+#+begin_src
+set -g status-right-length 100
+#set -g status-right "#(~/.config/tmux/plugins/tmux-powerline/powerline.sh right)"
+set -g status-right "#[bg=colour16] #[fg=colour40]#(~/.config/tmux/scripts/memory.sh -m)%#[fg=colour158]/#[fg=colour196]#(~/.config/tmux/scripts/memory.sh -s)% #[fg=colour226]#(~/.config/tmux/scripts/battery.sh) #[fg=colour158]#H"
+#+end_src
+
+*** Keymappings
+    # remap prefix from 'C-b' to 'C-a'
+    # As a reminder, unbind frees up C-b for other uses,
+unbind C-b
+    # this sets C-a as the new prefix
+set-option -g prefix C-a
+    # and this makes C-a send the prefix key to the embedded application (nested tmux)
+bind-key C-a send-prefix
+
+    # split panes using | and -
+unbind '"'
+unbind %
+bind | split-window -h
+bind - split-window -v
+
+    # reload config file
+bind r source-file ~/.config/tmux/tmux.conf
+
+    # switch panes using Alt-arrow without prefix
+bind -n M-Left select-pane -L
+bind -n M-Right select-pane -R
+bind -n M-Up select-pane -U
+bind -n M-Down select-pane -D
+
+    # switch panes using Vim keys, with prefix
+bind -r h select-pane -L
+bind -r j select-pane -D
+bind -r k select-pane -U
+bind -r l select-pane -R
+
+    # resize panes with CAPITAL Vim keys, with prefix
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+    # Home row window selection
+bind -r C-h select-window -t :-
+bind -r C-l select-window -t :+
+
+  # Byobu keybindings
+    # New window
+bind-key -n F2 new-window -c "#{pane_current_path}"
+bind-key -n C-F2 display-panes \; split-window -h -c "#{pane_current_path}"
+bind-key -n S-F2 display-panes \; split-window -v -c "#{pane_current_path}"
+    # Previous window/pane
+bind-key -n F3 previous-window
+bind-key -n S-F3 select-pane -t :-
+    # Next window/pane
+bind-key -n F4 next-window
+bind-key -n S-F4 select-pane -t :+
+    # Disconnect, kill pane
+bind-key -n F6 detach
+bind-key -n C-F6 kill-pane
+    # Copy mode
+bind-key -n F7 copy-mode
+
+    # Keybinds for tmux-powerline
+#bind C-[ run '~/path/to/tmux-powerline/mute_powerline.sh left'
+#bind C-] run '~/path/to/tmux-powerline/mute_powerline.sh right'
+
+*** Plugins
+#set -g @plugin 'tmux-plugins/tpm'
+#set -g @plugin 'erikw/tmux-powerline'
+
+    # Call TPM (Must remain at bottom of file)
+#run '~/.config/tmux/plugins/tpm/tpm'
+
+# Enable vi keys for copy/pasting
+# https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
+# setw -g mode-keys vi
+** zshrc
+zshrc is read from $ZDOTDIR, so we should set this.  Where? (~/.profile)?
 *** ~/.zshrc
 :properties:
 :header-args+: :tangle ~/.zshrc

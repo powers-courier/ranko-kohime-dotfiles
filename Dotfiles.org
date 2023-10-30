@@ -1727,14 +1727,15 @@ Does not work with Evil mode!
 ;; Set <leader>w to save and close the current buffer
 ;; Set <leader>e to open a file
 #+begin_src emacs-lisp
+  [(define-key my-leader-map "b" 'list-buffers)]
+  (evil-define-key 'normal 'global (kbd "<leader>b") 'list-buffers)
 #+end_src
-
 
 ** Modeline
   Reminder: there is also a [[https://www.emacswiki.org/emacs/HeaderLine][Header Line]]
 *** Appearance
-   Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]?
-**** mode-line-format
+Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]?
+[[https://www.gnu.org/software/emacs/manual/html_node/elisp/_0025_002dConstructs.html][Constructs in the Mode Line]]
 [[https://www.emacswiki.org/emacs/ModeLineConfiguration][Mode Line Configuration]]
 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html][Mode Line Variables]]
 #+begin_src emacs-lisp

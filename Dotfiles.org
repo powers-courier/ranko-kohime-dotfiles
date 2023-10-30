@@ -3342,8 +3342,20 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
 #+end_src
 
 *** VIM
+*** ~/.zshrc
+:properties:
+:header-args+: :tangle ~/.zshrc
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments both
+:end:
+
+This is just a stub to make sure the real config file is loaded.
 #+begin_src bash
-export VIMDOTDIR="$XDG_CONFIG_HOME/nvim"
+if [[[[ -f ~/.config/zsh/zshrc ]]]]; then
+    source ~/.config/zsh/zshrc
+  else
+    echo "No ~/.config/shell/zshrc file found."
+fi
 #+end_src
 **** History
 ***** Don't add command to history if prepended with a space
@@ -3426,9 +3438,11 @@ setopt RM_STAR_WAIT
 #+end_src
 
 **** Aliases
+#+begin_src bash
 source $HOME/.config/shell/aliasrc
+#+end_src
 
 **** Custom environment variables
+#+begin_src bash
 source $HOME/.config/shell/environment
-ZDOTDIR=$HOME/.config/shell
-
+#+end_src

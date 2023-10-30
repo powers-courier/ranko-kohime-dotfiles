@@ -3493,9 +3493,36 @@ This is just a stub to make sure the real config file is loaded.
 if [[[[ -f ~/.config/zsh/zshrc ]]]]; then
     source ~/.config/zsh/zshrc
   else
-    echo "No ~/.config/shell/zshrc file found."
+    echo "No ~/.config/zsh/zshrc file found."
 fi
 #+end_src
+
+*** ~/.config/zsh/zshrc
+**** Key Setups
+#bindkey -e
+  # also do history expansion on space
+#bindkey ' ' magic-space
+  # setup backspace correctly
+#  stty erase `tput kbs`
+  # Alternate Backspace
+#  stty erase ^?
+  # Insert Key
+#bindkey '^[[2~' overwrite-mode
+  # Delete Key
+#bindkey '^[[3~' delete-char
+  # Home Key
+#bindkey '^[[1~' beginning-of-line
+  # End Key
+#bindkey '^[[4~' end-of-line
+  # Beginning of History
+#bindkey '^[[5~' beginning-of-history    
+  # End of History
+#bindkey '^[[6~' end-of-history          
+  # Tab Completion
+#bindkey '^i' expand-or-complete-prefix  
+#bindkey '^[[1;5D' backward-word
+#bindkey '^[[1;5C' forward-word
+
 **** History
 ***** Don't add command to history if prepended with a space
 #+begin_src bash

@@ -6,7 +6,8 @@
 
 * Alacritty
 :properties:
-:header-args+: :tangle .config/alacritty/alacritty.yml
+:header-args+: :tangle no
+#:header-args+: :tangle .config/alacritty/alacritty.yml
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:

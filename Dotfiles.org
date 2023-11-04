@@ -3511,16 +3511,6 @@ bind-key -n F7 copy-mode
 :header-args+: :comments both
 :end:
 
-This is just a stub to make sure the real config file is loaded.
-#+begin_src bash
-if [[[[ -f ~/.config/zsh/zshrc ]]]]; then
-    source ~/.config/zsh/zshrc
-  else
-    echo "No ~/.config/zsh/zshrc file found."
-fi
-#+end_src
-
-*** ~/.config/zsh/zshrc
 *** TODO Key Setups
 #bindkey -e
   # also do history expansion on space

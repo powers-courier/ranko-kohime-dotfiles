@@ -3201,15 +3201,6 @@ shopt -s histappend
 **** DONE History length
 for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 #+begin_src bash
-#+end_src
-
-*** User specific environment
-#+begin_src bash
-if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
-then
-    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
-fi
-export PATH
 HISTSIZE=100000
 HISTFILESIZE=200000
 #+end_src

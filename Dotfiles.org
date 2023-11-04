@@ -3201,8 +3201,6 @@ shopt -s histappend
 **** DONE History length
 for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 #+begin_src bash
-HISTSIZE=1000
-HISTFILESIZE=2000
 #+end_src
 
 *** User specific environment
@@ -3212,6 +3210,8 @@ then
     PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 fi
 export PATH
+HISTSIZE=100000
+HISTFILESIZE=200000
 #+end_src
 
 *** DONE Window size check

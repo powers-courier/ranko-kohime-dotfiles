@@ -1398,7 +1398,7 @@ Doom Emacs requires rg, or ripgrep
 Also requires fd, or find
 and one of the following: markedjs, pandoc, or multimarkdown
 
-** Preamble
+** TODO Preamble
 *** Disable writing to init.el
 #+begin_src emacs-lisp
   (setq custom-file "/dev/null")
@@ -3004,14 +3004,14 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 * Shell
 ** aliasrc
 :properties:
-:header-args+: :tangle .config/shell/aliasrc
+:header-args+: :tangle $HOME/.aliasrc
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
 
 Custom Aliases
 
-*** Directory Listing
+*** DONE Directory Listing
 #+begin_src bash
 alias ..=' cd ..'
 alias ...=' cd ../..'
@@ -3021,7 +3021,7 @@ alias ll=' ls -AhlF --color=always'
 alias lll=' ls -AhlF |less'
 #+end_src
 
-*** Editors
+*** DONE Editors
 #+begin_src bash
 alias e='emacs'
 alias v=' $HOME/.local/bin/nvim.appimage'
@@ -3029,7 +3029,7 @@ alias vi=' $HOME/.local/bin/nvim.appimage'
 alias vim=' $HOME/.local/bin/nvim.appimage'
 #+end_src
 
-*** Exits
+*** DONE Exits
 #+begin_src bash
 alias x=' exit'
 alias q=' exit'
@@ -3057,7 +3057,8 @@ alias gitpr=' git pull;git submodule foreach git pull'
 alias gunstage=' git reset'
 #+end_src
 
-*** Mysterious History
+*** DONE Mysterious History
+These commands will not be committed to history, if this is set in the shell
 #+begin_src bash
 alias alias=' alias'
 alias c=' concalc'
@@ -3083,7 +3084,7 @@ alias allowroot='xhost +local:root'    # Allow root access to X server
 alias denyroot='xhost -'               # Deny root access to X server
 #+end_src
 
-*** Unsorted
+*** TODO Unsorted
 alias micfix='watch -n 0.1 pactl set-source-volume alsa_input.pci-0000_00_1b.0.analog-stereo 6554'
 alias tag=' easytag .; exfalso .; exit'
 alias vgain='vorbisgain -a *.ogg'
@@ -3162,14 +3163,14 @@ alias sg='picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --
 # Transfer whole disk
 # dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
 
-** bashrc
+** TODO bashrc
 :properties:
 :header-args+: :tangle ~/.bashrc
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
 
-*** If not running interactively, don't do anything
+*** DONE If not running interactively, don't do anything
 #+begin_src bash
 case $- in
     *i*) ;;
@@ -3177,27 +3178,27 @@ case $- in
 esac
 #+end_src
 
-*** Source global definitions
+*** DONE Source global definitions
 #+begin_src bash
 if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 #+end_src
 
-*** History
-**** Quiet history
+*** DONE History
+**** DONE Quiet history
 Don't put duplicate lines or lines starting with space in the history.
 See bash(1) for more options
 #+begin_src bash
 HISTCONTROL=ignoreboth
 #+end_src
 
-**** Append to the history file, don't overwrite it
+**** DONE Append to the history file, don't overwrite it
 #+begin_src bash
 shopt -s histappend
 #+end_src
 
-**** History length
+**** DONE History length
 for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 #+begin_src bash
 HISTSIZE=1000
@@ -3213,28 +3214,29 @@ fi
 export PATH
 #+end_src
 
-*** Window size check
+*** DONE Window size check
 check the window size after each command and, if necessary,
 update the values of LINES and COLUMNS.
 #+begin_src bash
 shopt -s checkwinsize
 #+end_src
 
-*** I... AM... GLOBSTAR!!
+*** DONE I... AM... GLOBSTAR!!
 If set, the pattern "**" used in a pathname expansion context will
 match all files and zero or more directories and subdirectories.
 #+begin_src bash
 shopt -s globstar
 #+end_src
 
-*** Fancy Prompt
+*** TODO Fancy Prompt
 set a fancy prompt (non-color, unless we know we "want" color)
 #+begin_src bash
 case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
 esac
 #+end_src
-**** Color Prompt
+
+**** TODO Color Prompt
 uncomment for a colored prompt, if the terminal has the capability; turned
 off by default to not distract the user: the focus in a terminal window
 should be on the output of commands, not on the prompt
@@ -3266,7 +3268,7 @@ fi
 unset color_prompt force_color_prompt
 #+end_src
 
-*** Set Title
+*** DONE Set GUI Terminal Title
 If this is an xterm set the title to user@host:dir
 #+begin_src bash
 case "$TERM" in
@@ -3278,7 +3280,7 @@ xterm*|rxvt*)
 esac
 #+end_src
 
-*** Colored GCC warnings and errors
+*** WAIT Colored GCC warnings and errors
 #+begin_src bash
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 #+end_src
@@ -3290,18 +3292,18 @@ Add an "alert" alias for long running commands.  Use like so:
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 #+end_src
 
-*** Alias definitions
+*** DONE Alias definitions
 You may want to put all your additions into a separate file like
 ~/.bash_aliases, instead of adding them here directly.
 See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
 #+begin_src bash
-if [ -f ~/.config/shell/aliasrc ]; then
-    . ~/.config/shell/aliasrc
+if [ -f $HOME/.aliasrc ]; then
+    . $HOME/.aliasrc
 fi
 #+end_src
 
-*** Programmable completion features
+*** DONE Programmable completion features
 enable programmable completion features (you don't need to enable
 this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 sources /etc/bash.bashrc).
@@ -3322,7 +3324,7 @@ fi
 :header-args+: :comments both
 :end:
 
-*** XDG Specifications
+*** DONE XDG Specifications
 These need to be before all the other variables.
 #+begin_src bash
 XDG_CACHE_HOME=$HOME/.cache
@@ -3331,7 +3333,7 @@ XDG_DATA_HOME=$HOME/.local/share
 XDG_STATE_HOME=$HOME/.local/state
 #+end_src
 
-*** Paths
+*** DONE Paths
 #+begin_src bash
 PATH=$PATH:$HOME/.local/bin
 #+end_src
@@ -3359,13 +3361,13 @@ export EDITOR=$HOME/.local/bin/nvim.appimage
 export VISUAL=$HOME/.local/bin/nvim.appimage
 #+end_src
 
-*** Games
+*** DONE Games
 #+begin_src bash
 export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0
 export SDL_VIDEO_FULLSCREEN_DISPLAY=0
 #+end_src
 
-*** Other stuff
+*** TODO Other stuff
 # Because QT and Input hot-plugging equals SADNESS!  :(
 # What mean this? ^^^^^^^^^^^^^^^
 # QT_XCB_NO_XI2_MOUSE=1
@@ -3373,57 +3375,52 @@ export SDL_VIDEO_FULLSCREEN_DISPLAY=0
 # Why does QT hate GTK?  (No love from qt5ct)
 # QT_QPA_PLATFORMTHEME=qt5ct
 
-*** Shell Specific
-**** zsh
+*** DONE Shell Specific
+**** DONE zsh
 #+begin_src bash
 ZDOTDIR=$XDG_CONFIG_HOME/zsh
 #+end_src
 
-*** Systemctl Paging
+*** TODO Systemctl Paging
 Uncomment the following line if you don't like systemctl's auto-paging feature:
 #+begin_src bash
 #export SYSTEMD_PAGER=
 #+end_src
 
-** tmux
-*** Set terminal colors
+** TODO tmux
+*** DONE Set terminal colors
 #+begin_src bash
 set -g default-terminal "screen-256color"
 #+end_src
 
-*** Set parent terminal title to reflect current window in tmux session 
+*** DONE Set parent terminal title to reflect current window in tmux session
 #+begin_src bash
 set -g set-titles on
 set -g set-titles-string "#I:#W"
 #+end_src
 
-*** Start index of window/pane with 1, because we're humans, not computers
-**** Windows
+*** DONE Start index of window/pane with 1, because we're humans, not computers
 #+begin_src bash
 set -g base-index 1
-#+end_src
-
-**** Panes
-#+begin_src bash
 set-window-option -g pane-base-index 1
 #+end_src
 
-*** Renumber windows automatically on close
+*** DONE Renumber windows automatically on close
 #+begin_src bash
 set-option -g renumber-windows on
 #+end_src
 
-*** Set reasonable history limit
+*** DONE Set reasonable history limit
 #+begin_src bash
 set -g history-limit 100000
 #+end_src
 
-*** Not sure if we want mouse support yet, so let's disable it for now
+*** DONE Not sure if we want mouse support yet, so let's disable it for now
 #+begin_src bash
 set -g mouse off
 #+end_src
 
-*** Color scheme
+*** WAIT Color scheme
 #+begin_src
 set -g status-bg colour237
 setw -g window-status-style fg=colour208
@@ -3431,28 +3428,28 @@ setw -g window-status-current-style fg=colour232,bg=colour244
 setw -g pane-active-border-style fg=colour82,bg=colour82
 #+end_src
 
-*** Status line
-*** Left
+*** WAIT Status line
+**** Left
 #+begin_src
 set -g status-left-length 1
 set -g status-left ""
 #+end_src
 
-*** Status Bar Options
+**** Status Bar Options
 #+begin_src
 set -g status-justify left
 set -g monitor-activity on
 set -g visual-activity on
 #+end_src
 
-*** Right
+**** Right
 #+begin_src
 set -g status-right-length 100
 #set -g status-right "#(~/.config/tmux/plugins/tmux-powerline/powerline.sh right)"
 set -g status-right "#[bg=colour16] #[fg=colour40]#(~/.config/tmux/scripts/memory.sh -m)%#[fg=colour158]/#[fg=colour196]#(~/.config/tmux/scripts/memory.sh -s)% #[fg=colour226]#(~/.config/tmux/scripts/battery.sh) #[fg=colour158]#H"
 #+end_src
 
-*** Keymappings
+*** TODO Keymappings
     # remap prefix from 'C-b' to 'C-a'
     # As a reminder, unbind frees up C-b for other uses,
 unbind C-b
@@ -3513,7 +3510,7 @@ bind-key -n F7 copy-mode
 #bind C-[ run '~/path/to/tmux-powerline/mute_powerline.sh left'
 #bind C-] run '~/path/to/tmux-powerline/mute_powerline.sh right'
 
-*** Plugins
+*** TODO Plugins
 #set -g @plugin 'tmux-plugins/tpm'
 #set -g @plugin 'erikw/tmux-powerline'
 
@@ -3523,9 +3520,7 @@ bind-key -n F7 copy-mode
 # Enable vi keys for copy/pasting
 # https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
 # setw -g mode-keys vi
-** zshrc
-zshrc is read from $ZDOTDIR, so we should set this.  Where? (~/.profile)?
-*** ~/.zshrc
+** TODO zshrc
 :properties:
 :header-args+: :tangle ~/.zshrc
 :header-args+: :tangle-mode (identity #o444)
@@ -3542,7 +3537,7 @@ fi
 #+end_src
 
 *** ~/.config/zsh/zshrc
-**** Key Setups
+*** TODO Key Setups
 #bindkey -e
   # also do history expansion on space
 #bindkey ' ' magic-space
@@ -3567,92 +3562,92 @@ fi
 #bindkey '^[[1;5D' backward-word
 #bindkey '^[[1;5C' forward-word
 
-**** History
-***** Don't add command to history if prepended with a space
+*** TODO History
+***** DONE Don't add command to history if prepended with a space
 #+begin_src bash
 setopt HIST_IGNORE_SPACE
 #+end_src
 
-***** Don't overwrite history file
+***** DONE Don't overwrite history file
 #+begin_src bash
 setopt APPEND_HISTORY
 #+end_src
 
-***** Set filename and path of history file (Disabled)
+***** TODO Set filename and path of history file (Disabled)
 #HISTFILE=$HOME/.config/shell/shell-history/history-`whoami`@`cat /etc/hostname`
 
-***** Set history to an unreasonably large size
+***** DONE Set history to an unreasonably large size
 #+begin_src bash
 HISTSIZE=999999999
 SAVEHIST=999999999
 #+end_src
 
-***** Add timestamps to each command
+***** DONE Add timestamps to each command
 #+begin_src bash
 HIST_STAMPS="yyyy-mm-dd"
 #+end_src
 
-***** History deduplication
-****** Ignore all dups
+***** DONE History deduplication
+****** DONE Ignore all dups
 If a new command line being added to the history list duplicates an older one,
 the older command is removed from the list (even if it is not the previous event)
 #+begin_src bash
 setopt HIST_IGNORE_ALL_DUPS
 #+end_src
 
-****** Do not enter command lines into the history list if they are duplicates of the previous event
+****** DONE Do not enter command lines into the history list if they are duplicates of the previous event
 #+begin_src bash
 setopt HIST_IGNORE_DUPS
 #+end_src
 
-****** When writing out the history file, older commands that duplicate newer ones are omitted
+****** DONE When writing out the history file, older commands that duplicate newer ones are omitted
 #+begin_src bash
 setopt HIST_SAVE_NO_DUPS
 #+end_src
 
-**** Custom Options
-***** Changing directories and the Stack
-****** Automatically change directory if "command" is a valid folder
+*** DONE Custom Options
+***** DONE Changing directories and the Stack
+****** DONE Automatically change directory if "command" is a valid folder
 #+begin_src bash
 setopt AUTO_CD
 #+end_src
 
-****** Add previous directory to the stack automatically
+****** DONE Add previous directory to the stack automatically
 #+begin_src bash
 setopt AUTO_PUSHD
 #+end_src
 
-****** Try to prepend a "command" with ~ if folder exists within home directory before giving up
+****** DONE Try to prepend a "command" with ~ if folder exists within home directory before giving up
 #+begin_src bash
 setopt CDABLE_VARS
 #+end_src
 
-****** Don’t push multiple copies of the same directory onto the directory stack
+****** DONE Don’t push multiple copies of the same directory onto the directory stack
 #+begin_src bash
 setopt PUSHD_IGNORE_DUPS
 #+end_src
 
-***** Beep on errors
+***** DONE Beep on errors
 #+begin_src bash
 setopt beep
 #+end_src
 
-***** Extended globglobglobglobblobBobLoblawsLawBlog
+***** DONE Extended globglobglobglobblobBobLoblawsLawBlog
 #+begin_src bash
 setopt extended_glob
 #+end_src
 
-***** Force a countdown timer when rm with asterisk
+***** DONE Force a countdown timer when rm with asterisk
 #+begin_src bash
 setopt RM_STAR_WAIT
 #+end_src
 
-**** Aliases
+*** DONE Aliases
 #+begin_src bash
-source $HOME/.config/shell/aliasrc
+source $HOME/.aliasrc
 #+end_src
 
-**** Custom environment variables
+*** DONE Custom environment variables
 #+begin_src bash
-source $HOME/.config/shell/environment
+source $HOME/.profile
 #+end_src

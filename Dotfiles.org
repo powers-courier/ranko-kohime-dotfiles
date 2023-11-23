@@ -1578,7 +1578,7 @@ C-c SPC to flash xhair
   (global-highlight-parentheses-mode t)]
 #+end_src
 
-*** DONE Address useless whitespace
+*** DONE Highlight useless whitespace
 [[https://emacsdocs.org/docs/emacs/Useless-Whitespace][Emacs Docs 14.16: Useless-Whitespace]]
 #+begin_src emacs-lisp
   (setq-default show-trailing-whitespace t)
@@ -1610,8 +1610,9 @@ Double check this in GUI mode, not satisfactory in terminal
   (setq-default scroll-margin 5)
 #+end_src
 
-** DONE Org Mode
-*** DONE Enable Org Mode (is this superfluos?)
+** TODO Org Mode
+*** DONE Enable Org Mode
+Is this superfluos?
 #+begin_src emacs-lisp
   (require 'org)
 #+end_src
@@ -1632,7 +1633,9 @@ Expands e.g. <s to code blocks
   (setq-default org-indent-mode t)
   (setq-default org-startup-indented t)
 #+end_src
-*** DONE Set the agenda key, in case it's not set
+
+*** DONE Keybinds
+**** DONE Set the agenda key, in case it's not set
 #+begin_src emacs-lisp
   (global-set-key "\C-ca" 'org-agenda)
 #+end_src
@@ -1732,7 +1735,7 @@ Does not work with Evil mode!
   (evil-define-key 'normal 'global (kbd "<leader>b") 'list-buffers)
 #+end_src
 
-** Modeline
+** TODO Modeline
   Reminder: there is also a [[https://www.emacswiki.org/emacs/HeaderLine][Header Line]]
 *** Appearance
 Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]?
@@ -1839,7 +1842,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
         user-mail-address "ranko.kohime@runbox.com")
 #+end_src
 
-*** TODO Enable CUA mode for C-x, C-c, C-v
+*** WAIT Enable CUA mode for C-x, C-c, C-v
 #+begin_src emacs-lisp
   [(custom-set-variables
     '(cua-mode t nil
@@ -3373,39 +3376,39 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
 
 ** TODO tmux
 *** DONE Set terminal colors
-#+begin_src bash
+#+begin_src sh
 set -g default-terminal "screen-256color"
 #+end_src
 
 *** DONE Set parent terminal title to reflect current window in tmux session
-#+begin_src bash
+#+begin_src sh
 set -g set-titles on
 set -g set-titles-string "#I:#W"
 #+end_src
 
 *** DONE Start index of window/pane with 1, because we're humans, not computers
-#+begin_src bash
+#+begin_src sh
 set -g base-index 1
 set-window-option -g pane-base-index 1
 #+end_src
 
 *** DONE Renumber windows automatically on close
-#+begin_src bash
+#+begin_src sh
 set-option -g renumber-windows on
 #+end_src
 
 *** DONE Set reasonable history limit
-#+begin_src bash
+#+begin_src sh
 set -g history-limit 100000
 #+end_src
 
 *** DONE Not sure if we want mouse support yet, so let's disable it for now
-#+begin_src bash
+#+begin_src sh
 set -g mouse off
 #+end_src
 
 *** WAIT Color scheme
-#+begin_src
+#+begin_src sh
 set -g status-bg colour237
 setw -g window-status-style fg=colour208
 setw -g window-status-current-style fg=colour232,bg=colour244
@@ -3414,20 +3417,20 @@ setw -g pane-active-border-style fg=colour82,bg=colour82
 
 *** WAIT Status line
 **** Left
-#+begin_src
+#+begin_src sh
 set -g status-left-length 1
 set -g status-left ""
 #+end_src
 
 **** Status Bar Options
-#+begin_src
+#+begin_src sh
 set -g status-justify left
 set -g monitor-activity on
 set -g visual-activity on
 #+end_src
 
 **** Right
-#+begin_src
+#+begin_src sh
 set -g status-right-length 100
 #set -g status-right "#(~/.config/tmux/plugins/tmux-powerline/powerline.sh right)"
 set -g status-right "#[bg=colour16] #[fg=colour40]#(~/.config/tmux/scripts/memory.sh -m)%#[fg=colour158]/#[fg=colour196]#(~/.config/tmux/scripts/memory.sh -s)% #[fg=colour226]#(~/.config/tmux/scripts/battery.sh) #[fg=colour158]#H"
@@ -3504,7 +3507,7 @@ bind-key -n F7 copy-mode
 # Enable vi keys for copy/pasting
 # https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
 # setw -g mode-keys vi
-** TODO zshrc
+** TODO zshrc [/]
 :properties:
 :header-args+: :tangle ~/.zshrc
 :header-args+: :tangle-mode (identity #o444)

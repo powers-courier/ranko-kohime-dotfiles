@@ -1501,6 +1501,44 @@ Emacs doesn't like this being /dev/null, so we'll be nice about it.
                :ensure t)
 #+end_src
 
+*** TODO Syntax linting using flycheck
+**** Install flycheck
+#+begin_src emacs-lisp
+  (use-package flycheck
+               :ensure t)
+#+end_src
+
+**** Install language modules
+***** flycheck-inline
+#+begin_src emacs-lisp
+  (use-package flycheck-inline
+               :ensure t)
+#+end_src
+
+***** flycheck-status-emoji
+#+begin_src emacs-lisp
+  (use-package flycheck-status-emoji
+               :ensure t)
+#+end_src
+
+***** flycheck-yamllint
+#+begin_src emacs-lisp
+  (use-package flycheck-yamllint
+               :ensure t)
+#+end_src
+
+**** Enable flycheck and plugins
+***** flycheck
+#+begin_src emacs-lisp
+  (add-hook 'after-init-hook #'global-flycheck-mode)
+#+end_src
+
+***** flycheck-inline
+#+begin_src emacs-lisp
+  (with-eval-after-load 'flycheck
+    (add-hook 'flycheck-mode-hook #'flycheck-inline-mode))
+#+end_src
+
 ** TODO Visual Settings
 *** DONE Enable custom themes
 Default to theme [[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]]

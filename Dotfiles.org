@@ -1375,7 +1375,7 @@ menuMain;
 #+end_src
 
 
-* Emacs [3/10]
+* Emacs [4/10]
 :properties:
 :header-args+: :tangle (concat user-emacs-directory "/init.el")
 :header-args+: :tangle-mode (identity #o444)
@@ -1405,14 +1405,14 @@ Emacs doesn't like this being /dev/null, so we'll be nice about it.
   (setq custom-file (concat user-emacs-directory "/custom.el"))
 #+end_src
 
-** TODO Packages
-*** DONE Preamble
-**** DONE Enable custom load-path
+*** DONE Enable custom load-path
 [[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]
 #+begin_src emacs-lisp
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
+** TODO Packages
+*** DONE Preamble
 **** DONE Enable Melpa package repository
 #+begin_src emacs-lisp
   (require 'package)
@@ -1501,52 +1501,52 @@ Emacs doesn't like this being /dev/null, so we'll be nice about it.
                :ensure t)
 #+end_src
 
-*** TODO Syntax linting using flycheck
-**** Install flycheck
+*** DONE Syntax linting using flycheck
+**** DONE Install flycheck
 #+begin_src emacs-lisp
   (use-package flycheck
                :ensure t)
 #+end_src
 
-**** Install language modules
-***** flycheck-inline
+**** DONE Install language modules
+***** DONE flycheck-inline
 #+begin_src emacs-lisp
   (use-package flycheck-inline
                :ensure t)
 #+end_src
 
-***** flycheck-status-emoji
+***** DONE flycheck-status-emoji
 #+begin_src emacs-lisp
   (use-package flycheck-status-emoji
                :ensure t)
 #+end_src
 
-***** flycheck-yamllint
+***** DONE flycheck-yamllint
 #+begin_src emacs-lisp
   (use-package flycheck-yamllint
                :ensure t)
 #+end_src
 
-**** Enable flycheck and plugins
-***** flycheck
+**** DONE Enable flycheck and plugins
+***** DONE flycheck
 #+begin_src emacs-lisp
   (add-hook 'after-init-hook #'global-flycheck-mode)
 #+end_src
 
-***** flycheck-inline
+***** DONE flycheck-inline
 #+begin_src emacs-lisp
   (with-eval-after-load 'flycheck
     (add-hook 'flycheck-mode-hook #'flycheck-inline-mode))
 #+end_src
 
 *** DONE Focus mode
-**** Install
+**** DONE Install
 #+begin_src emacs-lisp
   (use-package focus
                :ensure t)
 #+end_src
 
-**** Enable Keybind
+**** DONE Enable Keybind
 #+begin_src emacs-lisp
   (keymap-global-set "C-c f" 'focus-mode)
 #+end_src
@@ -1661,7 +1661,7 @@ Double check this in GUI mode, not satisfactory in terminal
   (setq-default scroll-margin 5)
 #+end_src
 
-** TODO Org Mode
+** DONE Org Mode
 *** DONE Enable Org Mode
 Is this superfluos?
 #+begin_src emacs-lisp
@@ -3056,7 +3056,7 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 
 
 * Shell
-** aliasrc
+** aliasrc [4/9]
 :properties:
 :header-args+: :tangle $HOME/.aliasrc
 :header-args+: :tangle-mode (identity #o444)
@@ -3090,7 +3090,7 @@ alias q=' exit'
 alias :q=' exit'
 #+end_src
 
-*** Gaming
+*** TODO Gaming
 #+begin_src bash
 alias battle='$HOME/bin/battlenet.sh'
 alias steamium='/usr/bin/chromium --user-data-dir=$HOME/.config/steamium'
@@ -3098,7 +3098,7 @@ alias surveysays='sed -i -e '/SurveyDate/ s/"[0-9].*"/"'$(date +%Y-%m-%d -d "1 y
 alias xbox='$HOME/bin/xboxdrv.sh'
 #+end_src
 
-*** Git
+*** TODO Git
 #+begin_src bash
 alias ga=' git add'
 alias gc=' git commit -m'
@@ -3127,12 +3127,12 @@ alias rm=' rm'
 alias ssh=' ssh'
 #+end_src
 
-*** Pass
+*** TODO Pass
 #+begin_src bash
 alias pass=' EDITOR=/usr/bin/nano GNUPGHOME=$HOME/.password-store/.gnupg pass'
 #+end_src
 
-*** X server root access
+*** TODO X server root access
 #+begin_src bash
 alias allowroot='xhost +local:root'    # Allow root access to X server
 alias denyroot='xhost -'               # Deny root access to X server
@@ -3217,7 +3217,7 @@ alias sg='picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --
 # Transfer whole disk
 # dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
 
-** TODO bashrc
+** TODO bashrc [8/10]
 :properties:
 :header-args+: :tangle ~/.bashrc
 :header-args+: :tangle-mode (identity #o444)
@@ -3355,7 +3355,7 @@ if ! shopt -oq posix; then
 fi
 #+end_src
 
-** Environment (~/.profile)
+** Environment (~/.profile) [4/6]
 :properties:
 :header-args+: :tangle ~/.profile
 :header-args+: :tangle-mode (identity #o444)
@@ -3425,7 +3425,7 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
 #export SYSTEMD_PAGER=
 #+end_src
 
-** TODO tmux
+** TODO tmux [6/10]
 *** DONE Set terminal colors
 #+begin_src sh
 set -g default-terminal "screen-256color"
@@ -3558,7 +3558,7 @@ bind-key -n F7 copy-mode
 # Enable vi keys for copy/pasting
 # https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
 # setw -g mode-keys vi
-** TODO zshrc [/]
+** TODO zshrc [3/5]
 :properties:
 :header-args+: :tangle ~/.zshrc
 :header-args+: :tangle-mode (identity #o444)

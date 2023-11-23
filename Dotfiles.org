@@ -1401,7 +1401,7 @@ and one of the following: markedjs, pandoc, or multimarkdown
 ** TODO Preamble
 *** Disable writing to init.el
 #+begin_src emacs-lisp
-  (setq custom-file "/dev/null")
+  (setq custom-file (concat user-emacs-directory "/custom.el"))
 #+end_src
 ** Packages
 *** DONE Preamble

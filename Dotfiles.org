@@ -1394,16 +1394,18 @@ https://github.com/n3mo/cyberpunk-theme.el
 *** Monokai Theme
 https://github.com/oneKelvinSmith/monokai-emacs
 
-Doom Emacs requires rg, or ripgrep
+*** Doom Emacs requires rg, or ripgrep
 Also requires fd, or find
 and one of the following: markedjs, pandoc, or multimarkdown
 
-** TODO Preamble
-*** Disable writing to init.el
+** DONE Preamble
+*** DONE Put all the customize junk in it's own file
+Emacs doesn't like this being /dev/null, so we'll be nice about it.
 #+begin_src emacs-lisp
   (setq custom-file (concat user-emacs-directory "/custom.el"))
 #+end_src
-** Packages
+
+** TODO Packages
 *** DONE Preamble
 **** DONE Enable custom load-path
 [[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]

@@ -4,7 +4,8 @@
 #+startup: content
 ;#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments both
 
-* Alacritty
+
+* Alacritty [0/0]
 :properties:
 :header-args+: :tangle no
 #:header-args+: :tangle .config/alacritty/alacritty.yml
@@ -970,7 +971,7 @@ persistent_logging: false
   #highlight_damage: false
 
 
-* Bash Menu
+* Bash Menu [0/0]
 :properties:
 :header-args+: :tangle .local/bin/menu.sh
 :header-args+: :tangle-mode (identity #o444)
@@ -1384,7 +1385,6 @@ menuMain;
 
 ** Notes
 *** Reminder: Disable code blocks by wrapping in square brackets [ ]
-
 *** Formatting Lisp
 https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
@@ -1393,10 +1393,6 @@ https://github.com/n3mo/cyberpunk-theme.el
 
 *** Monokai Theme
 https://github.com/oneKelvinSmith/monokai-emacs
-
-*** Doom Emacs requires rg, or ripgrep
-Also requires fd, or find
-and one of the following: markedjs, pandoc, or multimarkdown
 
 ** DONE Preamble
 *** DONE Put all the customize junk in it's own file
@@ -1933,7 +1929,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 #+end_src
 
 
-* MangoHud
+* MangoHud [0/0]
 :properties:
 :header-args+: :tangle .config/MangoHud/MangoHud.conf
 :header-args+: :tangle-mode (identity #o444)
@@ -2221,7 +2217,7 @@ Use "AVG" to get a mean average. Default percentiles are 97+AVG+1+0.1
 #+end_src
 
 
-* MPV
+* MPV [0/0]
 :properties:
 :header-args+: :tangle .config/mpv/mpv.conf
 :header-args+: :tangle-mode (identity #o444)
@@ -2431,7 +2427,7 @@ sharpen=5
 #+end_src
 
 
-* NeoVim
+* NeoVim [0/0]
 :properties:
 :header-args+: :tangle no
 ;:header-args+: :tangle .config/nvim/init.lua
@@ -3049,8 +3045,8 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 #+end_src
 
 
-* Shell
-** aliasrc [4/9]
+* Shell [0/5]
+** TODO aliasrc [4/9]
 :properties:
 :header-args+: :tangle $HOME/.aliasrc
 :header-args+: :tangle-mode (identity #o444)
@@ -3349,7 +3345,7 @@ if ! shopt -oq posix; then
 fi
 #+end_src
 
-** Environment (~/.profile) [4/6]
+** TODO Environment (~/.profile) [4/6]
 :properties:
 :header-args+: :tangle ~/.profile
 :header-args+: :tangle-mode (identity #o444)

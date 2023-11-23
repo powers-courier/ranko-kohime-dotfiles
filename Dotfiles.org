@@ -1433,19 +1433,6 @@ Emacs doesn't like this being /dev/null, so we'll be nice about it.
     (require 'use-package))
 #+end_src
 
-*** TODO Packages to install
-#+begin_src emacs-lisp
-  [(custom-set-variables
-    '(package-selected-packages
-      '(
-        evil
-        evil-org
-        exercism
-        markdown-mode
-        org-beautify-theme
-        org-evil
-        paradox)))]
-#+end_src
 
 *** TODO Install and configure Ansible packages
 #+begin_src emacs-lisp

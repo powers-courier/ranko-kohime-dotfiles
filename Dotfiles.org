@@ -1537,6 +1537,13 @@ Emacs doesn't like this being /dev/null, so we'll be nice about it.
 #+begin_src emacs-lisp
   (keymap-global-set "C-c f" 'focus-mode)
 #+end_src
+
+*** DONE indent-tools
+#+begin_src emacs-lisp
+  (use-package indent-tools
+               :ensure t)
+#+end_src
+
 ** TODO Visual Settings
 *** DONE Enable custom themes
 Default to theme [[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]]

@@ -1539,6 +1539,17 @@ Emacs doesn't like this being /dev/null, so we'll be nice about it.
     (add-hook 'flycheck-mode-hook #'flycheck-inline-mode))
 #+end_src
 
+*** DONE Focus mode
+**** Install
+#+begin_src emacs-lisp
+  (use-package focus
+               :ensure t)
+#+end_src
+
+**** Enable Keybind
+#+begin_src emacs-lisp
+  (keymap-global-set "C-c f" 'focus-mode)
+#+end_src
 ** TODO Visual Settings
 *** DONE Enable custom themes
 Default to theme [[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]]

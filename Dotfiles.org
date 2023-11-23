@@ -1410,7 +1410,7 @@ Emacs doesn't like this being /dev/null, so we'll be nice about it.
 **** DONE Enable custom load-path
 [[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "~/.config/emacs/custom")
+  (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
 **** DONE Enable Melpa package repository

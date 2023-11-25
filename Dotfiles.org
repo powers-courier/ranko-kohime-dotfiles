@@ -503,25 +503,28 @@ The bell is rung every time the BEL control character is received.
 #+begin_src yaml
 #live_config_reload: true
 #+end_src
-# Shell
-#
-# You can set `shell.program` to the path of your favorite shell, e.g.
-# `/bin/fish`. Entries in `shell.args` are passed unmodified as arguments to the
-# shell.
-#
-# Default:
-#   - (Linux/BSD/macOS) `$SHELL` or the user's login shell, if `$SHELL` is unset
-#   - (Windows) powershell
-#shell:
-#  program: /bin/bash
-#  args:
-#    - --login
 
-# Startup directory
-#
-# Directory the shell is started in. If this is unset, or `None`, the working
-# directory of the parent process will be used.
+** Shell
+You can set `shell.program` to the path of your favorite shell, e.g. `/bin/fish`.
+Entries in `shell.args` are passed unmodified as arguments to the shell.
+
+Default:
+  - (Linux/BSD/macOS) `$SHELL` or the user's login shell, if `$SHELL` is unset
+  - (Windows) powershell
+
+#+begin_src yaml
+shell:
+  program: /bin/bash
+  args:
+    - --login
+#+end_src
+
+** Startup directory
+Directory the shell is started in. If this is unset, or `None`, the working
+directory of the parent process will be used.
+#+begin_src yaml
 #working_directory: None
+#+end_src
 
 # Offer IPC using `alacritty msg` (unix only)
 #ipc_socket: true

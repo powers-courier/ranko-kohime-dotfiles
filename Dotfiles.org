@@ -1655,15 +1655,17 @@ Double check this in GUI mode, not satisfactory in terminal
 #+end_src
 
 ** DONE Org Mode
+*** Appearance
+[[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][Beautifying Org Mode in Emacs]]
+**** DONE Set font lock for Org Mode, just in case
+#+begin_src emacs-lisp
+  (add-hook 'org-mode-hook #'turn-on-font-lock)
+#+end_src
+
 *** DONE Enable Org Mode
 Is this superfluos?
 #+begin_src emacs-lisp
   (require 'org)
-#+end_src
-
-*** DONE Set font lock for Org Mode, just in case
-#+begin_src emacs-lisp
-  (add-hook 'org-mode-hook #'turn-on-font-lock)
 #+end_src
 
 *** DONE Enable org-tempo
@@ -1731,11 +1733,16 @@ Does not work with Evil mode!
   (wrap-region-add-wrapper "#+begin_src \n" "#+end_src" "#" 'org-mode)
 #+end_src
 
-** TODO Key Bindings
+*** DONE Catch invisible edits
+https://orgmode.org/manual/Catching-invisible-edits.html
 #+begin_src emacs-lisp
+(setq org-fold-catch-invisible-edits error)
 #+end_src
 
+** DONE Key Bindings
+*** DONE Make ESC quit prompts
 #+begin_src emacs-lisp
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 #+end_src
 
 ** TODO Modeline

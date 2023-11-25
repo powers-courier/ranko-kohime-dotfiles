@@ -1581,14 +1581,17 @@ Default to theme [[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Ch
                  (setq-default display-fill-column-indicator-character "‖")
                  (setq-default fill-column 80))
                  [(set-face-background 'fill-column-indicator brightwhite)]
+*** TODO Highlight point...
+**** DONE ...on the row
+#+begin_src emacs-lisp
+  (setq-default global-hl-line-mode t)
 #+end_src
 
-*** DONE Highlight the current row and column to make the cursor easy to find
-C-c SPC to flash xhair
+**** TODO ...and on the column
+This seems a bit janky with the current slew of settings, so disabled for now
+WAYYY too laggy in Org doc
 #+begin_src emacs-lisp
-  (use-package xhair
-               :ensure t)
-  (global-set-key (kbd "C-c SPC") 'xhair-flash)
+  [(setq-default vline-globalmode t)]
 #+end_src
 
 *** DONE Enable line numbers, and make them a bit pretty

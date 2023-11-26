@@ -3021,8 +3021,8 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 #+end_src
 
 
-* Shell [0/5]
-** TODO aliasrc [5/9]
+* Shell [0/7]
+** TODO ~/.aliasrc [5/9]
 :properties:
 :header-args+: :tangle $HOME/.aliasrc
 :header-args+: :tangle-mode (identity #o444)
@@ -3183,9 +3183,9 @@ alias sg='picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --
 # Transfer whole disk
 # dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
 
-** TODO bashrc [8/10]
+** TODO ~/.bashrc [8/10]
 :properties:
-:header-args+: :tangle ~/.bashrc
+:header-args+: :tangle $HOME/.bashrc
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
@@ -3432,7 +3432,7 @@ setw -g window-status-current-style fg=colour232,bg=colour244
 setw -g pane-active-border-style fg=colour82,bg=colour82
 #+end_src
 
-*** WAIT Status line
+**** WAIT Status line
 **** Left
 #+begin_src sh
 set -g status-left-length 1
@@ -3453,7 +3453,7 @@ set -g status-right-length 100
 set -g status-right "#[bg=colour16] #[fg=colour40]#(~/.config/tmux/scripts/memory.sh -m)%#[fg=colour158]/#[fg=colour196]#(~/.config/tmux/scripts/memory.sh -s)% #[fg=colour226]#(~/.config/tmux/scripts/battery.sh) #[fg=colour158]#H"
 #+end_src
 
-*** TODO Keymappings
+**** TODO Keymappings
     # remap prefix from 'C-b' to 'C-a'
     # As a reminder, unbind frees up C-b for other uses,
 unbind C-b
@@ -3514,7 +3514,7 @@ bind-key -n F7 copy-mode
 #bind C-[ run '~/path/to/tmux-powerline/mute_powerline.sh left'
 #bind C-] run '~/path/to/tmux-powerline/mute_powerline.sh right'
 
-*** TODO Plugins
+**** TODO Plugins
 #set -g @plugin 'tmux-plugins/tpm'
 #set -g @plugin 'erikw/tmux-powerline'
 

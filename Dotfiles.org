@@ -2,8 +2,12 @@
 #+author: Ranko Kohime
 #+email: ranko.kohime@runbox.com
 #+startup: content
-;#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments both
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments both
 
+[[https://emacs.stackexchange.com/questions/50246/how-to-use-org-headers-as-filenames-in-tangle][How to use org headers as filenames in tangle]]
+# Local Variables:
+# eval: (defun headline-title nil (let* ((x (save-mark-and-excursion (org-up-heading-safe) (org-element-property :title (org-element-at-point))))) (if (and x (not (string-match file-name-invalid-regexp x))) (format "%s" x) "yes")))
+# End:
 
 * Alacritty [0/0]
 :properties:

@@ -1676,8 +1676,15 @@ Expands e.g. <s to code blocks
   (require 'org-tempo)
 #+end_src
 
+***** DONE Add to templates
+****** DONE Generic Org template to enable heading title to be used as variable in tangled code [Ansible]
 #+begin_src emacs-lisp
   (tempo-define-template "tangle-heading-title"
+                         '("#+begin_src org :var title=(org-entry-get nil \"ITEM\")\n"
+                         p
+                         "\n#+end_src" >)
+                         "<o"
+                         "Insert a generic Org template with heading variable")
 #+end_src
 
 *** DONE 1. Appearance

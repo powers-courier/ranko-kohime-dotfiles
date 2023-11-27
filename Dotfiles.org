@@ -3553,6 +3553,30 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
 #export SYSTEMD_PAGER=
 #+end_src
 
+** TODO ~/.ssh
+*** config
+**** Host copilot
+#+begin_src conf
+  Host copilot
+    HostName              copilot.theatomicass.com
+    Port                  443
+#+end_src
+**** Host *
+#+begin_src conf
+  Host *
+    AddressFamily         any
+    CheckHostIP           yes
+    Compression           yes
+    ExitOnForwardFailure  yes
+    GatewayPorts          no
+    HashKnownHosts        yes
+    IdentitiesOnly        yes
+    IdentityFile          ~/.ssh/id_ed25519
+    ServerAliveInterval   60
+    StrictHostKeyChecking ask
+    UserKnownHostsFile    ~/.ssh/known_hosts
+    VisualHostKey         yes
+#+end_src
 :properties:
 :header-args+: :tangle ~/.zshrc
 :header-args+: :tangle-mode (identity #o444)

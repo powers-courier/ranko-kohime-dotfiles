@@ -1404,8 +1404,15 @@ https://github.com/oneKelvinSmith/monokai-emacs
 ** DONE Preamble
 *** DONE Put all the customize junk in it's own file
 Emacs doesn't like this being /dev/null, so we'll be nice about it.
+This is not automatically loaded at startup.
 #+begin_src emacs-lisp
   (setq custom-file (concat user-emacs-directory "/custom.el"))
+#+end_src
+
+*** DONE Disable "disabled-command-fuction"
+[[https://stackoverflow.com/questions/145043/how-do-i-stop-emacs-from-automatically-editing-my-startup-file][Link]]
+#+begin_src emacs-lisp
+  (setq disabled-command-function nil)
 #+end_src
 
 *** DONE Enable custom load-path

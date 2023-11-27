@@ -3348,41 +3348,47 @@ fi
 
 
 #+end_src
+** TODO ~/.config/tmux [6/10]
+*** tmux.conf
+:properties:
+:header-args+: :tangle ~/.config/tmux/tmux.conf
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments both
+:end:
 
-** TODO tmux [6/10]
-*** DONE Set terminal colors
+**** DONE Set terminal colors
 #+begin_src sh
 set -g default-terminal "screen-256color"
 #+end_src
 
-*** DONE Set parent terminal title to reflect current window in tmux session
+**** DONE Set parent terminal title to reflect current window in tmux session
 #+begin_src sh
 set -g set-titles on
 set -g set-titles-string "#I:#W"
 #+end_src
 
-*** DONE Start index of window/pane with 1, because we're humans, not computers
+**** DONE Start index of window/pane with 1, because we're humans, not computers
 #+begin_src sh
 set -g base-index 1
 set-window-option -g pane-base-index 1
 #+end_src
 
-*** DONE Renumber windows automatically on close
+**** DONE Renumber windows automatically on close
 #+begin_src sh
 set-option -g renumber-windows on
 #+end_src
 
-*** DONE Set reasonable history limit
+**** DONE Set reasonable history limit
 #+begin_src sh
 set -g history-limit 100000
 #+end_src
 
-*** DONE Not sure if we want mouse support yet, so let's disable it for now
+**** DONE Not sure if we want mouse support yet, so let's disable it for now
 #+begin_src sh
 set -g mouse off
 #+end_src
 
-*** WAIT Color scheme
+**** WAIT Color scheme
 #+begin_src sh
 set -g status-bg colour237
 setw -g window-status-style fg=colour208
@@ -3482,7 +3488,6 @@ bind-key -n F7 copy-mode
 # Enable vi keys for copy/pasting
 # https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
 # setw -g mode-keys vi
-** TODO zshrc [3/5]
 ** TODO ~/.profile [4/6]
 :properties:
 :header-args+: :tangle $HOME/.profile
@@ -3577,6 +3582,7 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
     UserKnownHostsFile    ~/.ssh/known_hosts
     VisualHostKey         yes
 #+end_src
+** TODO ~/.zshrc [3/5]
 :properties:
 :header-args+: :tangle ~/.zshrc
 :header-args+: :tangle-mode (identity #o444)

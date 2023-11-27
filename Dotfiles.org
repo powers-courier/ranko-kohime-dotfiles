@@ -3336,74 +3336,17 @@ if ! shopt -oq posix; then
 fi
 #+end_src
 
-** TODO Environment (~/.profile) [4/6]
-:properties:
-:header-args+: :tangle ~/.profile
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments both
-:end:
 
-*** DONE XDG Specifications
-These need to be before all the other variables.
-#+begin_src bash
-XDG_CACHE_HOME=$HOME/.cache
-XDG_CONFIG_HOME=$HOME/.config
-XDG_DATA_HOME=$HOME/.local/share
-XDG_STATE_HOME=$HOME/.local/state
-#+end_src
 
-*** DONE Paths
-#+begin_src bash
-PATH=$PATH:$HOME/.local/bin
-#+end_src
 
-*** Application Specific
-**** cheat
-#+begin_src bash
-export DEFAULT_CHEAT_DIR=$HOME/Documents/cheat
-export CHEATCOLORS=true
-#+end_src
 
-**** nmon
-#+begin_src bash
-export NMON=lmdn.
-#+end_src
 
-**** vim
-#+begin_src bash
-export VIMDOTDIR="$XDG_CONFIG_HOME/vim"
-#+end_src
 
-*** EDITOR
-#+begin_src bash
-export EDITOR=$HOME/.local/bin/nvim.appimage
-export VISUAL=$HOME/.local/bin/nvim.appimage
-#+end_src
 
-*** DONE Games
-#+begin_src bash
-export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0
-export SDL_VIDEO_FULLSCREEN_DISPLAY=0
-#+end_src
 
-*** TODO Other stuff
-# Because QT and Input hot-plugging equals SADNESS!  :(
-# What mean this? ^^^^^^^^^^^^^^^
-# QT_XCB_NO_XI2_MOUSE=1
 
-# Why does QT hate GTK?  (No love from qt5ct)
-# QT_QPA_PLATFORMTHEME=qt5ct
 
-*** DONE Shell Specific
-**** DONE zsh
-#+begin_src bash
-ZDOTDIR=$XDG_CONFIG_HOME/zsh
-#+end_src
 
-*** TODO Systemctl Paging
-Uncomment the following line if you don't like systemctl's auto-paging feature:
-#+begin_src bash
-#export SYSTEMD_PAGER=
 #+end_src
 
 ** TODO tmux [6/10]
@@ -3540,6 +3483,76 @@ bind-key -n F7 copy-mode
 # https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
 # setw -g mode-keys vi
 ** TODO zshrc [3/5]
+** TODO ~/.profile [4/6]
+:properties:
+:header-args+: :tangle $HOME/.profile
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments both
+:end:
+
+*** DONE XDG Specifications
+These need to be before all the other variables.
+#+begin_src bash
+XDG_CACHE_HOME=$HOME/.cache
+XDG_CONFIG_HOME=$HOME/.config
+XDG_DATA_HOME=$HOME/.local/share
+XDG_STATE_HOME=$HOME/.local/state
+#+end_src
+
+*** DONE Paths
+#+begin_src bash
+PATH=$PATH:$HOME/.local/bin
+#+end_src
+
+*** Application Specific
+**** cheat
+#+begin_src bash
+export DEFAULT_CHEAT_DIR=$HOME/Documents/cheat
+export CHEATCOLORS=true
+#+end_src
+
+**** nmon
+#+begin_src bash
+export NMON=lmdn.
+#+end_src
+
+**** vim
+#+begin_src bash
+export VIMDOTDIR="$XDG_CONFIG_HOME/vim"
+#+end_src
+
+*** EDITOR
+#+begin_src bash
+export EDITOR=$HOME/.local/bin/nvim.appimage
+export VISUAL=$HOME/.local/bin/nvim.appimage
+#+end_src
+
+*** DONE Games
+#+begin_src bash
+export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0
+export SDL_VIDEO_FULLSCREEN_DISPLAY=0
+#+end_src
+
+*** TODO Other stuff
+# Because QT and Input hot-plugging equals SADNESS!  :(
+# What mean this? ^^^^^^^^^^^^^^^
+# QT_XCB_NO_XI2_MOUSE=1
+
+# Why does QT hate GTK?  (No love from qt5ct)
+# QT_QPA_PLATFORMTHEME=qt5ct
+
+*** DONE Shell Specific
+**** DONE zsh
+#+begin_src bash
+ZDOTDIR=$XDG_CONFIG_HOME/zsh
+#+end_src
+
+*** TODO Systemctl Paging
+Uncomment the following line if you don't like systemctl's auto-paging feature:
+#+begin_src bash
+#export SYSTEMD_PAGER=
+#+end_src
+
 :properties:
 :header-args+: :tangle ~/.zshrc
 :header-args+: :tangle-mode (identity #o444)

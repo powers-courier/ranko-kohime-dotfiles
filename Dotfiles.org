@@ -1662,23 +1662,55 @@ Double check this in GUI mode, not satisfactory in terminal
 #+end_src
 
 ** DONE Org Mode
-*** Appearance
+*** DONE 0. Preamble
+**** DONE Enable Org Mode
+Is this superfluos?
+#+begin_src emacs-lisp
+  (require 'org)
+#+end_src
+
+**** DONE Template Insertion
+***** DONE Enable org-tempo
+Expands e.g. <s to code blocks
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+#+end_src
+
+#+begin_src emacs-lisp
+  (tempo-define-template "tangle-heading-title"
+#+end_src
+
+*** DONE 1. Appearance
 [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][Beautifying Org Mode in Emacs]]
 **** DONE Set font lock for Org Mode, just in case
 #+begin_src emacs-lisp
   (add-hook 'org-mode-hook #'turn-on-font-lock)
 #+end_src
 
-*** DONE Enable Org Mode
-Is this superfluos?
+**** DONE Hide leading stars in lists
 #+begin_src emacs-lisp
-  (require 'org)
+  (setq org-hide-leading-stars t)
 #+end_src
 
-*** DONE Enable org-tempo
-Expands e.g. <s to code blocks
+**** DONE Enable list decoration bullets
+[[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode GitHub]]
 #+begin_src emacs-lisp
-  (require 'org-tempo)
+  (use-package org-superstar
+               :ensure t)
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (org-superstar-mode 1 )))
+#+end_src
+
+**** DONE Change header fold indicator
+#+begin_src emacs-lisp
+  (setq-default org-ellipsis " ξ")
+  (set-face-underline 'org-ellipsis nil)
+#+end_src
+
+**** DONE Use syntax highlighting in source blocks while editing
+#+begin_src emacs-lisp
+  (setq org-src-fontify-natively t)
 #+end_src
 
 *** DONE Set indent mode
@@ -1687,7 +1719,7 @@ Expands e.g. <s to code blocks
   (setq-default org-startup-indented t)
 #+end_src
 
-*** DONE Keybinds
+*** DONE 2. Keybinds
 **** DONE Set the agenda key, in case it's not set
 #+begin_src emacs-lisp
   (global-set-key "\C-ca" 'org-agenda)
@@ -1702,32 +1734,6 @@ Expands e.g. <s to code blocks
 *** DONE Set org-startup-folded
 #+begin_src emacs-lisp
   (setq-default org-startup-folded 'content)
-#+end_src
-
-*** DONE Enable list decoration bullets
-[[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode GitHub]]
-#+begin_src emacs-lisp
-  (use-package org-superstar
-               :ensure t)
-  (add-hook 'org-mode-hook
-            (lambda ()
-              (org-superstar-mode 1 )))
-#+end_src
-
-*** DONE Hide leading stars in lists
-#+begin_src emacs-lisp
-  (setq org-hide-leading-stars t)
-#+end_src
-
-*** DONE Change header fold indicator
-#+begin_src emacs-lisp
-  (setq-default org-ellipsis " ξ")
-  (set-face-underline 'org-ellipsis nil)
-#+end_src
-
-*** DONE Use syntax highlighting in source blocks while editing
-#+begin_src emacs-lisp
-  (setq org-src-fontify-natively t)
 #+end_src
 
 *** DONE Enable block wrapping using wrap-region

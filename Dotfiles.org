@@ -1762,10 +1762,14 @@ Does not work with Evil mode!
 
 *** DONE Catch invisible edits
 https://orgmode.org/manual/Catching-invisible-edits.html
+
 #+begin_src emacs-lisp
 (setq-default org-fold-catch-invisible-edits 'smart)
 #+end_src
 
+*** Set org-capture File
+#+begin_src emacs-lisp
+(setq org-default-notes-file "$HOME/Documents/org-capture.org")
 #+end_src
 
 ** DONE Key Bindings

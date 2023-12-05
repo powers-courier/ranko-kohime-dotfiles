@@ -2240,21 +2240,13 @@ Use "AVG" to get a mean average. Default percentiles are 97+AVG+1+0.1
 
 
 * MPV [0/0]
+** input.conf
 :properties:
-:header-args+: :tangle .config/mpv/mpv.conf
+:header-args+: :tangle .config/mpv/input.conf
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
 
-** input.conf
-# mpv keybindings
-#
-# Location of user-defined bindings: ~/.config/mpv/input.conf
-#
-# Lines starting with # are comments. Use SHARP to assign the # key.
-# Copy this file and uncomment and edit the bindings you want to change.
-#
-# List of commands and further details: DOCS/man/input.rst
 # List of special keys: --input-keylist
 # Keybindings testing mode: mpv --input-test --force-window --idle
 #

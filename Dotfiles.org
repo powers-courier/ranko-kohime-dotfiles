@@ -1886,13 +1886,6 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
         user-mail-address "ranko.kohime@runbox.com")
 #+end_src
 
-*** WAIT Enable CUA mode for C-x, C-c, C-v
-#+begin_src emacs-lisp
-  [(custom-set-variables
-    '(cua-mode t nil
-      (cua-base)))]
-#+end_src
-
 *** DONE Enable file history with recentf, and periodically save the list
 [[https://www.emacswiki.org/emacs/RecentFiles][Emacs Wiki: Recent Files]]
 #+begin_src emacs-lisp

@@ -1558,6 +1558,7 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 ** TODO Visual Settings
 *** DONE Enable custom themes
 Default to theme [[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]]
+When it clearly says [[https://github.com/n3mo/cyberpunk-theme.el][Cyberpunk Theme]] in the code. 😃
 #+begin_src emacs-lisp
   (use-package cyberpunk-theme
                :ensure t)
@@ -1695,7 +1696,7 @@ Expands e.g. <s to code blocks
                          "Insert a generic Org template with heading variable")
 #+end_src
 
-*** DONE 1. Appearance
+*** DONE Appearance
 [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][Beautifying Org Mode in Emacs]]
 **** DONE Set font lock for Org Mode, just in case
 #+begin_src emacs-lisp
@@ -1787,7 +1788,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 [[https://www.emacswiki.org/emacs/ModeLineConfiguration][Mode Line Configuration]]
 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html][Mode Line Variables]]
 
-**** header-line-format
+**** TODO header-line-format
 #+begin_src emacs-lisp
   [(setq-default header-line-format
     (list
@@ -1827,7 +1828,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
                ; Show clock at right end of mode line
         " "))]
 #+end_src
-**** mode-line-format
+**** WAIT mode-line-format
 #+begin_src emacs-lisp
   [(setq-default mode-line-format
     (list

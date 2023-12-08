@@ -1596,11 +1596,13 @@ When it clearly says [[https://github.com/n3mo/cyberpunk-theme.el][Cyberpunk The
                  [(set-face-background 'fill-column-indicator brightwhite)]
 *** TODO Highlight point...
 **** DONE ...on the row
+
+**** DONE Highlight Point on the row...
 #+begin_src emacs-lisp
   (setq-default global-hl-line-mode t)
 #+end_src
 
-**** TODO ...and on the column
+**** WAIT ...and on the column
 This seems a bit janky with the current slew of settings, so disabled for now
 WAYYY too laggy in Org doc
 #+begin_src emacs-lisp

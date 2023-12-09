@@ -4,10 +4,15 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments both
 
-[[https://emacs.stackexchange.com/questions/50246/how-to-use-org-headers-as-filenames-in-tangle][How to use org headers as filenames in tangle]]
+* Notes
+** [[https://emacs.stackexchange.com/questions/50246/how-to-use-org-headers-as-filenames-in-tangle][How to use org headers as filenames in tangle]]
 # Local Variables:
 # eval: (defun headline-title nil (let* ((x (save-mark-and-excursion (org-up-heading-safe) (org-element-property :title (org-element-at-point))))) (if (and x (not (string-match file-name-invalid-regexp x))) (format "%s" x) "yes")))
 # End:
+
+** Setting up TODO cookies
+Press C-c C-c on the cookie
+
 
 * Alacritty [0/0]
 :properties:

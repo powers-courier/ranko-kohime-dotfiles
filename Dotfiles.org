@@ -4854,20 +4854,20 @@ setw -g pane-active-border-style fg=colour82,bg=colour82
 #+end_src
 
 **** WAIT Status line
-**** Left
+***** Left
 #+begin_src sh
 set -g status-left-length 1
 set -g status-left ""
 #+end_src
 
-**** Status Bar Options
+***** Status Bar Options
 #+begin_src sh
 set -g status-justify left
 set -g monitor-activity on
 set -g visual-activity on
 #+end_src
 
-**** Right
+***** Right
 #+begin_src sh
 set -g status-right-length 100
 #set -g status-right "#(~/.config/tmux/plugins/tmux-powerline/powerline.sh right)"

@@ -1769,7 +1769,7 @@ Expands e.g. <s to code blocks
   (setq org-src-fontify-natively t)
 #+end_src
 
-*** DONE Set indent mode
+**** DONE Set indent mode
 #+begin_src emacs-lisp
   (setq-default org-indent-mode t)
   (setq-default org-startup-indented t)
@@ -1974,6 +1974,19 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 #+begin_src emacs-lisp
   (use-package ido-vertical-mode
                :ensure t)
+  (ido-vertical-mode 1)
+#+end_src
+
+**** Highlight Search Terms
+#+begin_src emacs-lisp
+(setq ido-use-faces t)
+(set-face-attribute 'ido-vertical-first-match-face nil
+                    :background "#e5b7c0")
+(set-face-attribute 'ido-vertical-only-match-face nil
+                    :background "#e52b50"
+                    :foreground "white")
+(set-face-attribute 'ido-vertical-match-face nil
+                    :foreground "#b00000")
 #+end_src
 
 ** TODO Collaborative Editing

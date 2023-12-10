@@ -1618,23 +1618,16 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 #+end_src
 
 *** WAIT Show fill column indicator (Line 80)
-On hold as neither solution seems to work, at least how I would think they should.
-#+name: column-indicator-a
-#+begin_src emacs-lisp :tangle no
-  (use-package fill-column-indicator
-               :ensure t
-               :init
-                 (fci-mode nil)
-                 (setq-default fci-rule-character "‖")
-                 (setq-default fci-rule-column 80)
-                 (set-face-background 'fci-rule-color "white"))
+Still needs work on appearance
+#+begin_src emacs-lisp
+  (global-display-fill-column-indicator-mode t)
+  (setq-default fill-column 80)
 #+end_src
 
-#+name: column-indicator-b
+The following options are not yet known to work correctly
+
 #+begin_src emacs-lisp :tangle no
-  (global-display-fill-column-indicator-mode t)
   (setq-default display-fill-column-indicator-character "‖")
-  (setq-default fill-column 80))
   (set-face-background 'fill-column-indicator brightwhite)
 #+end_src
 

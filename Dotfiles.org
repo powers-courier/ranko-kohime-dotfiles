@@ -1613,17 +1613,27 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
   (menu-bar-mode -1)
 #+end_src
 
-*** TODO Show fill column indicator (Line 80)
-#+begin_src emacs-lisp
+*** WAIT Show fill column indicator (Line 80)
+On hold as neither solution seems to work, at least how I would think they should.
+#+name: column-indicator-a
+#+begin_src emacs-lisp :tangle no
   (use-package fill-column-indicator
                :ensure t
                :init
-                 (global-display-fill-column-indicator-mode t)
-                 (setq-default display-fill-column-indicator-character "‖")
-                 (setq-default fill-column 80))
-                 [(set-face-background 'fill-column-indicator brightwhite)]
-*** TODO Highlight point...
-**** DONE ...on the row
+                 (fci-mode nil)
+                 (setq-default fci-rule-character "‖")
+                 (setq-default fci-rule-column 80)
+                 (set-face-background 'fci-rule-color "white"))
+#+end_src
+
+#+name: column-indicator-b
+#+begin_src emacs-lisp :tangle no
+  (global-display-fill-column-indicator-mode t)
+  (setq-default display-fill-column-indicator-character "‖")
+  (setq-default fill-column 80))
+  (set-face-background 'fill-column-indicator brightwhite)
+#+end_src
+
 
 **** DONE Highlight Point on the row...
 #+begin_src emacs-lisp
@@ -1799,7 +1809,7 @@ https://orgmode.org/manual/Catching-invisible-edits.html
 (setq-default org-fold-catch-invisible-edits 'smart)
 #+end_src
 
-*** Set org-capture File
+*** DONE Set org-capture File
 #+begin_src emacs-lisp
 (setq org-default-notes-file "$HOME/Documents/org-capture.org")
 #+end_src

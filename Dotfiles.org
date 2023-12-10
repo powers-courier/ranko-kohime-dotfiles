@@ -1408,11 +1408,6 @@ menuMain;
 *** Formatting Lisp
 https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
-*** Cyberpunk Theme
-https://github.com/n3mo/cyberpunk-theme.el
-
-*** Monokai Theme
-https://github.com/oneKelvinSmith/monokai-emacs
 
 ** DONE Preamble
 *** DONE Put all the customize junk in it's own file
@@ -1455,7 +1450,6 @@ This is not automatically loaded at startup.
   (eval-when-compile
     (require 'use-package))
 #+end_src
-
 
 *** TODO Install and configure Ansible packages
 #+begin_src emacs-lisp
@@ -1570,16 +1564,37 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 
 ** TODO Visual Settings
 *** DONE Enable custom themes
-Default to theme [[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]]
-When it clearly says [[https://github.com/n3mo/cyberpunk-theme.el][Cyberpunk Theme]] in the code. 😃
+**** DONE Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
+#+begin_src emacs-lisp :tangle no
+  (use-package monokai-theme
+               :ensure t)
+#+end_src
+
+**** DONE Base Theme ([[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]], Disabled)
+#+begin_src emacs-lisp :tangle no
+  (use-package cherry-blossom-theme
+               :ensure t)
+#+end_src
+
+**** DONE Base Theme ([[https://github.com/n3mo/cyberpunk-theme.el][Cyberpunk]])
 #+begin_src emacs-lisp
   (use-package cyberpunk-theme
                :ensure t)
+#+end_src
+
+**** DONE Overlay (org-beautify-theme)
+#+begin_src emacs-lisp
+  (use-package org-beautify-theme
+               :ensure t)
+#+end_src
+
+**** DONE Epilogue (Enable the themes)
+#+begin_src emacs-lisp
   (custom-set-variables
     '(custom-enabled-themes
-      '(cyberpunk))
+      '(org-beautify-theme cyberpunk))
     '(custom-safe-themes
-      '("e9d47d6d41e42a8313c81995a60b2af6588e9f01a1cf19ca42669a7ffd5c2fde" default)))
+      '("31deed4ac5d0b65dc051a1da3611ef52411490b2b6e7c2058c13c7190f7e199b" "e9d47d6d41e42a8313c81995a60b2af6588e9f01a1cf19ca42669a7ffd5c2fde" default)))
 #+end_src
 
 *** DONE Inhibit the startup message

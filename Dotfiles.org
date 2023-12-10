@@ -1966,6 +1966,11 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
           ";;  Task Failed Successfully.\n"))
 #+end_src
 
+*** DONE And not to forget, the tangle script
+#+begin_src bash :tangle $HOME/Dotfiles.sh :shebang "#!/bin/bash"
+emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Dotfiles.org")'
+#+end_src
+
 
 * MangoHud [0/0]
 :properties:

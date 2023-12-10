@@ -1996,6 +1996,20 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 ** TODO Collaborative Editing
 [[https://code.librehq.com/qhong/crdt.el/][crdt.el Git Repo]]
 
+** TODO Fancy shit
+*** WAIT org-babel-map-src-blocks
+I don't currently understand how to run this.
+May work with C-c C-c?
+Assign a keybind to it maybe?
+[[https://emacs.stackexchange.com/questions/68041/how-to-list-all-the-code-blocks-in-the-current-buffer-with-no-name][Stack Exchange Example]]
+[[https://doc.endlessparentheses.com/Fun/org-babel-map-src-blocks.html][Endless Parentheses Documentation]]
+#+begin_src emacs-lisp
+  (org-babel-map-src-blocks nil
+    (let ((name (org-element-property :name (org-element-context))))
+      (unless name
+        (message "Code block with no name found in line %s" (line-number-at-pos)))))
+#+end_src
+
 ** DONE And Finally…
 *** DONE The Success Message
 #+begin_src emacs-lisp

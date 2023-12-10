@@ -1425,7 +1425,7 @@ This is not automatically loaded at startup.
 
 *** Quiet the abbrevs function
 #+begin_src emacs-lisp
-  (setq-default save-abbrevs silently)
+  (setq-default save-abbrevs 'silently)
 #+end_src
 *** DONE Enable custom load-path
 [[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]

@@ -1638,6 +1638,13 @@ On hold as neither solution seems to work, at least how I would think they shoul
   (set-face-background 'fill-column-indicator brightwhite)
 #+end_src
 
+*** TODO Point
+**** WAIT Cursor Type & Color
+Does not appear to have any affect in a remote terminal session...  GUI only?
+#+begin_src emacs-lisp
+  (setq-default cursor-type 'bar)
+  (set-cursor-color "#FFA500")
+#+end_src
 
 **** DONE Highlight Point on the row...
 #+begin_src emacs-lisp

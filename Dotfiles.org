@@ -1784,7 +1784,7 @@ https://orgmode.org/manual/Catching-invisible-edits.html
 (setq-default org-fold-catch-invisible-edits 'smart)
 #+end_src
 
-*** Set org-capture File
+*** DONE Set org-capture File
 #+begin_src emacs-lisp
 (setq org-default-notes-file "$HOME/Documents/org-capture.org")
 #+end_src

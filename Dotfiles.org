@@ -1414,13 +1414,13 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 Emacs doesn't like this being /dev/null, so we'll be nice about it.
 This is not automatically loaded at startup.
 #+begin_src emacs-lisp
-  (setq custom-file (concat user-emacs-directory "/custom.el"))
+  (setq-default custom-file (concat user-emacs-directory "/custom.el"))
 #+end_src
 
 *** DONE Disable "disabled-command-fuction"
 [[https://stackoverflow.com/questions/145043/how-do-i-stop-emacs-from-automatically-editing-my-startup-file][Link]]
 #+begin_src emacs-lisp
-  (setq disabled-command-function nil)
+  (setq-default disabled-command-function nil)
 #+end_src
 
 *** DONE Enable custom load-path
@@ -1488,7 +1488,7 @@ This is not automatically loaded at startup.
     (add-hook 'org-mode-hook #'org-ai-mode) ; enable org-ai in org-mode
     (org-ai-global-mode) ; installs global keybindings on C-c M-a
     :config
-    ;(setq org-ai-default-chat-model "gpt-4") ; if you are on the gpt-4 beta:
+    ;(setq-default org-ai-default-chat-model "gpt-4") ; if you are on the gpt-4 beta:
     ;(org-ai-install-yasnippets) ; if you are using yasnippet and want `ai` snippets
     )
 #+end_src
@@ -1599,7 +1599,7 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 
 *** DONE Inhibit the startup message
 #+begin_src emacs-lisp
-  (setq inhibit-startup-message t)
+  (setq-default inhibit-startup-message t)
 #+end_src
 
 *** DONE Disable the GUI Toolbar
@@ -1745,7 +1745,7 @@ Expands e.g. <s to code blocks
 
 **** DONE Hide leading stars in lists
 #+begin_src emacs-lisp
-  (setq org-hide-leading-stars t)
+  (setq-default org-hide-leading-stars t)
 #+end_src
 
 **** DONE Enable list decoration bullets
@@ -1766,7 +1766,7 @@ Expands e.g. <s to code blocks
 
 **** DONE Use syntax highlighting in source blocks while editing
 #+begin_src emacs-lisp
-  (setq org-src-fontify-natively t)
+  (setq-default org-src-fontify-natively t)
 #+end_src
 
 **** DONE Set indent mode
@@ -1783,7 +1783,7 @@ Expands e.g. <s to code blocks
 
 *** DONE Set keywords for Org Mode
 #+begin_src emacs-lisp
-  (setq org-todo-keywords
+  (setq-default org-todo-keywords
     '((sequence "TODO" "STRT" "WAIT" "DONE")))
 #+end_src
 
@@ -1811,7 +1811,7 @@ https://orgmode.org/manual/Catching-invisible-edits.html
 
 *** DONE Set org-capture File
 #+begin_src emacs-lisp
-(setq org-default-notes-file "$HOME/Documents/org-capture.org")
+(setq-default org-default-notes-file "$HOME/Documents/org-capture.org")
 #+end_src
 
 ** DONE Key Bindings
@@ -1923,7 +1923,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 ** DONE General Settings
 *** DONE Set personal information
 #+begin_src emacs-lisp
-  (setq user-full-name "Ranko Kohime"
+  (setq-default user-full-name "Ranko Kohime"
         user-mail-address "ranko.kohime@runbox.com")
 #+end_src
 
@@ -1931,8 +1931,8 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 [[https://www.emacswiki.org/emacs/RecentFiles][Emacs Wiki: Recent Files]]
 #+begin_src emacs-lisp
   (recentf-mode 1)
-  (setq recentf-max-menu-items 25)
-  (setq recentf-max-saved-items 25)
+  (setq-default recentf-max-menu-items 25)
+  (setq-default recentf-max-saved-items 25)
   (global-set-key "\C-x\ \C-r" 'recentf-open-files)
   (run-at-time nil (* 15 60) 'recentf-save-list)
 #+end_src
@@ -1979,7 +1979,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 
 **** Highlight Search Terms
 #+begin_src emacs-lisp
-(setq ido-use-faces t)
+(setq-default ido-use-faces t)
 (set-face-attribute 'ido-vertical-first-match-face nil
                     :background "#e5b7c0")
 (set-face-attribute 'ido-vertical-only-match-face nil
@@ -1995,7 +1995,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 ** DONE And Finally…
 *** DONE The Success Message
 #+begin_src emacs-lisp
-  (setq initial-scratch-message
+  (setq-default initial-scratch-message
         (concat
           ";;░█▀▀░█▄█░█▀█░█▀▀░█▀▀\n"
           ";;░█▀▀░█░█░█▀█░█░░░▀▀█\n"

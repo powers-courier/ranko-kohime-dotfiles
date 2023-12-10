@@ -1418,7 +1418,7 @@ This is not automatically loaded at startup.
 #+end_src
 
 *** DONE Disable "disabled-command-fuction"
-[[https://stackoverflow.com/questions/145043/how-do-i-stop-emacs-from-automatically-editing-my-startup-file][Link]]
+[[https://stackoverflow.com/questions/145043/how-do-i-stop-emacs-from-automatically-editing-my-startup-file][Stack Overflow Link]]
 #+begin_src emacs-lisp
   (setq-default disabled-command-function nil)
 #+end_src
@@ -1981,7 +1981,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (ido-vertical-mode 1)
 #+end_src
 
-**** Highlight Search Terms
+**** DONE Highlight Search Terms
 #+begin_src emacs-lisp
 (setq-default ido-use-faces t)
 (set-face-attribute 'ido-vertical-first-match-face nil

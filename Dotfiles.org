@@ -1598,17 +1598,27 @@ When it clearly says [[https://github.com/n3mo/cyberpunk-theme.el][Cyberpunk The
   (menu-bar-mode -1)
 #+end_src
 
-*** TODO Show fill column indicator (Line 80)
-#+begin_src emacs-lisp
+*** WAIT Show fill column indicator (Line 80)
+On hold as neither solution seems to work, at least how I would think they should.
+#+name: column-indicator-a
+#+begin_src emacs-lisp :tangle no
   (use-package fill-column-indicator
                :ensure t
                :init
-                 (global-display-fill-column-indicator-mode t)
-                 (setq-default display-fill-column-indicator-character "‖")
-                 (setq-default fill-column 80))
-                 [(set-face-background 'fill-column-indicator brightwhite)]
-*** TODO Highlight point...
-**** DONE ...on the row
+                 (fci-mode nil)
+                 (setq-default fci-rule-character "‖")
+                 (setq-default fci-rule-column 80)
+                 (set-face-background 'fci-rule-color "white"))
+#+end_src
+
+#+name: column-indicator-b
+#+begin_src emacs-lisp :tangle no
+  (global-display-fill-column-indicator-mode t)
+  (setq-default display-fill-column-indicator-character "‖")
+  (setq-default fill-column 80))
+  (set-face-background 'fill-column-indicator brightwhite)
+#+end_src
+
 
 **** DONE Highlight Point on the row...
 #+begin_src emacs-lisp

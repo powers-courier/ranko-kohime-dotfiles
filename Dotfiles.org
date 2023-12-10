@@ -1423,7 +1423,7 @@ This is not automatically loaded at startup.
   (setq-default disabled-command-function nil)
 #+end_src
 
-*** Quiet the abbrevs function
+*** DONE Quiet the abbrevs function
 #+begin_src emacs-lisp
   (setq-default save-abbrevs 'silently)
 #+end_src

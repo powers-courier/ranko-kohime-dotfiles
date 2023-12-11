@@ -1586,8 +1586,9 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-**** DONE Overlay (org-beautify-theme)
-#+begin_src emacs-lisp
+**** DONE Overlay (org-beautify-theme, Disabled)
+This just does a little bit too much.
+#+begin_src emacs-lisp :tangle no
   (use-package org-beautify-theme
                :ensure t)
 #+end_src

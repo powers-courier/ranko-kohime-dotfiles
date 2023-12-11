@@ -4814,24 +4814,33 @@ stdout="off"
 :header-args+: :comments both
 :end:
 
-**** DONE Set terminal colors
+**** WAIT Appearance [4/5]
+***** DONE Set terminal colors
 #+begin_src sh
 set -g default-terminal "screen-256color"
 #+end_src
 
-**** DONE Set parent terminal title to reflect current window in tmux session
+***** WAIT Color scheme
+#+begin_src sh
+set -g status-bg colour237
+setw -g window-status-style fg=colour208
+setw -g window-status-current-style fg=colour232,bg=colour244
+setw -g pane-active-border-style fg=colour82,bg=colour82
+#+end_src
+
+***** DONE Set parent terminal title to reflect current window in tmux session
 #+begin_src sh
 set -g set-titles on
 set -g set-titles-string "#I:#W"
 #+end_src
 
-**** DONE Start index of window/pane with 1, because we're humans, not computers
+***** DONE Start index of window/pane with 1, because we're humans, not computers
 #+begin_src sh
 set -g base-index 1
 set-window-option -g pane-base-index 1
 #+end_src
 
-**** DONE Renumber windows automatically on close
+***** DONE Renumber windows automatically on close
 #+begin_src sh
 set-option -g renumber-windows on
 #+end_src
@@ -4844,14 +4853,6 @@ set -g history-limit 100000
 **** DONE Not sure if we want mouse support yet, so let's disable it for now
 #+begin_src sh
 set -g mouse off
-#+end_src
-
-**** WAIT Color scheme
-#+begin_src sh
-set -g status-bg colour237
-setw -g window-status-style fg=colour208
-setw -g window-status-current-style fg=colour232,bg=colour244
-setw -g pane-active-border-style fg=colour82,bg=colour82
 #+end_src
 
 **** WAIT Status line

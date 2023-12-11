@@ -5885,7 +5885,7 @@ background_color=
 stdout="off"
 
 #+end_src
-** TODO ~/.config/tmux [6/10]
+** TODO ~/.config/tmux/ [6/10]
 *** tmux.conf
 :properties:
 :header-args+: :tangle ~/.config/tmux/tmux.conf
@@ -5934,35 +5934,35 @@ set -g history-limit 100000
 set -g mouse off
 #+end_src
 
-**** WAIT Status line
-***** Left
+**** WAIT Status line [1/3]
+***** TODO Left
 #+begin_src sh
 set -g status-left-length 1
 set -g status-left ""
 #+end_src
 
-***** Status Bar Options
+***** DONE Status Bar Options
 #+begin_src sh
 set -g status-justify left
 set -g monitor-activity on
 set -g visual-activity on
 #+end_src
 
-***** Right
+***** TODO Right
 #+begin_src sh
 set -g status-right-length 100
 #set -g status-right "#(~/.config/tmux/plugins/tmux-powerline/powerline.sh right)"
-set -g status-right "#[bg=colour16] #[fg=colour40]#(~/.config/tmux/scripts/memory.sh -m)%#[fg=colour158]/#[fg=colour196]#(~/.config/tmux/scripts/memory.sh -s)% #[fg=colour226]#(~/.config/tmux/scripts/battery.sh) #[fg=colour158]#H"
+set -g status-right "#[bg=colour16] #[fg=colour40]#(~/.config/tmux/memory.sh -m)%#[fg=colour158]/#[fg=colour196]#(~/.config/tmux/memory.sh -s)% #[fg=colour226]#(~/.config/tmux/battery.sh) #[fg=colour158]#H"
 #+end_src
 
-**** TODO Keymappings
-***** Enable vi keys for copy/pasting
+**** TODO Keymappings [8/10]
+***** DONE Enable vi keys for copy/pasting
 https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
 #+begin_src sh
 setw -g mode-keys vi
 #+end_src
 
-***** Remap prefix from 'C-b' to 'C-a'
+***** DONE Remap prefix from 'C-b' to 'C-a'
 The bind-key enables sending the prefix to an embedded application.
 #+begin_src sh
 unbind C-b
@@ -5970,57 +5970,85 @@ set-option -g prefix C-a
 bind-key C-a send-prefix
 #+end_src
 
-    # split panes using | and -
+***** DONE Split panes using | and -
+#+begin_src sh
 unbind '"'
 unbind %
 bind | split-window -h
 bind - split-window -v
+#+end_src
 
-    # reload config file
+***** DONE Reload config file
+#+begin_src sh
 bind r source-file ~/.config/tmux/tmux.conf
+#+end_src
 
-    # switch panes using Alt-arrow without prefix
+***** DONE Switch panes using Alt-arrow without prefix
+#+begin_src sh
 bind -n M-Left select-pane -L
 bind -n M-Right select-pane -R
 bind -n M-Up select-pane -U
 bind -n M-Down select-pane -D
+#+end_src
 
-    # switch panes using Vim keys, with prefix
+***** DONE Switch panes using Vim keys, with prefix
+#+begin_src sh
 bind -r h select-pane -L
 bind -r j select-pane -D
 bind -r k select-pane -U
 bind -r l select-pane -R
+#+end_src
 
-    # resize panes with CAPITAL Vim keys, with prefix
+***** DONE Resize panes with CAPITAL Vim keys, with prefix
+#+begin_src sh
 bind -r H resize-pane -L 5
 bind -r J resize-pane -D 5
 bind -r K resize-pane -U 5
 bind -r L resize-pane -R 5
+#+end_src
 
-    # Home row window selection
+***** DONE Home row window selection
+#+begin_src sh
 bind -r C-h select-window -t :-
 bind -r C-l select-window -t :+
+#+end_src
 
-  # Byobu keybindings
-    # New window
+***** TODO Byobu keybindings [5/5]
+****** DONE New window
+#+begin_src sh
 bind-key -n F2 new-window -c "#{pane_current_path}"
 bind-key -n C-F2 display-panes \; split-window -h -c "#{pane_current_path}"
 bind-key -n S-F2 display-panes \; split-window -v -c "#{pane_current_path}"
-    # Previous window/pane
+#+end_src
+
+****** DONE Previous window/pane
+#+begin_src sh
 bind-key -n F3 previous-window
 bind-key -n S-F3 select-pane -t :-
-    # Next window/pane
+#+end_src
+
+****** DONE Next window/pane
+#+begin_src sh
 bind-key -n F4 next-window
 bind-key -n S-F4 select-pane -t :+
-    # Disconnect, kill pane
+#+end_src
+
+****** DONE Disconnect, kill pane
+#+begin_src sh
 bind-key -n F6 detach
 bind-key -n C-F6 kill-pane
-    # Copy mode
-bind-key -n F7 copy-mode
+#+end_src
 
-    # Keybinds for tmux-powerline
-#bind C-[ run '~/path/to/tmux-powerline/mute_powerline.sh left'
-#bind C-] run '~/path/to/tmux-powerline/mute_powerline.sh right'
+****** DONE Copy mode
+#+begin_src sh
+bind-key -n F7 copy-mode
+#+end_src
+
+***** WAIT Keybinds for tmux-powerline
+#+begin_src sh :tangle no
+bind C-[ run '~/path/to/tmux-powerline/mute_powerline.sh left'
+bind C-] run '~/path/to/tmux-powerline/mute_powerline.sh right'
+#+end_src
 
 **** TODO Plugins
 #set -g @plugin 'tmux-plugins/tpm'
@@ -6029,42 +6057,51 @@ bind-key -n F7 copy-mode
     # Call TPM (Must remain at bottom of file)
 #run '~/.config/tmux/plugins/tpm/tpm'
 
-
-*** battery.sh
+*** battery.sh [0/0]
 :properties:
-:header-args+: :tangle ~/.config/tmux/tmux.conf
+:header-args+: :tangle ~/.config/tmux/battery.sh
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :header-args+: :shebang "#!/bin/bash"
 :end:
 
+**** If power adapter is present, show lightning bolt
 #+begin_src bash
-
-    # If power adapter is present, show lightning bolt
 if [ $(cat /sys/class/power_supply/AC/online) == 1 ]
   then
     printf '🗲'
-    # If power adapter is not present, show battery, based on charge level
-    # Above 30%: show green battery, below 30%: show red battery
+#+end_src
+
+**** If power adapter is not present, show battery, based on charge level
+***** Above 30%: show green battery
+#+begin_src bash
 elif [ $(cat /sys/class/power_supply/AC/online) == 0 ] && [ $(cat /sys/class/power_supply/BAT0/capacity) -gt 30 ]
   then
     printf '🔋'
-    # But if no battery detected, show a power symbol
+#+end_src
+
+***** Below 30%: show red battery
+#+begin_src bash
 elif [ -e /sys/class/power_supply/BAT0/capacity ]
   then
     printf '🪫'
+#+end_src
+
+***** But if no battery detected, show a power symbol
+#+begin_src bash
 else
   printf '⏻'
 fi
+#+end_src
 
-    # If battery is present, show charge level as a percentage
-    # If no battery is present, show nothing
+**** If battery is present, show charge level as a percentage, but if no battery is present, show nothing
+#+begin_src bash
 if [ -e /sys/class/power_supply/BAT0/capacity ]
   then
     cat /sys/class/power_supply/BAT0/capacity
     printf '%'
 fi
-
+#+end_src
 
 ** TODO ~/.profile [4/6]
 :properties:

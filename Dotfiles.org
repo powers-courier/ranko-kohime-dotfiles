@@ -6136,8 +6136,14 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
 #export SYSTEMD_PAGER=
 #+end_src
 
-** TODO ~/.ssh
+** TODO ~/.ssh/
 *** config
+:properties:
+:header-args+: :tangle ~/.ssh/config
+:header-args+: :tangle-mode (identity #o400)
+:header-args+: :comments both
+:end:
+
 **** Host copilot
 #+begin_src conf
   Host copilot

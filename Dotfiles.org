@@ -4877,13 +4877,19 @@ set -g status-right "#[bg=colour16] #[fg=colour40]#(~/.config/tmux/scripts/memor
 #+end_src
 
 **** TODO Keymappings
-    # remap prefix from 'C-b' to 'C-a'
-    # As a reminder, unbind frees up C-b for other uses,
+***** Enable vi keys for copy/pasting
+https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
+#+begin_src sh
+setw -g mode-keys vi
+#+end_src
+
+***** Remap prefix from 'C-b' to 'C-a'
+The bind-key enables sending the prefix to an embedded application.
+#+begin_src sh
 unbind C-b
-    # this sets C-a as the new prefix
 set-option -g prefix C-a
-    # and this makes C-a send the prefix key to the embedded application (nested tmux)
 bind-key C-a send-prefix
+#+end_src
 
     # split panes using | and -
 unbind '"'
@@ -4944,9 +4950,9 @@ bind-key -n F7 copy-mode
     # Call TPM (Must remain at bottom of file)
 #run '~/.config/tmux/plugins/tpm/tpm'
 
-# Enable vi keys for copy/pasting
-# https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
-# setw -g mode-keys vi
+
+**** Status Line Scripts
+
 ** TODO ~/.profile [4/6]
 :properties:
 :header-args+: :tangle $HOME/.profile

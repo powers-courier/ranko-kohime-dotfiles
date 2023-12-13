@@ -2490,33 +2490,34 @@ color_gray="\e[0;37;47m"
 *** Formatting Lisp
 https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
-** DONE Preamble
-*** DONE Put all the customize junk in it's own file
+** FINI Preamble [4/4]
+- [X] Put all the customize junk in it's own file
 Emacs doesn't like this being /dev/null, so we'll be nice about it.
 This is not automatically loaded at startup.
 #+begin_src emacs-lisp
   (setq-default custom-file (concat user-emacs-directory "/custom.el"))
 #+end_src
 
-*** DONE Disable "disabled-command-fuction"
+- [X] Disable "disabled-command-fuction"
 [[https://stackoverflow.com/questions/145043/how-do-i-stop-emacs-from-automatically-editing-my-startup-file][Stack Overflow Link]]
 #+begin_src emacs-lisp
   (setq-default disabled-command-function nil)
 #+end_src
 
-*** DONE Quiet the abbrevs function
+- [X] Quiet the abbrevs function
 #+begin_src emacs-lisp
   (setq-default save-abbrevs 'silently)
 #+end_src
-*** DONE Enable custom load-path
+
+- [X] Enable custom load-path
 [[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]
 #+begin_src emacs-lisp
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
 ** TODO Packages
-*** DONE Preamble
-**** DONE Enable Melpa package repository
+*** FINI Preamble
+- [X] Enable Melpa package repository
 #+begin_src emacs-lisp
   (require 'package)
   (add-to-list
@@ -2524,7 +2525,7 @@ This is not automatically loaded at startup.
     '("melpa" . "https://melpa.org/packages/") t)
 #+end_src
 
-**** DONE Install use-package if not already installed
+- [X] Install use-package if not already installed
 [[https://github.com/jwiegley/use-package][use-package GitHub]]
 #+begin_src emacs-lisp
   (unless
@@ -2592,38 +2593,36 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 #+end_src
 
 *** FINI Syntax linting using flycheck
-**** FINI Install flycheck
+- [X] Install flycheck
 #+begin_src emacs-lisp
   (use-package flycheck
                :ensure t)
 #+end_src
 
-**** FINI Install language modules
-***** FINI flycheck-inline
+- [X] flycheck-inline
 #+begin_src emacs-lisp
   (use-package flycheck-inline
                :ensure t)
 #+end_src
 
-***** FINI flycheck-status-emoji
+- [X] flycheck-status-emoji
 #+begin_src emacs-lisp
   (use-package flycheck-status-emoji
                :ensure t)
 #+end_src
 
-***** FINI flycheck-yamllint
+- [X] flycheck-yamllint
 #+begin_src emacs-lisp
   (use-package flycheck-yamllint
                :ensure t)
 #+end_src
 
-**** FINI Enable flycheck and plugins
-***** FINI flycheck
+- [X] Enable flycheck
 #+begin_src emacs-lisp
   (add-hook 'after-init-hook #'global-flycheck-mode)
 #+end_src
 
-***** FINI flycheck-inline
+- [X] flycheck-inline
 #+begin_src emacs-lisp
   (with-eval-after-load 'flycheck
     (add-hook 'flycheck-mode-hook #'flycheck-inline-mode))

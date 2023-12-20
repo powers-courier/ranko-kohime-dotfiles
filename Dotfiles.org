@@ -2902,7 +2902,7 @@ Expands e.g. <s to code blocks
   (global-set-key "\C-ca" 'org-agenda)
 #+end_src
 
-*** STRT org-todo [1/2]
+*** STRT org-todo [6/7]
 - [X] org-todo-keywords
   #+begin_src emacs-lisp
     (setq-default org-todo-keywords
@@ -2915,13 +2915,12 @@ Expands e.g. <s to code blocks
                   "((
   #+end_src
 
-*** FINI Set org-startup-folded
+- [X] Set org-startup-folded
 #+begin_src emacs-lisp
   (setq-default org-startup-folded 'content)
 #+end_src
 
-*** FINI Enable block wrapping using wrap-region
-[[https://github.com/rejeep/wrap-region.el][Wrap Region GitHub]]
+- [X] Enable block wrapping using [[https://github.com/rejeep/wrap-region.el][wrap-region.el]]
 Does not work with Evil mode!
 #+begin_src emacs-lisp
   (use-package wrap-region
@@ -2930,26 +2929,23 @@ Does not work with Evil mode!
   (wrap-region-add-wrapper "#+begin_src \n" "#+end_src" "#" 'org-mode)
 #+end_src
 
-*** FINI Catch invisible edits
-https://orgmode.org/manual/Catching-invisible-edits.html
-
+- [X] [[https://orgmode.org/manual/Catching-invisible-edits.html][Catching invisible edits]]
 #+begin_src emacs-lisp
 (setq-default org-fold-catch-invisible-edits 'smart)
 #+end_src
 
-*** FINI org-default-notes-file
+- [X] org-default-notes-file
 #+begin_src emacs-lisp
-(setq-default org-default-notes-file "/Mounts/Documents/Agenda.org")
+(setq-default org-default-notes-file "/Mounts/Documents/Agenda-cap.org")
 #+end_src
 
-*** FINI org-agenda-files
+- [X] org-agenda-files
 #+begin_src emacs-lisp
-(setq-default org-agenda-files ("/Mounts/Documents/Agenda.org"))
-(setq-default org-default-notes-file "~/Documents/org-capture.org")
+(setq-default org-agenda-files '("/Mounts/Documents/Agenda.org"))
 #+end_src
 
-** FINI Key Bindings
-*** FINI Make ESC quit prompts
+** FINI Key Bindings [1/1]
+- [X] Make ESC quit prompts
 #+begin_src emacs-lisp
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 #+end_src

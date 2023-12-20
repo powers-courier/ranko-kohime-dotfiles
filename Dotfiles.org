@@ -2537,24 +2537,45 @@ This is not automatically loaded at startup.
     (require 'use-package))
 #+end_src
 
-*** TODO Install and configure Ansible packages
+*** TODO Install and configure Ansible packages [4/6]
+- [X] Install ansible
 #+begin_src emacs-lisp
   (use-package ansible
                :ensure t)
-  (add-hook 'yaml-mode-hook #'(lambda () (ansible 1)))
+#+end_src
 
+- [X] Add Yaml mode hook
+#+begin_src emacs-lisp
+  (add-hook 'yaml-mode-hook #'(lambda () (ansible 1)))
+#+end_src
+
+- [X] Install ansible-doc
+#+begin_src emacs-lisp
   (use-package ansible-doc
                :ensure t)
+#+end_src
+
+- [X] Install ansible-vault
+#+begin_src emacs-lisp
   (use-package ansible-vault
                :ensure t)
                (setq-default
                 ansible-vault-password-file
                 "~/.ansible/vault_pass")
-  [(use-package autocomplete
-               :ensure t)]
+#+end_src
+
+- [ ] Install autocomplete
+#+begin_src emacs-lisp :tangle no
+  (use-package autocomplete
+               :ensure t)
+#+end_src
+
+- [ ] Install yasnippet
+#+begin_src emacs-lisp :tangle no
   (use-package yasnippet
                :ensure t)
 #+end_src
+
 *** FINI Enable Git integration with Magit
 [[https://magit.vc/][Magit Website]]
 #+begin_src emacs-lisp
@@ -2647,33 +2668,33 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 #+end_src
 
 ** TODO Visual Settings
-*** FINI Enable custom themes
-**** FINI Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
+*** FINI Enable custom themes [5/5]
+- [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
 #+begin_src emacs-lisp :tangle no
   (use-package monokai-theme
                :ensure t)
 #+end_src
 
-**** FINI Base Theme ([[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]], Disabled)
+- [X] Base Theme ([[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]], Disabled)
 #+begin_src emacs-lisp :tangle no
   (use-package cherry-blossom-theme
                :ensure t)
 #+end_src
 
-**** FINI Base Theme ([[https://github.com/n3mo/cyberpunk-theme.el][Cyberpunk]])
+- [X] Base Theme ([[https://github.com/n3mo/cyberpunk-theme.el][Cyberpunk]])
 #+begin_src emacs-lisp
   (use-package cyberpunk-theme
                :ensure t)
 #+end_src
 
-**** FINI Overlay (org-beautify-theme, Disabled)
+- [X] Overlay (org-beautify-theme, Disabled)
 This just does a little bit too much.
 #+begin_src emacs-lisp :tangle no
   (use-package org-beautify-theme
                :ensure t)
 #+end_src
 
-**** FINI Epilogue (Enable the themes)
+- [X] Epilogue (Enable the themes)
 #+begin_src emacs-lisp
   (custom-set-variables
     '(custom-enabled-themes
@@ -2682,20 +2703,21 @@ This just does a little bit too much.
       '("31deed4ac5d0b65dc051a1da3611ef52411490b2b6e7c2058c13c7190f7e199b" "e9d47d6d41e42a8313c81995a60b2af6588e9f01a1cf19ca42669a7ffd5c2fde" default)))
 #+end_src
 
-*** FINI Inhibit the startup message
+*** FINI Remove Menubar, Toolbar, and "Getting Started" screen
+#+name: menu-bar-mode
 #+begin_src emacs-lisp
-  (setq-default inhibit-startup-message t)
+  (menu-bar-mode -1)
 #+end_src
 
-*** FINI Disable the GUI Toolbar
+#+name: tool-bar-mode
 #+begin_src emacs-lisp
   (if window-system
     (tool-bar-mode 0))
 #+end_src
 
-*** FINI Disable the Menubar
+#+name: inhibit-startup-message
 #+begin_src emacs-lisp
-  (menu-bar-mode -1)
+  (setq-default inhibit-startup-message t)
 #+end_src
 
 *** WAIT Show fill column indicator (Line 80)
@@ -2706,35 +2728,42 @@ Still needs work on appearance
 #+end_src
 
 The following options are not yet known to work correctly
-
 #+begin_src emacs-lisp :tangle no
   (setq-default display-fill-column-indicator-character "‖")
   (set-face-background 'fill-column-indicator brightwhite)
 #+end_src
 
-*** TODO Point
-**** WAIT Cursor Type & Color
+Let's give a try to column-enforce-mode
+(Sort've works, but doesn't adjust for org-indent-mode
+#+begin_src emacs-lisp
+  (use-package column-enforce-mode
+               :ensure t)
+  (setq-default column-enforce-mode t)
+#+end_src
+*** TODO Point [1/3]
+- [ ] Cursor Type & Color
 Does not appear to have any affect in a remote terminal session...  GUI only?
 Confirmed: Only shows in GUI
 Color codes are numbers in terminal, names in GUI, hex codes not accepted?
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (setq-default cursor-type 'box)
   (set-cursor-color "#FFA500")
 #+end_src
 
-**** FINI Highlight Point on the row...
+- [X] Highlight Point on the row...
 #+begin_src emacs-lisp
   (setq-default global-hl-line-mode t)
 #+end_src
 
-**** WAIT ...and on the column
+- [ ] ...and on the column
 This seems a bit janky with the current slew of settings, so disabled for now
 WAYYY too laggy in Org doc
 #+begin_src emacs-lisp
   [(setq-default vline-globalmode t)]
 #+end_src
 
-*** FINI Enable line numbers, and make them a bit pretty
+*** FINI Enable line numbers and RULER MODE!
+#+name: global-display-line-numbers-mode
 #+begin_src emacs-lisp
   (global-display-line-numbers-mode)
   (custom-set-variables
@@ -2748,7 +2777,15 @@ WAYYY too laggy in Org doc
                   :foreground "#999999")))))
 #+end_src
 
+- [ ] [[https://www.emacswiki.org/emacs/RulerMode][Emacs Wiki: Ruler Mode]]
+#+name: ruler-mode
+#+begin_src emacs-lisp
+  [(setq-default ruler-mode)]
+  (add-hook 'find-file-hook (lambda () (ruler-mode 1)))
+#+end_src
+
 *** TODO Highlight parentheses
+#+name: show-paren-mode
 #+begin_src emacs-lisp
   (show-paren-mode t)
   (custom-set-variables
@@ -2757,6 +2794,7 @@ WAYYY too laggy in Org doc
     '(show-paren-ring-bell-on-mismatch t)
     '(show-paren-when-point-in-periphery t)
     '(show-paren-when-point-inside-paren t))
+#+end_src
   [(define-globalized-minor-mode
     global-highlight-parentheses-mode
     highlight-parentheses-mode
@@ -2783,13 +2821,6 @@ Double check this in GUI mode, not satisfactory in terminal
    '(highlight-indent-guides-responsive 'stack))
   (add-hook 'org-mode-hook 'highlight-indent-guides-mode)
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-#+end_src
-
-*** FINI RULER MODE! (Suck it, Vim)
-[[https://www.emacswiki.org/emacs/RulerMode][Emacs Wiki: Ruler Mode]]
-#+begin_src emacs-lisp
-  [(setq-default ruler-mode)]
-  (add-hook 'find-file-hook (lambda () (ruler-mode 1)))
 #+end_src
 
 *** FINI Scrolloff (move viewport when point approaches top or bottom of screen)
@@ -2831,6 +2862,7 @@ Expands e.g. <s to code blocks
 #+end_src
 
 **** FINI Hide leading stars in lists
+#+name: org-hide-leading-stars
 #+begin_src emacs-lisp
   (setq-default org-hide-leading-stars t)
 #+end_src
@@ -2846,6 +2878,7 @@ Expands e.g. <s to code blocks
 #+end_src
 
 **** FINI Change header fold indicator
+#+name: org-ellipsis
 #+begin_src emacs-lisp
   (setq-default org-ellipsis " ξ")
   (set-face-underline 'org-ellipsis nil)
@@ -2857,6 +2890,7 @@ Expands e.g. <s to code blocks
 #+end_src
 
 **** FINI Set indent mode
+#+name: org-indent-mode
 #+begin_src emacs-lisp
   (setq-default org-indent-mode t)
   (setq-default org-startup-indented t)
@@ -2868,11 +2902,18 @@ Expands e.g. <s to code blocks
   (global-set-key "\C-ca" 'org-agenda)
 #+end_src
 
-*** FINI Set keywords for Org Mode
-#+begin_src emacs-lisp
-  (setq-default org-todo-keywords
-    '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "FINI(f)" "DELE(d)")))
-#+end_src
+*** STRT org-todo [1/2]
+- [X] org-todo-keywords
+  #+begin_src emacs-lisp
+    (setq-default org-todo-keywords
+      '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "FINI(f)" "DELE(d)")))
+  #+end_src
+
+- [ ] org-todo-keyword-faces
+  #+begin_src emacs-lisp :tangle no
+    (setq-default org-todo-keyword-faces
+                  "((
+  #+end_src
 
 *** FINI Set org-startup-folded
 #+begin_src emacs-lisp
@@ -2896,8 +2937,14 @@ https://orgmode.org/manual/Catching-invisible-edits.html
 (setq-default org-fold-catch-invisible-edits 'smart)
 #+end_src
 
-*** FINI Set org-capture File
+*** FINI org-default-notes-file
 #+begin_src emacs-lisp
+(setq-default org-default-notes-file "/Mounts/Documents/Agenda.org")
+#+end_src
+
+*** FINI org-agenda-files
+#+begin_src emacs-lisp
+(setq-default org-agenda-files ("/Mounts/Documents/Agenda.org"))
 (setq-default org-default-notes-file "~/Documents/org-capture.org")
 #+end_src
 
@@ -3086,23 +3133,23 @@ May work with C-c C-c?  (Yes)
 Assign a keybind to it maybe?
 [[https://emacs.stackexchange.com/questions/68041/how-to-list-all-the-code-blocks-in-the-current-buffer-with-no-name][Stack Exchange Example]]
 [[https://doc.endlessparentheses.com/Fun/org-babel-map-src-blocks.html][Endless Parentheses Documentation]]
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :results output silent
   (org-babel-map-src-blocks nil
-    (let ((name (org-element-property :name (org-element-context))))
-      (unless name
-        (message "Code block with no name found in line %s" (line-number-at-pos)))))
+    (let ((language (org-element-property :language (org-element-context))))
+      (unless language
+        (message "Code block with no language found in line %s" (line-number-at-pos)))))
 #+end_src
 
 ** FINI And Finally…
 *** FINI The Success Message
 #+begin_src emacs-lisp
   (setq-default initial-scratch-message
-        (concat
-          ";;░█▀▀░█▄█░█▀█░█▀▀░█▀▀\n"
-          ";;░█▀▀░█░█░█▀█░█░░░▀▀█\n"
-          ";;░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀\n"
-          "\n"
-          ";;  Task Failed Successfully.\n"))
+    (concat
+      ";;░█▀▀░█▄█░█▀█░█▀▀░█▀▀\n"
+      ";;░█▀▀░█░█░█▀█░█░░░▀▀█\n"
+      ";;░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀\n"
+      "\n"
+      ";;  Task Failed Successfully.\n"))
 #+end_src
 
 *** FINI And not to forget, the tangle script

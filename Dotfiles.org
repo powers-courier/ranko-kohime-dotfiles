@@ -2899,7 +2899,7 @@ https://orgmode.org/manual/Catching-invisible-edits.html
 
 *** DONE Set org-capture File
 #+begin_src emacs-lisp
-(setq-default org-default-notes-file "$HOME/Documents/org-capture.org")
+(setq-default org-default-notes-file "~/Documents/org-capture.org")
 #+end_src
 
 ** DONE Key Bindings
@@ -3107,7 +3107,7 @@ Assign a keybind to it maybe?
 #+end_src
 
 *** DONE And not to forget, the tangle script
-#+begin_src bash :tangle $HOME/Dotfiles.sh :shebang "#!/bin/bash"
+#+begin_src bash :tangle ~/Dotfiles.sh :shebang "#!/bin/bash"
 emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Dotfiles.org")'
 #+end_src
 
@@ -4703,7 +4703,7 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 * Shell [0/7]
 ** TODO ~/.aliasrc [5/9]
 :properties:
-:header-args+: :tangle $HOME/.aliasrc
+:header-args+: :tangle ~/.aliasrc
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
@@ -4721,9 +4721,9 @@ alias lll=' ls -AhlF |less'
 *** DONE Editors
 #+begin_src bash
 alias e='emacs'
-alias v=' $HOME/.local/bin/nvim.appimage'
-alias vi=' $HOME/.local/bin/nvim.appimage'
-alias vim=' $HOME/.local/bin/nvim.appimage'
+alias v=' ~/.local/bin/nvim.appimage'
+alias vi=' ~/.local/bin/nvim.appimage'
+alias vim=' ~/.local/bin/nvim.appimage'
 #+end_src
 
 *** DONE Exits
@@ -4862,7 +4862,7 @@ alias sg='picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --
 
 ** TODO ~/.bashrc [8/10]
 :properties:
-:header-args+: :tangle $HOME/.bashrc
+:header-args+: :tangle ~/.bashrc
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
@@ -6105,7 +6105,7 @@ fi
 
 ** TODO ~/.profile [4/6]
 :properties:
-:header-args+: :tangle $HOME/.profile
+:header-args+: :tangle ~/.profile
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:

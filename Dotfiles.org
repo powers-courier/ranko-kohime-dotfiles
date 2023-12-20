@@ -3059,6 +3059,38 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (setq-default display-time-mode t)
 #+end_src
 
+** TODO Search
+*** FINI Address performance concerns in large files [5/5]
+- [X] Initial Highlight Delay
+#+name: lazy-highlight-initial-delay
+#+begin_src emacs-lisp
+  (setq-default lazy-highlight-initial-delay 5)
+#+end_src
+
+- [X] No Delay Length
+#+name: lazy-highlight-no-delay-length
+#+begin_src emacs-lisp
+  (setq-default lazy-highlight-no-delay-length 6)
+#+end_src
+
+- [X] Slow down subsequent matches
+#+name: lazy-highlight-interval
+#+begin_src emacs-lisp
+  (setq-default lazy-highlight-interval 0.25)
+#+end_src
+
+- [X] Check for user input often to maintain responsiveness
+#+name: lazy-highlight-max-at-a-time
+#+begin_src emacs-lisp
+  (setq-default lazy-highlight-max-at-a-time 5)
+#+end_src
+
+- [X] Show count in search prompt
+#+name: isearch-lazy-count
+#+begin_src emacs-lisp
+  (setq-default isearch-lazy-count t)
+#+end_src
+
 ** FINI General Settings
 *** FINI Set personal information
 #+begin_src emacs-lisp

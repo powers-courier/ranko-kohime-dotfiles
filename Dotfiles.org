@@ -2728,12 +2728,18 @@ Still needs work on appearance
 #+end_src
 
 The following options are not yet known to work correctly
-
 #+begin_src emacs-lisp :tangle no
   (setq-default display-fill-column-indicator-character "‖")
   (set-face-background 'fill-column-indicator brightwhite)
 #+end_src
 
+Let's give a try to column-enforce-mode
+(Sort've works, but doesn't adjust for org-indent-mode
+#+begin_src emacs-lisp
+  (use-package column-enforce-mode
+               :ensure t)
+  (setq-default column-enforce-mode t)
+#+end_src
 *** TODO Point [1/3]
 - [ ] Cursor Type & Color
 Does not appear to have any affect in a remote terminal session...  GUI only?

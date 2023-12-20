@@ -3105,14 +3105,9 @@ Assign a keybind to it maybe?
           ";;  Task Failed Successfully.\n"))
 #+end_src
 
-<<<<<<< HEAD
-*** DONE And not to forget, the tangle script
-#+begin_src bash :tangle ~/Dotfiles.sh :shebang "#!/bin/bash"
-=======
 *** FINI And not to forget, the tangle script
 #+begin_src bash :tangle $HOME/Dotfiles.sh :shebang "#!/bin/bash"
->>>>>>> 4bcf3c6fa63ca26de3ccae28ab58f2fbc2d722ce
-emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Dotfiles.org")'
+emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "~/Dotfiles.org")'
 #+end_src
 
 

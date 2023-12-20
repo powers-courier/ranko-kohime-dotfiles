@@ -2945,6 +2945,7 @@ https://orgmode.org/manual/Catching-invisible-edits.html
 *** FINI org-agenda-files
 #+begin_src emacs-lisp
 (setq-default org-agenda-files ("/Mounts/Documents/Agenda.org"))
+(setq-default org-default-notes-file "~/Documents/org-capture.org")
 #+end_src
 
 ** FINI Key Bindings
@@ -3153,7 +3154,7 @@ Assign a keybind to it maybe?
 
 *** FINI And not to forget, the tangle script
 #+begin_src bash :tangle $HOME/Dotfiles.sh :shebang "#!/bin/bash"
-emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Dotfiles.org")'
+emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "~/Dotfiles.org")'
 #+end_src
 
 
@@ -4748,7 +4749,7 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 * Shell [0/7]
 ** TODO ~/.aliasrc [5/9]
 :properties:
-:header-args+: :tangle $HOME/.aliasrc
+:header-args+: :tangle ~/.aliasrc
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
@@ -4766,9 +4767,9 @@ alias lll=' ls -AhlF |less'
 *** FINI Editors
 #+begin_src bash
 alias e='emacs'
-alias v=' $HOME/.local/bin/nvim.appimage'
-alias vi=' $HOME/.local/bin/nvim.appimage'
-alias vim=' $HOME/.local/bin/nvim.appimage'
+alias v=' ~/.local/bin/nvim.appimage'
+alias vi=' ~/.local/bin/nvim.appimage'
+alias vim=' ~/.local/bin/nvim.appimage'
 #+end_src
 
 *** FINI Exits
@@ -4907,7 +4908,7 @@ alias sg='picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --
 
 ** TODO ~/.bashrc [8/10]
 :properties:
-:header-args+: :tangle $HOME/.bashrc
+:header-args+: :tangle ~/.bashrc
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
@@ -6150,7 +6151,7 @@ fi
 
 ** TODO ~/.profile [4/6]
 :properties:
-:header-args+: :tangle $HOME/.profile
+:header-args+: :tangle ~/.profile
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:

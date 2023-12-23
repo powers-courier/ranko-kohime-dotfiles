@@ -2959,8 +2959,8 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Mode-Line-Variables.html][Mode Line Variables]]
 
 **** TODO header-line-format
-#+begin_src emacs-lisp
-  [(setq-default header-line-format
+#+begin_src emacs-lisp :tangle no
+  (setq-default header-line-format
     (list
       "%e" mode-line-front-space
                ; %e is out of memory warning
@@ -2996,11 +2996,11 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
         " "
         display-time-string
                ; Show clock at right end of mode line
-        " "))]
+        " "))
 #+end_src
 **** WAIT mode-line-format
-#+begin_src emacs-lisp
-  [(setq-default mode-line-format
+#+begin_src emacs-lisp :tangle no
+  (setq-default mode-line-format
     (list
       "%e" mode-line-front-space
                ; %e is out of memory warning
@@ -3036,25 +3036,38 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
         " "
         display-time-string
                ; Show clock at right end of mode line
-        " "))]
+        " "))
 #+end_src
-*** Content
-**** FINI Show line and column numbers in mode line
+
+*** FINI Content [3/3]
+- [X] Show line numbers
+#+name: line-number-mode
 #+begin_src emacs-lisp
   (setq-default line-number-mode t)
+#+end_src
+
+- [X] Show column numbers
+#+name: column-number-mode
+#+begin_src emacs-lisp
   (setq-default column-number-mode t)
 #+end_src
 
-**** FINI Show clock in mode line
+- [X] Show clock
+#+name: display-time-mode
 #+begin_src emacs-lisp
   (setq-default display-time-mode t)
 #+end_src
 
 ** FINI General Settings
-*** FINI Set personal information
+- [X] Set personal information
+#+name: user-full-name
 #+begin_src emacs-lisp
-  (setq-default user-full-name "Ranko Kohime"
-        user-mail-address "ranko.kohime@runbox.com")
+  (setq-default user-full-name "Ranko Kohime")
+#+end_src
+
+#+name: user-mail-address
+#+begin_src emacs-lisp
+  (setq-default user-mail-address "ranko.kohime@runbox.com")
 #+end_src
 
 *** FINI Enable file history with recentf, and periodically save the list

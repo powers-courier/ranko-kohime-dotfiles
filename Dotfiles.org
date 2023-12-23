@@ -2478,7 +2478,7 @@ color_gray="\e[0;37;47m"
 \e[0m 0;37m \t\e[1;37;40m White      \e[0m 1;37m"
 
 
-* Emacs [6/10]
+* Emacs [6/11]
 :properties:
 :header-args+: :tangle (concat user-emacs-directory "/init.el")
 :header-args+: :tangle-mode (identity #o444)
@@ -2649,14 +2649,14 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
     (add-hook 'flycheck-mode-hook #'flycheck-inline-mode))
 #+end_src
 
-*** FINI Focus mode
-**** FINI Install
+*** FINI Focus mode [2/2]
+- [X] Install
 #+begin_src emacs-lisp
   (use-package focus
                :ensure t)
 #+end_src
 
-**** FINI Enable Keybind
+- [X] Enable Keybind
 #+begin_src emacs-lisp
   (keymap-global-set "C-c f" 'focus-mode)
 #+end_src
@@ -2670,18 +2670,21 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 ** TODO Visual Settings
 *** FINI Enable custom themes [5/5]
 - [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
+#+name: monokai-theme
 #+begin_src emacs-lisp :tangle no
   (use-package monokai-theme
                :ensure t)
 #+end_src
 
 - [X] Base Theme ([[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]], Disabled)
+#+name: cherry-blossom-theme
 #+begin_src emacs-lisp :tangle no
   (use-package cherry-blossom-theme
                :ensure t)
 #+end_src
 
 - [X] Base Theme ([[https://github.com/n3mo/cyberpunk-theme.el][Cyberpunk]])
+#+name: cyberpunk-theme
 #+begin_src emacs-lisp
   (use-package cyberpunk-theme
                :ensure t)
@@ -2689,12 +2692,14 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 
 - [X] Overlay (org-beautify-theme, Disabled)
 This just does a little bit too much.
+#+name: org-beautify-theme
 #+begin_src emacs-lisp :tangle no
   (use-package org-beautify-theme
                :ensure t)
 #+end_src
 
 - [X] Epilogue (Enable the themes)
+#+name: theme-variabless
 #+begin_src emacs-lisp
   (custom-set-variables
     '(custom-enabled-themes
@@ -2703,18 +2708,21 @@ This just does a little bit too much.
       '("31deed4ac5d0b65dc051a1da3611ef52411490b2b6e7c2058c13c7190f7e199b" "e9d47d6d41e42a8313c81995a60b2af6588e9f01a1cf19ca42669a7ffd5c2fde" default)))
 #+end_src
 
-*** FINI Remove Menubar, Toolbar, and "Getting Started" screen
+*** FINI Remove Menubar, Toolbar, and "Getting Started" screen [3/3]
+- [X] Menu Bar
 #+name: menu-bar-mode
 #+begin_src emacs-lisp
   (menu-bar-mode -1)
 #+end_src
 
+- [X] Tool Bar
 #+name: tool-bar-mode
 #+begin_src emacs-lisp
   (if window-system
     (tool-bar-mode 0))
 #+end_src
 
+- [X] Startup Message
 #+name: inhibit-startup-message
 #+begin_src emacs-lisp
   (setq-default inhibit-startup-message t)
@@ -2740,6 +2748,7 @@ Let's give a try to column-enforce-mode
                :ensure t)
   (setq-default column-enforce-mode t)
 #+end_src
+
 *** TODO Point [1/3]
 - [ ] Cursor Type & Color
 Does not appear to have any affect in a remote terminal session...  GUI only?
@@ -2762,7 +2771,8 @@ WAYYY too laggy in Org doc
   [(setq-default vline-globalmode t)]
 #+end_src
 
-*** FINI Enable line numbers and RULER MODE!
+*** FINI Enable line numbers and RULER MODE! [2/2]
+- [X] Enable line numbers, with relative numbers, and highlight point line
 #+name: global-display-line-numbers-mode
 #+begin_src emacs-lisp
   (global-display-line-numbers-mode)
@@ -2777,10 +2787,9 @@ WAYYY too laggy in Org doc
                   :foreground "#999999")))))
 #+end_src
 
-- [ ] [[https://www.emacswiki.org/emacs/RulerMode][Emacs Wiki: Ruler Mode]]
+- [X] [[https://www.emacswiki.org/emacs/RulerMode][Emacs Wiki: Ruler Mode]]
 #+name: ruler-mode
 #+begin_src emacs-lisp
-  [(setq-default ruler-mode)]
   (add-hook 'find-file-hook (lambda () (ruler-mode 1)))
 #+end_src
 
@@ -3056,6 +3065,38 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 #+name: display-time-mode
 #+begin_src emacs-lisp
   (setq-default display-time-mode t)
+#+end_src
+
+** TODO Search
+*** FINI Address performance concerns in large files [5/5]
+- [X] Initial Highlight Delay
+#+name: lazy-highlight-initial-delay
+#+begin_src emacs-lisp
+  (setq-default lazy-highlight-initial-delay 5)
+#+end_src
+
+- [X] No Delay Length
+#+name: lazy-highlight-no-delay-length
+#+begin_src emacs-lisp
+  (setq-default lazy-highlight-no-delay-length 6)
+#+end_src
+
+- [X] Slow down subsequent matches
+#+name: lazy-highlight-interval
+#+begin_src emacs-lisp
+  (setq-default lazy-highlight-interval 0.25)
+#+end_src
+
+- [X] Check for user input often to maintain responsiveness
+#+name: lazy-highlight-max-at-a-time
+#+begin_src emacs-lisp
+  (setq-default lazy-highlight-max-at-a-time 5)
+#+end_src
+
+- [X] Show count in search prompt
+#+name: isearch-lazy-count
+#+begin_src emacs-lisp
+  (setq-default isearch-lazy-count t)
 #+end_src
 
 ** FINI General Settings

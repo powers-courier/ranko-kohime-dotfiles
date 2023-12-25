@@ -1398,6 +1398,10 @@ menuMain;
 #+end_src
 
 ** Cruft
+*** Synchronize Music folder
+rsync -avP --exclude=mp3 --exclude=Ogg --exclude=acxi --exclude="DVD Inclusions" ranko@192.168.0.2:/mnt/Svartalfheim/Music/ ~/Music/
+
+*** Other
 ansibibble_controller_setup()
 {
   echo -e "This should have worked"

@@ -1221,6 +1221,34 @@ menu_energy()
 }
 #+end_src
 
+** TODO File Synchronization
+*** Variables
+*** Functions
+**** FINI Synchronize Music folder
+#+name: fileSyncMusicExcludes
+#+begin_src bash
+fileSyncMusicExcludes=(--exclude=acxi --exclude="DVD Inclusions" --exclude=mp3 --exclude=Ogg)
+#+end_src
+#+name: fileSyncMusicOptions
+#+begin_src bash
+fileSyncMusicOptions=(--archive --partial --progress --verbose)
+#+end_src
+#+name: fileSyncMusicServer
+#+begin_src bash
+fileSyncMusicServer="ranko@192.168.0.2:/mnt/Svartalfheim/Music/"
+#+end_src
+#+name: fileSyncMusicTarget
+#+begin_src bash
+fileSyncMusicTarget="~/Music/"
+#+end_src
+#+name: fileSyncMusic
+#+begin_src bash
+fileSyncMusic()
+{
+  rsync ${fileSyncMusicOptions[@]} ${fileSyncMusicExcludes[@]} ${fileSyncMusicServer} ${fileSyncMusicTarget}
+}
+#+end_src
+
 ** TODO The Main Feature...err, Menu
 *** menuMain
 #+begin_src bash
@@ -1398,8 +1426,6 @@ menuMain;
 #+end_src
 
 ** Cruft
-*** Synchronize Music folder
-rsync -avP --exclude=mp3 --exclude=Ogg --exclude=acxi --exclude="DVD Inclusions" ranko@192.168.0.2:/mnt/Svartalfheim/Music/ ~/Music/
 
 *** Other
 ansibibble_controller_setup()

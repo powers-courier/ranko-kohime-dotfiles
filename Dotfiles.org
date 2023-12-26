@@ -1196,8 +1196,12 @@ menuDisk()
 
 ** TODO Energy Control (Batteries and such)
 *** Variables
+#+name: menuEnergyLocation
 #+begin_src bash
 menuEnergyLocation="/sys/class/power_supply"
+#+end_src
+#+name: menuEnergyASUS
+#+begin_src bash
 menuEnergyASUS="${menuEnergyLocation}/charge_control_end_threshold"
 #+end_src
 
@@ -1426,7 +1430,6 @@ menuMain;
 #+end_src
 
 ** Cruft
-
 *** Other
 ansibibble_controller_setup()
 {
@@ -2524,23 +2527,27 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 - [X] Put all the customize junk in it's own file
 Emacs doesn't like this being /dev/null, so we'll be nice about it.
 This is not automatically loaded at startup.
+#+name: custom-file
 #+begin_src emacs-lisp
   (setq-default custom-file (concat user-emacs-directory "/custom.el"))
 #+end_src
 
 - [X] Disable "disabled-command-fuction"
 [[https://stackoverflow.com/questions/145043/how-do-i-stop-emacs-from-automatically-editing-my-startup-file][Stack Overflow Link]]
+#+name: disabled-command-function
 #+begin_src emacs-lisp
   (setq-default disabled-command-function nil)
 #+end_src
 
 - [X] Quiet the abbrevs function
+#+name: save-abbrevs
 #+begin_src emacs-lisp
   (setq-default save-abbrevs 'silently)
 #+end_src
 
 - [X] Enable custom load-path
 [[https://www.emacswiki.org/emacs/LoadPath][Emacs Wiki: LoadPath]]
+#+name: load-path
 #+begin_src emacs-lisp
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
@@ -2548,6 +2555,7 @@ This is not automatically loaded at startup.
 ** TODO Packages
 *** FINI Preamble
 - [X] Enable Melpa package repository
+#+name: enable-melpa
 #+begin_src emacs-lisp
   (require 'package)
   (add-to-list
@@ -2557,6 +2565,7 @@ This is not automatically loaded at startup.
 
 - [X] Install use-package if not already installed
 [[https://github.com/jwiegley/use-package][use-package GitHub]]
+#+name: enable-use-package
 #+begin_src emacs-lisp
   (unless
     (package-installed-p 'use-package)
@@ -2569,23 +2578,27 @@ This is not automatically loaded at startup.
 
 *** TODO Install and configure Ansible packages [4/6]
 - [X] Install ansible
+#+name: ansible
 #+begin_src emacs-lisp
   (use-package ansible
                :ensure t)
 #+end_src
 
 - [X] Add Yaml mode hook
+#+name: ansible-yaml-mode-hook
 #+begin_src emacs-lisp
   (add-hook 'yaml-mode-hook #'(lambda () (ansible 1)))
 #+end_src
 
 - [X] Install ansible-doc
+#+name: ansible-doc
 #+begin_src emacs-lisp
   (use-package ansible-doc
                :ensure t)
 #+end_src
 
 - [X] Install ansible-vault
+#+name: ansible-vault
 #+begin_src emacs-lisp
   (use-package ansible-vault
                :ensure t)
@@ -2595,12 +2608,14 @@ This is not automatically loaded at startup.
 #+end_src
 
 - [ ] Install autocomplete
+#+name: autocomplete
 #+begin_src emacs-lisp :tangle no
   (use-package autocomplete
                :ensure t)
 #+end_src
 
 - [ ] Install yasnippet
+#+name: yasnippet
 #+begin_src emacs-lisp :tangle no
   (use-package yasnippet
                :ensure t)

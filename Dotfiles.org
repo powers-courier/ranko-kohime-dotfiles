@@ -3104,12 +3104,13 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 #+end_src
 
 ** FINI General Settings
-- [X] Set personal information
+- [X] Set user name
 #+name: user-full-name
 #+begin_src emacs-lisp
   (setq-default user-full-name "Ranko Kohime")
 #+end_src
 
+- [X] Set e-mail address
 #+name: user-mail-address
 #+begin_src emacs-lisp
   (setq-default user-mail-address "ranko.kohime@runbox.com")
@@ -3134,12 +3135,14 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 
 *** FINI Spaces instead of tabs
 [[https://www.emacswiki.org/emacs/NoTabs][Emacs Wiki: No Tabs]]
+#+name: indent-tabs-mode
 #+begin_src emacs-lisp
   (setq-default indent-tabs-mode nil)
 #+end_src
 
 *** FINI ido-mode for fancy buffer switching
 **** FINI Enable
+#+name: ido-mode
 #+begin_src emacs-lisp
 (require 'ido)
 (ido-mode t)

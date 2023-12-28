@@ -3181,15 +3181,14 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (setq-default indent-tabs-mode nil)
 #+end_src
 
-*** FINI ido-mode for fancy buffer switching
-**** FINI Enable
+*** FINI ido-mode [4/4]
+- [X] For buffers...
 #+name: ido-mode
 #+begin_src emacs-lisp
 (require 'ido)
 (ido-mode t)
 #+end_src
-
-**** FINI Enable for M-x
+- [X] ...for M-x
 #+begin_src emacs-lisp
 (global-set-key
      "\M-x"
@@ -3201,15 +3200,13 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
           "M-x "
           (all-completions "" obarray 'commandp))))))
 #+end_src
-
-**** FINI Enable vertical mode
+- [X] Enable vertical mode
 #+begin_src emacs-lisp
   (use-package ido-vertical-mode
                :ensure t)
   (ido-vertical-mode 1)
 #+end_src
-
-**** FINI Highlight Search Terms
+- [X] Highlight Search Terms
 #+begin_src emacs-lisp
 (setq-default ido-use-faces t)
 (set-face-attribute 'ido-vertical-first-match-face nil
@@ -3266,20 +3263,18 @@ emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "~/Dotfiles
 ### Uncomment any options you wish to enable. Default options are left uncommented
 ### Use some_parameter=0 to disable a parameter (only works with on/off parameters)
 ### Everything below can be used / overridden with the environment variable MANGOHUD_CONFIG instead
-** Performance
-*** Limit the application FPS.
+** Performance [3/3]
+- [X] Limit the application FPS.
 Comma-separated list of one or more FPS values (e.g. 0,30,60). 0 means unlimited (unless VSynced).
 #+begin_src conf
 # fps_limit=
 #+end_src
-
-*** VSync
+- [X] VSync
 [0-3] 0 = adaptive; 1 = off; 2 = mailbox; 3 = on
 #+begin_src conf
 # vsync=
 #+end_src
-
-*** OpenGL VSync
+- [X] OpenGL VSync
 [0-N] 0 = off; >=1 = wait for N v-blanks, N > 1 acts as a FPS limiter (FPS = display refresh rate / N)
 #+begin_src conf
 # gl_vsync=

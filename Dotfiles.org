@@ -3266,55 +3266,132 @@ emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "~/Dotfiles
 ** Performance [3/3]
 - [X] Limit the application FPS.
 Comma-separated list of one or more FPS values (e.g. 0,30,60). 0 means unlimited (unless VSynced).
+#+name: fps_limit
 #+begin_src conf
 # fps_limit=
 #+end_src
 - [X] VSync
 [0-3] 0 = adaptive; 1 = off; 2 = mailbox; 3 = on
+#+name: vsync
 #+begin_src conf
 # vsync=
 #+end_src
 - [X] OpenGL VSync
 [0-N] 0 = off; >=1 = wait for N v-blanks, N > 1 acts as a FPS limiter (FPS = display refresh rate / N)
+#+name: gl_vsync
 #+begin_src conf
 # gl_vsync=
 #+end_src
 
-** Visual
-*** Custom text centered useful for a header
+** Visual [3/3]
+*** FINI Preamble
+- [X] Custom text centered useful for a header
+#+name: custom_text_center
 #+begin_src conf
 # custom_text_center =
 #+end_src
-
-*** Legacy layout
+- [X] Legacy layout
+#+name: legacy_layout
 #+begin_src conf
 legacy_layout = false
 #+end_src
 
-*** Display the current CPU information
+*** FINI Display the current CPU information [8/8]
+- [X] CPU Stats
+#+name: cpu_stats
 #+begin_src conf
 cpu_stats
+#+end_src
+- [X] CPU Temp
+#+name: cpu_temp
+#+begin_src conf
 cpu_temp
+#+end_src
+- [X] CPU Power
+#+name: cpu_power
+#+begin_src conf
 cpu_power
+#+end_src
+- [X] CPU Text
+#+name: CPU Text
+#+begin_src conf
 # cpu_text = "CPU"
+#+end_src
+- [X] CPU Clock Speed
+#+name: cpu_mhz
+#+begin_src conf
 cpu_mhz
+#+end_src
+- [X] CPU Load Change
+#+name: cpu_load_change
+#+begin_src conf
 cpu_load_change
+#+end_src
+- [X] CPU Load Value
+#+name: cpu_load_value
+#+begin_src conf
 cpu_load_value
+#+end_src
+- [X] CPU Load Color Chart
+#+name: cpu_load_color
+#+begin_src conf
 cpu_load_color
 #+end_src
 
-*** Display the current GPU information
+*** FINI Display the current GPU information [11/11]
+- [X] GPU Stats
+#+name: gpu_stats
 #+begin_src conf
 gpu_stats
+#+end_src
+- [X] GPU Temp
+#+name: gpu_temp
+#+begin_src conf
 gpu_temp
+#+end_src
+- [X] GPU Core Clock
+#+name: gpu_core_clock
+#+begin_src conf
 gpu_core_clock
+#+end_src
+- [X] GPU Mem Clock
+#+name: gpu_mem_clock
+#+begin_src conf
 gpu_mem_clock
+#+end_src
+- [X] GPU Name
+#+name: gpu_name
+#+begin_src conf
 gpu_name
+#+end_src
+- [X] GPU Power
+#+name: gpu_power
+#+begin_src conf
 gpu_power
+#+end_src
+- [X] GPU Text
+#+name: gpu_text
+#+begin_src conf
 # gpu_text = "GPU"
+#+end_src
+- [X] Vulkan Driver
+#+name: vulkan_driver
+#+begin_src conf
 # vulkan_driver
+#+end_src
+- [X] GPU Load Change
+#+name: gpu_load_change
+#+begin_src conf
 gpu_load_change
+#+end_src
+- [X] GPU Load Value
+#+name: gpu_load_value
+#+begin_src conf
 gpu_load_value
+#+end_src
+- [X] GPU Load Color Chart
+#+name: gpu_load_color
+#+begin_src conf
 gpu_load_color
 #+end_src
 

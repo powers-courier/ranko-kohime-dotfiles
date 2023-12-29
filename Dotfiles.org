@@ -3157,8 +3157,9 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (setq-default user-mail-address "ranko.kohime@runbox.com")
 #+end_src
 
-*** FINI Enable file history with recentf, and periodically save the list
+- [X] Enable file history with recentf, and periodically save the list
 [[https://www.emacswiki.org/emacs/RecentFiles][Emacs Wiki: Recent Files]]
+#+name: recentf
 #+begin_src emacs-lisp
   (recentf-mode 1)
   (setq-default recentf-max-menu-items 25)
@@ -3167,14 +3168,15 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (run-at-time nil (* 15 60) 'recentf-save-list)
 #+end_src
 
-*** FINI Suppress certain types of startup messages
+- [X] Suppress certain types of startup messages
+#+name: suppress_startup_messages
 #+begin_src emacs-lisp
   (custom-set-variables
     '(warning-suppress-types '((comp)
       (use-package))))
 #+end_src
 
-*** FINI Spaces instead of tabs
+- [X] Spaces instead of tabs
 [[https://www.emacswiki.org/emacs/NoTabs][Emacs Wiki: No Tabs]]
 #+name: indent-tabs-mode
 #+begin_src emacs-lisp

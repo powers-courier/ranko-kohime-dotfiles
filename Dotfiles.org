@@ -5220,7 +5220,7 @@ if ! shopt -oq posix; then
 fi
 #+end_src
 
-** TODO ~/.config/neofetch/config.conf
+** TODO ~/.config/neofetch/config.conf [0/0]
 #+begin_src conf
 # See this wiki page for more info:
 # https://github.com/dylanaraps/neofetch/wiki/Customizing-Info
@@ -6287,14 +6287,18 @@ bind C-] run '~/path/to/tmux-powerline/mute_powerline.sh right'
 :header-args+: :shebang "#!/bin/bash"
 :end:
 
-**** FINI If power adapter is present, show lightning bolt
+**** FINI If power adapter is present,
+show lightning bolt
+
 #+begin_src bash
 if [ $(cat /sys/class/power_supply/AC/online) == 1 ]
   then
     printf '🗲'
 #+end_src
 
-**** FINI If power adapter is not present, show battery, based on charge level [3/3]
+**** FINI If power adapter is not present,
+show battery, based on charge level
+
 ***** FINI Above 30%: show green battery
 #+begin_src bash
 elif [ $(cat /sys/class/power_supply/AC/online) == 0 ] && [ $(cat /sys/class/power_supply/BAT0/capacity) -gt 30 ]
@@ -6316,7 +6320,10 @@ else
 fi
 #+end_src
 
-**** FINI If battery is present, show charge level as a percentage, but if no battery is present, show nothing
+**** FINI If battery is present,
+show charge level as a percentage,
+but if no battery is present, show nothing
+
 #+begin_src bash
 if [ -e /sys/class/power_supply/BAT0/capacity ]
   then

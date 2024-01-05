@@ -6346,7 +6346,7 @@ Pull from Git first, so we don't generate merges
 Push to Git after pass exits
 #+begin_src bash
 git pull
-pass
+pass "$@"
 git push
 #+end_src
 ** TODO ~/.profile [4/6]

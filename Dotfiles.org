@@ -1431,6 +1431,7 @@ menuMain;
 
 ** Cruft
 *** Other
+#+begin_src bash :tangle no
 ansibibble_controller_setup()
 {
   echo -e "This should have worked"
@@ -2336,7 +2337,8 @@ testMenuDep()
 
   # just use whichever was found
   "$dialog" --msgbox "Message displayed with $dialog" 0 0
-}
+  }
+  #+end_src
 *** dialogrc
 # Types of values:
 # Number     -  <number>
@@ -2857,6 +2859,8 @@ WAYYY too laggy in Org doc
     '(show-paren-when-point-in-periphery t)
     '(show-paren-when-point-inside-paren t))
 #+end_src
+
+#+begin_src emacs-lisp :tangle no
   [(define-globalized-minor-mode
     global-highlight-parentheses-mode
     highlight-parentheses-mode
@@ -4998,7 +5002,7 @@ alias ssh=' ssh'
 
 *** FINI Pass
 #+begin_src bash
-alias pass=' EDITOR=/usr/bin/nano GNUPGHOME=$HOME/.password-store/.gnupg pass'
+alias pass=' ~/.local/bin/pass.sh'
 #+end_src
 
 *** TODO X server root access
@@ -5224,7 +5228,7 @@ if ! shopt -oq posix; then
 fi
 #+end_src
 
-** TODO ~/.config/neofetch/config.conf
+** TODO ~/.config/neofetch/config.conf [0/0]
 #+begin_src conf
 # See this wiki page for more info:
 # https://github.com/dylanaraps/neofetch/wiki/Customizing-Info
@@ -6115,8 +6119,8 @@ stdout="off"
 *** tmux.conf [2/6]
 :properties:
 :header-args+: :tangle ~/.config/tmux/tmux.conf
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments both
+:header-args+: :tangle-mode (identity #o555)
+:header-args+: :comments no
 :end:
 
 **** WAIT Appearance [4/5]
@@ -6286,19 +6290,23 @@ bind C-] run '~/path/to/tmux-powerline/mute_powerline.sh right'
 *** battery.sh [3/3]
 :properties:
 :header-args+: :tangle ~/.config/tmux/battery.sh
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments both
+:header-args+: :tangle-mode (identity #o555)
+:header-args+: :comments no
 :header-args+: :shebang "#!/bin/bash"
 :end:
 
-**** FINI If power adapter is present, show lightning bolt
+**** FINI If power adapter is present,
+show lightning bolt
+
 #+begin_src bash
 if [ $(cat /sys/class/power_supply/AC/online) == 1 ]
   then
     printf '🗲'
 #+end_src
 
-**** FINI If power adapter is not present, show battery, based on charge level [3/3]
+**** FINI If power adapter is not present,
+show battery, based on charge level
+
 ***** FINI Above 30%: show green battery
 #+begin_src bash
 elif [ $(cat /sys/class/power_supply/AC/online) == 0 ] && [ $(cat /sys/class/power_supply/BAT0/capacity) -gt 30 ]
@@ -6320,7 +6328,10 @@ else
 fi
 #+end_src
 
-**** FINI If battery is present, show charge level as a percentage, but if no battery is present, show nothing
+**** FINI If battery is present,
+show charge level as a percentage,
+but if no battery is present, show nothing
+
 #+begin_src bash
 if [ -e /sys/class/power_supply/BAT0/capacity ]
   then
@@ -6329,6 +6340,30 @@ if [ -e /sys/class/power_supply/BAT0/capacity ]
 fi
 #+end_src
 
+** ~/.local/bin
+*** FINI pass.sh [2/2]
+:properties:
+:header-args+: :tangle ~/.local/bin/pass.sh
+:header-args+: :tangle-mode (identity #o555)
+:header-args+: :comments no
+:header-args+: :shebang "#!/bin/bash"
+:end:
+
+- [X] Environment
+#+begin_src bash
+EDITOR=/usr/bin/nano
+GNUPGHOME=~/.password-store/.gnupg
+cd ~/.password-store
+#+end_src
+
+- [X] Commands
+Pull from Git first, so we don't generate merges
+Push to Git after pass exits
+#+begin_src bash
+git pull
+pass "$@"
+git push
+#+end_src
 ** TODO ~/.profile [4/6]
 :properties:
 :header-args+: :tangle ~/.profile

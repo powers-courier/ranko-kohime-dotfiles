@@ -2525,7 +2525,7 @@ color_gray="\e[0;37;47m"
 :properties:
 :header-args+: :tangle (concat user-emacs-directory "/init.el")
 :header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments both
+:header-args+: :comments no
 :end:
 
 ** Notes
@@ -3633,9 +3633,9 @@ Use "AVG" to get a mean average. Default percentiles are 97+AVG+1+0.1
 * MPV [0/0]
 ** input.conf
 :properties:
-:header-args+: :tangle .config/mpv/input.conf
+:header-args+: :tangle no
 :header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments both
+:header-args+: :comments no
 :end:
 
 # List of special keys: --input-keylist

@@ -6409,6 +6409,96 @@ git pull
 pass "$@"
 git push
 #+end_src
+
+*** nix-btr.sh [3/4]
+:properties:
+:header-args+: :tangle ~/.local/bin/nix-btr.sh
+:header-args+: :tangle-mode (identity #o555)
+:header-args+: :comments no
+:header-args+: :shebang "#!/bin/bash"
+:end:
+
+**** TODO Detect drive type
+Set to first NVMe until actual logic is implemented
+#+begin_src bash
+rootDrive=/dev/nvme0n1
+#+end_src
+
+**** FINI Format drive and partition [3/3]
+- [X] Set disk as GPT
+#+begin_src bash
+parted ${rootDrive} --mklabel gpt
+#+end_src
+
+- [X] Make UEFI partition
+#+begin_src bash
+parted ${rootDrive} --mkpart ESP fat32 1MiB 512MiB
+#+end_src
+
+- [X] Fill rest of drive with BTRFS partition
+#+begin_src bash
+parted ${rootDrive} --mkpart root btrfs 513MiB 100%
+#+end_src
+
+**** FINI Create Subvolumes [3/3]
+- [X] Mount BTRFS partition
+#+begin_src bash
+mount ${rootDrive}p2 /mnt
+#+end_src
+
+- [X] Create subvolumes
+#+begin_src bash
+for i in {@home,@nix,@root,@varlog}
+  do
+    btrfs subvolume create /mnt/${i}
+done
+#+end_src
+- [X] Unmount BTRFS partition
+#+begin_src bash
+umount /mnt
+#+end_src
+
+**** Mounting
+#+begin_example
+mount -o subvol=blah,compress=zstd:15,noatime /dev /mnt
+#+end_example
+
+**** Example subvol mounting code in Nix configuration
+#+begin_example
+fileSystems = {
+  "/" = {
+    label = "nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@root" "compress=zstd" ];
+  };
+  "/home" = {
+    label = "nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@home" "compress=zstd" ];
+  };
+  "/nix" = {
+    label = "nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@nix" "compress=zstd:15" ];
+  };
+  "/var/log" = {
+    label = "nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@varlog" "compress=zstd" ];
+  };
+};
+#+end_example
+
+**** Install NixOS
+#+begin_src bash
+nixos-generate-config --root /mnt
+# Dump here
+nixos-install
+#+end_src
+
+dump subvol mounting code into /mnt/etc/nixos/configuration.nix
+
+
 ** TODO ~/.profile [4/6]
 :properties:
 :header-args+: :tangle ~/.profile

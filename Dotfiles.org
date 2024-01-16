@@ -6584,6 +6584,13 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
     HostName              copilot.theatomicass.com
     Port                  443
 #+end_src
+
+**** Host steamdeck
+#+begin_src conf
+  Host steamdeck
+    HostName               steamdeck
+    User                   deck
+#+end_src
 **** Host *
 #+begin_src conf
   Host *

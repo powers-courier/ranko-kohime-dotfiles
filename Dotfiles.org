@@ -998,6 +998,9 @@ while paraentheses () spawn a new subshell
 
 [[https://devhints.io/bash][Bash script cheatsheet]]
 
+*** What's the difference between <<, <<< and < < in bash?
+[[https://askubuntu.com/questions/678915/whats-the-difference-between-and-in-bash][What's the difference between <<, <<< and < < in bash?]]
+
 ** TODO Preamble
 *** [[https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/][Safer bash scripts with 'set -euxo pipefail']]
 -E: Allows traps to continue to work with -e

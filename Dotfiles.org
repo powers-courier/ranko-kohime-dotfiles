@@ -6424,6 +6424,11 @@ Set to first NVMe until actual logic is implemented
 rootDrive=/dev/nvme0n1
 #+end_src
 
+**** FINI Set BTRFS Subvolumes
+#+begin_src bash
+btrfsSubVols=( "@home" "@nixconf" "@nixstore" "@persistent" "@root" "@varlog" )
+#+end_src
+
 **** FINI Format drive and partition [3/3]
 - [X] Set disk as GPT
 #+begin_src bash
@@ -6448,11 +6453,12 @@ mount ${rootDrive}p2 /mnt
 
 - [X] Create subvolumes
 #+begin_src bash
-for i in {@home,@nix,@root,@varlog}
+for i in "${btrfsSubVols[@]}"
   do
-    btrfs subvolume create /mnt/${i}
+    btrfs subvolume create /mnt/"$i"
 done
 #+end_src
+
 - [X] Unmount BTRFS partition
 #+begin_src bash
 umount /mnt

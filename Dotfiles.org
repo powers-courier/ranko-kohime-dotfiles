@@ -2536,7 +2536,18 @@ color_gray="\e[0;37;47m"
 *** Formatting Lisp
 https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
-** FINI Preamble [4/4]
+** FINI Preamble [5/5]
+- [X] Startup timer
+#+begin_src emacs-lisp
+(add-hook 'emacs-startup-hook
+  (lambda ()
+    (message "Emacs ready in %s with %d garbage collections."
+      (format "%.2f seconds"
+        (float-time
+         (time-subtract after-init-time before-init-time)))
+      gcs-done)))
+#+end_src
+
 - [X] Put all the customize junk in it's own file
 Emacs doesn't like this being /dev/null, so we'll be nice about it.
 This is not automatically loaded at startup.

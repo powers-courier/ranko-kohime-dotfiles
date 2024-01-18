@@ -998,6 +998,9 @@ while paraentheses () spawn a new subshell
 
 [[https://devhints.io/bash][Bash script cheatsheet]]
 
+*** What's the difference between <<, <<< and < < in bash?
+[[https://askubuntu.com/questions/678915/whats-the-difference-between-and-in-bash][What's the difference between <<, <<< and < < in bash?]]
+
 ** TODO Preamble
 *** [[https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/][Safer bash scripts with 'set -euxo pipefail']]
 -E: Allows traps to continue to work with -e
@@ -4980,6 +4983,27 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 #+end_src
 
 
+* NixOS Configuration
+** Enable OpenSSH with keys on /persistent
+#+begin_src conf
+{
+  services.openssh = {
+    enable = true;
+    hostKeys = [
+      {
+        path = "/persist/ssh/ssh_host_ed25519_key";
+        type = "ed25519";
+      }
+      {
+        path = "/persist/ssh/ssh_host_rsa_key";
+        type = "rsa";
+        bits = 8192;
+      }
+    ];
+  };
+}
+#+end_src
+
 * Shell [0/7]
 ** TODO ~/.aliasrc [5/9]
 :properties:
@@ -6401,8 +6425,8 @@ fi
 
 - [X] Environment
 #+begin_src bash
-EDITOR=/usr/bin/nano
-GNUPGHOME=~/.password-store/.gnupg
+export EDITOR=/usr/bin/nano
+export GNUPGHOME=~/.password-store/.gnupg/
 cd ~/.password-store
 #+end_src
 
@@ -6429,6 +6453,11 @@ Set to first NVMe until actual logic is implemented
 rootDrive=/dev/nvme0n1
 #+end_src
 
+**** FINI Set BTRFS Subvolumes
+#+begin_src bash
+btrfsSubVols=( "@home" "@nixconf" "@nixstore" "@persistent" "@root" "@varlog" )
+#+end_src
+
 **** FINI Format drive and partition [3/3]
 - [X] Set disk as GPT
 #+begin_src bash
@@ -6453,11 +6482,12 @@ mount ${rootDrive}p2 /mnt
 
 - [X] Create subvolumes
 #+begin_src bash
-for i in {@home,@nix,@root,@varlog}
+for i in "${btrfsSubVols[@]}"
   do
-    btrfs subvolume create /mnt/${i}
+    btrfs subvolume create /mnt/"$i"
 done
 #+end_src
+
 - [X] Unmount BTRFS partition
 #+begin_src bash
 umount /mnt
@@ -6588,6 +6618,13 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
   Host copilot
     HostName              copilot.theatomicass.com
     Port                  443
+#+end_src
+
+**** Host steamdeck
+#+begin_src conf
+  Host steamdeck
+    HostName               steamdeck
+    User                   deck
 #+end_src
 **** Host *
 #+begin_src conf

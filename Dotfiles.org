@@ -6420,8 +6420,8 @@ fi
 
 - [X] Environment
 #+begin_src bash
-EDITOR=/usr/bin/nano
-GNUPGHOME=~/.password-store/.gnupg
+export EDITOR=/usr/bin/nano
+export GNUPGHOME=~/.password-store/.gnupg/
 cd ~/.password-store
 #+end_src
 

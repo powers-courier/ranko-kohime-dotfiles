@@ -3156,7 +3156,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (setq-default isearch-lazy-count t)
 #+end_src
 
-** FINI General Settings
+** FINI General Settings [6/6]
 - [X] Set user name
 #+name: user-full-name
 #+begin_src emacs-lisp
@@ -3193,6 +3193,11 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 #+name: indent-tabs-mode
 #+begin_src emacs-lisp
   (setq-default indent-tabs-mode nil)
+#+end_src
+
+- [X] Delete selected text when typing after a selection
+#+begin_src emacs-lisp
+(delete-selection-mode 1)
 #+end_src
 
 *** FINI ido-mode [4/4]

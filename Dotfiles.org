@@ -14,6 +14,10 @@
 Press C-c C-c on the cookie
 
 
+* Todo
+Add [[https://github.com/skeeto/endlessh][Endlessh]] for servers perhaps?
+
+
 * Alacritty [0/0]
 :properties:
 :header-args+: :tangle no
@@ -2576,7 +2580,7 @@ This is not automatically loaded at startup.
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
-** TODO Packages
+** TODO Packages [6/9]
 *** FINI Preamble
 - [X] Enable Melpa package repository
 #+name: enable-melpa
@@ -2736,6 +2740,13 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
+*** NixOS stuff
+- [ ] nixos-options
+  #+begin_src emacs-lisp
+    (use-package nixos-options
+                 :ensure t)
+  #+end_src
+  
 ** TODO Visual Settings
 *** FINI Enable custom themes [5/5]
 - [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
@@ -4995,8 +5006,10 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 
 
 * NixOS Configuration
-** Enable OpenSSH with keys on /persistent
-#+begin_src conf
+** environment.systemPackages
+** Other bits
+*** Enable OpenSSH with keys on /persistent
+#+begin_src conf :tangle no
 {
   services.openssh = {
     enable = true;
@@ -5014,6 +5027,7 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
   };
 }
 #+end_src
+
 
 * Shell [0/7]
 ** TODO ~/.aliasrc [5/9]

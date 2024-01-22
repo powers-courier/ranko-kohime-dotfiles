@@ -2740,13 +2740,25 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-*** NixOS stuff
-- [ ] nixos-options
+*** FINI NixOS stuff [2/2]
+- [X] nix-mode
+  #+begin_src emacs-lisp
+    (use-package nix-mode
+                 :ensure t)
+  #+end_src
+
+- [X] nixos-options
   #+begin_src emacs-lisp
     (use-package nixos-options
                  :ensure t)
   #+end_src
-  
+
+- [X] ob-nix
+#+begin_src emacs-lisp
+  (use-package ob-nix
+               :ensure t)
+#+end_src
+
 ** TODO Visual Settings
 *** FINI Enable custom themes [5/5]
 - [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
@@ -5064,6 +5076,29 @@ services.tailscale.enable = true;
 #+end_src
 
 ** environment.systemPackages
+*** Enable Unfree
+#+begin_src nix
+  nixpkgs.config.allowUnfree = true;
+#+end_src
+
+*** Preamble
+#+begin_src nix
+  environment.systemPackages = with pkgs [
+#+end_src
+
+*** Console
+#+begin_src nix
+  pkgs.glances
+  pkgs.htop
+  pkgs.mosh
+  pkgs.tmux
+#+end_src
+
+*** Epilogue
+#+begin_src nix
+];
+#+end_src
+
 ** Other bits
 *** Enable OpenSSH with keys on /persistent
 #+begin_src conf :tangle no

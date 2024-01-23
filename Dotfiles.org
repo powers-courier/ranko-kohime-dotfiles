@@ -2820,11 +2820,11 @@ This just does a little bit too much.
   (setq-default inhibit-startup-message t)
 #+end_src
 
-*** WAIT Show fill column indicator (Line 80)
+*** WAIT Show fill column indicator (Line 120)
 Still needs work on appearance
 #+begin_src emacs-lisp
   (global-display-fill-column-indicator-mode t)
-  (setq-default fill-column 80)
+  (setq-default fill-column 120)
 #+end_src
 
 The following options are not yet known to work correctly

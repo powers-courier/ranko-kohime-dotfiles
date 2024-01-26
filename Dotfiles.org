@@ -14,10 +14,14 @@
 Press C-c C-c on the cookie
 
 
+* Todo
+Add [[https://github.com/skeeto/endlessh][Endlessh]] for servers perhaps?
+
+
 * Alacritty [0/0]
 :properties:
-:header-args+: :tangle no
-#:header-args+: :tangle .config/alacritty/alacritty.yml
+:header-args: :tangle no
+#:header-args: :tangle .config/alacritty/alacritty.yml
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
@@ -985,9 +989,9 @@ persistent_logging: false
 
 * Bash Menu [2/15]
 :properties:
-:header-args+: :tangle .local/bin/menu.sh
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments both
+:header-args: :tangle .local/bin/menu.sh
+:header-args+: :tangle-mode (identity #o555)
+:header-args+: :comments no
 :header-args+: :shebang "#!/bin/bash"
 :end:
 
@@ -2518,7 +2522,7 @@ color_gray="\e[0;37;47m"
 
 * Conky
 :properties:
-:header-args+: :tangle .config/conky/conky.conf
+:header-args: :tangle .config/conky/conky.conf
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
@@ -2526,7 +2530,7 @@ color_gray="\e[0;37;47m"
 
 * Emacs [6/11]
 :properties:
-:header-args+: :tangle (concat user-emacs-directory "/init.el")
+:header-args: :tangle (concat user-emacs-directory "/init.el")
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments no
 :end:
@@ -2576,7 +2580,7 @@ This is not automatically loaded at startup.
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
-** TODO Packages
+** TODO Packages [7/10]
 *** FINI Preamble
 - [X] Enable Melpa package repository
 #+name: enable-melpa
@@ -2737,6 +2741,27 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 #+end_src
 
 ** TODO Visual Settings [5/10]
+=======
+*** FINI NixOS stuff [2/2]
+- [X] nix-mode
+  #+begin_src emacs-lisp
+    (use-package nix-mode
+                 :ensure t)
+  #+end_src
+
+- [X] nixos-options
+  #+begin_src emacs-lisp
+    (use-package nixos-options
+                 :ensure t)
+  #+end_src
+
+- [X] ob-nix
+#+begin_src emacs-lisp
+  (use-package ob-nix
+               :ensure t)
+#+end_src
+
+** TODO Visual Settings
 *** FINI Enable custom themes [5/5]
 - [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
 #+name: monokai-theme
@@ -2797,11 +2822,11 @@ This just does a little bit too much.
   (setq-default inhibit-startup-message t)
 #+end_src
 
-*** WAIT Show fill column indicator (Line 80)
+*** WAIT Show fill column indicator (Line 120)
 Still needs work on appearance
 #+begin_src emacs-lisp
   (global-display-fill-column-indicator-mode t)
-  (setq-default fill-column 80)
+  (setq-default fill-column 120)
 #+end_src
 
 The following options are not yet known to work correctly
@@ -5000,8 +5025,90 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 
 
 * NixOS Configuration
-** Enable OpenSSH with keys on /persistent
-#+begin_src conf
+** Modules
+*** TODO Jellyfin [3/3]
+:properties:
+#:header-args: :tangle modules/jellyfin.nix
+:header-args: :tangle no
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments no
+:end:
+
+- [X] Jellyfin packages
+#+begin_src nix
+  environment.systemPackages = with pkgs [
+  pkgs.jellyfin
+  pkgs.jellyfin-ffmpeg
+  pkgs.jellyfin-web
+  ];
+#+end_src
+
+- [X] Enable vaapi on OS-level
+#+begin_src nix
+  nixpkgs.config.packageOverrides = pkgs: {
+    vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+  };
+  hardware.opengl = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver
+      vaapiIntel
+      vaapiVdpau
+      libvdpau-va-gl
+      intel-compute-runtime # OpenCL filter support (hardware tonemapping and subtitle burn-in)
+    ];
+  };
+#+end_src
+
+- [X] Enable Jellyfin service
+#+begin_src nix
+  services.jellyfin = {
+    enable = true;
+    openFirewall = true;
+  };
+#+end_src
+
+** Services
+*** OpenSSH
+#+begin_src nix
+services.openssh.enable = true;
+#+end_src
+
+*** Tailscale
+Enabling tailscale is as simple as adding the following to your Nix config,
+then use "sudo tailscale login"
+
+#+begin_src nix
+services.tailscale.enable = true;
+#+end_src
+
+** environment.systemPackages
+*** Enable Unfree
+#+begin_src nix
+  nixpkgs.config.allowUnfree = true;
+#+end_src
+
+*** Preamble
+#+begin_src nix
+  environment.systemPackages = with pkgs [
+#+end_src
+
+*** Console
+#+begin_src nix
+  pkgs.glances
+  pkgs.htop
+  pkgs.mosh
+  pkgs.tmux
+#+end_src
+
+*** Epilogue
+#+begin_src nix
+];
+#+end_src
+
+** Other bits
+*** Enable OpenSSH with keys on /persistent
+#+begin_src conf :tangle no
 {
   services.openssh = {
     enable = true;
@@ -5019,6 +5126,7 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
   };
 }
 #+end_src
+
 
 * Shell [0/7]
 ** TODO ~/.aliasrc [5/9]

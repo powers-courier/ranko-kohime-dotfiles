@@ -45,3 +45,6 @@ Pictures/
 .zcompdump*
 /.zshrc
 /.zshrc.omz
+/.ICEauthority
+/.xsession-errors
+/.xsession-errors.old

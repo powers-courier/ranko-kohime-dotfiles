@@ -2736,7 +2736,7 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-** TODO Visual Settings
+** TODO Visual Settings [5/10]
 *** FINI Enable custom themes [5/5]
 - [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
 #+name: monokai-theme
@@ -2908,7 +2908,12 @@ Double check this in GUI mode, not satisfactory in terminal
   (setq-default scroll-margin 5)
 #+end_src
 
-** FINI Org Mode
+*** TODO Set default font, maybe
+#+begin_src emacs-lisp :tangle no
+(set-face-attribute 'default nil :font "SF Mono 16")
+#+end_src
+
+** FINI Org Mode [3/4]
 *** FINI 0. Preamble
 **** FINI Enable Org Mode
 Is this superfluos?

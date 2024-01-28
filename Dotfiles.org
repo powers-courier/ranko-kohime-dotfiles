@@ -5419,6 +5419,8 @@ if ! shopt -oq posix; then
 fi
 #+end_src
 
+** TODO ~/.config/glances/glances.conf
+
 ** TODO ~/.config/neofetch/config.conf [0/0]
 #+begin_src conf
 # See this wiki page for more info:

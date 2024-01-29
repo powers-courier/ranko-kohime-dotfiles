@@ -5035,15 +5035,20 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 :end:
 
 - [X] Jellyfin packages
+*** Shell
+**** Aliases [8/8]
+***** FINI Preamble
 #+begin_src nix
   environment.systemPackages = with pkgs [
   pkgs.jellyfin
   pkgs.jellyfin-ffmpeg
   pkgs.jellyfin-web
   ];
+environment.shellAliases = {
 #+end_src
 
 - [X] Enable vaapi on OS-level
+***** FINI Directory navigation and listing
 #+begin_src nix
   nixpkgs.config.packageOverrides = pkgs: {
     vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
@@ -5058,50 +5063,100 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
       intel-compute-runtime # OpenCL filter support (hardware tonemapping and subtitle burn-in)
     ];
   };
+.. = " cd ..";
+... = " cd ../..";
+.... = " cd ../../..";
+l = " ls -AhlF";
+ll = " ls -AhlF --color=always";
+lll = " ls -AhlF |less";
 #+end_src
 
 - [X] Enable Jellyfin service
+***** FINI Editors
 #+begin_src nix
   services.jellyfin = {
     enable = true;
     openFirewall = true;
   };
+e = "emacs";
+v = "vim";
 #+end_src
 
 ** Services
 *** OpenSSH
+***** FINI Exits
 #+begin_src nix
 services.openssh.enable = true;
+:q = " exit";
+q = " exit";
+x = " exit";
 #+end_src
 
 *** Tailscale
 Enabling tailscale is as simple as adding the following to your Nix config,
 then use "sudo tailscale login"
 
+***** TODO Gaming
 #+begin_src nix
 services.tailscale.enable = true;
+battle = "$HOME/bin/battlenet.sh";
+steamium = "/usr/bin/chromium --user-data-dir=$HOME/.config/steamium"
+surveysays = "sed -i -e '/SurveyDate/ s/"[0-9].*"/"'$(date +%Y-%m-%d -d "1 year ago")'"/' ~/.steam/steam/config/config.vdf";
+xbox = "$HOME/bin/xboxdrv.sh";
 #+end_src
 
 ** environment.systemPackages
 *** Enable Unfree
+***** FINI Git
 #+begin_src nix
   nixpkgs.config.allowUnfree = true;
 #+end_src
 
 *** Preamble
+ga = " git add";
+gc = " git commit -m";
+gf = " git commit -am "FIRE!"; git push";
+gp = " git pull";
+gs = " git status";
+gitaa = " git add .";
+gitignore = " git status --porcelain|grep "??"|awk '"'"'{print $2}'"'"' >> .gitignore";
+gitpr = " git pull;git submodule foreach git pull";
+gunstage = " git reset"
+#+end_src
+
+***** FINI Mysterious History
+These commands will not be committed to history
 #+begin_src nix
   environment.systemPackages = with pkgs [
 #+end_src
 
 *** Console
+alias = " alias";
+c = " kalker";
+cd = " cd";
+cp = " cp -v";
+echo = " echo";
+kill = " kill";
+kall = " killall";
+man = " man";
+mkdir = " mkdir";
+pgrep = " pgrep";
+pkill = " pkill";
+rm = " rm";
+ssh = " ssh";
+#+end_src
+
+***** FINI Pass
 #+begin_src nix
   pkgs.glances
   pkgs.htop
   pkgs.mosh
   pkgs.tmux
+pass = " ~/.local/bin/pass.sh";
 #+end_src
 
 *** Epilogue
+***** FINI Epilogue
 #+begin_src nix
 ];
 #+end_src
@@ -5126,90 +5181,16 @@ services.tailscale.enable = true;
   };
 }
 #+end_src
-
-
-* Shell [0/7]
-** TODO ~/.aliasrc [5/9]
-:properties:
-:header-args+: :tangle ~/.aliasrc
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments both
-:end:
-
-*** FINI Directory Listing
-#+begin_src bash
-alias ..=' cd ..'
-alias ...=' cd ../..'
-alias ....=' cd ../../..'
-alias l=' ls -AhlF'
-alias ll=' ls -AhlF --color=always'
-alias lll=' ls -AhlF |less'
+};
 #+end_src
 
-*** FINI Editors
-#+begin_src bash
-alias e='emacs'
-alias v=' ~/.local/bin/nvim.appimage'
-alias vi=' ~/.local/bin/nvim.appimage'
-alias vim=' ~/.local/bin/nvim.appimage'
-#+end_src
-
-*** FINI Exits
-#+begin_src bash
-alias x=' exit'
-alias q=' exit'
-alias :q=' exit'
-#+end_src
-
-*** TODO Gaming
-#+begin_src bash
-alias battle='$HOME/bin/battlenet.sh'
-alias steamium='/usr/bin/chromium --user-data-dir=$HOME/.config/steamium'
-alias surveysays='sed -i -e '/SurveyDate/ s/"[0-9].*"/"'$(date +%Y-%m-%d -d "1 year ago")'"/' ~/.steam/steam/config/config.vdf'
-alias xbox='$HOME/bin/xboxdrv.sh'
-#+end_src
-
-*** TODO Git
-#+begin_src bash
-alias ga=' git add'
-alias gc=' git commit -m'
-alias gf=' git commit -am "FIRE!"; git push'
-alias gp=' git pull'
-alias gs=' git status'
-alias gitaa=' git add .'
-alias gitignore=' git status --porcelain|grep "??"|awk '"'"'{print $2}'"'"' >> .gitignore'
-alias gitpr=' git pull;git submodule foreach git pull'
-alias gunstage=' git reset'
-#+end_src
-
-*** FINI Mysterious History
-These commands will not be committed to history, if this is set in the shell
-#+begin_src bash
-alias alias=' alias'
-alias c=' concalc'
-alias cd=' cd'
-alias cp=' cp -v'
-alias echo=' echo'
-alias kill=' kill'
-alias kall=' killall'
-alias man=' man'
-alias mkdir=' mkdir'
-alias rm=' rm'
-alias ssh=' ssh'
-#+end_src
-
-*** FINI Pass
-#+begin_src bash
-alias pass=' ~/.local/bin/pass.sh'
-#+end_src
-
-*** TODO X server root access
-#+begin_src bash
+***** TODO X server root access
+#+begin_src nix :tangle no
 alias allowroot='xhost +local:root'    # Allow root access to X server
 alias denyroot='xhost -'               # Deny root access to X server
 #+end_src
 
-*** TODO Unsorted
+***** TODO Unsorted
 alias micfix='watch -n 0.1 pactl set-source-volume alsa_input.pci-0000_00_1b.0.analog-stereo 6554'
 alias tag=' easytag .; exfalso .; exit'
 alias vgain='vorbisgain -a *.ogg'
@@ -5288,6 +5269,7 @@ alias sg='picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --
 # Transfer whole disk
 # dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
 
+* Shell [0/7]
 ** TODO ~/.bashrc [8/10]
 :properties:
 :header-args+: :tangle ~/.bashrc

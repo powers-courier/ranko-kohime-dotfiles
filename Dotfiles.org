@@ -4409,67 +4409,88 @@ sharpen=5
 #+end_src
 
 
-* NeoVim [0/0]
-:properties:
-:header-args+: :tangle no
-;:header-args+: :tangle .config/nvim/init.lua
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments both
-:end:
+* NixOS Configuration
+** Home
+*** Git User
+#+begin_src nix
+programs.git = {
+  enable=true;
+  userName = "Ranko Kohime";
+  userEmail = "ranko.kohime@runbox.com";
+};
+#+end_src
+Add signing key?
+Add rebase = false?
 
+*** NeoVim
+**** Enable as default editor, and alias to vi and vim
+#+begin_src nix
+programs.neovim = [
+  defaultEditor = true;
+  enable = true;
+  viAlias = true;
+  vimAlias = true;
+];
+#+end_src
+
+**** Configuration
+#+begin_src nix
+
+#+end_src
+***** NeoVim [0/0]
 [[https://www.notonlycode.org/neovim-lua-config/][From init.vim to init.lua - a crash course]]
 
 Consider [[https://github.com/LazyVim/LazyVim][LazyVim]]
 
-** Keymappings
+****** Keymappings
   You can be more specific about when you want mappings to apply by using
   nmap, vmap, and imap. These tell Vim to only use the mapping in normal,
   visual, or insert mode respectively.
-*** Preamble
-**** Keymapping functions
-***** map
+******* Preamble
+******** Keymapping functions
+********* map
 #+begin_src lua
 function map(mode, shortcut, command)
   vim.api.nvim_set_keymap(mode, shortcut, command, { noremap = true, silent = true })
 end
 #+end_src
 
-***** imap
+********* imap
 #+begin_src lua
 function imap(shortcut, command)
   map('i', shortcut, command)
 end
 #+end_src
 
-***** nmap
+********* nmap
 #+begin_src lua
 function nmap(shortcut, command)
   map('n', shortcut, command)
 end
 #+end_src
 
-***** vmap
+********* vmap
 #+begin_src lua
 function vmap(shortcut, command)
   map('v', shortcut, command)
 end
 #+end_src
 
-**** Set Leader key
+******** Set Leader key
 Lazy plugin manager requires leader to be mapped before calling,
 hence why Keymappings are ahead of Plugins
-***** Disable Leader in normal and visual modes
+********* Disable Leader in normal and visual modes
 #+begin_src lua
 nmap('<Space>', '<Nop>')
 vmap('<Space>', '<Nop>')
 #+end_src
 
-***** Set Leader key
+********* Set Leader key
 #+begin_src lua
 vim.g.mapleader = " "
 #+end_src
 
-**** Disable Ex mode keys
+******** Disable Ex mode keys
 [[https://vi.stackexchange.com/questions/457/does-ex-mode-have-any-practical-use][Does Ex mode have any practical use?]]
 See usage of Q below in Buffer handling
 #+begin_src lua
@@ -4477,17 +4498,17 @@ nmap('n', 'q:', '<Nop>')
 vmap('n', 'Q', '<Nop>')
 #+end_src
 
-*** Allow backspace in insert mode
+******* Allow backspace in insert mode
 #+begin_src lua
 vim.opt.backspace = "indent,eol,start"
 #+end_src
 
-*** Delete a line with \
+******* Delete a line with \
 #+begin_src lua
 nmap('\', 'dd')
 #+end_src
 
-*** Move 1 more lines up or down in normal and visual selection modes
+******* Move 1 more lines up or down in normal and visual selection modes
 #+begin_src lua
 nmap('K', ':m .-2<CR>==')
 nmap('J', ':m .+1<CR>==')
@@ -4495,12 +4516,12 @@ vmap('K', ':m \'<-2<CR>gv=gv')
 vmap('J', ':m \'>+1<CR>gv=gv')
 #+end_src
 
-*** Fix Join line
+******* Fix Join line
 #+begin_src lua
 nmap('<leader>J', ':join<CR>')
 #+end_src
 
-*** Cut, Copy, Paste
+******* Cut, Copy, Paste
 "Normal" keybindings for Cut/Copy/Paste on desktop
 Visual for Cut/Copy, Insert/Normal for pasting
 #+begin_src lua
@@ -4510,26 +4531,26 @@ nmap('<leader>v', '"+p')
 imap('<leader>v', '<C-r>+')
 #+end_src
 
-*** Saving and opening files
+******* Saving and opening files
 #+begin_src lua
 nmap('<C-s>', ':w<CR>')
 nmap('<leader>s', ':w<CR>')
 nmap('<leader>e', ':e<space>')
 #+end_src
 
-*** Upper CASE WORD, lower case word
+******* Upper CASE WORD, lower case word
 #+begin_src lua
 nmap('<leader>u', 'gUiw')
 nmap('<leader>l', 'guiw')
 #+end_src
 
-*** Quote word
+******* Quote word
 #+begin_src lua
 nmap('<leader>"', 'viw<ESC>a"<ESC>bi"<ESC>lel')
 nmap('<leader>\'', 'viw<ESC>a\'<ESC>bi\'<ESC>lel')
 #+end_src
 
-*** Quote selected text (does not work with visual block or line)
+******* Quote selected text (does not work with visual block or line)
 Not sure about this one, leaving the original recipe here for now
 #+begin_src lua
 vmap('<leader>"', 's"<ESC>bi"<ESC>lel')
@@ -4538,27 +4559,27 @@ vmap('<leader>\'', 's\'<ESC>bi\'<ESC>lel')
    vnoremap <leader>" <esc>`<i"<esc>`>la"<esc>
    vnoremap <leader>' <esc>`<i'<esc>`>la'<esc>
 
-*** Buffer handling
-**** Close current buffer
+******* Buffer handling
+******** Close current buffer
 #+begin_src lua
 nmap('<leader>w', ':bd<CR>')
 #+end_src
-**** Next and Previous buffers on Up and Down respectively
+******** Next and Previous buffers on Up and Down respectively
 #+begin_src lua
 nmap('<leader>k', ':bn<CR>')
 nmap('<leader>j', ':bp<CR>')
 #+end_src
-**** Select buffer from list
+******** Select buffer from list
 #+begin_src lua
 nmap('<leader>b', ':buffers<CR>:buffer<space>')
 #+end_src
 
-*** Map jk as <esc> in Insert mode
+******* Map jk as <esc> in Insert mode
 #+begin_src lua
 imap('jk', '<esc>')
 #+end_src
 
-*** Navigate splits using Ctrl+h/j/k/l
+******* Navigate splits using Ctrl+h/j/k/l
 #+begin_src lua
 nmap('<C-h>', '<C-w>h')
 nmap('<C-j>', '<C-w>j')
@@ -4566,8 +4587,8 @@ nmap('<C-k>', '<C-w>k')
 nmap('<C-l>', '<C-w>l')
 #+end_src
 
-** Plugin management with Lazy
-*** Bootstrap Lazy
+****** Plugin management with Lazy
+******* Bootstrap Lazy
 #+begin_src lua
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -4583,21 +4604,21 @@ end
 vim.opt.rtp:prepend(lazypath)
 #+end_src
 
-*** Call Lazy
+******* Call Lazy
 #+begin_src lua
 require("lazy").setup({
 #+end_src
 
-*** Plugins
-**** Color schemes
-***** Catppuccino
+******* Plugins
+******** Color schemes
+********* Catppuccino
 {
   "AZanellato/Catppuccino.nvim",
   lazy = true,
   priority = 1000,
   opts = {},
 }
-***** Monokai Pro color scheme
+********* Monokai Pro color scheme
 #+begin_src lua
 {
   "loctvl842/monokai-pro.nvim",
@@ -4607,7 +4628,7 @@ require("lazy").setup({
 }
 #+end_src
 
-***** Tokyo Night
+********* Tokyo Night
 #+begin_src lua
 {
   "folke/tokyonight.nvim",
@@ -4617,34 +4638,34 @@ require("lazy").setup({
 },
 #+end_src
 
-**** Airline status bar & themes
+******** Airline status bar & themes
 #+begin_src lua
 "vim-airline/vim-airline",
 "vim-airline/vim-airline-themes",
 #+end_src
 
-**** Leap (for fast motions)
+******** Leap (for fast motions)
 #+begin_src lua
 "ggandor/leap.nvim",
 #+end_src
 
-**** Pear Tree
+******** Pear Tree
 Pairing for Quotations, brackets, etc...
 #+begin_src lua
 "tmsvg/pear-tree",
 #+end_src
 
-**** Tabular
+******** Tabular
 #+begin_src lua
 "godlygeek/tabular",
 #+end_src
 
-**** Treesitter
+******** Treesitter
 #+begin_src lua
 "nvim-treesitter/nvim-treesitter",
 #+end_src
 
-**** Anyline
+******** Anyline
 #+begin_src lua
 {
   "huy-hng/anyline.nvim",
@@ -4652,17 +4673,17 @@ Pairing for Quotations, brackets, etc...
 },
 #+end_src
 
-**** Git
+******** Git
 #+begin_src lua
 "tpope/vim-fugitive",
 #+end_src
 
-**** Dev Icons
+******** Dev Icons
 #+begin_src lua
 "ryanoasis/vim-devicons",
 #+end_src
 
-**** Orgmode (jceb/vim-orgmode)
+******** Orgmode (jceb/vim-orgmode)
 See dependency list at [[https://github.com/jceb/vim-orgmode/blob/master/doc/orgguide.txt][line 250]]
 #+begin_src lua
 {
@@ -4671,7 +4692,7 @@ See dependency list at [[https://github.com/jceb/vim-orgmode/blob/master/doc/org
 }
 #+end_src
 
-**** Orgmode (nvim-orgmode/orgmode)
+******** Orgmode (nvim-orgmode/orgmode)
 #+begin_src lua
 {
   "nvim-orgmode/orgmode",
@@ -4679,13 +4700,13 @@ See dependency list at [[https://github.com/jceb/vim-orgmode/blob/master/doc/org
 }
 #+end_src
 
-**** Hardtime
+******** Hardtime
 Discourage exccessive use of arrow/hjkl keys
 #+begin_src lua
 "takac/vim-hardtime",
 #+end_src
 
-**** Markdown
+******** Markdown
 #+begin_src lua
 {
   "preservim/vim-markdown",
@@ -4704,14 +4725,14 @@ zA: open a fold your cursor is on recursively
 zc: close a fold your cursor is on
 zC: close a fold your cursor is on recursively
 
-**** Github Copilot
+******** Github Copilot
 Requires external dependency Node.js
 
 #+begin_src lua
 "github/copilot.vim",
 #+end_src
 
-*** WIP
+******* WIP
 " Python
 " Code formatting
 Plug 'psf/black'
@@ -4720,31 +4741,31 @@ Plug 'psf/black'
 "Plug 'sirver/ultisnips'
 "Plug 'phenomenes/ansible-snippets'
 
-*** End call to Lazy
+******* End call to Lazy
 #+begin_src lua
 })
 #+end_src
 
-** Plugin management with Plug
+****** Plugin management with Plug
 :properties:
 :header-args+: :tangle no
 :end:
 
-*** Call Plug
+******* Call Plug
     #+begin_src lua
       call plug#begin('~/.config/nvim/plugged')
     #+end_src
 
-*** Monokai Pro Color Scheme (NeoVim)
+******* Monokai Pro Color Scheme (NeoVim)
 #+begin_src lua
 Plug 'loctvl842/monokai-pro.nvim'
 #+end_src
 
-*** Airline Status Bar & Themes
+******* Airline Status Bar & Themes
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
-*** Animated Indentations
+******* Animated Indentations
 Plug 'huy-hng/anyline.nvim'
     " ...and it's dependency, nvim-treesitter
 Plug 'nvim-treesitter/nvim-treesitter'
@@ -4791,19 +4812,19 @@ Plug 'nvim-orgmode/orgmode'
     " ...and it's dependency, vim-speeddating
 Plug 'tpope/vim-speeddating'
 
-*** Leap (for fast motions
+******* Leap (for fast motions
 #+begin_src lua
 Plug 'ggandor/leap.nvim'
 #+end_src
 
-*** End Plug
+******* End Plug
 All of your Plugins must be added before the following line
 #+begin_src lua
 call plug#end()
 #+end_src
 
-** Plugin settings
-*** Airline
+****** Plugin settings
+******* Airline
     " Smarter tab line
     " Automatically displays all buffers when there's only one tab open.
 let g:airline#extensions#tabline#enabled = 1
@@ -4814,23 +4835,23 @@ let g:airline_powerline_fonts = 1
     " Set Airline theme
 let g:airline_theme='google_dark'
 
-*** Enable Hardtime by default
+******* Enable Hardtime by default
 let g:hardtime_default_on = 0
 
-*** Pear Tree
+******* Pear Tree
     " Enable smart pairing with pear-tree
     " Smart pairs are disabled by default:
 let g:pear_tree_smart_openers = 0
 let g:pear_tree_smart_closers = 0
 let g:pear_tree_smart_backspace = 0
 
-** GitHub Copilot
+****** GitHub Copilot
 https://copilot.github.com/
 
 From https://github.com/community/community/discussions/12426#discussioncomment-3102062
 Functions to accept partial suggestions, and keymaps to use them
 
-*** Accept single character of suggestion
+******* Accept single character of suggestion
 #+begin_src lua
 function! SuggestOneCharacter()
     let suggestion = copilot#Accept("")
@@ -4839,7 +4860,7 @@ function! SuggestOneCharacter()
 endfunction
 #+end_src
 
-*** Accept single word of suggestion
+******* Accept single word of suggestion
 #+begin_src lua
 function! SuggestOneWord()
     let suggestion = copilot#Accept("")
@@ -4848,224 +4869,194 @@ function! SuggestOneWord()
 endfunction
 #+end_src
 
-*** Enable keybindings for partial acception
+******* Enable keybindings for partial acception
 Will enable later, haven't decided on keymaps yet
 #+begin_src lua
 "inoremap <script><expr> <C-l> SuggestOneWord()
 "inoremap <script><expr> <C-k> SuggestOneCharacter()
 #+end_src
 
-** Visual settings
-*** colorcolumn
+****** Visual settings
+******* colorcolumn
 Also highlight columns 80 and 120, for size visibility
 #+begin_src lua
 vim.opt.colorcolumn = "80,120"
 vim.cmd('highlight ColorColumn ctermbg=red guibg=red')
 #+end_src
 
-*** colorscheme
+******* colorscheme
 #+begin_src lua
 vim.opt.background = "dark"
 -- vim.opt.colorscheme = "vim-monokai-tasty"
 vim.cmd[[colorscheme tokyonight-night]]
 #+end_src
 
-*** cursorline, cursorcolumn
+******* cursorline, cursorcolumn
 Highlight the cursor, so we know where it bloody is
 #+begin_src lua
 vim.opt.cursorline = true
 vim.opt.cursorcolumn = true
 #+end_src
 
-*** noruler
+******* noruler
 It's not a real fucking ruler!
 #+begin_src lua
 vim.opt.noruler = true
 #+end_src
 
-*** number, relativenumber
+******* number, relativenumber
 Show line numbers on the left, relative to cursor position
 #+begin_src lua
 vim.opt.number = true
 vim.opt.relativenumber = true
 #+end_src
 
-*** scrolloff
+******* scrolloff
 Move viewport with cursor plus offset
 #+begin_src lua
 vim.opt.scrolloff = 10
 #+end_src
 
-*** showmode
+******* showmode
 Disable, as it is superfluous with vim-airline installed
 #+begin_src lua
 vim.opt.showmode = false
 #+end_src
 
-*** statusline
+******* statusline
 Since we have airline-vim, we don't need the built-in statusline
 #+begin_src lua
 vim.opt.statusline = 0
 #+end_src
 
-** General Config
-*** Enable syntax highlighting
+****** General Config
+******* Enable syntax highlighting
 #+begin_src lua
 vim.cmd('syntax on')
 #+end_src
 
-*** TODO Toggle whether the pasting includes or excludes indents (Needs fixed)
+******* TODO Toggle whether the pasting includes or excludes indents (Needs fixed)
 #+begin_src lua
 -- vim.o.pastetoggle = '<F2>'
 #+end_src
 
-*** Set encoding (Needed for vim-devicons)
+******* Set encoding (Needed for vim-devicons)
 #+begin_src lua
 vim.opt.encoding = "UTF-8"
 #+end_src
 
-*** TABS TABS TABS
-**** Replace tabs with spaces
+******* TABS TABS TABS
+******** Replace tabs with spaces
 #+begin_src lua
 vim.opt.expandtab = true
 #+end_src
 
-**** Tabs output to spaces
+******** Tabs output to spaces
 #+begin_src lua
 vim.opt.softtabstop = 2
 #+end_src
 
-**** Affects indenting
+******** Affects indenting
 #+begin_src lua
   vim.opt.shiftwidth = 2
 #+end_src
 
-**** Automatically indent newlines
+******** Automatically indent newlines
 #+begin_src lua
   vim.opt.autoindent = true
 #+end_src
 
-**** And smarten up those tabs!
+******** And smarten up those tabs!
 #+begin_src lua
   vim.opt.smarttab = true
 #+end_src
 
-*** Store lots of :cmdline history
+******* Store lots of :cmdline history
 #+begin_src lua
 vim.opt.history = 1000
 #+end_src
 
-*** Show incomplete cmds down the bottom
+******* Show incomplete cmds down the bottom
 #+begin_src lua
 vim.opt.wildmenu = true
 #+end_src
 
-*** Reload files changed outside vim
+******* Reload files changed outside vim
 #+begin_src lua
 vim.opt.autoread = true
 #+end_src
 
-*** Disable visual mouse mode
+******* Disable visual mouse mode
 #+begin_src lua
 vim.opt.mouse = ""
 #+end_src
 
-*** Make a backup before writing files
+******* Make a backup before writing files
 #+begin_src lua
 vim.opt.backup = true
 #+end_src
 
-*** Enable spellchecking
+******* Enable spellchecking
 #+begin_src lua
 vim.opt.spell = true
 vim.opt.spelllang = "en"
 #+end_src
 
-*** Split behavior
+******* Split behavior
 #+begin_src lua
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 #+end_src
 
-*** Search behavior
-**** Highlight search terms...
+******* Search behavior
+******** Highlight search terms...
 #+begin_src lua
 vim.opt.hlsearch = true
 #+end_src
 
-**** ...dynamically as they are typed.
+******** ...dynamically as they are typed.
 #+begin_src lua
 vim.opt.incsearch = true
 #+end_src
 
-**** Ignore case during /-style searches, plus...
+******** Ignore case during /-style searches, plus...
 #+begin_src lua
 vim.opt.ignorecase = true
 #+end_src
 
-**** Case-sensitive searches only if capital letter in search text
+******** Case-sensitive searches only if capital letter in search text
 #+begin_src lua
 vim.opt.smartcase = true
 #+end_src
 
-*** Don't ask to save when switching buffers
+******* Don't ask to save when switching buffers
 #+begin_src lua
 vim.opt.hidden = true
 #+end_src
 
-*** Tab completion file suffixes
+******* Tab completion file suffixes
 Suffixes that get lower priority when doing tab completion for filenames.
 These are files we are not likely to want to edit or read.
 #+begin_src lua
 vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.png,.jpg"
 #+end_src
 
-** Abbreviations
-*** Signature
+****** Abbreviations
+******* Signature
 #+begin_src lua
   vim.cmd [[iabbrev ssig --<cr>Ranko Kohime<cr>ranko.kohime@runbox.com
 #+end_src
 
 
-* NixOS Configuration
-** Modules
-*** TODO Jellyfin [3/3]
-:properties:
-#:header-args: :tangle modules/jellyfin.nix
-:header-args: :tangle no
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments no
-:end:
-
-- [X] Jellyfin packages
 *** Shell
 **** Aliases [8/8]
 ***** FINI Preamble
 #+begin_src nix
-  environment.systemPackages = with pkgs [
-  pkgs.jellyfin
-  pkgs.jellyfin-ffmpeg
-  pkgs.jellyfin-web
-  ];
 environment.shellAliases = {
 #+end_src
 
-- [X] Enable vaapi on OS-level
 ***** FINI Directory navigation and listing
 #+begin_src nix
-  nixpkgs.config.packageOverrides = pkgs: {
-    vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
-  };
-  hardware.opengl = {
-    enable = true;
-    extraPackages = with pkgs; [
-      intel-media-driver
-      vaapiIntel
-      vaapiVdpau
-      libvdpau-va-gl
-      intel-compute-runtime # OpenCL filter support (hardware tonemapping and subtitle burn-in)
-    ];
-  };
 .. = " cd ..";
 ... = " cd ../..";
 .... = " cd ../../..";
@@ -5074,48 +5065,29 @@ ll = " ls -AhlF --color=always";
 lll = " ls -AhlF |less";
 #+end_src
 
-- [X] Enable Jellyfin service
 ***** FINI Editors
 #+begin_src nix
-  services.jellyfin = {
-    enable = true;
-    openFirewall = true;
-  };
 e = "emacs";
 v = "vim";
 #+end_src
 
-** Services
-*** OpenSSH
 ***** FINI Exits
 #+begin_src nix
-services.openssh.enable = true;
 :q = " exit";
 q = " exit";
 x = " exit";
 #+end_src
 
-*** Tailscale
-Enabling tailscale is as simple as adding the following to your Nix config,
-then use "sudo tailscale login"
-
 ***** TODO Gaming
 #+begin_src nix
-services.tailscale.enable = true;
 battle = "$HOME/bin/battlenet.sh";
 steamium = "/usr/bin/chromium --user-data-dir=$HOME/.config/steamium"
 surveysays = "sed -i -e '/SurveyDate/ s/"[0-9].*"/"'$(date +%Y-%m-%d -d "1 year ago")'"/' ~/.steam/steam/config/config.vdf";
 xbox = "$HOME/bin/xboxdrv.sh";
 #+end_src
 
-** environment.systemPackages
-*** Enable Unfree
 ***** FINI Git
 #+begin_src nix
-  nixpkgs.config.allowUnfree = true;
-#+end_src
-
-*** Preamble
 ga = " git add";
 gc = " git commit -m";
 gf = " git commit -am "FIRE!"; git push";
@@ -5130,10 +5102,6 @@ gunstage = " git reset"
 ***** FINI Mysterious History
 These commands will not be committed to history
 #+begin_src nix
-  environment.systemPackages = with pkgs [
-#+end_src
-
-*** Console
 alias = " alias";
 c = " kalker";
 cd = " cd";
@@ -5151,39 +5119,11 @@ ssh = " ssh";
 
 ***** FINI Pass
 #+begin_src nix
-  pkgs.glances
-  pkgs.htop
-  pkgs.mosh
-  pkgs.tmux
 pass = " ~/.local/bin/pass.sh";
 #+end_src
 
-*** Epilogue
 ***** FINI Epilogue
 #+begin_src nix
-];
-#+end_src
-
-** Other bits
-*** Enable OpenSSH with keys on /persistent
-#+begin_src conf :tangle no
-{
-  services.openssh = {
-    enable = true;
-    hostKeys = [
-      {
-        path = "/persist/ssh/ssh_host_ed25519_key";
-        type = "ed25519";
-      }
-      {
-        path = "/persist/ssh/ssh_host_rsa_key";
-        type = "rsa";
-        bits = 8192;
-      }
-    ];
-  };
-}
-#+end_src
 };
 #+end_src
 
@@ -5271,6 +5211,117 @@ alias openports='netstat -nutlp | grep LISTEN'
 alias sg='picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --escape B /dev/ttyUSB0'
 # Transfer whole disk
 # dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
+
+**** Utilities
+#+begin_src nix
+
+#+end_src
+
+** System
+*** Modules
+*** TODO Jellyfin [3/3]
+:properties:
+#:header-args: :tangle modules/jellyfin.nix
+:header-args: :tangle no
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments no
+:end:
+
+- [X] Jellyfin packages
+#+begin_src nix
+  environment.systemPackages = with pkgs [
+  pkgs.jellyfin
+  pkgs.jellyfin-ffmpeg
+  pkgs.jellyfin-web
+  ];
+#+end_src
+
+- [X] Enable vaapi on OS-level
+intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
+#+begin_src nix
+  nixpkgs.config.packageOverrides = pkgs: {
+    vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+  };
+  hardware.opengl = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver
+      vaapiIntel
+      vaapiVdpau
+      libvdpau-va-gl
+      intel-compute-runtime # OpenCL filter support (hardware tonemapping and subtitle burn-in)
+    ];
+  };
+#+end_src
+
+- [X] Enable Jellyfin service
+#+begin_src nix
+  services.jellyfin = {
+    enable = true;
+    openFirewall = true;
+  };
+#+end_src
+
+*** Services
+**** OpenSSH
+#+begin_src nix
+services.openssh.enable = true;
+#+end_src
+
+**** Tailscale
+Enabling tailscale is as simple as adding the following to your Nix config,
+then use "sudo tailscale login"
+
+#+begin_src nix
+services.tailscale.enable = true;
+#+end_src
+
+*** environment.systemPackages
+**** Enable Unfree
+#+begin_src nix
+  nixpkgs.config.allowUnfree = true;
+#+end_src
+
+**** Preamble
+#+begin_src nix
+  environment.systemPackages = with pkgs [
+#+end_src
+
+**** Console
+#+begin_src nix
+  pkgs.byobu
+  pkgs.glances
+  pkgs.htop
+  pkgs.mosh
+  pkgs.tmux
+#+end_src
+
+**** Epilogue
+#+begin_src nix
+];
+#+end_src
+
+*** Other bits
+*** Enable OpenSSH with keys on /persistent
+#+begin_src conf :tangle no
+{
+  services.openssh = {
+    enable = true;
+    hostKeys = [
+      {
+        path = "/persist/ssh/ssh_host_ed25519_key";
+        type = "ed25519";
+      }
+      {
+        path = "/persist/ssh/ssh_host_rsa_key";
+        type = "rsa";
+        bits = 8192;
+      }
+    ];
+  };
+}
+#+end_src
+
 
 * Shell [0/7]
 ** TODO ~/.bashrc [8/10]

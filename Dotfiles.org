@@ -4437,7 +4437,7 @@ programs.neovim = [
 #+begin_src nix
 
 #+end_src
-***** NeoVim [0/0]
+
 [[https://www.notonlycode.org/neovim-lua-config/][From init.vim to init.lua - a crash course]]
 
 Consider [[https://github.com/LazyVim/LazyVim][LazyVim]]
@@ -5049,7 +5049,7 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 
 
 *** Shell
-**** Aliases [8/8]
+**** Aliases [10/13]
 ***** FINI Preamble
 #+begin_src nix
 environment.shellAliases = {

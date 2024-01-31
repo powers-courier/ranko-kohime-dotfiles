@@ -3057,6 +3057,12 @@ Does not work with Evil mode!
 (setq-default org-agenda-files '("/Mounts/Documents/Agenda.org"))
 #+end_src
 
+*** Code Handling
+**** Popout code blocks won't smash other windows in the frame
+#+begin_src emacs-lisp
+(setq-default org-src-window-setup 'current-window)
+#+end_src
+
 ** FINI Key Bindings [1/1]
 - [X] Make ESC quit prompts
 #+begin_src emacs-lisp
@@ -5055,11 +5061,19 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 environment.shellAliases = {
 #+end_src
 
+***** FINI Audio
+#+begin_src nix
+flacmeta = " metaflac --add-replay-gain *.flac";
+tag = " easytag .; exfalso .; exit";
+vgain = "vorbisgain -a *.ogg";
+#+end_src
+
 ***** FINI Directory navigation and listing
 #+begin_src nix
 .. = " cd ..";
 ... = " cd ../..";
 .... = " cd ../../..";
+cd = " cd";
 l = " ls -AhlF";
 ll = " ls -AhlF --color=always";
 lll = " ls -AhlF |less";
@@ -5076,6 +5090,15 @@ v = "vim";
 :q = " exit";
 q = " exit";
 x = " exit";
+#+end_src
+
+***** FINI File Handling
+#+begin_src nix
+cp = " cp -v";
+lns = "ln -sv";
+mv = " mv -v";
+rm = " rm";
+tale = " tail -n 30";
 #+end_src
 
 ***** TODO Gaming
@@ -5104,8 +5127,6 @@ These commands will not be committed to history
 #+begin_src nix
 alias = " alias";
 c = " kalker";
-cd = " cd";
-cp = " cp -v";
 echo = " echo";
 kill = " kill";
 kall = " killall";
@@ -5113,13 +5134,53 @@ man = " man";
 mkdir = " mkdir";
 pgrep = " pgrep";
 pkill = " pkill";
-rm = " rm";
 ssh = " ssh";
+#+end_src
+
+***** Package Management
+#+begin_src nix
+garup = " garuda-update";
+nixrs = " nixos-rebuild switch";
+pacup = " pacman -Syuu";
+syn = " synaptic";
 #+end_src
 
 ***** FINI Pass
 #+begin_src nix
 pass = " ~/.local/bin/pass.sh";
+#+end_src
+
+***** Shell
+
+****** Multiplexing
+#+begin_src nix
+b = " byobu";
+br = " byobu -r";
+ta = " tmux attach";
+#+end_src
+
+****** Tools
+#+begin_src nix
+f = " free -m";
+iotop = " sudo iotop -ao";
+rebort = " reboot";
+s = " sensors";
+up = " uptime";
+#+end_src
+
+Picocom enables serial console for devices like Netgate and Raspberry Pi
+#+begin_src nix
+sg = " picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --escape B /dev/ttyUSB0";
+#+end_src
+
+Pipe Viewer
+#+begin_src nix
+pvr = " pv --progress --timer --eta --rate --bytes --average-rate";
+#+end_src
+
+****** Udev
+#+begin_src nix
+udevreload = " udevadm control --reload-rules";
 #+end_src
 
 ***** FINI Epilogue
@@ -5134,14 +5195,8 @@ alias denyroot='xhost -'               # Deny root access to X server
 #+end_src
 
 ***** TODO Unsorted
-alias micfix='watch -n 0.1 pactl set-source-volume alsa_input.pci-0000_00_1b.0.analog-stereo 6554'
-alias tag=' easytag .; exfalso .; exit'
-alias vgain='vorbisgain -a *.ogg'
-alias b='byobu'
 alias bat='upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|to\ full|percentage|voltage|energy"'
-alias br='byobu -r'
 alias dupesort='awk '"'"'!seen[$0]++'"'"' '
-alias f=' free -m'
 alias fgri=' find -print 2>/dev/null|grep --color=auto -i'
 alias fgrir=' find / -print 2>/dev/null|grep --color=auto -i'
 alias filegrep='zgrep --color=always -i $1 ~/Documents/Complete\ File\ Listing.txt.gz'
@@ -5150,26 +5205,14 @@ alias gs='netcat -lvp 6000|pacat --playback --latency-msec=30'
 # History
 alias bashgrep='cat ~/.bash_history|grep -i -a'
 alias hisgrep='/Configs/Home/bin/hisgrep.sh $SHELL'
-alias iotop='sudo iotop -ao'
-alias lns='ln -sv'
-alias mv='mv -v'
 alias psaux='ps aux|grep -v grep|grep -i'
-alias pvr='pv -pterba'
-alias rebort=' reboot'
 alias root=' sudo zsh'
-alias s=' sensors'
 alias shaper='sudo wondershaper'
-alias syn='synaptic'
-alias tale=' tail -n 30'
 alias udevinfo='$HOME/bin/udevinfo.sh'
-alias udevreload='udevadm control --reload-rules'
-alias up=' uptime'
 #alias xp='xprop|grep -i "WM_CLASS|WM_NAME|WM_ICON_NAME"'
-alias ta=' tmux attach'
 
 # Local Scripts
 alias aur='$HOME/bin/aur.sh'
-alias enc='$HOME/bin/mount-encrypted.sh'
 alias f2o='$HOME/bin/flac2ogg.sh'
 alias fbksym='$HOME/bin/find-broken-symlinks.sh'
 alias fs='$HOME/bin/flacsplit.sh'
@@ -5177,8 +5220,6 @@ alias flow=' $HOME/bin/flowchart.sh'
 alias m=' ~/.local/bin/bash-menu/menu.sh'
 alias mf2o='$HOME/bin/multiple-flac2ogg.sh'
 alias sixstart=' $HOME/bin/sixstart.sh'
-alias t='$HOME/bin/todo.sh'
-alias tls='$HOME/bin/todo.sh ls|sort|head'
 
 # Graphics Utilities
   # AMD
@@ -5199,7 +5240,6 @@ alias rayburn='ssh -Y -p 2222 michael@localhost'  # Access forwarded SSH host
 #alias xephy='Xephyr -ac -br -noreset -screen 1280x720 -screen 1280x720 +xinerama :2 &'
 alias xephy='Xephyr -ac -br -noreset -screen 1280x720 :2&'
 alias awsy='DISPLAY=:2.0 awesome'
-alias flacmeta='metaflac --add-replay-gain *.flac'
 alias hashes="dd count=1024 if=/dev/urandom 2>/dev/null |md5sum|sed 's/-//'"
 alias music='$HOME/bin/music.sh'
 alias mcd='udisks --mount /dev/sr0'
@@ -5208,7 +5248,6 @@ alias iku='/media/Ironkey/linux/ironkey'
 alias ikl='/media/Ironkey/linux/ironkey -l'
 alias mp4c='$HOME/bin/convert-mp4-mp3.sh'
 alias openports='netstat -nutlp | grep LISTEN'
-alias sg='picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --escape B /dev/ttyUSB0'
 # Transfer whole disk
 # dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
 
@@ -6785,7 +6824,7 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
 **** Host steamdeck
 #+begin_src conf
   Host steamdeck
-    HostName               steamdeck
+    HostName               steamydeck
     User                   deck
 #+end_src
 **** Host *

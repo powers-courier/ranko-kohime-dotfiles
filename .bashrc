@@ -69,3 +69,4 @@ xterm*|rxvt*)
     ;;
 esac
 
+alias pass="GNUPGHOME=~/.password-store/.gnupg pass"

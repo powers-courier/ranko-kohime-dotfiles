@@ -5288,7 +5288,7 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
       vaapiIntel
       vaapiVdpau
       libvdpau-va-gl
-      intel-compute-runtime # OpenCL filter support (hardware tonemapping and subtitle burn-in)
+      intel-compute-runtime
     ];
   };
 #+end_src

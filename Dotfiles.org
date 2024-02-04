@@ -13,6 +13,21 @@
 ** Setting up TODO cookies
 Press C-c C-c on the cookie
 
+** [[https://ianyepan.github.io/posts/emacs-profiling/][Profiling Performance in Emacs]]
+Use
+#+begin_example
+M-x profiler-start
+#+end_example
+and
+#+begin_example
+M-x profiler-stop
+#+end_example
+to capture, then do
+#+begin_example
+M-x profiler-report
+#+end_example
+to view the report
+
 
 * Todo
 Add [[https://github.com/skeeto/endlessh][Endlessh]] for servers perhaps?

@@ -28,10 +28,22 @@ M-x profiler-report
 #+end_example
 to view the report
 
+** [[https://nfo-maker.com/][NFO Maker]]
 
 * Todo
-Add [[https://github.com/skeeto/endlessh][Endlessh]] for servers perhaps?
-
+** Add [[https://github.com/skeeto/endlessh][Endlessh]] for servers perhaps?
+** Checkout [[https://yggdrasil-network.github.io/][Yggdrasil Network]] for VPN
+** Count lines of code with [[https://github.com/XAMPPRocky/tokei][Tokei]]
+** Edit NixOS configuration graphically with [[https://github.com/snowfallorg/nixos-conf-editor][NixOS Conf Editor]]
+** [[https://github.com/TheR1D/shell_gpt][ShellGPT]] for an AI in the shell (Boo!)
+** An example Emacs configuration, [[https://github.com/kinnala/nixemacs][Nixemacs]]
+** Annotate PDFs in Emacs using [[https://github.com/weirdNox/org-noter][org-noter]]
+** Perhaps some locally hosted Copilot-ish AI using [[https://github.com/jart/emacs-copilot][emacs-copilot]]
+** Self-hosted AI
+*** [[https://khoj.dev/][Khoj AI]]
+*** [[https://dev.to/timesurgelabs/how-to-run-llama-2-on-anything-3o5m][How to run Llama 2 on anything]]
+** Grocy for grocery list
+** [[https://hackaday.com/2009/09/18/how-to-write-udev-rules/][How to write udev rules]]
 
 * Alacritty [0/0]
 :properties:

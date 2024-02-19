@@ -2770,8 +2770,7 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-** TODO Visual Settings [5/10]
-=======
+** TODO Visual Settings [7/12]
 *** FINI NixOS stuff [2/2]
 - [X] nix-mode
   #+begin_src emacs-lisp
@@ -2791,7 +2790,6 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-** TODO Visual Settings
 *** FINI Enable custom themes [5/5]
 - [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
 #+name: monokai-theme
@@ -5080,9 +5078,14 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
   vim.cmd [[iabbrev ssig --<cr>Ranko Kohime<cr>ranko.kohime@runbox.com
 #+end_src
 
-
 *** Shell
-**** Aliases [10/13]
+**** Aliases [13/16]
+:properties:
+:header-args: :tangle "/sudo::/etc/nixos/shellAliases.nix"
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :shebang "{ config, ... }:"
+:end:
+
 ***** FINI Preamble
 #+begin_src nix
 environment.shellAliases = {
@@ -5164,7 +5167,7 @@ pkill = " pkill";
 ssh = " ssh";
 #+end_src
 
-***** Package Management
+***** FINI Package Management
 #+begin_src nix
 garup = " garuda-update";
 nixrs = " nixos-rebuild switch";
@@ -5177,8 +5180,7 @@ syn = " synaptic";
 pass = " ~/.local/bin/pass.sh";
 #+end_src
 
-***** Shell
-
+***** FINI Shell
 ****** Multiplexing
 #+begin_src nix
 b = " byobu";
@@ -5278,12 +5280,18 @@ alias openports='netstat -nutlp | grep LISTEN'
 # Transfer whole disk
 # dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
 
+***** FINI Epilogue
+#+begin_src nix
+}
+#+end_src
+
 **** Utilities
 #+begin_src nix
 
 #+end_src
 
 ** System
+
 *** Modules
 *** TODO Jellyfin [3/3]
 :properties:
@@ -5389,7 +5397,7 @@ services.tailscale.enable = true;
 #+end_src
 
 
-* Shell [0/7]
+* Shell [0/8]
 ** TODO ~/.bashrc [8/10]
 :properties:
 :header-args+: :tangle ~/.bashrc

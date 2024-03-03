@@ -2961,6 +2961,11 @@ Double check this in GUI mode, not satisfactory in terminal
   (setq-default scroll-margin 5)
 #+end_src
 
+*** FINI Set visual-line-mode (word wrap)
+#+begin_src emacs-lisp
+  (setq-default visual-line-mode)
+#+end_src
+
 *** TODO Set default font, maybe
 #+begin_src emacs-lisp :tangle no
 (set-face-attribute 'default nil :font "SF Mono 16")

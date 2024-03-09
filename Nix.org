@@ -1,0 +1,7 @@
+* Checklist
+- [ ] Get all Nix files (including disko configuration) on install media
+- [ ] Bootstrap disko
+- [ ] Partition disk using disko
+- [ ] Install NixOS
+- [ ] Bootstrap Home Manager
+

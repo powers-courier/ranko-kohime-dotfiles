@@ -4447,6 +4447,216 @@ sharpen=5
 
 * NixOS Configuration
 ** Home
+*** ~/nix-flakes/home-manager/shell-aliases.nix [13/16]
+:properties:
+:header-args: :tangle ~/.nix-flake/home-manager/shell-aliases.nix
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :shebang "{ config, ... }:"
+:end:
+
+**** FINI Preamble
+#+begin_src nix
+environment.shellAliases = {
+#+end_src
+
+**** FINI Audio
+#+begin_src nix
+flacmeta = " metaflac --add-replay-gain *.flac";
+tag = " easytag .; exfalso .; exit";
+vgain = "vorbisgain -a *.ogg";
+#+end_src
+
+**** FINI Directory navigation and listing
+#+begin_src nix
+.. = " cd ..";
+... = " cd ../..";
+.... = " cd ../../..";
+cd = " cd";
+l = " ls -AhlF";
+ll = " ls -AhlF --color=always";
+lll = " ls -AhlF |less";
+#+end_src
+
+**** FINI Editors
+#+begin_src nix
+e = "emacs";
+n = "nano";
+v = "nvim";
+vi = "nvim";
+vim = "nvim";
+#+end_src
+
+**** FINI Exits
+#+begin_src nix
+:q = " exit";
+q = " exit";
+x = " exit";
+#+end_src
+
+**** FINI File Handling
+#+begin_src nix
+cp = " cp -v";
+lns = "ln -sv";
+mv = " mv -v";
+rm = " rm";
+tale = " tail -n 30";
+#+end_src
+
+**** TODO Gaming
+#+begin_src nix
+battle = "$HOME/bin/battlenet.sh";
+steamium = "/usr/bin/chromium --user-data-dir=$HOME/.config/steamium"
+surveysays = "sed -i -e '/SurveyDate/ s/"[0-9].*"/"'$(date +%Y-%m-%d -d "1 year ago")'"/' ~/.steam/steam/config/config.vdf";
+xbox = "$HOME/bin/xboxdrv.sh";
+#+end_src
+
+**** FINI Git
+#+begin_src nix
+ga = " git add";
+gc = " git commit -m";
+gf = " git commit -am "FIRE!"; git push";
+gp = " git pull";
+gs = " git status";
+gitaa = " git add .";
+gitignore = " git status --porcelain|grep "??"|awk '"'"'{print $2}'"'"' >> .gitignore";
+gitpr = " git pull;git submodule foreach git pull";
+gunstage = " git reset"
+#+end_src
+
+**** FINI Mysterious History
+These commands will not be committed to history
+#+begin_src nix
+alias = " alias";
+c = " kalker";
+echo = " echo";
+kill = " kill";
+kall = " killall";
+man = " man";
+mkdir = " mkdir";
+pgrep = " pgrep";
+pkill = " pkill";
+ssh = " ssh";
+#+end_src
+
+**** FINI Package Management
+#+begin_src nix
+garup = " garuda-update";
+nixrs = " nixos-rebuild switch";
+pacup = " pacman -Syuu";
+syn = " synaptic";
+#+end_src
+
+**** FINI Pass
+#+begin_src nix
+pass = " ~/.local/bin/pass.sh";
+#+end_src
+
+**** FINI Shell
+***** Multiplexing
+#+begin_src nix
+b = " byobu";
+br = " byobu -r";
+ta = " tmux attach";
+#+end_src
+
+***** Tools
+#+begin_src nix
+f = " free -m";
+iotop = " sudo iotop -ao";
+rebort = " reboot";
+s = " sensors";
+up = " uptime";
+#+end_src
+
+Picocom enables serial console for devices like Netgate and Raspberry Pi
+#+begin_src nix
+sg = " picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --escape B /dev/ttyUSB0";
+#+end_src
+
+Pipe Viewer
+#+begin_src nix
+pvr = " pv --progress --timer --eta --rate --bytes --average-rate";
+#+end_src
+
+***** Udev
+#+begin_src nix
+udevre = " udevadm control --reload-rules";
+#+end_src
+
+**** FINI Epilogue
+#+begin_src nix
+};
+#+end_src
+
+**** TODO X server root access
+Allows the root user to access the running X server...  But why?
+#+begin_src nix :tangle no
+alias allowroot='xhost +local:root'    # Allow root access to X server
+alias denyroot='xhost -'               # Deny root access to X server
+#+end_src
+
+**** TODO Unsorted
+alias bat='upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|to\ full|percentage|voltage|energy"'
+alias dupesort='awk '"'"'!seen[$0]++'"'"' '
+alias fgri=' find -print 2>/dev/null|grep --color=auto -i'
+alias fgrir=' find / -print 2>/dev/null|grep --color=auto -i'
+alias filegrep='zgrep --color=always -i $1 ~/Documents/Complete\ File\ Listing.txt.gz'
+alias gs='netcat -lvp 6000|pacat --playback --latency-msec=30'
+
+# History
+alias bashgrep='cat ~/.bash_history|grep -i -a'
+alias hisgrep='/Configs/Home/bin/hisgrep.sh $SHELL'
+alias psaux='ps aux|grep -v grep|grep -i'
+alias root=' sudo zsh'
+alias shaper='sudo wondershaper'
+alias udevinfo='$HOME/bin/udevinfo.sh'
+#alias xp='xprop|grep -i "WM_CLASS|WM_NAME|WM_ICON_NAME"'
+
+# Local Scripts
+alias aur='$HOME/bin/aur.sh'
+alias f2o='$HOME/bin/flac2ogg.sh'
+alias fbksym='$HOME/bin/find-broken-symlinks.sh'
+alias fs='$HOME/bin/flacsplit.sh'
+alias flow=' $HOME/bin/flowchart.sh'
+alias m=' ~/.local/bin/bash-menu/menu.sh'
+alias mf2o='$HOME/bin/multiple-flac2ogg.sh'
+alias sixstart=' $HOME/bin/sixstart.sh'
+
+# Graphics Utilities
+  # AMD
+    alias sgpu='DISPLAY=:0.0 aticonfig --odgt' # AMD sensor readout
+  # Intel
+    alias igtop='intel_gpu_top'                # Intel GPU load monitor
+  # Nvidia
+
+
+# PulseAudio
+alias palistsinks='pactl list sinks |egrep -i "Sink #|name:"'
+
+# Remote Assistance
+alias rayburn='ssh -Y -p 2222 michael@localhost'  # Access forwarded SSH host
+
+
+# Unsorted
+#alias xephy='Xephyr -ac -br -noreset -screen 1280x720 -screen 1280x720 +xinerama :2 &'
+alias xephy='Xephyr -ac -br -noreset -screen 1280x720 :2&'
+alias awsy='DISPLAY=:2.0 awesome'
+alias hashes="dd count=1024 if=/dev/urandom 2>/dev/null |md5sum|sed 's/-//'"
+alias music='$HOME/bin/music.sh'
+alias mcd='udisks --mount /dev/sr0'
+alias umcd='udisks --unmount /dev/sr0'
+alias iku='/media/Ironkey/linux/ironkey'
+alias ikl='/media/Ironkey/linux/ironkey -l'
+alias mp4c='$HOME/bin/convert-mp4-mp3.sh'
+alias openports='netstat -nutlp | grep LISTEN'
+# Transfer whole disk
+# dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
+
+**** FINI Epilogue
+#+begin_src nix
+}
+#+end_src
+
 *** Git User
 #+begin_src nix
 programs.git = {

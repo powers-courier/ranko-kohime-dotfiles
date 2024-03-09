@@ -44,6 +44,7 @@ to view the report
 *** [[https://dev.to/timesurgelabs/how-to-run-llama-2-on-anything-3o5m][How to run Llama 2 on anything]]
 ** Grocy for grocery list
 ** [[https://hackaday.com/2009/09/18/how-to-write-udev-rules/][How to write udev rules]]
+** Hardware enablements for NixOS
 
 * Alacritty [0/0]
 :properties:
@@ -2564,6 +2565,9 @@ color_gray="\e[0;37;47m"
 
 ** Todo
 [[https://github.com/domtronn/all-the-icons.el][All the Icons]]
+[[https://github.com/NixOS/nix-mode/][nix-mode]]
+[[https://github.com/jart/emacs-copilot][emacs-copilot]]
+Enable org-num-mode (Set org-startup-numerated to t)
 
 ** Notes
 *** Reminder: Disable code blocks by wrapping in square brackets [ ]
@@ -4446,7 +4450,185 @@ sharpen=5
 
 
 * NixOS Configuration
-** Home
+** Notes
+*** Use system.nixos.label to add boot label
+*** [[https://github.com/Misterio77/nix-starter-configs][Nix Starter Config]]
+*** [[https://github.com/nix-community/disko/][Disko]] for automatic partitioning
+*** [[https://nixos.asia/en/nixos-install-disko][Install]] using Disko
+** Bootstrap Home-manager [1/4]
+:properties:
+:header-args+: :tangle ~/.nix-flake/bootstrap-home-manager.sh
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments both
+:header-args+: :shebang 
+:end:
+
+*** FINI Enable flakes for bootstrapping
+#+begin_src bash
+export NIX_CONFIG="experimental-features = nix-command flakes"
+#+end_src
+
+*** TODO Load home-manager in shell
+#+begin_src bash
+nix shell "nixpkgs#home-manager"
+#+end_src
+
+*** TODO Change to directory
+#+begin_src bash
+cd ~/.nix-flake
+#+end_src
+
+*** TODO Build system
+#+begin_src bash
+sudo nixos-rebuild switch --flake ".#hostname"
+#+end_src
+
+** ~/.nix-flake/flake.nix
+:properties:
+:header-args+: :tangle ~/.nix-flake/flake.nix
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments both
+:end:
+*** Preamble
+#+begin_src nix
+{
+#+end_src
+
+*** Description
+#+begin_src nix
+ description = "Ranko Kohime's Flake";
+#+end_src
+
+*** Inputs
+**** Preabmle
+#+begin_src nix
+ inputs = {
+#+end_src
+
+**** Nixpkgs
+#+begin_src nix
+   nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+#+end_src
+
+**** Home Manager
+#+begin_src nix
+   home-manager.url = "github:nix-community/home-manager";
+   home-manager.inputs.nixpkgs.follows = "nixpkgs";
+#+end_src
+
+**** Hardware
+#+begin_src nix
+   hardware.url = "github:nixos/nixos-hardware";
+#+end_src
+
+**** Prologue
+#+begin_src nix
+};
+#+end_src
+
+*** Outputs
+**** Preamble
+#+begin_src nix
+ outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+#+end_src
+
+NixOS configuration entrypoint
+Available through 'nixos-rebuild --flake .#your-hostname'
+**** nixosConfigurations
+***** Preamble
+#+begin_src nix
+   nixosConfigurations = {
+#+end_src
+
+***** Framework
+#+begin_src nix
+     Framework = nixpkgs.lib.nixosSystem {
+       specialArgs = { inherit inputs; };
+       modules = [
+         ./configuration.nix
+         ./hardware/framework.7840u.nix
+       ];
+     };
+#+end_src
+
+***** Prologue
+#+begin_src nix
+   };
+#+end_src
+
+**** homeConfigurations
+home-manager configuration entrypoint
+Available through 'home-manager --flake .#your-username@your-hostname'
+
+***** Preamble
+#+begin_src nix
+   homeConfigurations = {
+#+end_src
+     # FIXME replace with your username@hostname
+     "user@FIXME" = home-manager.lib.homeManagerConfiguration {
+       pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+       extraSpecialArgs = { inherit inputs; }; # Pass flake inputs to our config
+       # > Our main home-manager configuration file <
+       modules = [
+           ./home-manager/home.nix
+           ];
+     };
+   };
+ };
+}
+** ~/.nix-flake/home-manager/home.nix
+{ config, pkgs, inputs, lib, ... }:
+
+{
+  home.username = "monkeyd";
+  home.homeDirectory = "/home/monkeyd";
+  home.stateVersion = "22.11";
+  nixpkgs = {
+		config = {
+			allowUnfree = true;
+			allowUnfreePredicate = (_: true);
+		};
+	};
+
+  # Let Home Manager install and manage itself.
+  programs.home-manager.enable = true;
+  home.packages = with pkgs; [
+        bat
+        fzf
+        ripgrep
+        jq
+        tree
+        exa
+	];
+
+  programs.neovim = {
+  	enable = true;
+  	viAlias = true;
+	vimAlias = true;
+  	};
+
+	home.sessionVariables = {
+		EDITOR="nvim";
+	};
+	home.shellAliases = {
+		l = "exa";
+		ls = "exa";
+		cat = "bat";
+	};
+
+	programs.zsh = {
+		enable = true;
+	};
+
+	programs.zsh.oh-my-zsh= {
+		enable = true;
+		plugins = ["git" "python" "docker" "fzf"];
+		theme = "dpoggi";
+	};
+
+}
+
+** Shell
 *** ~/nix-flakes/home-manager/shell-aliases.nix [13/16]
 :properties:
 :header-args: :tangle ~/.nix-flake/home-manager/shell-aliases.nix
@@ -4657,6 +4839,195 @@ alias openports='netstat -nutlp | grep LISTEN'
 }
 #+end_src
 
+
+** Default configuration.nix
+{ config, pkgs, ... }:
+
+{
+  imports =
+    [ # Include the results of the hardware scan.
+      ./hardware-configuration.nix
+    ];
+
+  # Bootloader.
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  networking.hostName = "nixos"; # Define your hostname.
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+
+  # Configure network proxy if necessary
+  # networking.proxy.default = "http://user:password@proxy:port/";
+  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+
+  # Enable networking
+  networking.networkmanager.enable = true;
+
+  # Set your time zone.
+  time.timeZone = "America/Chicago";
+
+  # Select internationalisation properties.
+  i18n.defaultLocale = "en_US.UTF-8";
+
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "en_US.UTF-8";
+    LC_IDENTIFICATION = "en_US.UTF-8";
+    LC_MEASUREMENT = "en_US.UTF-8";
+    LC_MONETARY = "en_US.UTF-8";
+    LC_NAME = "en_US.UTF-8";
+    LC_NUMERIC = "en_US.UTF-8";
+    LC_PAPER = "en_US.UTF-8";
+    LC_TELEPHONE = "en_US.UTF-8";
+    LC_TIME = "en_US.UTF-8";
+  };
+
+  # Configure keymap in X11
+  services.xserver = {
+    layout = "us";
+    xkbVariant = "";
+  };
+
+  services.logind = {
+    extraConfig = "lidSwitch=ignore";
+  };
+
+  # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.users.ranko = {
+    isNormalUser = true;
+    description = "Ranko Kohime";
+    extraGroups = [ "networkmanager" "wheel" ];
+    packages = with pkgs; [];
+  };
+
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
+
+  # List packages installed in system profile. To search, run:
+  # $ nix search wget
+  environment.systemPackages = with pkgs; [
+  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+  #  wget
+  pkgs.byobu
+  pkgs.glances
+  pkgs.intel-gpu-tools
+  pkgs.jellyfin
+  pkgs.jellyfin-ffmpeg
+  pkgs.jellyfin-web
+  pkgs.mosh
+  pkgs.tmux
+  pkgs.vim
+  ];
+
+  # Some programs need SUID wrappers, can be configured further or are
+  # started in user sessions.
+  # programs.mtr.enable = true;
+  # programs.gnupg.agent = {
+  #   enable = true;
+  #   enableSSHSupport = true;
+  # };
+
+  # List services that you want to enable:
+
+  # Enable the OpenSSH daemon.
+  services.openssh.enable = true;
+
+
+
+  fileSystems."/mnt/Videos" = {
+    device = "192.168.0.2:/mnt/Svartalfheim/Videos";
+    fsType = "nfs";
+  };
+
+  fileSystems."/mnt/database" = {
+    device = "192.168.0.2:/mnt/Svartalfheim/z_Hosted_Database/Jellyfin";
+    fsType = "nfs";
+    options = [ "nfsvers=4.2" "x-systemd.automount" "anonuid=995" "anongid=994" ];
+  };
+
+    # 1. enable vaapi on OS-level
+    nixpkgs.config.packageOverrides = pkgs: {
+      vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+    };
+    hardware.opengl = {
+      enable = true;
+      extraPackages = with pkgs; [
+        intel-media-driver
+        vaapiIntel
+        vaapiVdpau
+        libvdpau-va-gl
+        intel-compute-runtime # OpenCL filter support (hardware tonemapping and subtitle burn-in)
+      ];
+    };
+
+
+
+    services.jellyfin = {
+      enable = true;
+      openFirewall = true;
+    };
+
+    services.tailscale.enable = true;
+
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
+
+  # This value determines the NixOS release from which the default
+  # settings for stateful data, like file locations and database versions
+  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # this value at the release version of the first install of this system.
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  system.stateVersion = "23.11"; # Did you read the comment?
+
+}
+
+** /etc/nixos/configuration.nix
+:properties:
+:header-args: :tangle "/sudo::/etc/nixos/configuration.nix"
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :shebang "{ config, pkgs, ... }:"
+:end:
+
+*** Automatic unattended upgrades with surprise rebort
+#+begin_src nix :tangle no
+system.autoUpgrade.enable = true;
+system.autoUpgrade.allowReboot = true;
+#+end_src
+
+*** Services
+**** OpenSSH
+#+begin_src nix
+services.openssh.enable = true;
+#+end_src
+
+**** Tailscale
+Enabling tailscale is as simple as adding the following to your Nix config,
+then use "sudo tailscale login"
+
+#+begin_src nix
+services.tailscale.enable = true;
+#+end_src
+
+** ~/.config/nixpkgs/home.nix
+*** How do: `home-manager switch`
+*** Appearance
+**** Cursor Size
+#+begin_src nix
+home-manager.users.myUser = {
+  home.pointerCursor = {
+    name = "Adwaita";
+    package = pkgs.gnome.adwaita-icon-theme;
+    size = 48;
+    x11 = {
+      enable = true;
+      defaultCursor = "Adwaita";
+    };
+  };
+};
+#+end_src
 *** Git User
 #+begin_src nix
 programs.git = {
@@ -5293,220 +5664,7 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
   vim.cmd [[iabbrev ssig --<cr>Ranko Kohime<cr>ranko.kohime@runbox.com
 #+end_src
 
-*** Shell
-**** Aliases [13/16]
-:properties:
-:header-args: :tangle "/sudo::/etc/nixos/shellAliases.nix"
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :shebang "{ config, ... }:"
-:end:
-
-***** FINI Preamble
-#+begin_src nix
-environment.shellAliases = {
-#+end_src
-
-***** FINI Audio
-#+begin_src nix
-flacmeta = " metaflac --add-replay-gain *.flac";
-tag = " easytag .; exfalso .; exit";
-vgain = "vorbisgain -a *.ogg";
-#+end_src
-
-***** FINI Directory navigation and listing
-#+begin_src nix
-.. = " cd ..";
-... = " cd ../..";
-.... = " cd ../../..";
-cd = " cd";
-l = " ls -AhlF";
-ll = " ls -AhlF --color=always";
-lll = " ls -AhlF |less";
-#+end_src
-
-***** FINI Editors
-#+begin_src nix
-e = "emacs";
-v = "vim";
-#+end_src
-
-***** FINI Exits
-#+begin_src nix
-:q = " exit";
-q = " exit";
-x = " exit";
-#+end_src
-
-***** FINI File Handling
-#+begin_src nix
-cp = " cp -v";
-lns = "ln -sv";
-mv = " mv -v";
-rm = " rm";
-tale = " tail -n 30";
-#+end_src
-
-***** TODO Gaming
-#+begin_src nix
-battle = "$HOME/bin/battlenet.sh";
-steamium = "/usr/bin/chromium --user-data-dir=$HOME/.config/steamium"
-surveysays = "sed -i -e '/SurveyDate/ s/"[0-9].*"/"'$(date +%Y-%m-%d -d "1 year ago")'"/' ~/.steam/steam/config/config.vdf";
-xbox = "$HOME/bin/xboxdrv.sh";
-#+end_src
-
-***** FINI Git
-#+begin_src nix
-ga = " git add";
-gc = " git commit -m";
-gf = " git commit -am "FIRE!"; git push";
-gp = " git pull";
-gs = " git status";
-gitaa = " git add .";
-gitignore = " git status --porcelain|grep "??"|awk '"'"'{print $2}'"'"' >> .gitignore";
-gitpr = " git pull;git submodule foreach git pull";
-gunstage = " git reset"
-#+end_src
-
-***** FINI Mysterious History
-These commands will not be committed to history
-#+begin_src nix
-alias = " alias";
-c = " kalker";
-echo = " echo";
-kill = " kill";
-kall = " killall";
-man = " man";
-mkdir = " mkdir";
-pgrep = " pgrep";
-pkill = " pkill";
-ssh = " ssh";
-#+end_src
-
-***** FINI Package Management
-#+begin_src nix
-garup = " garuda-update";
-nixrs = " nixos-rebuild switch";
-pacup = " pacman -Syuu";
-syn = " synaptic";
-#+end_src
-
-***** FINI Pass
-#+begin_src nix
-pass = " ~/.local/bin/pass.sh";
-#+end_src
-
-***** FINI Shell
-****** Multiplexing
-#+begin_src nix
-b = " byobu";
-br = " byobu -r";
-ta = " tmux attach";
-#+end_src
-
-****** Tools
-#+begin_src nix
-f = " free -m";
-iotop = " sudo iotop -ao";
-rebort = " reboot";
-s = " sensors";
-up = " uptime";
-#+end_src
-
-Picocom enables serial console for devices like Netgate and Raspberry Pi
-#+begin_src nix
-sg = " picocom --baud 115200 --databits 8 --stopbits 1 --parity n --flow n --escape B /dev/ttyUSB0";
-#+end_src
-
-Pipe Viewer
-#+begin_src nix
-pvr = " pv --progress --timer --eta --rate --bytes --average-rate";
-#+end_src
-
-****** Udev
-#+begin_src nix
-udevreload = " udevadm control --reload-rules";
-#+end_src
-
-***** FINI Epilogue
-#+begin_src nix
-};
-#+end_src
-
-***** TODO X server root access
-#+begin_src nix :tangle no
-alias allowroot='xhost +local:root'    # Allow root access to X server
-alias denyroot='xhost -'               # Deny root access to X server
-#+end_src
-
-***** TODO Unsorted
-alias bat='upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|to\ full|percentage|voltage|energy"'
-alias dupesort='awk '"'"'!seen[$0]++'"'"' '
-alias fgri=' find -print 2>/dev/null|grep --color=auto -i'
-alias fgrir=' find / -print 2>/dev/null|grep --color=auto -i'
-alias filegrep='zgrep --color=always -i $1 ~/Documents/Complete\ File\ Listing.txt.gz'
-alias gs='netcat -lvp 6000|pacat --playback --latency-msec=30'
-
-# History
-alias bashgrep='cat ~/.bash_history|grep -i -a'
-alias hisgrep='/Configs/Home/bin/hisgrep.sh $SHELL'
-alias psaux='ps aux|grep -v grep|grep -i'
-alias root=' sudo zsh'
-alias shaper='sudo wondershaper'
-alias udevinfo='$HOME/bin/udevinfo.sh'
-#alias xp='xprop|grep -i "WM_CLASS|WM_NAME|WM_ICON_NAME"'
-
-# Local Scripts
-alias aur='$HOME/bin/aur.sh'
-alias f2o='$HOME/bin/flac2ogg.sh'
-alias fbksym='$HOME/bin/find-broken-symlinks.sh'
-alias fs='$HOME/bin/flacsplit.sh'
-alias flow=' $HOME/bin/flowchart.sh'
-alias m=' ~/.local/bin/bash-menu/menu.sh'
-alias mf2o='$HOME/bin/multiple-flac2ogg.sh'
-alias sixstart=' $HOME/bin/sixstart.sh'
-
-# Graphics Utilities
-  # AMD
-    alias sgpu='DISPLAY=:0.0 aticonfig --odgt' # AMD sensor readout
-  # Intel
-    alias igtop='intel_gpu_top'                # Intel GPU load monitor
-  # Nvidia
-
-
-# PulseAudio
-alias palistsinks='pactl list sinks |egrep -i "Sink #|name:"'
-
-# Remote Assistance
-alias rayburn='ssh -Y -p 2222 michael@localhost'  # Access forwarded SSH host
-
-
-# Unsorted
-#alias xephy='Xephyr -ac -br -noreset -screen 1280x720 -screen 1280x720 +xinerama :2 &'
-alias xephy='Xephyr -ac -br -noreset -screen 1280x720 :2&'
-alias awsy='DISPLAY=:2.0 awesome'
-alias hashes="dd count=1024 if=/dev/urandom 2>/dev/null |md5sum|sed 's/-//'"
-alias music='$HOME/bin/music.sh'
-alias mcd='udisks --mount /dev/sr0'
-alias umcd='udisks --unmount /dev/sr0'
-alias iku='/media/Ironkey/linux/ironkey'
-alias ikl='/media/Ironkey/linux/ironkey -l'
-alias mp4c='$HOME/bin/convert-mp4-mp3.sh'
-alias openports='netstat -nutlp | grep LISTEN'
-# Transfer whole disk
-# dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
-
-***** FINI Epilogue
-#+begin_src nix
-}
-#+end_src
-
-**** Utilities
-#+begin_src nix
-
-#+end_src
-
 ** System
-
 *** Modules
 *** TODO Jellyfin [3/3]
 :properties:
@@ -5514,18 +5672,21 @@ alias openports='netstat -nutlp | grep LISTEN'
 :header-args: :tangle no
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments no
+:header-args+: :shebang "{ config, pkgs, ... }:"
 :end:
-
-- [X] Jellyfin packages
+**** Preamble
 #+begin_src nix
-  environment.systemPackages = with pkgs [
-  pkgs.jellyfin
-  pkgs.jellyfin-ffmpeg
-  pkgs.jellyfin-web
+{
+#+end_src
+
+**** Intel low-power encoding kernel parameter
+#+begin_src nix
+boot.kernelParams = [
+    "i915.enable_guc=2"
   ];
 #+end_src
 
-- [X] Enable vaapi on OS-level
+**** DONE Enable vaapi on OS-level
 intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
 #+begin_src nix
   nixpkgs.config.packageOverrides = pkgs: {
@@ -5543,28 +5704,134 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
   };
 #+end_src
 
-- [X] Enable Jellyfin service
+**** DONE Enable Jellyfin service
 #+begin_src nix
   services.jellyfin = {
     enable = true;
+    extraPackages = with pkgs; [
+        pkgs.jellyfin
+        pkgs.jellyfin-ffmpeg
+        pkgs.jellyfin-web
+      ];
     openFirewall = true;
   };
 #+end_src
 
-*** Services
-**** OpenSSH
+**** Epilogue
 #+begin_src nix
-services.openssh.enable = true;
+}
 #+end_src
 
-**** Tailscale
-Enabling tailscale is as simple as adding the following to your Nix config,
-then use "sudo tailscale login"
-
-#+begin_src nix
-services.tailscale.enable = true;
+**** Docker Edition
+#+begin_src nix :tangle no
+{ config, pkgs, ... }:
+{
+  virtualisation.oci-containers.containers."jellyfin" = {
+    autoStart = true;
+    image = "jellyfin/jellyfin";
+    device = "/dev/dri:/dev/dri";     # Double check this line before putting into production
+    volumes = [
+      "/media/Containers/Jellyfin/config:/config"
+      "/media/Containers/Jellyfin/cache:/cache"
+      "/media/Containers/Jellyfin/log:/log"
+      "/mnt/Videos:/media"
+    ];
+    ports = [ "8096:8096" ];
+    environment = {
+      JELLYFIN_LOG_DIR = "/log";
+    };
+  };
+}
 #+end_src
 
+*** TODO Nextcloud
+[[https://carjorvaz.com/posts/the-holy-grail-nextcloud-setup-made-easy-by-nixos/][The Holy Grail Nextcloud setup made easy by NixOS]]
+
+#+begin_src nix
+{ pkgs, ... }:
+{
+  services.nextcloud = {
+    enable = true;
+    hostName = "nextcloud.tld";
+    database.createLocally = true;
+    config = {
+      dbtype = "pgsql";
+      adminpassFile = "/path/to/admin-pass-file";
+    };
+  };
+
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
+}
+#+end_src
+
+Jupiter Broadcasting's take:
+#+begin_src nix
+{ self, config, lib, pkgs, ... }: {
+  # Based on https://carjorvaz.com/posts/the-holy-grail-nextcloud-setup-made-easy-by-nixos/
+  security.acme = {
+    acceptTerms = true;
+    defaults = {
+      email = "wes+barn-acme@jupiterbroadcasting.com";
+      dnsProvider = "cloudflare";
+      # location of your CLOUDFLARE_DNS_API_TOKEN=[value]
+      # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=
+      environmentFile = "/REPLACE/WITH/YOUR/PATH";
+    };
+  };
+  services = {
+    nginx.virtualHosts = {
+      "YOUR.DOMAIN.NAME" = {
+        forceSSL = true;
+        enableACME = true;
+        # Use DNS Challenege.
+        acmeRoot = null;
+      };
+    };
+    # 
+    nextcloud = {
+      enable = true;
+      hostName = "YOUR.DOMAIN.NAME";
+      # Need to manually increment with every major upgrade.
+      package = pkgs.nextcloud28;
+      # Let NixOS install and configure the database automatically.
+      database.createLocally = true;
+      # Let NixOS install and configure Redis caching automatically.
+      configureRedis = true;
+      # Increase the maximum file upload size.
+      maxUploadSize = "16G";
+      https = true;
+      autoUpdateApps.enable = true;
+      extraAppsEnable = true;
+      extraApps = with config.services.nextcloud.package.packages.apps; {
+        # List of apps we want to install and are already packaged in
+        # https://github.com/NixOS/nixpkgs/blob/master/pkgs/servers/nextcloud/packages/nextcloud-apps.json
+        inherit calendar contacts notes onlyoffice tasks cookbook qownnotesapi;
+        # Custom app example.
+        socialsharing_telegram = pkgs.fetchNextcloudApp rec {
+          url =
+            "https://github.com/nextcloud-releases/socialsharing/releases/download/v3.0.1/socialsharing_telegram-v3.0.1.tar.gz";
+          license = "agpl3";
+          sha256 = "sha256-8XyOslMmzxmX2QsVzYzIJKNw6rVWJ7uDhU1jaKJ0Q8k=";
+        };
+      };
+      config = {
+        overwriteProtocol = "https";
+        defaultPhoneRegion = "US";
+        dbtype = "pgsql";
+        adminuser = "admin";
+        adminpassFile = "/REPLACE/WITH/YOUR/PATH";
+      };
+      # Suggested by Nextcloud's health check.
+      phpOptions."opcache.interned_strings_buffer" = "16";
+    };
+    # Nightly database backups.
+    postgresqlBackup = {
+      enable = true;
+      startAt = "*-*-* 01:15:00";
+    };
+  };
+}
+#+end_src
 *** environment.systemPackages
 **** Enable Unfree
 #+begin_src nix
@@ -5591,7 +5858,38 @@ services.tailscale.enable = true;
 #+end_src
 
 *** Other bits
-*** Enable OpenSSH with keys on /persistent
+**** Handle lid switch on laptops
+#+begin_src nix :tangle no
+services.logind = {
+extraConfig = "HandlePowerKey=suspend";
+lidSwitch = "suspend";
+};
+#+end_src
+
+**** CryFS for encrypted files on cloud backup
+**** Mount remote filesystems using SSHFS
+#+begin_src nix
+{
+  system.fsPackages = [ pkgs.sshfs ];
+
+  fileSystems."/mnt/my-dir" = {
+    device = "my-user@example.com:/my-dir/";
+    fsType = "sshfs";
+    options =
+      [ # Filesystem options
+        "allow_other"          # for non-root access
+        "_netdev"              # this is a network fs
+        "x-systemd.automount"  # mount on demand
+
+        # SSH options
+        "reconnect"              # handle connection drops
+        "ServerAliveInterval=15" # keep connections alive
+        "IdentityFile=/var/secrets/example-key"
+      ];
+  };
+}
+#+end_src
+**** Enable OpenSSH with keys on /persistent
 #+begin_src conf :tangle no
 {
   services.openssh = {

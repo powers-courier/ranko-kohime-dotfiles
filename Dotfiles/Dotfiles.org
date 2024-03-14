@@ -1014,7 +1014,6 @@ persistent_logging: false
   # Highlight window damage information.
   #highlight_damage: false
 
-
 * Bash Menu [2/15]
 :properties:
 :header-args: :tangle .local/bin/menu.sh
@@ -2547,14 +2546,12 @@ color_gray="\e[0;37;47m"
 \e[0m 0;35m \t\e[1;35;40m DarkMagenta\e[0m 1;35m"
 \e[0m 0;37m \t\e[1;37;40m White      \e[0m 1;37m"
 
-
 * Conky
 :properties:
 :header-args: :tangle .config/conky/conky.conf
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
-
 
 * Emacs [6/11]
 :properties:
@@ -3358,7 +3355,6 @@ Assign a keybind to it maybe?
 emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "~/Dotfiles.org")'
 #+end_src
 
-
 * MangoHud [0/0]
 :properties:
 :header-args+: :tangle .config/MangoHud/MangoHud.conf
@@ -3720,7 +3716,6 @@ Use "AVG" to get a mean average. Default percentiles are 97+AVG+1+0.1
 #+begin_src conf
 # benchmark_percentiles=
 #+end_src
-
 
 * MPV [0/0]
 ** input.conf
@@ -4447,7 +4442,6 @@ The following profile can be enabled on the command line with: --profile=eye-can
 [eye-cancer]
 sharpen=5
 #+end_src
-
 
 * NixOS Configuration
 ** Notes

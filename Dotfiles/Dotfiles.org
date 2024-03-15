@@ -1034,7 +1034,9 @@ persistent_logging: false
 [[https://github.com/domtronn/all-the-icons.el][All the Icons]]
 [[https://github.com/NixOS/nix-mode/][nix-mode]]
 Enable org-num-mode (Set org-startup-numerated to t)
+[[https://christiantietze.de/posts/2021/02/emacs-org-todo-doing-done-checkbox-cycling/][Emacs Org-Mode: Automatic Item TODO/DOING/DONE State Transitions for Checkbox Changes]]
 **** Function to edit source blocks in external editor
+[[https://kitchingroup.cheme.cmu.edu/blog/2014/09/28/Editing-org-mode-python-source-blocks-in-an-external-editor-Canopy/][Editing org-mode python source blocks in an external editor (Canopy)]]
 #+begin_src emacs-lisp :tangle no
 (defun edit-in-canopy ()
   (interactive)
@@ -1099,7 +1101,7 @@ Enable org-num-mode (Set org-startup-numerated to t)
 #+end_src
 
 *** Notes
-**** Reminder: Disable code blocks by wrapping in square brackets [ ]
+**** [[https://nhigham.com/2017/11/02/org-mode-syntax-cheat-sheet/][Org Mode Syntax Cheat Sheet]]
 **** Formatting Lisp
 https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 

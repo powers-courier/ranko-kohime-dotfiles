@@ -46,14 +46,15 @@ to view the report
 ** [[https://hackaday.com/2009/09/18/how-to-write-udev-rules/][How to write udev rules]]
 ** Hardware enablements for NixOS
 
-* Alacritty [0/0]
+* App Configuration
+** Alacritty [0/0]
 :properties:
 :header-args: :tangle no
 #:header-args: :tangle .config/alacritty/alacritty.yml
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
-** Import additional configuration files
+*** Import additional configuration files
 Imports are loaded in order, skipping all missing files, with the importing
 file being loaded last. If a field is already present in a previous import, it
 will be replaced.
@@ -67,7 +68,7 @@ to the user's home directory starting with `~/`.
 #import:
 #+end_src
 
-** Environment variables
+*** Environment variables
 Any items in the `env` entry below will be added as
 environment variables. Some entries may override variables
 set by alacritty itself.
@@ -75,7 +76,7 @@ set by alacritty itself.
 #env:
 #+end_src
 
-** TERM variable
+*** TERM variable
 This value is used to set the `$TERM` environment variable for
 each instance of Alacritty. If it is not present, alacritty will
 check the local terminfo database and use `alacritty` if it is
@@ -84,8 +85,8 @@ available, otherwise `xterm-256color` is used.
 #TERM: alacritty
 #+end_src
 
-** Window settings
-*** Window dimensions (changes require restart)
+*** Window settings
+**** Window dimensions (changes require restart)
 Number of lines/columns (not pixels) in the terminal. Both lines and columns
 must be non-zero for this to take effect. The number of columns must be at
 least `2`, while using a value of `0` for columns and lines will fall back
@@ -97,7 +98,7 @@ to the window manager's recommended size
     #lines: 0
 #+end_src
 
-*** Window position (changes require restart)
+**** Window position (changes require restart)
 Specified in number of pixels.
 If the position is not set, the window manager will handle the placement.
 #+begin_src yaml
@@ -106,7 +107,7 @@ If the position is not set, the window manager will handle the placement.
     #y: 0
 #+end_src
 
-*** Window padding (changes require restart)
+**** Window padding (changes require restart)
 Blank space added around the window in pixels. This padding is scaled
 by DPI and the specified value is always added at both opposing sides.
 #+begin_src yaml
@@ -115,11 +116,11 @@ by DPI and the specified value is always added at both opposing sides.
     #y: 0
 #+end_src
 
-*** Spread additional padding evenly around the terminal content.
+**** Spread additional padding evenly around the terminal content.
 #+begin_src yaml
   #dynamic_padding: false
 #+end_src
-*** Window decorations
+**** Window decorations
 Values for `decorations`:
   - full: Borders and title bar
   - none: Neither borders nor title bar
@@ -130,14 +131,14 @@ Values for `decorations` (macOS only):
   #decorations: full
 #+end_src
 
-*** Background opacity
+**** Background opacity
 Window opacity as a floating point number from `0.0` to `1.0`.
 The value `0.0` is completely transparent and `1.0` is opaque.
 #+begin_src yaml
   #opacity: 1.0
 #+end_src
 
-*** Startup Mode (changes require restart)
+**** Startup Mode (changes require restart)
 Values for `startup_mode`:
   - Windowed
   - Maximized
@@ -148,24 +149,24 @@ Values for `startup_mode` (macOS only):
   #startup_mode: Windowed
 #+end_src
 
-*** Window title
+**** Window title
 #+begin_src yaml
   #title: Alacritty
 #+end_src
 
-*** Allow terminal applications to change Alacritty's window title.
+**** Allow terminal applications to change Alacritty's window title.
 #+begin_src yaml
   #dynamic_title: true
 #+end_src
 
-*** Window class (Linux/BSD only):
+**** Window class (Linux/BSD only):
 #+begin_src yaml
   #class:
     #instance: Alacritty
     #general: Alacritty
 #+end_src
 
-*** Decorations theme variant
+**** Decorations theme variant
 Override the variant of the System theme/GTK theme/Wayland client side
 decorations. Commonly supported values are `Dark`, `Light`, and `None` for
 auto pick-up. Set this to `None` to use the default theme variant.
@@ -173,13 +174,13 @@ auto pick-up. Set this to `None` to use the default theme variant.
   #decorations_theme_variant: None
 #+end_src
 
-*** Resize increments
+**** Resize increments
 Prefer resizing window by discrete steps equal to cell dimensions.
 #+begin_src yaml
   #resize_increments: false
 #+end_src
 
-*** Make `Option` key behave as `Alt` (macOS only):
+**** Make `Option` key behave as `Alt` (macOS only):
 - OnlyLeft
 - OnlyRight
 - Both
@@ -188,34 +189,34 @@ Prefer resizing window by discrete steps equal to cell dimensions.
   #option_as_alt: None
 #+end_src
 
-*** Scrolling
+**** Scrolling
 #+begin_src yaml
 #scrolling:
 #+end_src
-**** Maximum number of lines in the scrollback buffer.
+***** Maximum number of lines in the scrollback buffer.
 Specifying '0' will disable scrolling.
 #+begin_src yaml
   #history: 10000
 #+end_src
 
-**** Scrolling distance multiplier.
+***** Scrolling distance multiplier.
 #+begin_src yaml
   #multiplier: 3
 #+end_src
 
-** Font configuration
+*** Font configuration
 #+begin_src yaml
 font:
 #+end_src
 
-*** Normal face
+**** Normal face
 #+begin_src yaml
   normal:
     family: "MesloLGS NF"
     #style: Regular
 #+end_src
 
-*** Bold face
+**** Bold face
 If the bold family is not specified, it will fall back to the
 value specified for the normal font.
 #+begin_src yaml
@@ -224,7 +225,7 @@ value specified for the normal font.
     #style: Bold
 #+end_src
 
-*** Italic face
+**** Italic face
 If the italic family is not specified, it will fall back to the
 value specified for the normal font.
 #+begin_src yaml
@@ -233,7 +234,7 @@ value specified for the normal font.
     #style: Italic
 #+end_src
 
-*** Bold italic face
+**** Bold italic face
 If the bold italic family is not specified, it will fall back to the
 value specified for the normal font.
 #+begin_src yaml
@@ -242,12 +243,12 @@ value specified for the normal font.
     #style: Bold Italic
 #+end_src
 
-*** Point size
+**** Point size
 #+begin_src yaml
   #size: 11.0
 #+end_src
 
-*** Offset
+**** Offset
 Offset is the extra space around each character. `offset.y` can be thought
 of as modifying the line spacing, and `offset.x` as modifying the letter
 spacing.
@@ -257,7 +258,7 @@ spacing.
     #y: 0
 #+end_src
 
-*** Glyph offset
+**** Glyph offset
 Glyph offset determines the locations of the glyphs within their cells with
 the default being at the bottom. Increasing `x` moves the glyph to the
 right, increasing `y` moves the glyph upward.
@@ -267,31 +268,31 @@ right, increasing `y` moves the glyph upward.
     #y: 0
 #+end_src
 
-*** Use built-in font for box drawing characters.
+**** Use built-in font for box drawing characters.
 If `true`, Alacritty will use a custom built-in font for box drawing
 characters (Unicode points 2500 - 259f).
 #+begin_src yaml
   #builtin_box_drawing: true
 #+end_src
 
-** Colors
-*** If `true`, bold text is drawn using the bright color variants.
+*** Colors
+**** If `true`, bold text is drawn using the bright color variants.
 #+begin_src yaml
 #draw_bold_text_with_bright_colors: false
 #+end_src
 
-*** Colors
+**** Colors
 #+begin_src yaml
 #colors:
 #+end_src
-**** Default colors
+***** Default colors
 #+begin_src yaml
 #primary:
   #background: '#1d1f21'
   #foreground: '#c5c8c6'
 #+end_src
 
-**** Bright and dim foreground colors
+***** Bright and dim foreground colors
 The dimmed foreground color is calculated automatically if it is not
 present. If the bright foreground color is not set, or
 `draw_bold_text_with_bright_colors` is `false`, the normal foreground
@@ -301,7 +302,7 @@ color will be used.
 #bright_foreground: '#eaeaea'
 #+end_src
 
-**** Cursor colors
+***** Cursor colors
 Colors which should be used to draw the terminal cursor.
 
 Allowed values are CellForeground/CellBackground, which reference the
@@ -312,7 +313,7 @@ affected cell, or hexadecimal colors like #ff00ff.
   #text: CellBackground
   #cursor: CellForeground
 #+end_src
-***** Vi mode cursor colors
+****** Vi mode cursor colors
 Colors for the cursor when the vi mode is active.
 
 Allowed values are CellForeground/CellBackground, which reference the
@@ -323,7 +324,7 @@ affected cell, or hexadecimal colors like #ff00ff.
   #cursor: CellForeground
 #+end_src
 
-***** Search colors
+****** Search colors
 Colors used for the search bar and match highlighting.
 
 Allowed values are CellForeground/CellBackground, which reference the
@@ -338,8 +339,8 @@ affected cell, or hexadecimal colors like #ff00ff.
     #background: '#000000'
 #+end_src
 
-***** Keyboard hints
-****** First character in the hint label
+****** Keyboard hints
+******* First character in the hint label
 Allowed values are CellForeground/CellBackground, which reference the
 affected cell, or hexadecimal colors like #ff00ff.
 #+begin_src yaml
@@ -348,7 +349,7 @@ affected cell, or hexadecimal colors like #ff00ff.
 #  background: '#e9ff5e'
 #+end_src
 
-****** All characters after the first one in the hint label
+******* All characters after the first one in the hint label
 Allowed values are CellForeground/CellBackground, which reference the
 affected cell, or hexadecimal colors like #ff00ff.
 #+begin_src yaml
@@ -357,7 +358,7 @@ affected cell, or hexadecimal colors like #ff00ff.
 #  background: '#1d1f21'
 #+end_src
 
-***** Line indicator
+****** Line indicator
 Color used for the indicator displaying the position in history during
 search and vi mode.
 
@@ -368,7 +369,7 @@ By default, these will use the opposing primary color.
 #  background: None
 #+end_src
 
-***** Footer bar
+****** Footer bar
 Color used for the footer bar on the bottom, used by search regex input,
 hyperlink URI preview, etc.
 #+begin_src yaml
@@ -377,7 +378,7 @@ hyperlink URI preview, etc.
 #  foreground: '#1d1f21'
 #+end_src
 
-***** Selection colors
+****** Selection colors
 Colors which should be used to draw the selection area.
 
 Allowed values are CellForeground/CellBackground, which reference the
@@ -388,7 +389,7 @@ affected cell, or hexadecimal colors like #ff00ff.
 #  background: CellForeground
 #+end_src
 
-***** Normal colors
+****** Normal colors
 #+begin_src yaml
 #normal:
 #  black:   '#1d1f21'
@@ -401,7 +402,7 @@ affected cell, or hexadecimal colors like #ff00ff.
 #  white:   '#c5c8c6'
 #+end_src
 
-***** Bright colors
+****** Bright colors
 #+begin_src yaml
 #bright:
 #  black:   '#666666'
@@ -414,7 +415,7 @@ affected cell, or hexadecimal colors like #ff00ff.
 #  white:   '#eaeaea'
 #+end_src
 
-***** Dim colors
+****** Dim colors
 If the dim colors are not set, they will be calculated automatically based
 on the `normal` colors.
 #+begin_src yaml
@@ -429,7 +430,7 @@ on the `normal` colors.
 #  white:   '#828482'
 #+end_src
 
-***** Indexed Colors
+****** Indexed Colors
 The indexed colors include all colors from 16 to 256.
 When these are not set, they're filled with sensible defaults.
 
@@ -439,7 +440,7 @@ Example:
 #indexed_colors: []
 #+end_src
 
-***** Transparent cell backgrounds
+****** Transparent cell backgrounds
 Whether or not `window.opacity` applies to all cell backgrounds or only to
 the default background. When set to `true` all cells will be transparent
 regardless of their background color.
@@ -447,7 +448,7 @@ regardless of their background color.
 #transparent_background_colors: false
 #+end_src
 
-**** Bell
+***** Bell
 The bell is rung every time the BEL control character is received.
 
 #bell:
@@ -488,7 +489,7 @@ The bell is rung every time the BEL control character is received.
   #
   #command: None
 
-**** selection:
+***** selection:
   # This string contains all characters that are used as separators for
   # "semantic words" in Alacritty.
   #semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
@@ -496,7 +497,7 @@ The bell is rung every time the BEL control character is received.
   # When set to `true`, selected text will be copied to the primary clipboard.
   #save_to_clipboard: false
 
-**** cursor:
+***** cursor:
   # Cursor style
   #style:
     # Cursor shape
@@ -540,12 +541,12 @@ The bell is rung every time the BEL control character is received.
   # from `0.0` to `1.0`.
   #thickness: 0.15
 
-** Live config reload (changes require restart)
+*** Live config reload (changes require restart)
 #+begin_src yaml
 #live_config_reload: true
 #+end_src
 
-** Shell
+*** Shell
 You can set `shell.program` to the path of your favorite shell, e.g. `/bin/fish`.
 Entries in `shell.args` are passed unmodified as arguments to the shell.
 
@@ -560,7 +561,7 @@ shell:
     - --login
 #+end_src
 
-** Startup directory
+*** Startup directory
 Directory the shell is started in. If this is unset, or `None`, the working
 directory of the parent process will be used.
 #+begin_src yaml
@@ -7736,62 +7737,62 @@ setw -g window-status-current-style fg=colour232,bg=colour244
 setw -g pane-active-border-style fg=colour82,bg=colour82
 #+end_src
 
-***** FINI Set parent terminal title to reflect current window in tmux session
+****** FINI Set parent terminal title to reflect current window in tmux session
 #+begin_src sh
 set -g set-titles on
 set -g set-titles-string "#I:#W"
 #+end_src
 
-***** FINI Start index of window/pane with 1, because we're humans, not computers
+****** FINI Start index of window/pane with 1, because we're humans, not computers
 #+begin_src sh
 set -g base-index 1
 set-window-option -g pane-base-index 1
 #+end_src
 
-***** FINI Renumber windows automatically on close
+****** FINI Renumber windows automatically on close
 #+begin_src sh
 set-option -g renumber-windows on
 #+end_src
 
-**** FINI Set reasonable history limit
+***** FINI Set reasonable history limit
 #+begin_src sh
 set -g history-limit 100000
 #+end_src
 
-**** FINI Not sure if we want mouse support yet, so let's disable it for now
+***** FINI Not sure if we want mouse support yet, so let's disable it for now
 #+begin_src sh
 set -g mouse off
 #+end_src
 
-**** WAIT Status line [1/3]
-***** TODO Left
+***** WAIT Status line [1/3]
+****** TODO Left
 #+begin_src sh
 set -g status-left-length 1
 set -g status-left ""
 #+end_src
 
-***** FINI Status Bar Options
+****** FINI Status Bar Options
 #+begin_src sh
 set -g status-justify left
 set -g monitor-activity on
 set -g visual-activity on
 #+end_src
 
-***** TODO Right
+****** TODO Right
 #+begin_src sh
 set -g status-right-length 100
 #set -g status-right "#(~/.config/tmux/plugins/tmux-powerline/powerline.sh right)"
 set -g status-right "#[bg=colour16] #[fg=colour40]#(~/.config/tmux/memory.sh -m)%#[fg=colour158]/#[fg=colour196]#(~/.config/tmux/memory.sh -s)% #[fg=colour226]#(~/.config/tmux/battery.sh) #[fg=colour158]#H"
 #+end_src
 
-**** TODO Keymappings [9/10]
-***** FINI Enable vi keys for copy/pasting
+***** TODO Keymappings [9/10]
+****** FINI Enable vi keys for copy/pasting
 https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
 #+begin_src sh
 setw -g mode-keys vi
 #+end_src
 
-***** FINI Remap prefix from 'C-b' to 'C-a'
+****** FINI Remap prefix from 'C-b' to 'C-a'
 The bind-key enables sending the prefix to an embedded application.
 #+begin_src sh
 unbind C-b
@@ -7799,7 +7800,7 @@ set-option -g prefix C-a
 bind-key C-a send-prefix
 #+end_src
 
-***** FINI Split panes using | and -
+****** FINI Split panes using | and -
 #+begin_src sh
 unbind '"'
 unbind %
@@ -7807,12 +7808,12 @@ bind | split-window -h
 bind - split-window -v
 #+end_src
 
-***** FINI Reload config file
+****** FINI Reload config file
 #+begin_src sh
 bind r source-file ~/.config/tmux/tmux.conf
 #+end_src
 
-***** FINI Switch panes using Alt-arrow without prefix
+****** FINI Switch panes using Alt-arrow without prefix
 #+begin_src sh
 bind -n M-Left select-pane -L
 bind -n M-Right select-pane -R
@@ -7820,7 +7821,7 @@ bind -n M-Up select-pane -U
 bind -n M-Down select-pane -D
 #+end_src
 
-***** FINI Switch panes using Vim keys, with prefix
+****** FINI Switch panes using Vim keys, with prefix
 #+begin_src sh
 bind -r h select-pane -L
 bind -r j select-pane -D
@@ -7828,7 +7829,7 @@ bind -r k select-pane -U
 bind -r l select-pane -R
 #+end_src
 
-***** FINI Resize panes with CAPITAL Vim keys, with prefix
+****** FINI Resize panes with CAPITAL Vim keys, with prefix
 #+begin_src sh
 bind -r H resize-pane -L 5
 bind -r J resize-pane -D 5
@@ -7836,57 +7837,57 @@ bind -r K resize-pane -U 5
 bind -r L resize-pane -R 5
 #+end_src
 
-***** FINI Home row window selection
+****** FINI Home row window selection
 #+begin_src sh
 bind -r C-h select-window -t :-
 bind -r C-l select-window -t :+
 #+end_src
 
-***** FINI Byobu keybindings [5/5]
-****** FINI New window
+****** FINI Byobu keybindings [5/5]
+******* FINI New window
 #+begin_src sh
 bind-key -n F2 new-window -c "#{pane_current_path}"
 bind-key -n C-F2 display-panes \; split-window -h -c "#{pane_current_path}"
 bind-key -n S-F2 display-panes \; split-window -v -c "#{pane_current_path}"
 #+end_src
 
-****** FINI Previous window/pane
+******* FINI Previous window/pane
 #+begin_src sh
 bind-key -n F3 previous-window
 bind-key -n S-F3 select-pane -t :-
 #+end_src
 
-****** FINI Next window/pane
+******* FINI Next window/pane
 #+begin_src sh
 bind-key -n F4 next-window
 bind-key -n S-F4 select-pane -t :+
 #+end_src
 
-****** FINI Disconnect, kill pane
+******* FINI Disconnect, kill pane
 #+begin_src sh
 bind-key -n F6 detach
 bind-key -n C-F6 kill-pane
 #+end_src
 
-****** FINI Copy mode
+******* FINI Copy mode
 #+begin_src sh
 bind-key -n F7 copy-mode
 #+end_src
 
-***** WAIT Keybinds for tmux-powerline
+****** WAIT Keybinds for tmux-powerline
 #+begin_src sh :tangle no
 bind C-[ run '~/path/to/tmux-powerline/mute_powerline.sh left'
 bind C-] run '~/path/to/tmux-powerline/mute_powerline.sh right'
 #+end_src
 
-**** TODO Plugins
+***** TODO Plugins
 #set -g @plugin 'tmux-plugins/tpm'
 #set -g @plugin 'erikw/tmux-powerline'
 
     # Call TPM (Must remain at bottom of file)
 #run '~/.config/tmux/plugins/tpm/tpm'
 
-*** battery.sh [3/3]
+**** battery.sh [3/3]
 :properties:
 :header-args+: :tangle ~/.config/tmux/battery.sh
 :header-args+: :tangle-mode (identity #o555)
@@ -7894,7 +7895,7 @@ bind C-] run '~/path/to/tmux-powerline/mute_powerline.sh right'
 :header-args+: :shebang "#!/bin/bash"
 :end:
 
-**** FINI If power adapter is present,
+***** FINI If power adapter is present,
 show lightning bolt
 
 #+begin_src bash
@@ -7903,31 +7904,31 @@ if [ $(cat /sys/class/power_supply/AC/online) == 1 ]
     printf '🗲'
 #+end_src
 
-**** FINI If power adapter is not present,
+***** FINI If power adapter is not present,
 show battery, based on charge level
 
-***** FINI Above 30%: show green battery
+****** FINI Above 30%: show green battery
 #+begin_src bash
 elif [ $(cat /sys/class/power_supply/AC/online) == 0 ] && [ $(cat /sys/class/power_supply/BAT0/capacity) -gt 30 ]
   then
     printf '🔋'
 #+end_src
 
-***** FINI Below 30%: show red battery
+****** FINI Below 30%: show red battery
 #+begin_src bash
 elif [ -e /sys/class/power_supply/BAT0/capacity ]
   then
     printf '🪫'
 #+end_src
 
-***** FINI But if no battery detected, show a power symbol
+****** FINI But if no battery detected, show a power symbol
 #+begin_src bash
 else
   printf '⏻'
 fi
 #+end_src
 
-**** FINI If battery is present,
+***** FINI If battery is present,
 show charge level as a percentage,
 but if no battery is present, show nothing
 
@@ -7939,7 +7940,128 @@ if [ -e /sys/class/power_supply/BAT0/capacity ]
 fi
 #+end_src
 
-** ~/.local/bin
+*** TODO Zshrc [3/5]
+:properties:
+:header-args+: :tangle ~/.zshrc
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments both
+:end:
+
+**** TODO Key Setups
+#bindkey -e
+  # also do history expansion on space
+#bindkey ' ' magic-space
+  # setup backspace correctly
+#  stty erase `tput kbs`
+  # Alternate Backspace
+#  stty erase ^?
+  # Insert Key
+#bindkey '^[[2~' overwrite-mode
+  # Delete Key
+#bindkey '^[[3~' delete-char
+  # Home Key
+#bindkey '^[[1~' beginning-of-line
+  # End Key
+#bindkey '^[[4~' end-of-line
+  # Beginning of History
+#bindkey '^[[5~' beginning-of-history    
+  # End of History
+#bindkey '^[[6~' end-of-history          
+  # Tab Completion
+#bindkey '^i' expand-or-complete-prefix  
+#bindkey '^[[1;5D' backward-word
+#bindkey '^[[1;5C' forward-word
+
+**** TODO History
+****** FINI Don't add command to history if prepended with a space
+#+begin_src bash
+setopt HIST_IGNORE_SPACE
+#+end_src
+
+****** FINI Don't overwrite history file
+#+begin_src bash
+setopt APPEND_HISTORY
+#+end_src
+
+****** TODO Set filename and path of history file (Disabled)
+#HISTFILE=$HOME/.config/shell/shell-history/history-`whoami`@`cat /etc/hostname`
+
+****** FINI Set history to an unreasonably large size
+#+begin_src bash
+HISTSIZE=999999999
+SAVEHIST=999999999
+#+end_src
+
+****** FINI Add timestamps to each command
+#+begin_src bash
+HIST_STAMPS="yyyy-mm-dd"
+#+end_src
+
+****** FINI History deduplication
+******* FINI Ignore all dups
+If a new command line being added to the history list duplicates an older one,
+the older command is removed from the list (even if it is not the previous event)
+#+begin_src bash
+setopt HIST_IGNORE_ALL_DUPS
+#+end_src
+
+******* FINI Do not enter command lines into the history list if they are duplicates of the previous event
+#+begin_src bash
+setopt HIST_IGNORE_DUPS
+#+end_src
+
+******* FINI When writing out the history file, older commands that duplicate newer ones are omitted
+#+begin_src bash
+setopt HIST_SAVE_NO_DUPS
+#+end_src
+
+**** FINI Custom Options
+****** FINI Changing directories and the Stack
+******* FINI Automatically change directory if "command" is a valid folder
+#+begin_src bash
+setopt AUTO_CD
+#+end_src
+
+******* FINI Add previous directory to the stack automatically
+#+begin_src bash
+setopt AUTO_PUSHD
+#+end_src
+
+******* FINI Try to prepend a "command" with ~ if folder exists within home directory before giving up
+#+begin_src bash
+setopt CDABLE_VARS
+#+end_src
+
+******* FINI Don’t push multiple copies of the same directory onto the directory stack
+#+begin_src bash
+setopt PUSHD_IGNORE_DUPS
+#+end_src
+
+****** FINI Beep on errors
+#+begin_src bash
+setopt beep
+#+end_src
+
+****** FINI Extended globglobglobglobblobBobLoblawsLawBlog
+#+begin_src bash
+setopt extended_glob
+#+end_src
+
+****** FINI Force a countdown timer when rm with asterisk
+#+begin_src bash
+setopt RM_STAR_WAIT
+#+end_src
+
+**** FINI Aliases
+#+begin_src bash
+source $HOME/.aliasrc
+#+end_src
+
+**** FINI Custom environment variables
+#+begin_src bash
+source $HOME/.profile
+#+end_src
+** Shell Scripts
 *** backup.sh [0/1]
 :properties:
 :header-args+: :tangle ~/.local/bin/backup.sh
@@ -8077,76 +8199,10 @@ nixos-install
 
 dump subvol mounting code into /mnt/etc/nixos/configuration.nix
 
+** Task Management
+*** TODO Glances
+#+begin_src nix
 
-** TODO ~/.profile [4/6]
-:properties:
-:header-args+: :tangle ~/.profile
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments no
-:header-args+: :padline no
-:end:
-
-*** FINI XDG Specifications
-These need to be before all the other variables.
-#+begin_src bash
-XDG_CACHE_HOME=$HOME/.cache
-XDG_CONFIG_HOME=$HOME/.config
-XDG_DATA_HOME=$HOME/.local/share
-XDG_STATE_HOME=$HOME/.local/state
-#+end_src
-
-*** FINI Paths
-#+begin_src bash
-PATH=$PATH:$HOME/.local/bin
-#+end_src
-
-*** Application Specific
-**** cheat
-#+begin_src bash
-export DEFAULT_CHEAT_DIR=$HOME/Documents/cheat
-export CHEATCOLORS=true
-#+end_src
-
-**** nmon
-#+begin_src bash
-export NMON=lmdn.
-#+end_src
-
-**** vim
-#+begin_src bash
-export VIMDOTDIR="$XDG_CONFIG_HOME/vim"
-#+end_src
-
-*** EDITOR
-#+begin_src bash
-export EDITOR=$HOME/.local/bin/nvim.appimage
-export VISUAL=$HOME/.local/bin/nvim.appimage
-#+end_src
-
-*** FINI Games
-#+begin_src bash
-export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0
-export SDL_VIDEO_FULLSCREEN_DISPLAY=0
-#+end_src
-
-*** TODO Other stuff
-# Because QT and Input hot-plugging equals SADNESS!  :(
-# What mean this? ^^^^^^^^^^^^^^^
-# QT_XCB_NO_XI2_MOUSE=1
-
-# Why does QT hate GTK?  (No love from qt5ct)
-# QT_QPA_PLATFORMTHEME=qt5ct
-
-*** FINI Shell Specific
-**** FINI zsh
-#+begin_src bash
-ZDOTDIR=$XDG_CONFIG_HOME/zsh
-#+end_src
-
-*** TODO Systemctl Paging
-Uncomment the following line if you don't like systemctl's auto-paging feature:
-#+begin_src bash
-#export SYSTEMD_PAGER=
 #+end_src
 
 ** TODO ~/.ssh/
@@ -8185,125 +8241,4 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
     StrictHostKeyChecking ask
     UserKnownHostsFile    ~/.ssh/known_hosts
     VisualHostKey         yes
-#+end_src
-** TODO ~/.zshrc [3/5]
-:properties:
-:header-args+: :tangle ~/.zshrc
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments both
-:end:
-
-*** TODO Key Setups
-#bindkey -e
-  # also do history expansion on space
-#bindkey ' ' magic-space
-  # setup backspace correctly
-#  stty erase `tput kbs`
-  # Alternate Backspace
-#  stty erase ^?
-  # Insert Key
-#bindkey '^[[2~' overwrite-mode
-  # Delete Key
-#bindkey '^[[3~' delete-char
-  # Home Key
-#bindkey '^[[1~' beginning-of-line
-  # End Key
-#bindkey '^[[4~' end-of-line
-  # Beginning of History
-#bindkey '^[[5~' beginning-of-history    
-  # End of History
-#bindkey '^[[6~' end-of-history          
-  # Tab Completion
-#bindkey '^i' expand-or-complete-prefix  
-#bindkey '^[[1;5D' backward-word
-#bindkey '^[[1;5C' forward-word
-
-*** TODO History
-***** FINI Don't add command to history if prepended with a space
-#+begin_src bash
-setopt HIST_IGNORE_SPACE
-#+end_src
-
-***** FINI Don't overwrite history file
-#+begin_src bash
-setopt APPEND_HISTORY
-#+end_src
-
-***** TODO Set filename and path of history file (Disabled)
-#HISTFILE=$HOME/.config/shell/shell-history/history-`whoami`@`cat /etc/hostname`
-
-***** FINI Set history to an unreasonably large size
-#+begin_src bash
-HISTSIZE=999999999
-SAVEHIST=999999999
-#+end_src
-
-***** FINI Add timestamps to each command
-#+begin_src bash
-HIST_STAMPS="yyyy-mm-dd"
-#+end_src
-
-***** FINI History deduplication
-****** FINI Ignore all dups
-If a new command line being added to the history list duplicates an older one,
-the older command is removed from the list (even if it is not the previous event)
-#+begin_src bash
-setopt HIST_IGNORE_ALL_DUPS
-#+end_src
-
-****** FINI Do not enter command lines into the history list if they are duplicates of the previous event
-#+begin_src bash
-setopt HIST_IGNORE_DUPS
-#+end_src
-
-****** FINI When writing out the history file, older commands that duplicate newer ones are omitted
-#+begin_src bash
-setopt HIST_SAVE_NO_DUPS
-#+end_src
-
-*** FINI Custom Options
-***** FINI Changing directories and the Stack
-****** FINI Automatically change directory if "command" is a valid folder
-#+begin_src bash
-setopt AUTO_CD
-#+end_src
-
-****** FINI Add previous directory to the stack automatically
-#+begin_src bash
-setopt AUTO_PUSHD
-#+end_src
-
-****** FINI Try to prepend a "command" with ~ if folder exists within home directory before giving up
-#+begin_src bash
-setopt CDABLE_VARS
-#+end_src
-
-****** FINI Don’t push multiple copies of the same directory onto the directory stack
-#+begin_src bash
-setopt PUSHD_IGNORE_DUPS
-#+end_src
-
-***** FINI Beep on errors
-#+begin_src bash
-setopt beep
-#+end_src
-
-***** FINI Extended globglobglobglobblobBobLoblawsLawBlog
-#+begin_src bash
-setopt extended_glob
-#+end_src
-
-***** FINI Force a countdown timer when rm with asterisk
-#+begin_src bash
-setopt RM_STAR_WAIT
-#+end_src
-
-*** FINI Aliases
-#+begin_src bash
-source $HOME/.aliasrc
-#+end_src
-
-*** FINI Custom environment variables
-#+begin_src bash
-source $HOME/.profile
 #+end_src

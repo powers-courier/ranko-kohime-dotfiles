@@ -3576,6 +3576,79 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 #+end_src
 
 * NixOS Configuration
+** Notes
+*** Use system.nixos.label to add boot label
+*** [[https://github.com/Misterio77/nix-starter-configs][Nix Starter Config]]
+*** [[https://github.com/nix-community/disko/][Disko]] for automatic partitioning
+*** [[https://nixos.asia/en/nixos-install-disko][Install]] using Disko
+
+** TODO Install Checklist [0/5]
+- [ ] Get all Nix files (including disko configuration) on install media
+- [ ] Bootstrap disko
+- [ ] Partition disk using disko
+- [ ] Install NixOS
+- [ ] Bootstrap Home Manager
+
+** ~/Dotfiles/home-manager.nix
+*** Preamble
+#+begin_src nix
+{ config, pkgs, inputs, lib, ... }:
+{
+#+end_src
+
+*** User configuration
+#+begin_src nix
+  home.username = "ranko";
+  home.homeDirectory = "/home/ranko";
+  home.stateVersion = "23.11";
+#+end_src
+
+*** Allow Unfree packages (do we actually want this?)
+#+begin_src nix :tangle no
+  nixpkgs = {
+		config = {
+			allowUnfree = true;
+			allowUnfreePredicate = (_: true);
+		};
+	};
+#+end_src
+
+  # Let Home Manager install and manage itself.
+  programs.home-manager.enable = true;
+  home.packages = with pkgs; [
+        bat
+        fzf
+        ripgrep
+        jq
+        tree
+	];
+
+*** NeoVIM
+#+begin_src nix
+  programs.neovim = {
+        enable = true;
+        viAlias = true;
+        vimAlias = true;
+        };
+#+end_src
+
+	home.sessionVariables = {
+		EDITOR="nvim";
+	};
+
+	programs.zsh = {
+		enable = true;
+	};
+
+	programs.zsh.oh-my-zsh= {
+		enable = true;
+		plugins = ["git" "python" "docker" "fzf"];
+		theme = "dpoggi";
+	};
+
+}
+
+
 ** Bootstrap Home-manager [1/4]
 :properties:
 :header-args+: :tangle ~/.nix-flake/bootstrap-home-manager.sh
@@ -3804,6 +3877,106 @@ Add signing key?
 Add rebase = false?
 
 ** System
+*** ~/Dotfiles/flake.nix
+:properties:
+:header-args+: :tangle ~/Dotfiles/nix/flake.nix
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments no
+:header-args+: :padline no
+:end:
+**** Preamble
+#+begin_src nix
+{
+#+end_src
+
+**** Description
+#+begin_src nix
+ description = "Ranko Kohime's Flake";
+#+end_src
+
+**** Inputs
+***** Preabmle
+#+begin_src nix
+ inputs = {
+#+end_src
+
+***** Nixpkgs
+#+begin_src nix
+   nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+#+end_src
+
+***** Home Manager
+#+begin_src nix
+   home-manager.url = "github:nix-community/home-manager";
+   home-manager.inputs.nixpkgs.follows = "nixpkgs";
+#+end_src
+
+***** Hardware
+#+begin_src nix
+   hardware.url = "github:nixos/nixos-hardware";
+#+end_src
+
+***** Prologue
+#+begin_src nix
+};
+#+end_src
+
+**** Outputs
+***** Preamble
+"self" references the directory of the flake file, in this case ~/Dotfiles
+"nixpkgs" references the inputs above
+
+#+begin_src nix
+ outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+#+end_src
+
+NixOS configuration entrypoint
+Available through 'nixos-rebuild --flake .#your-hostname'
+***** nixosConfigurations
+****** Preamble
+#+begin_src nix
+   nixosConfigurations = {
+#+end_src
+
+****** Framework
+******* 7840u
+#+begin_src nix
+     framework-7840u = nixpkgs.lib.nixosSystem {
+       specialArgs = { inherit inputs; };
+       modules = [
+         ./configuration.nix
+         ./hardware/framework-7840u.nix
+       ];
+     };
+#+end_src
+
+****** Prologue
+#+begin_src nix
+   };
+#+end_src
+
+***** homeConfigurations
+home-manager configuration entrypoint
+Available through 'home-manager --flake .#your-username@your-hostname'
+
+****** Preamble
+#+begin_src nix
+   homeConfigurations = {
+#+end_src
+     # FIXME replace with your username@hostname
+     "user@FIXME" = home-manager.lib.homeManagerConfiguration {
+       pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+       extraSpecialArgs = { inherit inputs; }; # Pass flake inputs to our config
+       # > Our main home-manager configuration file <
+       modules = [
+           ./home-manager/home.nix
+           ];
+     };
+   };
+ };
+}
+
+
 *** Modules
 *** TODO Jellyfin [3/3]
 :properties:

@@ -1105,7 +1105,7 @@ Enable org-num-mode (Set org-startup-numerated to t)
 **** Formatting Lisp
 https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
-*** FINI Preamble [5/5]
+*** DONE Preamble [5/5]
 - [X] Startup timer
 #+begin_src emacs-lisp
 (add-hook 'emacs-startup-hook
@@ -1146,7 +1146,7 @@ This is not automatically loaded at startup.
 #+end_src
 
 *** TODO Packages [7/10]
-**** FINI Preamble
+**** DONE Preamble
 - [X] Enable Melpa package repository
 #+name: enable-melpa
 #+begin_src emacs-lisp
@@ -1214,7 +1214,7 @@ This is not automatically loaded at startup.
                :ensure t)
 #+end_src
 
-**** FINI Enable Git integration with Magit
+**** DONE Enable Git integration with Magit
 [[https://magit.vc/][Magit Website]]
 #+begin_src emacs-lisp
   (use-package magit
@@ -1238,7 +1238,7 @@ This is not automatically loaded at startup.
     )
 #+end_src
 
-**** FINI Install unicode-emoticons
+**** DONE Install unicode-emoticons
 #+begin_src emacs-lisp
   (use-package unicode-emoticons
                :ensure t)
@@ -1251,7 +1251,7 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-**** FINI Syntax linting using flycheck
+**** DONE Syntax linting using flycheck
 - [X] Install flycheck
 #+begin_src emacs-lisp
   (use-package flycheck
@@ -1287,7 +1287,7 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
     (add-hook 'flycheck-mode-hook #'flycheck-inline-mode))
 #+end_src
 
-**** FINI Focus mode [2/2]
+**** DONE Focus mode [2/2]
 - [X] Install
 #+begin_src emacs-lisp
   (use-package focus
@@ -1299,14 +1299,14 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
   (keymap-global-set "C-c f" 'focus-mode)
 #+end_src
 
-**** FINI indent-tools
+**** DONE indent-tools
 #+begin_src emacs-lisp
   (use-package indent-tools
                :ensure t)
 #+end_src
 
 *** TODO Visual Settings [7/12]
-**** FINI NixOS stuff [2/2]
+**** DONE NixOS stuff [2/2]
 - [X] nix-mode
   #+begin_src emacs-lisp
     (use-package nix-mode
@@ -1325,7 +1325,7 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-**** FINI Enable custom themes [5/5]
+**** DONE Enable custom themes [5/5]
 - [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
 #+name: monokai-theme
 #+begin_src emacs-lisp :tangle no
@@ -1365,7 +1365,7 @@ This just does a little bit too much.
       '("31deed4ac5d0b65dc051a1da3611ef52411490b2b6e7c2058c13c7190f7e199b" "e9d47d6d41e42a8313c81995a60b2af6588e9f01a1cf19ca42669a7ffd5c2fde" default)))
 #+end_src
 
-**** FINI Remove Menubar, Toolbar, and "Getting Started" screen [3/3]
+**** DONE Remove Menubar, Toolbar, and "Getting Started" screen [3/3]
 - [X] Menu Bar
 #+name: menu-bar-mode
 #+begin_src emacs-lisp
@@ -1428,7 +1428,7 @@ WAYYY too laggy in Org doc
   (setq-default vline-globalmode t)
 #+end_src
 
-**** FINI Enable line numbers and RULER MODE! [2/2]
+**** DONE Enable line numbers and RULER MODE! [2/2]
 - [X] Enable line numbers, with relative numbers, and highlight point line
 #+name: global-display-line-numbers-mode
 #+begin_src emacs-lisp
@@ -1471,7 +1471,7 @@ WAYYY too laggy in Org doc
   (global-highlight-parentheses-mode t)]
 #+end_src
 
-**** FINI Highlight useless whitespace
+**** DONE Highlight useless whitespace
 [[https://emacsdocs.org/docs/emacs/Useless-Whitespace][Emacs Docs 14.16: Useless-Whitespace]]
 #+begin_src emacs-lisp
   (setq-default show-trailing-whitespace t)
@@ -1491,12 +1491,12 @@ Double check this in GUI mode, not satisfactory in terminal
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 #+end_src
 
-**** FINI Scrolloff (move viewport when point approaches top or bottom of screen)
+**** DONE Scrolloff (move viewport when point approaches top or bottom of screen)
 #+begin_src emacs-lisp
   (setq-default scroll-margin 5)
 #+end_src
 
-**** FINI Set visual-line-mode (word wrap)
+**** DONE Set visual-line-mode (word wrap)
 #+begin_src emacs-lisp
   (setq-default visual-line-mode)
 #+end_src
@@ -1506,23 +1506,23 @@ Double check this in GUI mode, not satisfactory in terminal
 (set-face-attribute 'default nil :font "SF Mono 16")
 #+end_src
 
-*** FINI Org Mode [3/4]
-**** FINI 0. Preamble
-***** FINI Enable Org Mode
+*** DONE Org Mode [3/4]
+**** DONE 0. Preamble
+***** DONE Enable Org Mode
 Is this superfluos?
 #+begin_src emacs-lisp
   (require 'org)
 #+end_src
 
-***** FINI Template Insertion
-****** FINI Enable org-tempo
+***** DONE Template Insertion
+****** DONE Enable org-tempo
 Expands e.g. <s to code blocks
 #+begin_src emacs-lisp
   (require 'org-tempo)
 #+end_src
 
-****** FINI Add to templates
-******* FINI Generic Org template to enable heading title to be used as variable in tangled code [Ansible]
+****** DONE Add to templates
+******* DONE Generic Org template to enable heading title to be used as variable in tangled code [Ansible]
 #+begin_src emacs-lisp
   (tempo-define-template "tangle-heading-title"
                          '("#+begin_src org :var title=(org-entry-get nil \"ITEM\")\n"
@@ -1532,20 +1532,20 @@ Expands e.g. <s to code blocks
                          "Insert a generic Org template with heading variable")
 #+end_src
 
-**** FINI Appearance
+**** DONE Appearance
 [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][Beautifying Org Mode in Emacs]]
-***** FINI Set font lock for Org Mode, just in case
+***** DONE Set font lock for Org Mode, just in case
 #+begin_src emacs-lisp
   (add-hook 'org-mode-hook #'turn-on-font-lock)
 #+end_src
 
-***** FINI Hide leading stars in lists
+***** DONE Hide leading stars in lists
 #+name: org-hide-leading-stars
 #+begin_src emacs-lisp
   (setq-default org-hide-leading-stars t)
 #+end_src
 
-***** FINI Enable list decoration bullets
+***** DONE Enable list decoration bullets
 [[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode GitHub]]
 #+begin_src emacs-lisp
   (use-package org-superstar
@@ -1555,27 +1555,27 @@ Expands e.g. <s to code blocks
               (org-superstar-mode 1 )))
 #+end_src
 
-***** FINI Change header fold indicator
+***** DONE Change header fold indicator
 #+name: org-ellipsis
 #+begin_src emacs-lisp
   (setq-default org-ellipsis " ξ")
   (set-face-underline 'org-ellipsis nil)
 #+end_src
 
-***** FINI Use syntax highlighting in source blocks while editing
+***** DONE Use syntax highlighting in source blocks while editing
 #+begin_src emacs-lisp
   (setq-default org-src-fontify-natively t)
 #+end_src
 
-***** FINI Set indent mode
+***** DONE Set indent mode
 #+name: org-indent-mode
 #+begin_src emacs-lisp
   (setq-default org-indent-mode t)
   (setq-default org-startup-indented t)
 #+end_src
 
-**** FINI 2. Keybinds
-***** FINI Set the agenda key, in case it's not set
+**** DONE 2. Keybinds
+***** DONE Set the agenda key, in case it's not set
 #+begin_src emacs-lisp
   (global-set-key "\C-ca" 'org-agenda)
 #+end_src
@@ -1584,7 +1584,7 @@ Expands e.g. <s to code blocks
 - [X] org-todo-keywords
   #+begin_src emacs-lisp
     (setq-default org-todo-keywords
-      '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "FINI(f)" "DELE(d)")))
+      '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "DONE(d)" "PASS(p)")))
   #+end_src
 
 - [ ] org-todo-keyword-faces
@@ -1628,7 +1628,7 @@ Does not work with Evil mode!
 (setq-default org-src-window-setup 'current-window)
 #+end_src
 
-*** FINI Key Bindings [1/1]
+*** DONE Key Bindings [1/1]
 - [X] Make ESC quit prompts
 #+begin_src emacs-lisp
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -1723,7 +1723,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
         " "))
 #+end_src
 
-**** FINI Content [3/3]
+**** DONE Content [3/3]
 - [X] Show line numbers
 #+name: line-number-mode
 #+begin_src emacs-lisp
@@ -1743,7 +1743,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 #+end_src
 
 *** TODO Search
-**** FINI Address performance concerns in large files [5/5]
+**** DONE Address performance concerns in large files [5/5]
 - [X] Initial Highlight Delay
 #+name: lazy-highlight-initial-delay
 #+begin_src emacs-lisp
@@ -1774,7 +1774,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (setq-default isearch-lazy-count t)
 #+end_src
 
-*** FINI General Settings [6/6]
+*** DONE General Settings [6/6]
 - [X] Set user name
 #+name: user-full-name
 #+begin_src emacs-lisp
@@ -1818,7 +1818,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 (delete-selection-mode 1)
 #+end_src
 
-**** FINI ido-mode [4/4]
+**** DONE ido-mode [4/4]
 - [X] For buffers...
 #+name: ido-mode
 #+begin_src emacs-lisp
@@ -1858,8 +1858,8 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 *** TODO Collaborative Editing
 [[https://code.librehq.com/qhong/crdt.el/][crdt.el Git Repo]]
 
-*** FINI Fancy shit
-**** FINI org-babel-map-src-blocks
+*** DONE Fancy shit
+**** DONE org-babel-map-src-blocks
 I don't currently understand how to run this.
 May work with C-c C-c?  (Yes)
 Assign a keybind to it maybe?
@@ -1872,8 +1872,8 @@ Assign a keybind to it maybe?
         (message "Code block with no language found in line %s" (line-number-at-pos)))))
 #+end_src
 
-*** FINI And Finally…
-**** FINI The Success Message
+*** DONE And Finally…
+**** DONE The Success Message
 #+begin_src emacs-lisp
   (setq-default initial-scratch-message
     (concat
@@ -1884,7 +1884,7 @@ Assign a keybind to it maybe?
       ";;  Task Failed Successfully.\n"))
 #+end_src
 
-**** FINI And not to forget, the tangle script
+**** DONE And not to forget, the tangle script
 #+begin_src bash :tangle ~/Dotfiles.sh :shebang "#!/bin/bash"
 emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "~/Dotfiles.org")'
 #+end_src
@@ -1920,7 +1920,7 @@ Comma-separated list of one or more FPS values (e.g. 0,30,60). 0 means unlimited
 #+end_src
 
 *** Visual [3/3]
-**** FINI Preamble
+**** DONE Preamble
 - [X] Custom text centered useful for a header
 #+name: custom_text_center
 #+begin_src conf
@@ -1932,7 +1932,7 @@ Comma-separated list of one or more FPS values (e.g. 0,30,60). 0 means unlimited
 legacy_layout = false
 #+end_src
 
-**** FINI Display the current CPU information [8/8]
+**** DONE Display the current CPU information [8/8]
 - [X] CPU Stats
 #+name: cpu_stats
 #+begin_src conf
@@ -1974,7 +1974,7 @@ cpu_load_value
 cpu_load_color
 #+end_src
 
-**** FINI Display the current GPU information [11/11]
+**** DONE Display the current GPU information [11/11]
 - [X] GPU Stats
 #+name: gpu_stats
 #+begin_src conf
@@ -3650,7 +3650,6 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 
 }
 
-
 ** Bootstrap Home-manager [1/4]
 :properties:
 :header-args+: :tangle ~/.nix-flake/bootstrap-home-manager.sh
@@ -3659,7 +3658,7 @@ vim.opt.suffixes = ".bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,
 :header-args+: :shebang "#!/bin/bash"
 :end:
 
-*** FINI Enable flakes for bootstrapping
+*** DONE Enable flakes for bootstrapping
 #+begin_src bash
 export NIX_CONFIG="experimental-features = nix-command flakes"
 #+end_src
@@ -3879,7 +3878,7 @@ Add signing key?
 Add rebase = false?
 
 ** System
-*** ~/Dotfiles/flake.nix
+*** ~/Dotfiles/nix/flake.nix
 :properties:
 :header-args+: :tangle ~/Dotfiles/nix/flake.nix
 :header-args+: :tangle-mode (identity #o444)
@@ -4232,7 +4231,7 @@ lidSwitch = "suspend";
 :header-args+: :shebang "#!/bin/bash"
 :end:
 
-*** FINI Notes
+*** DONE Notes
 **** Function parentheses
 Reminder, curly braces {} keep current shell context
 while paraentheses () spawn a new subshell
@@ -4260,7 +4259,7 @@ source ~/.local/bin/easybashgui/easybashgui
 #+end_src
 
 *** TODO Global Variables [1/3]
-**** FINI Get script directory for use in the rest of the script
+**** DONE Get script directory for use in the rest of the script
 (This may be superfluos if it's all one flat file)
 [[https://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself][Reliable way for a Bash script to get the full path to itself]]
 #+begin_src bash
@@ -4472,7 +4471,7 @@ menu_energy()
 *** TODO File Synchronization
 **** Variables
 **** Functions
-***** FINI Synchronize Music folder
+***** DONE Synchronize Music folder
 #+name: fileSyncMusicExcludes
 #+begin_src bash
 fileSyncMusicExcludes=(--exclude=acxi --exclude="DVD Inclusions" --exclude=Folders.txt --exclude=Ogg --exclude=oggsync.sh)
@@ -4667,7 +4666,7 @@ done
 }
 #+end_src
 
-*** FINI Epilogue
+*** DONE Epilogue
 Call the menuMain function when the script starts
 #+begin_src bash
 menuMain;
@@ -7435,19 +7434,19 @@ stdout="off"
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :shebang "{ config, ... }:"
 :end:
-**** FINI Preamble
+**** DONE Preamble
 #+begin_src nix
 environment.shellAliases = {
 #+end_src
 
-**** FINI Audio
+**** DONE Audio
 #+begin_src nix
 flacmeta = " metaflac --add-replay-gain *.flac";
 tag = " easytag .; exfalso .; exit";
 vgain = "vorbisgain -a *.ogg";
 #+end_src
 
-**** FINI Directory navigation and listing
+**** DONE Directory navigation and listing
 #+begin_src nix
 .. = " cd ..";
 ... = " cd ../..";
@@ -7458,7 +7457,7 @@ ll = " ls -AhlF --color=always";
 lll = " ls -AhlF |less";
 #+end_src
 
-**** FINI Editors
+**** DONE Editors
 #+begin_src nix
 e = "emacs";
 n = "nano";
@@ -7467,14 +7466,14 @@ vi = "nvim";
 vim = "nvim";
 #+end_src
 
-**** FINI Exits
+**** DONE Exits
 #+begin_src nix
 :q = " exit";
 q = " exit";
 x = " exit";
 #+end_src
 
-**** FINI File Handling
+**** DONE File Handling
 #+begin_src nix
 cp = " cp -v";
 lns = "ln -sv";
@@ -7491,7 +7490,7 @@ surveysays = "sed -i -e '/SurveyDate/ s/"[0-9].*"/"'$(date +%Y-%m-%d -d "1 year 
 xbox = "$HOME/bin/xboxdrv.sh";
 #+end_src
 
-**** FINI Git
+**** DONE Git
 #+begin_src nix
 ga = " git add";
 gc = " git commit -m";
@@ -7504,7 +7503,7 @@ gitpr = " git pull;git submodule foreach git pull";
 gunstage = " git reset"
 #+end_src
 
-**** FINI Mysterious History
+**** DONE Mysterious History
 These commands will not be committed to history
 #+begin_src nix
 alias = " alias";
@@ -7519,7 +7518,7 @@ pkill = " pkill";
 ssh = " ssh";
 #+end_src
 
-**** FINI Package Management
+**** DONE Package Management
 #+begin_src nix
 garup = " garuda-update";
 nixrs = " nixos-rebuild switch";
@@ -7527,12 +7526,12 @@ pacup = " pacman -Syuu";
 syn = " synaptic";
 #+end_src
 
-**** FINI Pass
+**** DONE Pass
 #+begin_src nix
 pass = " ~/.local/bin/pass.sh";
 #+end_src
 
-**** FINI Shell
+**** DONE Shell
 ***** Multiplexing
 #+begin_src nix
 b = " byobu";
@@ -7564,7 +7563,7 @@ pvr = " pv --progress --timer --eta --rate --bytes --average-rate";
 udevre = " udevadm control --reload-rules";
 #+end_src
 
-**** FINI Epilogue
+**** DONE Epilogue
 #+begin_src nix
 };
 #+end_src
@@ -7633,14 +7632,14 @@ alias openports='netstat -nutlp | grep LISTEN'
 # Transfer whole disk
 # dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
 
-*** TODO Bashrc [8/10]
+*** TODO Bashrc [0/11]
 :properties:
 :header-args+: :tangle ~/Dotfiles/home-manager/bashrc.nix
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments both
 :end:
 
-**** FINI If not running interactively, don't do anything
+**** Preamble
 #+begin_src bash
 case $- in
     *i*) ;;
@@ -7648,41 +7647,41 @@ case $- in
 esac
 #+end_src
 
-**** FINI Source global definitions
+**** TODO Source global definitions
 #+begin_src bash
 if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 #+end_src
 
-**** FINI History
-***** FINI Quiet history
+**** TODO History
+***** DONE Quiet history
 Don't put duplicate lines or lines starting with space in the history.
 See bash(1) for more options
 #+begin_src bash
 HISTCONTROL=ignoreboth
 #+end_src
 
-***** FINI Append to the history file, don't overwrite it
+***** DONE Append to the history file, don't overwrite it
 #+begin_src bash
 shopt -s histappend
 #+end_src
 
-***** FINI History length
+***** DONE History length
 for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 #+begin_src bash
 HISTSIZE=100000
 HISTFILESIZE=200000
 #+end_src
 
-**** FINI Window size check
+**** TODO Window size check
 check the window size after each command and, if necessary,
 update the values of LINES and COLUMNS.
 #+begin_src bash
 shopt -s checkwinsize
 #+end_src
 
-**** FINI I... AM... GLOBSTAR!!
+**** TODO I... AM... GLOBSTAR!!
 If set, the pattern "**" used in a pathname expansion context will
 match all files and zero or more directories and subdirectories.
 #+begin_src bash
@@ -7729,7 +7728,7 @@ fi
 unset color_prompt force_color_prompt
 #+end_src
 
-**** FINI Set GUI Terminal Title
+**** TODO Set GUI Terminal Title
 If this is an xterm set the title to user@host:dir
 #+begin_src bash
 case "$TERM" in
@@ -7746,7 +7745,7 @@ esac
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 #+end_src
 
-**** FINI Alias definitions
+**** TODO Alias definitions
 You may want to put all your additions into a separate file like
 ~/.bash_aliases, instead of adding them here directly.
 See /usr/share/doc/bash-doc/examples in the bash-doc package.
@@ -7757,7 +7756,7 @@ if [ -f $HOME/.aliasrc ]; then
 fi
 #+end_src
 
-**** FINI Programmable completion features
+**** TODO Programmable completion features
 enable programmable completion features (you don't need to enable
 this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 sources /etc/bash.bashrc).
@@ -7779,7 +7778,7 @@ fi
 :header-args+: :padline no
 :end:
 
-**** FINI XDG Specifications
+**** DONE XDG Specifications
 These need to be before all the other variables.
 #+begin_src bash
 XDG_CACHE_HOME=$HOME/.cache
@@ -7788,7 +7787,7 @@ XDG_DATA_HOME=$HOME/.local/share
 XDG_STATE_HOME=$HOME/.local/state
 #+end_src
 
-**** FINI Paths
+**** DONE Paths
 #+begin_src bash
 PATH=$PATH:$HOME/.local/bin
 #+end_src
@@ -7816,7 +7815,7 @@ export EDITOR=$HOME/.local/bin/nvim.appimage
 export VISUAL=$HOME/.local/bin/nvim.appimage
 #+end_src
 
-**** FINI Games
+**** DONE Games
 #+begin_src bash
 export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0
 export SDL_VIDEO_FULLSCREEN_DISPLAY=0
@@ -7830,8 +7829,8 @@ export SDL_VIDEO_FULLSCREEN_DISPLAY=0
 # Why does QT hate GTK?  (No love from qt5ct)
 # QT_QPA_PLATFORMTHEME=qt5ct
 
-**** FINI Shell Specific
-***** FINI zsh
+**** DONE Shell Specific
+***** DONE zsh
 #+begin_src bash
 ZDOTDIR=$XDG_CONFIG_HOME/zsh
 #+end_src
@@ -7851,7 +7850,7 @@ Uncomment the following line if you don't like systemctl's auto-paging feature:
 :end:
 
 ***** WAIT Appearance [4/5]
-****** FINI Set terminal colors
+****** DONE Set terminal colors
 #+begin_src sh
 set -g default-terminal "screen-256color"
 #+end_src
@@ -7864,29 +7863,29 @@ setw -g window-status-current-style fg=colour232,bg=colour244
 setw -g pane-active-border-style fg=colour82,bg=colour82
 #+end_src
 
-****** FINI Set parent terminal title to reflect current window in tmux session
+****** DONE Set parent terminal title to reflect current window in tmux session
 #+begin_src sh
 set -g set-titles on
 set -g set-titles-string "#I:#W"
 #+end_src
 
-****** FINI Start index of window/pane with 1, because we're humans, not computers
+****** DONE Start index of window/pane with 1, because we're humans, not computers
 #+begin_src sh
 set -g base-index 1
 set-window-option -g pane-base-index 1
 #+end_src
 
-****** FINI Renumber windows automatically on close
+****** DONE Renumber windows automatically on close
 #+begin_src sh
 set-option -g renumber-windows on
 #+end_src
 
-***** FINI Set reasonable history limit
+***** DONE Set reasonable history limit
 #+begin_src sh
 set -g history-limit 100000
 #+end_src
 
-***** FINI Not sure if we want mouse support yet, so let's disable it for now
+***** DONE Not sure if we want mouse support yet, so let's disable it for now
 #+begin_src sh
 set -g mouse off
 #+end_src
@@ -7898,7 +7897,7 @@ set -g status-left-length 1
 set -g status-left ""
 #+end_src
 
-****** FINI Status Bar Options
+****** DONE Status Bar Options
 #+begin_src sh
 set -g status-justify left
 set -g monitor-activity on
@@ -7913,13 +7912,13 @@ set -g status-right "#[bg=colour16] #[fg=colour40]#(~/.config/tmux/memory.sh -m)
 #+end_src
 
 ***** TODO Keymappings [9/10]
-****** FINI Enable vi keys for copy/pasting
+****** DONE Enable vi keys for copy/pasting
 https://dev.to/iggredible/the-easy-way-to-copy-text-in-tmux-319g
 #+begin_src sh
 setw -g mode-keys vi
 #+end_src
 
-****** FINI Remap prefix from 'C-b' to 'C-a'
+****** DONE Remap prefix from 'C-b' to 'C-a'
 The bind-key enables sending the prefix to an embedded application.
 #+begin_src sh
 unbind C-b
@@ -7927,7 +7926,7 @@ set-option -g prefix C-a
 bind-key C-a send-prefix
 #+end_src
 
-****** FINI Split panes using | and -
+****** DONE Split panes using | and -
 #+begin_src sh
 unbind '"'
 unbind %
@@ -7935,12 +7934,12 @@ bind | split-window -h
 bind - split-window -v
 #+end_src
 
-****** FINI Reload config file
+****** DONE Reload config file
 #+begin_src sh
 bind r source-file ~/.config/tmux/tmux.conf
 #+end_src
 
-****** FINI Switch panes using Alt-arrow without prefix
+****** DONE Switch panes using Alt-arrow without prefix
 #+begin_src sh
 bind -n M-Left select-pane -L
 bind -n M-Right select-pane -R
@@ -7948,7 +7947,7 @@ bind -n M-Up select-pane -U
 bind -n M-Down select-pane -D
 #+end_src
 
-****** FINI Switch panes using Vim keys, with prefix
+****** DONE Switch panes using Vim keys, with prefix
 #+begin_src sh
 bind -r h select-pane -L
 bind -r j select-pane -D
@@ -7956,7 +7955,7 @@ bind -r k select-pane -U
 bind -r l select-pane -R
 #+end_src
 
-****** FINI Resize panes with CAPITAL Vim keys, with prefix
+****** DONE Resize panes with CAPITAL Vim keys, with prefix
 #+begin_src sh
 bind -r H resize-pane -L 5
 bind -r J resize-pane -D 5
@@ -7964,39 +7963,39 @@ bind -r K resize-pane -U 5
 bind -r L resize-pane -R 5
 #+end_src
 
-****** FINI Home row window selection
+****** DONE Home row window selection
 #+begin_src sh
 bind -r C-h select-window -t :-
 bind -r C-l select-window -t :+
 #+end_src
 
-****** FINI Byobu keybindings [5/5]
-******* FINI New window
+****** DONE Byobu keybindings [5/5]
+******* DONE New window
 #+begin_src sh
 bind-key -n F2 new-window -c "#{pane_current_path}"
 bind-key -n C-F2 display-panes \; split-window -h -c "#{pane_current_path}"
 bind-key -n S-F2 display-panes \; split-window -v -c "#{pane_current_path}"
 #+end_src
 
-******* FINI Previous window/pane
+******* DONE Previous window/pane
 #+begin_src sh
 bind-key -n F3 previous-window
 bind-key -n S-F3 select-pane -t :-
 #+end_src
 
-******* FINI Next window/pane
+******* DONE Next window/pane
 #+begin_src sh
 bind-key -n F4 next-window
 bind-key -n S-F4 select-pane -t :+
 #+end_src
 
-******* FINI Disconnect, kill pane
+******* DONE Disconnect, kill pane
 #+begin_src sh
 bind-key -n F6 detach
 bind-key -n C-F6 kill-pane
 #+end_src
 
-******* FINI Copy mode
+******* DONE Copy mode
 #+begin_src sh
 bind-key -n F7 copy-mode
 #+end_src
@@ -8022,7 +8021,7 @@ bind C-] run '~/path/to/tmux-powerline/mute_powerline.sh right'
 :header-args+: :shebang "#!/bin/bash"
 :end:
 
-***** FINI If power adapter is present,
+***** DONE If power adapter is present,
 show lightning bolt
 
 #+begin_src bash
@@ -8031,31 +8030,31 @@ if [ $(cat /sys/class/power_supply/AC/online) == 1 ]
     printf '🗲'
 #+end_src
 
-***** FINI If power adapter is not present,
+***** DONE If power adapter is not present,
 show battery, based on charge level
 
-****** FINI Above 30%: show green battery
+****** DONE Above 30%: show green battery
 #+begin_src bash
 elif [ $(cat /sys/class/power_supply/AC/online) == 0 ] && [ $(cat /sys/class/power_supply/BAT0/capacity) -gt 30 ]
   then
     printf '🔋'
 #+end_src
 
-****** FINI Below 30%: show red battery
+****** DONE Below 30%: show red battery
 #+begin_src bash
 elif [ -e /sys/class/power_supply/BAT0/capacity ]
   then
     printf '🪫'
 #+end_src
 
-****** FINI But if no battery detected, show a power symbol
+****** DONE But if no battery detected, show a power symbol
 #+begin_src bash
 else
   printf '⏻'
 fi
 #+end_src
 
-***** FINI If battery is present,
+***** DONE If battery is present,
 show charge level as a percentage,
 but if no battery is present, show nothing
 
@@ -8100,12 +8099,12 @@ fi
 #bindkey '^[[1;5C' forward-word
 
 **** TODO History
-****** FINI Don't add command to history if prepended with a space
+****** DONE Don't add command to history if prepended with a space
 #+begin_src bash
 setopt HIST_IGNORE_SPACE
 #+end_src
 
-****** FINI Don't overwrite history file
+****** DONE Don't overwrite history file
 #+begin_src bash
 setopt APPEND_HISTORY
 #+end_src
@@ -8113,78 +8112,78 @@ setopt APPEND_HISTORY
 ****** TODO Set filename and path of history file (Disabled)
 #HISTFILE=$HOME/.config/shell/shell-history/history-`whoami`@`cat /etc/hostname`
 
-****** FINI Set history to an unreasonably large size
+****** DONE Set history to an unreasonably large size
 #+begin_src bash
 HISTSIZE=999999999
 SAVEHIST=999999999
 #+end_src
 
-****** FINI Add timestamps to each command
+****** DONE Add timestamps to each command
 #+begin_src bash
 HIST_STAMPS="yyyy-mm-dd"
 #+end_src
 
-****** FINI History deduplication
-******* FINI Ignore all dups
+****** DONE History deduplication
+******* DONE Ignore all dups
 If a new command line being added to the history list duplicates an older one,
 the older command is removed from the list (even if it is not the previous event)
 #+begin_src bash
 setopt HIST_IGNORE_ALL_DUPS
 #+end_src
 
-******* FINI Do not enter command lines into the history list if they are duplicates of the previous event
+******* DONE Do not enter command lines into the history list if they are duplicates of the previous event
 #+begin_src bash
 setopt HIST_IGNORE_DUPS
 #+end_src
 
-******* FINI When writing out the history file, older commands that duplicate newer ones are omitted
+******* DONE When writing out the history file, older commands that duplicate newer ones are omitted
 #+begin_src bash
 setopt HIST_SAVE_NO_DUPS
 #+end_src
 
-**** FINI Custom Options
-****** FINI Changing directories and the Stack
-******* FINI Automatically change directory if "command" is a valid folder
+**** DONE Custom Options
+****** DONE Changing directories and the Stack
+******* DONE Automatically change directory if "command" is a valid folder
 #+begin_src bash
 setopt AUTO_CD
 #+end_src
 
-******* FINI Add previous directory to the stack automatically
+******* DONE Add previous directory to the stack automatically
 #+begin_src bash
 setopt AUTO_PUSHD
 #+end_src
 
-******* FINI Try to prepend a "command" with ~ if folder exists within home directory before giving up
+******* DONE Try to prepend a "command" with ~ if folder exists within home directory before giving up
 #+begin_src bash
 setopt CDABLE_VARS
 #+end_src
 
-******* FINI Don’t push multiple copies of the same directory onto the directory stack
+******* DONE Don’t push multiple copies of the same directory onto the directory stack
 #+begin_src bash
 setopt PUSHD_IGNORE_DUPS
 #+end_src
 
-****** FINI Beep on errors
+****** DONE Beep on errors
 #+begin_src bash
 setopt beep
 #+end_src
 
-****** FINI Extended globglobglobglobblobBobLoblawsLawBlog
+****** DONE Extended globglobglobglobblobBobLoblawsLawBlog
 #+begin_src bash
 setopt extended_glob
 #+end_src
 
-****** FINI Force a countdown timer when rm with asterisk
+****** DONE Force a countdown timer when rm with asterisk
 #+begin_src bash
 setopt RM_STAR_WAIT
 #+end_src
 
-**** FINI Aliases
+**** DONE Aliases
 #+begin_src bash
 source $HOME/.aliasrc
 #+end_src
 
-**** FINI Custom environment variables
+**** DONE Custom environment variables
 #+begin_src bash
 source $HOME/.profile
 #+end_src
@@ -8208,7 +8207,7 @@ scriptPath=$(dirname $0)
 
 - [ ] 
 
-*** FINI pass.sh [2/2]
+*** DONE pass.sh [2/2]
 :properties:
 :header-args+: :tangle ~/.local/bin/pass.sh
 :header-args+: :tangle-mode (identity #o555)
@@ -8246,12 +8245,12 @@ Set to first NVMe until actual logic is implemented
 rootDrive=/dev/nvme0n1
 #+end_src
 
-**** FINI Set BTRFS Subvolumes
+**** DONE Set BTRFS Subvolumes
 #+begin_src bash
 btrfsSubVols=( "@home" "@nixconf" "@nixstore" "@persistent" "@root" "@varlog" )
 #+end_src
 
-**** FINI Format drive and partition [3/3]
+**** DONE Format drive and partition [3/3]
 - [X] Set disk as GPT
 #+begin_src bash
 parted ${rootDrive} --mklabel gpt
@@ -8267,7 +8266,7 @@ parted ${rootDrive} --mkpart ESP fat32 1MiB 512MiB
 parted ${rootDrive} --mkpart root btrfs 513MiB 100%
 #+end_src
 
-**** FINI Create Subvolumes [3/3]
+**** DONE Create Subvolumes [3/3]
 - [X] Mount BTRFS partition
 #+begin_src bash
 mount ${rootDrive}p2 /mnt

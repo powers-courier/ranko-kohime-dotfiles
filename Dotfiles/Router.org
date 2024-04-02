@@ -110,7 +110,7 @@ extraLocaleSettings = {
 networking = {
 #+end_src
 
-*** TODO firewall [3/5]
+*** TODO firewall [5/7]
 **** DONE firewall.Preamble
 #+begin_src nix
 firewall = {
@@ -380,7 +380,7 @@ stateVersion = "23.11";
 time.timeZone = "<<router-timezone>>";
 #+end_src
 
-** TODO users [2/3]
+** TODO users [3/4]
 *** DONE users.Preamble
 #+begin_src nix
 users = {
@@ -391,7 +391,7 @@ users = {
 #+begin_src nix
 users = {
 #+end_src
-**** TODO Actual User
+**** TODO Actual User [2/3]
 ***** DONE Actual User.Preamble
 #+begin_src nix :noweb yes
 <<router-user>> = {
@@ -407,19 +407,19 @@ openssh.authorizedKeys.keys = [ ]
 };
 #+end_src
 
-**** DONE root user
-***** root user.Preamble
+**** DONE root user [3/3]
+***** DONE root user.Preamble
 #+begin_src nix
 root. = {
 #+end_src
 
-***** hashedPassword
+***** DONE hashedPassword
 Setting this to "!" effectively disables root login
 #+begin_src nix
 hashedPassword = "!";
 #+end_src
 
-***** root user.Prologue
+***** DONE root user.Prologue
 #+begin_src nix
 };
 #+end_src

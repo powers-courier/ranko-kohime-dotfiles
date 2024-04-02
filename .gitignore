@@ -42,3 +42,4 @@ snap/
 .ICEauthority
 .xsession-errors
 .xsession-errors.old
+/Dotfiles/nix/

@@ -1,17 +1,15 @@
-* Emacs [6/11]
-:properties:
-:header-args: :tangle ~/Dotfiles/nix/emacs.nix
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments no
-:header-args+: :padline no
-:end:
+#+title: Emacs Configuration
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no
 
-** Todo
+* Todo
 [[https://github.com/domtronn/all-the-icons.el][All the Icons]]
 [[https://github.com/NixOS/nix-mode/][nix-mode]]
 Enable org-num-mode (Set org-startup-numerated to t)
 [[https://christiantietze.de/posts/2021/02/emacs-org-todo-doing-done-checkbox-cycling/][Emacs Org-Mode: Automatic Item TODO/DOING/DONE State Transitions for Checkbox Changes]]
-*** Function to edit source blocks in external editor
+** Function to edit source blocks in external editor
 [[https://kitchingroup.cheme.cmu.edu/blog/2014/09/28/Editing-org-mode-python-source-blocks-in-an-external-editor-Canopy/][Editing org-mode python source blocks in an external editor (Canopy)]]
 #+begin_src emacs-lisp :tangle no
 (defun edit-in-canopy ()
@@ -75,11 +73,17 @@ Enable org-num-mode (Set org-startup-numerated to t)
     ;; and run the new block to get the results
     (org-babel-execute-src-block)))
 #+end_src
-
-** Notes
-*** [[https://nhigham.com/2017/11/02/org-mode-syntax-cheat-sheet/][Org Mode Syntax Cheat Sheet]]
-*** Formatting Lisp
+* Notes
+** [[https://nhigham.com/2017/11/02/org-mode-syntax-cheat-sheet/][Org Mode Syntax Cheat Sheet]]
+** Formatting Lisp
 https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
+
+
+
+* Emacs.el [6/11]
+:properties:
+:header-args: :tangle ~/.config/emacs/init.el
+:end:
 
 ** DONE Preamble [5/5]
 - [X] Startup timer

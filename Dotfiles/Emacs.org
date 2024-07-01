@@ -231,6 +231,12 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
+*** DONE Enable Ledger mode for Accounting
+#+begin_src emacs-lisp
+  (use-package ledger-mode
+               :ensure t)
+#+end_src
+
 *** DONE Syntax linting using flycheck
 - [X] Install flycheck
 #+begin_src emacs-lisp

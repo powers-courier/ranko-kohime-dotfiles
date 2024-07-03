@@ -569,20 +569,20 @@ Expands e.g. <s to code blocks
   (global-set-key "\C-ca" 'org-agenda)
 #+end_src
 
-*** STRT org-todo [6/7]
-- [X] org-todo-keywords
-  #+begin_src emacs-lisp
-    (setq-default org-todo-keywords
-      '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "DONE(d)" "PASS(p)")))
-  #+end_src
+*** STRT org-todo [6/8]
+**** DONE org-todo-keywords
+#+begin_src emacs-lisp
+  (setq-default org-todo-keywords
+    '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "DONE(d)" "PASS(p)")))
+#+end_src
 
-- [ ] org-todo-keyword-faces
-  #+begin_src emacs-lisp :tangle no
-    (setq-default org-todo-keyword-faces
-                  "((
-  #+end_src
+**** TODO org-todo-keyword-faces
+#+begin_src emacs-lisp :tangle no
+(setq-default org-todo-keyword-faces
+              "((
+#+end_src
 
-- [X] Set org-startup-folded
+**** DONE Set org-startup-folded
 #+begin_src emacs-lisp
   (setq-default org-startup-folded 'content)
 #+end_src

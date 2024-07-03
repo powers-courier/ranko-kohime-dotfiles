@@ -125,7 +125,11 @@ This is not automatically loaded at startup.
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
-** TODO Packages [8/11]
+** TODO Packages [19/22]
+:PROPERTIES:
+:COOKIE_DATA: todo recursive
+:END:
+
 *** DONE Preamble
 - [X] Enable Melpa package repository
 #+name: enable-melpa

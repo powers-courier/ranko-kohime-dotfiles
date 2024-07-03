@@ -5,6 +5,10 @@
 
 This will probably not require flakes, so we'll just put the flat configuration.nix here
 
+* Notes
+DHCP provided by Kea
+Use [[https://github.com/chayleaf/nixos-router][NixOS Router]]?
+
 * Router Configuration [7/11]
 :properties:
 :header-args+: :tangle ~/Dotfiles/nix/router-configuration.nix
@@ -29,6 +33,11 @@ routey-mcrouterface
 #+name: router-localisation
 #+begin_src text :tangle no
 en_US.UTF-8
+#+end_src
+
+*** router-static-dhcp
+#+name: router-static-dhcp
+#+begin_src text :tangle no
 #+end_src
 
 *** DONE router-timezone
@@ -116,11 +125,6 @@ networking = {
 firewall = {
 #+end_src
 
-**** DONE enable
-#+begin_src nix
-enable = true;
-#+end_src
-
 **** TODO allowedTCPPorts
 #+begin_src nix :tangle no
 networking.firewall.allowedTCPPorts = [ ... ];
@@ -129,6 +133,21 @@ networking.firewall.allowedTCPPorts = [ ... ];
 **** TODO allowedUDPPorts
 #+begin_src nix :tangle no
 networking.firewall.allowedUDPPorts = [ ... ];
+#+end_src
+
+**** DONE allowPing
+#+begin_src nix
+allowPing = false;
+#+end_src
+
+**** DONE checkReversePath
+#+begin_src nix
+checkReversePath = strict;
+#+end_src
+
+**** DONE enable
+#+begin_src nix
+enable = true;
 #+end_src
 
 **** DONE firewall.Prologue
@@ -384,6 +403,12 @@ time.timeZone = "<<router-timezone>>";
 *** DONE users.Preamble
 #+begin_src nix
 users = {
+#+end_src
+*** DONE mutableUsers
+Disable changing of user accounts and passwords
+
+#+begin_src nix
+mutableUsers = false;
 #+end_src
 
 *** TODO users2 [3/4]

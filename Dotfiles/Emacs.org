@@ -126,6 +126,9 @@ This is not automatically loaded at startup.
 #+end_src
 
 ** TODO Packages [7/10]
+:PROPERTIES:
+:COOKIE_DATA: todo recursive
+:END:
 *** DONE Preamble
 - [X] Enable Melpa package repository
 #+name: enable-melpa

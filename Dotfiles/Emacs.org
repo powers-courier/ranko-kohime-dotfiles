@@ -584,26 +584,36 @@ Expands e.g. <s to code blocks
   (setq-default org-startup-folded 'content)
 #+end_src
 
-- [X] Enable block wrapping using [[https://github.com/rejeep/wrap-region.el][wrap-region.el]]
-Does not work with Evil mode!
+**** todo status of parents follows children
 #+begin_src emacs-lisp
-  (use-package wrap-region
-               :ensure t)
-  (wrap-region-global-mode t)
-  (wrap-region-add-wrapper "#+begin_src \n" "#+end_src" "#" 'org-mode)
+(defun org-summary-todo (n-done n-not-done)
+  "Switch entry to DONE when all subentries are done, to TODO otherwise."
+  (let (org-log-done org-todo-log-states)   ; turn off logging
+    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+
+(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
 #+end_src
 
-- [X] [[https://orgmode.org/manual/Catching-invisible-edits.html][Catching invisible edits]]
+**** DONE Enable block wrapping using [[https://github.com/rejeep/wrap-region.el][wrap-region.el]]
+Does not work with Evil mode!
+#+begin_src emacs-lisp
+(use-package wrap-region
+             :ensure t)
+(wrap-region-global-mode t)
+(wrap-region-add-wrapper "#+begin_src \n" "#+end_src" "#" 'org-mode)
+#+end_src
+
+**** DONE [[https://orgmode.org/manual/Catching-invisible-edits.html][Catching invisible edits]]
 #+begin_src emacs-lisp
 (setq-default org-fold-catch-invisible-edits 'smart)
 #+end_src
 
-- [X] org-default-notes-file
+**** DONE org-default-notes-file
 #+begin_src emacs-lisp
 (setq-default org-default-notes-file "/Mounts/Documents/Agenda-cap.org")
 #+end_src
 
-- [X] org-agenda-files
+**** DONE org-agenda-files
 #+begin_src emacs-lisp
 (setq-default org-agenda-files '("/Mounts/Documents/Agenda.org"))
 #+end_src

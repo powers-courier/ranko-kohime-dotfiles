@@ -576,6 +576,24 @@ Expands e.g. <s to code blocks
     '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "DONE(d)" "PASS(p)")))
 #+end_src
 
+**** TODO Strikethrough items with DONE keyword
+From [[https://www.jamescherti.com/emacs-striking-through-org-mode-done-tasks/][Emacs: Striking through Org Mode DONE tasks]] by James Cherti
+
+#+begin_src emacs-lisp :tangle no
+;; Enable the fontification of headlines for tasks that have been marked as
+;; completed.
+(setq org-fontify-done-headline t)
+
+(custom-set-faces
+ ;; Face used for todo keywords that indicate DONE items.
+ '(org-done ((t (:strike-through t))))
+
+ ;; Face used to indicate that a headline is DONE. This face is only used if
+ ;; ‘org-fontify-done-headline’ is set. If applies to the part of the headline
+ ;; after the DONE keyword.
+ '(org-headline-done ((t (:strike-through t)))))
+#+end_src
+
 **** TODO org-todo-keyword-faces
 #+begin_src emacs-lisp :tangle no
 (setq-default org-todo-keyword-faces

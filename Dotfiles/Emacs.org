@@ -125,13 +125,13 @@ This is not automatically loaded at startup.
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
-** TODO Packages [19/22]
+** TODO Packages [25/30]
 :PROPERTIES:
 :COOKIE_DATA: todo recursive
 :END:
 
-*** DONE Preamble
-- [X] Enable Melpa package repository
+*** DONE Preamble [2/2]
+**** DONE Enable Melpa package repository
 #+name: enable-melpa
 #+begin_src emacs-lisp
   (require 'package)
@@ -140,7 +140,7 @@ This is not automatically loaded at startup.
     '("melpa" . "https://melpa.org/packages/") t)
 #+end_src
 
-- [X] Install use-package if not already installed
+**** DONE Install use-package if not already installed
 [[https://github.com/jwiegley/use-package][use-package GitHub]]
 #+name: enable-use-package
 #+begin_src emacs-lisp
@@ -154,27 +154,27 @@ This is not automatically loaded at startup.
 #+end_src
 
 *** TODO Install and configure Ansible packages [4/6]
-- [X] Install ansible
+**** DONE Install ansible
 #+name: ansible
 #+begin_src emacs-lisp
   (use-package ansible
                :ensure t)
 #+end_src
 
-- [X] Add Yaml mode hook
+**** DONE Add Yaml mode hook
 #+name: ansible-yaml-mode-hook
 #+begin_src emacs-lisp
   (add-hook 'yaml-mode-hook #'(lambda () (ansible 1)))
 #+end_src
 
-- [X] Install ansible-doc
+**** DONE Install ansible-doc
 #+name: ansible-doc
 #+begin_src emacs-lisp
   (use-package ansible-doc
                :ensure t)
 #+end_src
 
-- [X] Install ansible-vault
+**** DONE Install ansible-vault
 #+name: ansible-vault
 #+begin_src emacs-lisp
   (use-package ansible-vault
@@ -184,14 +184,14 @@ This is not automatically loaded at startup.
                 "~/.ansible/vault_pass")
 #+end_src
 
-- [ ] Install autocomplete
+**** TODO Install autocomplete
 #+name: autocomplete
 #+begin_src emacs-lisp :tangle no
   (use-package autocomplete
                :ensure t)
 #+end_src
 
-- [ ] Install yasnippet
+**** TODO Install yasnippet
 #+name: yasnippet
 #+begin_src emacs-lisp :tangle no
   (use-package yasnippet

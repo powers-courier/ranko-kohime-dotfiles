@@ -80,7 +80,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* Emacs.el [6/11]
+* TODO Emacs.el [6/11]
 :properties:
 :header-args: :tangle ~/.config/emacs/init.el
 :end:
@@ -125,7 +125,7 @@ This is not automatically loaded at startup.
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
-** TODO Packages [7/10]
+** TODO Packages [8/11]
 *** DONE Preamble
 - [X] Enable Melpa package repository
 #+name: enable-melpa
@@ -237,50 +237,50 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-*** DONE Syntax linting using flycheck
-- [X] Install flycheck
+*** DONE Syntax linting using flycheck [4/4]
+**** DONE Install flycheck
 #+begin_src emacs-lisp
   (use-package flycheck
                :ensure t)
 #+end_src
 
-- [X] flycheck-inline
+**** DONE flycheck-inline
 #+begin_src emacs-lisp
   (use-package flycheck-inline
                :ensure t)
 #+end_src
 
-- [X] flycheck-status-emoji
+**** DONE flycheck-status-emoji
 #+begin_src emacs-lisp
   (use-package flycheck-status-emoji
                :ensure t)
 #+end_src
 
-- [X] flycheck-yamllint
+**** DONE flycheck-yamllint
 #+begin_src emacs-lisp
   (use-package flycheck-yamllint
                :ensure t)
 #+end_src
 
-- [X] Enable flycheck
+**** DONE Enable flycheck
 #+begin_src emacs-lisp
   (add-hook 'after-init-hook #'global-flycheck-mode)
 #+end_src
 
-- [X] flycheck-inline
+**** DONE flycheck-inline
 #+begin_src emacs-lisp
   (with-eval-after-load 'flycheck
     (add-hook 'flycheck-mode-hook #'flycheck-inline-mode))
 #+end_src
 
 *** DONE Focus mode [2/2]
-- [X] Install
+**** DONE Install
 #+begin_src emacs-lisp
   (use-package focus
                :ensure t)
 #+end_src
 
-- [X] Enable Keybind
+**** DONE Enable Keybind
 #+begin_src emacs-lisp
   (keymap-global-set "C-c f" 'focus-mode)
 #+end_src
@@ -291,26 +291,26 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-** TODO Visual Settings [7/12]
-*** DONE NixOS stuff [2/2]
-- [X] nix-mode
+*** DONE NixOS stuff [3/3]
+**** DONE nix-mode
   #+begin_src emacs-lisp
     (use-package nix-mode
                  :ensure t)
   #+end_src
 
-- [X] nixos-options
+**** DONE nixos-options
   #+begin_src emacs-lisp
     (use-package nixos-options
                  :ensure t)
   #+end_src
 
-- [X] ob-nix
+**** DONE ob-nix
 #+begin_src emacs-lisp
   (use-package ob-nix
                :ensure t)
 #+end_src
 
+** TODO Visual Settings [7/12]
 *** DONE Enable custom themes [5/5]
 - [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
 #+name: monokai-theme
@@ -868,8 +868,7 @@ Assign a keybind to it maybe?
         (message "Code block with no language found in line %s" (line-number-at-pos)))))
 #+end_src
 
-** DONE And Finally…
-*** DONE The Success Message
+** DONE And Finally, the Success Message
 #+begin_src emacs-lisp
   (setq-default initial-scratch-message
     (concat
@@ -878,9 +877,4 @@ Assign a keybind to it maybe?
       ";;░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀\n"
       "\n"
       ";;  Task Failed Successfully.\n"))
-#+end_src
-
-*** DONE And not to forget, the tangle script
-#+begin_src bash :tangle ~/Dotfiles.sh :shebang "#!/bin/bash"
-emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "~/Dotfiles.org")'
 #+end_src

@@ -67,7 +67,7 @@ Enable org-num-mode (Set org-startup-numerated to t)
         (insert
          (format "\n#+BEGIN_SRC python
 %s
-#+END_SRC
+; #+END_SRC
 " new-contents))
         ;; go into new block so we can run it.
         (previous-line 2))))
@@ -84,17 +84,17 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* TODO Emacs.el [84/106]
+* TODO Emacs.el [95/118]
 ** DONE Preamble [5/5]
 *** DONE Startup timer
 #+begin_src emacs-lisp
-(add-hook 'emacs-startup-hook
-  (lambda ()
-    (message "Emacs ready in %s with %d garbage collections."
-      (format "%.2f seconds"
-        (float-time
-         (time-subtract after-init-time before-init-time)))
-      gcs-done)))
+  (add-hook 'emacs-startup-hook
+    (lambda ()
+      (message "Emacs ready in %s with %d garbage collections."
+        (format "%.2f seconds"
+          (float-time
+           (time-subtract after-init-time before-init-time)))
+        gcs-done)))
 #+end_src
 
 *** DONE Put all the customize junk in it's own file
@@ -647,14 +647,15 @@ Does not work with Evil mode!
 #+end_src
 
 ** DONE Key Bindings [1/1]
-- [X] Make ESC quit prompts
+*** DONE Make ESC quit prompts
 #+begin_src emacs-lisp
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 #+end_src
 
 ** TODO Modeline
   Reminder: there is also a [[https://www.emacswiki.org/emacs/HeaderLine][Header Line]]
-*** Appearance
+*** TODO Appearance [0/2]
+**** Items todo
 Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]?
 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/_0025_002dConstructs.html][Constructs in the Mode Line]]
 [[https://www.emacswiki.org/emacs/ModeLineConfiguration][Mode Line Configuration]]
@@ -742,19 +743,19 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 #+end_src
 
 *** DONE Content [3/3]
-- [X] Show line numbers
+**** DONE Show line numbers
 #+name: line-number-mode
 #+begin_src emacs-lisp
   (setq-default line-number-mode t)
 #+end_src
 
-- [X] Show column numbers
+**** DONE Show column numbers
 #+name: column-number-mode
 #+begin_src emacs-lisp
   (setq-default column-number-mode t)
 #+end_src
 
-- [X] Show clock
+**** DONE Show clock
 #+name: display-time-mode
 #+begin_src emacs-lisp
   (setq-default display-time-mode t)
@@ -792,21 +793,24 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (setq-default isearch-lazy-count t)
 #+end_src
 
-** DONE General Settings [6/6]
-- [X] Set user name
+** DONE General Settings [12/12]
+*** DONE User Settings [2/2]
+**** DONE Set user name
 #+name: user-full-name
 #+begin_src emacs-lisp
   (setq-default user-full-name "Ranko Kohime")
 #+end_src
 
-- [X] Set e-mail address
+**** DONE Set user e-mail address
 #+name: user-mail-address
 #+begin_src emacs-lisp
   (setq-default user-mail-address "ranko.kohime@runbox.com")
 #+end_src
 
-- [X] Enable file history with recentf, and periodically save the list
+*** DONE Enable file history with recentf, and periodically save the list
 [[https://www.emacswiki.org/emacs/RecentFiles][Emacs Wiki: Recent Files]]
+[[https://emacs.stackexchange.com/a/45700][Stack Exchange: Prevent Emacs from messaging when it writes recentf]]
+
 #+name: recentf
 #+begin_src emacs-lisp
   (recentf-mode 1)
@@ -816,7 +820,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (run-at-time nil (* 15 60) 'recentf-save-list)
 #+end_src
 
-- [X] Suppress certain types of startup messages
+*** DONE Suppress certain types of startup messages
 #+name: suppress_startup_messages
 #+begin_src emacs-lisp
   (custom-set-variables
@@ -824,26 +828,26 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
       (use-package))))
 #+end_src
 
-- [X] Spaces instead of tabs
+*** DONE Spaces instead of tabs
 [[https://www.emacswiki.org/emacs/NoTabs][Emacs Wiki: No Tabs]]
 #+name: indent-tabs-mode
 #+begin_src emacs-lisp
   (setq-default indent-tabs-mode nil)
 #+end_src
 
-- [X] Delete selected text when typing after a selection
+*** DONE Delete selected text when typing after a selection
 #+begin_src emacs-lisp
 (delete-selection-mode 1)
 #+end_src
 
 *** DONE ido-mode [4/4]
-- [X] For buffers...
+**** DONE For buffers...
 #+name: ido-mode
 #+begin_src emacs-lisp
 (require 'ido)
 (ido-mode t)
 #+end_src
-- [X] ...for M-x
+**** DONE ...for M-x
 #+begin_src emacs-lisp
 (global-set-key
      "\M-x"
@@ -855,13 +859,13 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
           "M-x "
           (all-completions "" obarray 'commandp))))))
 #+end_src
-- [X] Enable vertical mode
+**** DONE Enable vertical mode
 #+begin_src emacs-lisp
   (use-package ido-vertical-mode
                :ensure t)
   (ido-vertical-mode 1)
 #+end_src
-- [X] Highlight Search Terms
+**** DONE Highlight Search Terms
 #+begin_src emacs-lisp
 (setq-default ido-use-faces t)
 (set-face-attribute 'ido-vertical-first-match-face nil

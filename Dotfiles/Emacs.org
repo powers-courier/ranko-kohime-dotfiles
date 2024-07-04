@@ -563,6 +563,10 @@ Expands e.g. <s to code blocks
   (setq-default org-indent-mode t)
   (setq-default org-startup-indented t)
 #+end_src
+*** DONE Make TODO statistics cookie recursive globally
+#+begin_src emacs-lisp
+(setq org-hierarchical-todo-statistics nil)
+#+end_src
 
 *** DONE 2. Keybinds
 **** DONE Set the agenda key, in case it's not set

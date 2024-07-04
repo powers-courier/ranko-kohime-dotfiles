@@ -84,11 +84,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* TODO Emacs.el [6/11]
-:properties:
-:header-args: :tangle ~/.config/emacs/init.el
-:end:
-
+* TODO Emacs.el [69/93]
 ** DONE Preamble [5/5]
 - [X] Startup timer
 #+begin_src emacs-lisp
@@ -318,7 +314,7 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-** TODO Visual Settings [7/12]
+** TODO Visual Settings [9/16]
 *** DONE Enable custom themes [5/5]
 - [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
 #+name: monokai-theme
@@ -360,20 +356,20 @@ This just does a little bit too much.
 #+end_src
 
 *** DONE Remove Menubar, Toolbar, and "Getting Started" screen [3/3]
-- [X] Menu Bar
+**** DONE Menu Bar
 #+name: menu-bar-mode
 #+begin_src emacs-lisp
   (menu-bar-mode -1)
 #+end_src
 
-- [X] Tool Bar
+**** DONE Tool Bar
 #+name: tool-bar-mode
 #+begin_src emacs-lisp
   (if window-system
     (tool-bar-mode 0))
 #+end_src
 
-- [X] Startup Message
+**** DONE Startup Message
 #+name: inhibit-startup-message
 #+begin_src emacs-lisp
   (setq-default inhibit-startup-message t)
@@ -401,21 +397,21 @@ Let's give a try to column-enforce-mode
 #+end_src
 
 *** TODO Point [1/3]
-- [ ] Cursor Type & Color
+**** TODO Cursor Type & Color
 Does not appear to have any affect in a remote terminal session...  GUI only?
 Confirmed: Only shows in GUI
 Color codes are numbers in terminal, names in GUI, hex codes not accepted?
 #+begin_src emacs-lisp :tangle no
-  (setq-default cursor-type 'box)
-  [(set-cursor-color "#FFA500")]
+(setq-default cursor-type 'box)
+(set-cursor-color "#FFA500")
 #+end_src
 
-- [X] Highlight Point on the row...
+**** DONE Highlight Point on the row...
 #+begin_src emacs-lisp
   (setq-default global-hl-line-mode t)
 #+end_src
 
-- [ ] ...and on the column
+**** TODO ...and on the column
 This seems a bit janky with the current slew of settings, so disabled for now
 WAYYY too laggy in Org doc
 #+begin_src emacs-lisp :tangle no
@@ -423,7 +419,7 @@ WAYYY too laggy in Org doc
 #+end_src
 
 *** DONE Enable line numbers and RULER MODE! [2/2]
-- [X] Enable line numbers, with relative numbers, and highlight point line
+**** DONE Enable line numbers, with relative numbers, and highlight point line
 #+name: global-display-line-numbers-mode
 #+begin_src emacs-lisp
   (global-display-line-numbers-mode)
@@ -438,7 +434,7 @@ WAYYY too laggy in Org doc
                   :foreground "#999999")))))
 #+end_src
 
-- [X] [[https://www.emacswiki.org/emacs/RulerMode][Emacs Wiki: Ruler Mode]]
+**** DONE [[https://www.emacswiki.org/emacs/RulerMode][Emacs Wiki: Ruler Mode]]
 #+name: ruler-mode
 #+begin_src emacs-lisp
   (add-hook 'find-file-hook (lambda () (ruler-mode 1)))
@@ -500,7 +496,7 @@ Double check this in GUI mode, not satisfactory in terminal
 (set-face-attribute 'default nil :font "SF Mono 16")
 #+end_src
 
-** DONE Org Mode [3/4]
+** TODO Org Mode [23/27]
 *** DONE 0. Preamble
 **** DONE Enable Org Mode
 Is this superfluos?
@@ -574,35 +570,38 @@ Expands e.g. <s to code blocks
   (global-set-key "\C-ca" 'org-agenda)
 #+end_src
 
-*** STRT org-todo [6/8]
+*** TODO org-todo [7/8]
 **** DONE org-todo-keywords
 #+begin_src emacs-lisp
   (setq-default org-todo-keywords
     '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "DONE(d)" "PASS(p)")))
 #+end_src
 
-**** TODO Strikethrough items with DONE keyword
+**** DONE Strikethrough items with DONE keyword
 From [[https://www.jamescherti.com/emacs-striking-through-org-mode-done-tasks/][Emacs: Striking through Org Mode DONE tasks]] by James Cherti
 
-#+begin_src emacs-lisp :tangle no
-;; Enable the fontification of headlines for tasks that have been marked as
-;; completed.
+Enable the fontification of headlines for tasks that have been marked as completed.
+#+begin_src emacs-lisp
 (setq org-fontify-done-headline t)
+#+end_src
 
+Face used for todo keywords that indicate DONE items.
+#+begin_src emacs-lisp
 (custom-set-faces
- ;; Face used for todo keywords that indicate DONE items.
  '(org-done ((t (:strike-through t))))
+#+end_src
 
- ;; Face used to indicate that a headline is DONE. This face is only used if
- ;; ‘org-fontify-done-headline’ is set. If applies to the part of the headline
- ;; after the DONE keyword.
+Face used to indicate that a headline is DONE. This face is only used if
+‘org-fontify-done-headline’ is set. If applies to the part of the headline
+after the DONE keyword.
+#+begin_src emacs-lisp
  '(org-headline-done ((t (:strike-through t)))))
 #+end_src
 
 **** TODO org-todo-keyword-faces
 #+begin_src emacs-lisp :tangle no
 (setq-default org-todo-keyword-faces
-              "((
+              "(( ))")
 #+end_src
 
 **** DONE Set org-startup-folded
@@ -610,7 +609,7 @@ From [[https://www.jamescherti.com/emacs-striking-through-org-mode-done-tasks/][
   (setq-default org-startup-folded 'content)
 #+end_src
 
-**** todo status of parents follows children
+**** TODO status of parents follows children
 #+begin_src emacs-lisp
 (defun org-summary-todo (n-done n-not-done)
   "Switch entry to DONE when all subentries are done, to TODO otherwise."
@@ -634,18 +633,14 @@ Does not work with Evil mode!
 (setq-default org-fold-catch-invisible-edits 'smart)
 #+end_src
 
-**** DONE org-default-notes-file
-#+begin_src emacs-lisp
-(setq-default org-default-notes-file "/Mounts/Documents/Agenda-cap.org")
-#+end_src
-
 **** DONE org-agenda-files
 #+begin_src emacs-lisp
+(setq-default org-default-notes-file "/Mounts/Documents/Agenda-cap.org")
 (setq-default org-agenda-files '("/Mounts/Documents/Agenda.org"))
 #+end_src
 
-*** Code Handling
-**** Popout code blocks won't smash other windows in the frame
+*** DONE Code Handling
+**** TODO Popout code blocks won't smash other windows in the frame
 #+begin_src emacs-lisp
 (setq-default org-src-window-setup 'current-window)
 #+end_src

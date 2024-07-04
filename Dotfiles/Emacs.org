@@ -2,7 +2,11 @@
 #+author: Ranko Kohime
 #+email: ranko.kohime@runbox.com
 #+startup: content
-#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no
+#+property: header-args :mkdirp yes
+#+property: header-args :tangle-mode (identity #o444)
+#+property: header-args :comments no
+#+property: header-args :padline no
+#+property: header-args :tangle ~/.config/emacs/init.el
 
 * Todo
 [[https://github.com/domtronn/all-the-icons.el][All the Icons]]

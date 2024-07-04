@@ -84,7 +84,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* TODO Emacs.el [95/118]
+* TODO Emacs.el [106/131]
 ** DONE Preamble [5/5]
 *** DONE Startup timer
 #+begin_src emacs-lisp
@@ -239,7 +239,7 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-*** DONE Syntax linting using flycheck [4/4]
+*** DONE Syntax linting using flycheck [6/6]
 **** DONE Install flycheck
 #+begin_src emacs-lisp
   (use-package flycheck
@@ -327,30 +327,30 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-** TODO Visual Settings [13/19]
+** TODO Visual Settings [20/27]
 *** DONE Enable custom themes [5/5]
-- [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
+**** DONE Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
 #+name: monokai-theme
 #+begin_src emacs-lisp :tangle no
   (use-package monokai-theme
                :ensure t)
 #+end_src
 
-- [X] Base Theme ([[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]], Disabled)
+**** DONE Base Theme ([[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]], Disabled)
 #+name: cherry-blossom-theme
 #+begin_src emacs-lisp :tangle no
   (use-package cherry-blossom-theme
                :ensure t)
 #+end_src
 
-- [X] Base Theme ([[https://github.com/n3mo/cyberpunk-theme.el][Cyberpunk]])
+**** DONE Base Theme ([[https://github.com/n3mo/cyberpunk-theme.el][Cyberpunk]])
 #+name: cyberpunk-theme
 #+begin_src emacs-lisp
   (use-package cyberpunk-theme
                :ensure t)
 #+end_src
 
-- [X] Overlay (org-beautify-theme, Disabled)
+**** DONE Overlay (org-beautify-theme, Disabled)
 This just does a little bit too much.
 #+name: org-beautify-theme
 #+begin_src emacs-lisp :tangle no
@@ -358,7 +358,7 @@ This just does a little bit too much.
                :ensure t)
 #+end_src
 
-- [X] Epilogue (Enable the themes)
+**** DONE Epilogue (Enable the themes)
 #+name: theme-variabless
 #+begin_src emacs-lisp
   (custom-set-variables
@@ -388,19 +388,21 @@ This just does a little bit too much.
   (setq-default inhibit-startup-message t)
 #+end_src
 
-*** WAIT Show fill column indicator (Line 120)
-Still needs work on appearance
+*** TODO Show fill column indicator (Line 120) [2/3]
+**** DONE Add fill column, set to 120
 #+begin_src emacs-lisp
-  (global-display-fill-column-indicator-mode t)
-  (setq-default fill-column 120)
+(global-display-fill-column-indicator-mode t)
+(setq-default fill-column 120)
 #+end_src
 
+**** TODO Set and color fill column indicator
 The following options are not yet known to work correctly
 #+begin_src emacs-lisp :tangle no
   (setq-default display-fill-column-indicator-character "‖")
   (set-face-background 'fill-column-indicator brightwhite)
 #+end_src
 
+**** DONE Set enforce mode
 Let's give a try to column-enforce-mode
 (Sort've works, but doesn't adjust for org-indent-mode
 #+begin_src emacs-lisp
@@ -509,15 +511,15 @@ Double check this in GUI mode, not satisfactory in terminal
 (set-face-attribute 'default nil :font "Source Code Pro 9")
 #+end_src
 
-** TODO Org Mode [23/27]
-*** DONE 0. Preamble
+** TODO Org Mode [25/28]
+*** DONE 0. Preamble [5/5]
 **** DONE Enable Org Mode
 Is this superfluos?
 #+begin_src emacs-lisp
   (require 'org)
 #+end_src
 
-**** DONE Template Insertion
+**** DONE Template Insertion [3/3]
 ***** DONE Enable org-tempo
 Expands e.g. <s to code blocks
 #+begin_src emacs-lisp
@@ -535,7 +537,7 @@ Expands e.g. <s to code blocks
                          "Insert a generic Org template with heading variable")
 #+end_src
 
-*** DONE Appearance
+*** DONE Appearance [6/6]
 [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][Beautifying Org Mode in Emacs]]
 **** DONE Set font lock for Org Mode, just in case
 #+begin_src emacs-lisp
@@ -587,32 +589,38 @@ Expands e.g. <s to code blocks
   (global-set-key "\C-ca" 'org-agenda)
 #+end_src
 
-*** TODO org-todo [6/8]
+*** TODO org-todo [8/9]
 **** DONE org-todo-keywords
 #+begin_src emacs-lisp
   (setq-default org-todo-keywords
     '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "DONE(d)" "PASS(p)")))
 #+end_src
 
-**** DONE Strikethrough items with DONE keyword
+**** DONE Strikethrough items with DONE keyword [1/1]
 From [[https://www.jamescherti.com/emacs-striking-through-org-mode-done-tasks/][Emacs: Striking through Org Mode DONE tasks]] by James Cherti
 
+***** DONE org-fontify-done-headline
 Enable the fontification of headlines for tasks that have been marked as completed.
 #+begin_src emacs-lisp
 (setq org-fontify-done-headline t)
 #+end_src
 
+***** org-done
 Face used for todo keywords that indicate DONE items.
 #+begin_src emacs-lisp
 (custom-set-faces
- '(org-done ((t (:strike-through t))))
+ '(org-done
+   ((t
+     (:strike-through t))))
 #+end_src
 
-Face used to indicate that a headline is DONE. This face is only used if
-‘org-fontify-done-headline’ is set. If applies to the part of the headline
-after the DONE keyword.
+***** org-headline-done
+Face used to indicate that a headline is DONE. This face is only used if ‘org-fontify-done-headline’ is set.
+It applies to the part of the headline after the DONE keyword.
 #+begin_src emacs-lisp
- '(org-headline-done ((t (:strike-through t)))))
+'(org-headline-done
+  ((t
+    (:strike-through t)))))
 #+end_src
 
 **** TODO org-todo-keyword-faces
@@ -626,8 +634,7 @@ after the DONE keyword.
   (setq-default org-startup-folded 'content)
 #+end_src
 
-**** TODO status of parents follows children
-Doesn't appear to work?
+**** DONE status of parents follows children
 #+begin_src emacs-lisp
 (defun org-summary-todo (n-done n-not-done)
   "Switch entry to DONE when all subentries are done, to TODO otherwise."
@@ -810,7 +817,7 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (setq-default isearch-lazy-count t)
 #+end_src
 
-** DONE General Settings [12/12]
+** TODO General Settings [11/12]
 *** DONE User Settings [2/2]
 **** DONE Set user name
 #+name: user-full-name
@@ -824,9 +831,11 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
   (setq-default user-mail-address "ranko.kohime@runbox.com")
 #+end_src
 
-*** DONE Enable file history with recentf, and periodically save the list
+*** TODO Enable file history with recentf, and periodically save the list
 [[https://www.emacswiki.org/emacs/RecentFiles][Emacs Wiki: Recent Files]]
 [[https://emacs.stackexchange.com/a/45700][Stack Exchange: Prevent Emacs from messaging when it writes recentf]]
+
+Still spamming the message log
 
 #+name: recentf
 #+begin_src emacs-lisp

@@ -310,7 +310,22 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-** TODO Visual Settings [9/16]
+*** DONE Languages [2/2]
+**** DONE Dart
+#+begin_src emacs-lisp
+  (use-package dart-mode
+               :ensure t)
+  (use-package dart-server
+               :ensure t)
+#+end_src
+
+**** DONE Python
+#+begin_src emacs-lisp
+  (use-package elpy
+               :ensure t)
+#+end_src
+
+** TODO Visual Settings [13/19]
 *** DONE Enable custom themes [5/5]
 - [X] Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
 #+name: monokai-theme

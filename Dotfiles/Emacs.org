@@ -880,6 +880,12 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 ** TODO Collaborative Editing
 [[https://code.librehq.com/qhong/crdt.el/][crdt.el Git Repo]]
 
+Maybe works?  Needs testing
+
+#+begin_src emacs-lisp
+  (use-package crdt
+               :ensure t)
+#+end_src
 ** DONE Fancy shit
 *** DONE org-babel-map-src-blocks
 I don't currently understand how to run this.

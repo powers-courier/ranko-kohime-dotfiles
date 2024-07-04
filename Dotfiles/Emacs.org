@@ -130,10 +130,12 @@ This is not automatically loaded at startup.
 **** DONE Enable Melpa package repository
 #+name: enable-melpa
 #+begin_src emacs-lisp
-  (require 'package)
-  (add-to-list
-    'package-archives
-    '("melpa" . "https://melpa.org/packages/") t)
+(require 'package)
+(package-initialize)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives
+             '("org" . "http://orgmode.org/elpa/"))
 #+end_src
 
 **** DONE Install use-package if not already installed
@@ -154,13 +156,13 @@ This is not automatically loaded at startup.
 #+name: ansible
 #+begin_src emacs-lisp
   (use-package ansible
-               :ensure t)
+               :ensure t
 #+end_src
 
 **** DONE Add Yaml mode hook
 #+name: ansible-yaml-mode-hook
 #+begin_src emacs-lisp
-  (add-hook 'yaml-mode-hook #'(lambda () (ansible 1)))
+:config  (add-hook 'yaml-mode-hook #'(lambda () (ansible 1))))
 #+end_src
 
 **** DONE Install ansible-doc

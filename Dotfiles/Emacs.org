@@ -487,9 +487,9 @@ Double check this in GUI mode, not satisfactory in terminal
   (setq-default visual-line-mode)
 #+end_src
 
-*** TODO Set default font, maybe
-#+begin_src emacs-lisp :tangle no
-(set-face-attribute 'default nil :font "SF Mono 16")
+*** DONE Set default font, maybe
+#+begin_src emacs-lisp
+(set-face-attribute 'default nil :font "Source Code Pro 9")
 #+end_src
 
 ** TODO Org Mode [23/27]

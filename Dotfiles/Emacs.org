@@ -903,7 +903,8 @@ Still spamming the message log
 #+begin_src emacs-lisp
 (setq-default ido-use-faces t)
 (set-face-attribute 'ido-vertical-first-match-face nil
-                    :background "#e5b7c0")
+                    :background "#e5b7c0"
+                    :foreground "black")
 (set-face-attribute 'ido-vertical-only-match-face nil
                     :background "#e52b50"
                     :foreground "white")

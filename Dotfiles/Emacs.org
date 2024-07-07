@@ -84,7 +84,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* TODO Emacs.el [106/131]
+* TODO Emacs.el [107/132]
 ** DONE Preamble [5/5]
 *** DONE Startup timer
 #+begin_src emacs-lisp
@@ -207,17 +207,17 @@ This is not automatically loaded at startup.
 *** TODO Enable ChatGPT integration
 [[https://github.com/rksm/org-ai][org-ai GitHub]]
 #+begin_src emacs-lisp
-  (use-package org-ai
-    :ensure t
-    :commands (org-ai-mode
-               org-ai-global-mode)
-    :init
-    (add-hook 'org-mode-hook #'org-ai-mode) ; enable org-ai in org-mode
-    (org-ai-global-mode) ; installs global keybindings on C-c M-a
-    :config
-    ;(setq-default org-ai-default-chat-model "gpt-4") ; if you are on the gpt-4 beta:
-    ;(org-ai-install-yasnippets) ; if you are using yasnippet and want `ai` snippets
-    )
+(use-package org-ai
+  :ensure t
+  :commands (org-ai-mode
+             org-ai-global-mode)
+  :init
+  (add-hook 'org-mode-hook #'org-ai-mode) ; enable org-ai in org-mode
+  (org-ai-global-mode) ; installs global keybindings on C-c M-a
+  :config
+  ;(setq-default org-ai-default-chat-model "gpt-4") ; if you are on the gpt-4 beta:
+  ;(org-ai-install-yasnippets) ; if you are using yasnippet and want `ai` snippets
+  )
 #+end_src
 
 *** DONE Install unicode-emoticons
@@ -327,18 +327,23 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-** TODO Visual Settings [20/27]
-*** DONE Enable custom themes [5/5]
-**** DONE Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]], Disabled)
+** TODO Visual Settings [21/28]
+*** DONE Enable custom themes [6/6]
+**** DONE Base Theme (Darkokai)
+#+begin_src emacs-lisp
+(use-package darkokai-theme
+             :ensure t)
+#+end_src
+**** DONE Base Theme ([[https://github.com/oneKelvinSmith/monokai-emacs][Monokai]])
 #+name: monokai-theme
-#+begin_src emacs-lisp :tangle no
-  (use-package monokai-theme
-               :ensure t)
+#+begin_src emacs-lisp
+(use-package monokai-theme
+             :ensure t)
 #+end_src
 
-**** DONE Base Theme ([[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]], Disabled)
+**** DONE Base Theme ([[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry Blossom]])
 #+name: cherry-blossom-theme
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package cherry-blossom-theme
                :ensure t)
 #+end_src
@@ -363,9 +368,9 @@ This just does a little bit too much.
 #+begin_src emacs-lisp
   (custom-set-variables
     '(custom-enabled-themes
-      '(org-beautify-theme cyberpunk))
+      '(monokai))
     '(custom-safe-themes
-      '("31deed4ac5d0b65dc051a1da3611ef52411490b2b6e7c2058c13c7190f7e199b" "e9d47d6d41e42a8313c81995a60b2af6588e9f01a1cf19ca42669a7ffd5c2fde" default)))
+      '("c71fd8fbda070ff5462e052d8be87423e50d0f437fbc359a5c732f4a4c535c43" default)))
 #+end_src
 
 *** DONE Remove Menubar, Toolbar, and "Getting Started" screen [3/3]

@@ -8,16 +8,26 @@
 #+property: header-args+ :padline no
 #+property: header-args+ :tangle ~/.config/conky/conky
 
-* DONE conky.config [5/5]
+* TODO conky.config [8/9]
 ** DONE Preamble
 #+begin_src lua
 conky.config = {
 #+end_src
 
-** DONE Window placement [3/3]
-*** DONE Alignment of "window"
+** DONE Window placement [6/6]
+*** DONE alignment
 #+begin_src lua
 alignment = 'top_right',
+#+end_src
+
+*** DONE background
+#+begin_src lua
+background = false,
+#+end_src
+
+*** DONE double-buffer
+#+begin_src lua
+double_buffer = true,
 #+end_src
 
 *** DONE Gap to screen border
@@ -26,18 +36,26 @@ gap_x = 2,
 gap_y = 2,
 #+end_src
 
+*** DONE own_window
+#+begin_src lua
+own_window = true,
+own_window_class = 'Conky',
+own_window_hints = 'undecorated,sticky,below,skip_taskbar,skip_pager',
+own_window_type = 'normal',
+#+end_src
+
 *** DONE Size
 #+begin_src lua
 maximum_width = 199,
 minimum_height = 1074,
 #+end_src
-               background = false,
+
+** TODO Unused
              border_width = 1,
           cpu_avg_samples = 4,
             default_color = '#fcab03',
     default_outline_color = 'white',
       default_shade_color = 'white',
-            double_buffer = true,
              draw_borders = false,
        draw_graph_borders = true,
              draw_outline = false,
@@ -49,12 +67,8 @@ minimum_height = 1074,
            out_to_console = false,
             out_to_stderr = false,
             extra_newline = false,
-               own_window = true,
-         own_window_color = '323232',
-         own_window_class = 'Conky',
-         own_window_hints = 'undecorated,sticky,below,skip_taskbar,skip_pager',
-          own_window_type = 'normal',
-   own_window_transparent = false,
+           own_window_color = '323232',
+     own_window_transparent = false,
    own_window_argb_visual = true,
     own_window_argb_value = 216,
          stippled_borders = 0,

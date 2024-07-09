@@ -7470,32 +7470,25 @@ dump subvol mounting code into /mnt/etc/nixos/configuration.nix
 :header-args+: :comments both
 :end:
 
-**** Host copilot
-#+begin_src conf
-  Host copilot
-    HostName              copilot.theatomicass.com
-    Port                  443
-#+end_src
-
 **** Host steamdeck
 #+begin_src conf
-  Host steamdeck
-    HostName               steamydeck
-    User                   deck
+Host steamdeck
+  HostName               steamydeck
+  User                   deck
 #+end_src
 **** Host *
 #+begin_src conf
-  Host *
-    AddressFamily         any
-    CheckHostIP           yes
-    Compression           yes
-    ExitOnForwardFailure  yes
-    GatewayPorts          no
-    HashKnownHosts        yes
-    IdentitiesOnly        yes
-    IdentityFile          ~/.ssh/id_ed25519
-    ServerAliveInterval   60
-    StrictHostKeyChecking ask
-    UserKnownHostsFile    ~/.ssh/known_hosts
-    VisualHostKey         yes
+Host *
+  AddressFamily         any
+  CheckHostIP           yes
+  Compression           yes
+  ExitOnForwardFailure  yes
+  GatewayPorts          no
+  HashKnownHosts        yes
+  IdentitiesOnly        yes
+  IdentityFile          ~/.ssh/id_ed25519
+  ServerAliveInterval   60
+  StrictHostKeyChecking ask
+  UserKnownHostsFile    ~/.ssh/known_hosts
+  VisualHostKey         yes
 #+end_src

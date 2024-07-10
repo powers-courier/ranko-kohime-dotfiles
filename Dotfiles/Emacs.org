@@ -84,7 +84,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* TODO Emacs.el [108/133]
+* TODO Emacs.el [110/135]
 ** DONE Preamble [6/6]
 *** DONE Startup timer
 #+begin_src emacs-lisp
@@ -445,80 +445,80 @@ Color codes are numbers in terminal, names in GUI, hex codes not accepted?
 This seems a bit janky with the current slew of settings, so disabled for now
 WAYYY too laggy in Org doc
 #+begin_src emacs-lisp :tangle no
-  (setq-default vline-globalmode t)
+(setq-default vline-globalmode t)
 #+end_src
 
 *** DONE Enable line numbers and RULER MODE! [2/2]
 **** DONE Enable line numbers, with relative numbers, and highlight point line
 #+name: global-display-line-numbers-mode
 #+begin_src emacs-lisp
-  (global-display-line-numbers-mode)
-  (custom-set-variables
-    '(display-line-numbers-type 'visual))
-  (custom-set-faces
-    '(line-number-current-line
-      ((t (:foreground "black"
-           :background "yellow"
-           :inherit line-number))))
-    '(shadow ((t (:background "color-235"
-                  :foreground "#999999")))))
+(global-display-line-numbers-mode)
+(custom-set-variables
+  '(display-line-numbers-type 'visual))
+(custom-set-faces
+  '(line-number-current-line
+    ((t (:foreground "black"
+         :background "yellow"
+         :inherit line-number))))
+  '(shadow ((t (:background "color-235"
+                :foreground "#999999")))))
 #+end_src
 
 **** DONE [[https://www.emacswiki.org/emacs/RulerMode][Emacs Wiki: Ruler Mode]]
 #+name: ruler-mode
 #+begin_src emacs-lisp
-  (add-hook 'find-file-hook (lambda () (ruler-mode 1)))
+(add-hook 'find-file-hook (lambda () (ruler-mode 1)))
 #+end_src
 
 *** TODO Highlight parentheses
 #+name: show-paren-mode
 #+begin_src emacs-lisp
-  (show-paren-mode t)
-  (custom-set-variables
-    '(show-paren-style 'parenthesis)
-    '(show-paren-highlight-openparen t)
-    '(show-paren-ring-bell-on-mismatch t)
-    '(show-paren-when-point-in-periphery t)
-    '(show-paren-when-point-inside-paren t))
+(show-paren-mode t)
+(custom-set-variables
+  '(show-paren-style 'parenthesis)
+  '(show-paren-highlight-openparen t)
+  '(show-paren-ring-bell-on-mismatch t)
+  '(show-paren-when-point-in-periphery t)
+  '(show-paren-when-point-inside-paren t))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
-  [(define-globalized-minor-mode
-    global-highlight-parentheses-mode
-    highlight-parentheses-mode
-    (lambda nil
-      (highlight-parentheses-mode t)))
-  (global-highlight-parentheses-mode t)]
+(define-globalized-minor-mode
+  global-highlight-parentheses-mode
+  highlight-parentheses-mode
+  (lambda nil
+    (highlight-parentheses-mode t)))
+(global-highlight-parentheses-mode t)
 #+end_src
 
 *** DONE Highlight useless whitespace
 [[https://emacsdocs.org/docs/emacs/Useless-Whitespace][Emacs Docs 14.16: Useless-Whitespace]]
 #+begin_src emacs-lisp
-  (setq-default show-trailing-whitespace t)
-  (setq-default indicate-empty-lines t)
+(setq-default show-trailing-whitespace t)
+(setq-default indicate-empty-lines t)
 #+end_src
 
 *** TODO Highlight indentation
 Double check this in GUI mode, not satisfactory in terminal
 [[https://github.com/DarthFennec/highlight-indent-guides][highlight-indent-guides GitHub]]
 #+begin_src emacs-lisp
-  (use-package highlight-indent-guides
-               :ensure t)
-  (custom-set-variables
-   '(highlight-indent-guides-method 'character)
-   '(highlight-indent-guides-responsive 'stack))
-  (add-hook 'org-mode-hook 'highlight-indent-guides-mode)
-  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+(use-package highlight-indent-guides
+             :ensure t)
+(custom-set-variables
+ '(highlight-indent-guides-method 'character)
+ '(highlight-indent-guides-responsive 'stack))
+(add-hook 'org-mode-hook 'highlight-indent-guides-mode)
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 #+end_src
 
 *** DONE Scrolloff (move viewport when point approaches top or bottom of screen)
 #+begin_src emacs-lisp
-  (setq-default scroll-margin 5)
+(setq-default scroll-margin 5)
 #+end_src
 
 *** DONE Set visual-line-mode (word wrap)
 #+begin_src emacs-lisp
-  (setq-default visual-line-mode)
+(setq-default global-visual-line-mode)
 #+end_src
 
 *** DONE Set default font, maybe
@@ -526,72 +526,72 @@ Double check this in GUI mode, not satisfactory in terminal
 (set-face-attribute 'default nil :font "Source Code Pro 9")
 #+end_src
 
-** TODO Org Mode [25/28]
+** TODO Org Mode [27/30]
 *** DONE 0. Preamble [5/5]
 **** DONE Enable Org Mode
 Is this superfluos?
 #+begin_src emacs-lisp
-  (require 'org)
+(require 'org)
 #+end_src
 
 **** DONE Template Insertion [3/3]
 ***** DONE Enable org-tempo
 Expands e.g. <s to code blocks
 #+begin_src emacs-lisp
-  (require 'org-tempo)
+(require 'org-tempo)
 #+end_src
 
 ***** DONE Add to templates
 ****** DONE Generic Org template to enable heading title to be used as variable in tangled code [Ansible]
 #+begin_src emacs-lisp
-  (tempo-define-template "tangle-heading-title"
-                         '("#+begin_src org :var title=(org-entry-get nil \"ITEM\")\n"
-                         p
-                         "\n#+end_src\n" >)
-                         "<o"
-                         "Insert a generic Org template with heading variable")
+(tempo-define-template "tangle-heading-title"
+                       '("#+begin_src org :var title=(org-entry-get nil \"ITEM\")\n"
+                       p
+                       "\n#+end_src\n" >)
+                       "<o"
+                       "Insert a generic Org template with heading variable")
 #+end_src
 
 *** DONE Appearance [6/6]
 [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][Beautifying Org Mode in Emacs]]
 **** DONE Set font lock for Org Mode, just in case
 #+begin_src emacs-lisp
-  (add-hook 'org-mode-hook #'turn-on-font-lock)
+(add-hook 'org-mode-hook #'turn-on-font-lock)
 #+end_src
 
 **** DONE Hide leading stars in lists
 #+name: org-hide-leading-stars
 #+begin_src emacs-lisp
-  (setq-default org-hide-leading-stars t)
+(setq-default org-hide-leading-stars t)
 #+end_src
 
 **** DONE Enable list decoration bullets
 [[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode GitHub]]
 #+begin_src emacs-lisp
-  (use-package org-superstar
-               :ensure t)
-  (add-hook 'org-mode-hook
-            (lambda ()
-              (org-superstar-mode 1 )))
+(use-package org-superstar
+             :ensure t)
+(add-hook 'org-mode-hook
+          (lambda ()
+            (org-superstar-mode 1 )))
 #+end_src
 
 **** DONE Change header fold indicator
 #+name: org-ellipsis
 #+begin_src emacs-lisp
-  (setq-default org-ellipsis " ξ")
-  (set-face-underline 'org-ellipsis nil)
+(setq-default org-ellipsis " ξ")
+(set-face-underline 'org-ellipsis nil)
 #+end_src
 
 **** DONE Use syntax highlighting in source blocks while editing
 #+begin_src emacs-lisp
-  (setq-default org-src-fontify-natively t)
+(setq-default org-src-fontify-natively t)
 #+end_src
 
 **** DONE Set indent mode
 #+name: org-indent-mode
 #+begin_src emacs-lisp
-  (setq-default org-indent-mode t)
-  (setq-default org-startup-indented t)
+(setq-default org-indent-mode t)
+(setq-default org-startup-indented t)
 #+end_src
 *** DONE Make TODO statistics cookie recursive globally
 #+begin_src emacs-lisp
@@ -601,17 +601,17 @@ Expands e.g. <s to code blocks
 *** DONE 2. Keybinds
 **** DONE Set the agenda key, in case it's not set
 #+begin_src emacs-lisp
-  (global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-ca" 'org-agenda)
 #+end_src
 
-*** TODO org-todo [8/9]
+*** TODO org-todo [10/11]
 **** DONE org-todo-keywords
 #+begin_src emacs-lisp
-  (setq-default org-todo-keywords
-    '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "DONE(d)" "PASS(p)")))
+(setq-default org-todo-keywords
+  '((sequence "TODO(t)" "STRT(s)" "WAIT(w)" "VERI(v)" "|" "DONE(d)" "PASS(p)")))
 #+end_src
 
-**** DONE Strikethrough items with DONE keyword [1/1]
+**** DONE Strikethrough items with DONE keyword [3/3]
 From [[https://www.jamescherti.com/emacs-striking-through-org-mode-done-tasks/][Emacs: Striking through Org Mode DONE tasks]] by James Cherti
 
 ***** DONE org-fontify-done-headline
@@ -620,22 +620,17 @@ Enable the fontification of headlines for tasks that have been marked as complet
 (setq org-fontify-done-headline t)
 #+end_src
 
-***** org-done
+***** DONE org-done
 Face used for todo keywords that indicate DONE items.
 #+begin_src emacs-lisp
-(custom-set-faces
- '(org-done
-   ((t
-     (:strike-through t))))
+(custom-set-faces '(org-done ((t (:strike-through t))))
 #+end_src
 
-***** org-headline-done
+***** DONE org-headline-done
 Face used to indicate that a headline is DONE. This face is only used if ‘org-fontify-done-headline’ is set.
 It applies to the part of the headline after the DONE keyword.
 #+begin_src emacs-lisp
-'(org-headline-done
-  ((t
-    (:strike-through t)))))
+'(org-headline-done ((t (:strike-through nil)))))
 #+end_src
 
 **** TODO org-todo-keyword-faces
@@ -646,7 +641,7 @@ It applies to the part of the headline after the DONE keyword.
 
 **** DONE Set org-startup-folded
 #+begin_src emacs-lisp
-  (setq-default org-startup-folded 'content)
+(setq-default org-startup-folded 'content)
 #+end_src
 
 **** DONE status of parents follows children

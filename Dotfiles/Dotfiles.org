@@ -2394,7 +2394,7 @@ flake-utils.url = "github:numtide/flake-utils";
 hardware.url = "github:nixos/nixos-hardware";
 #+end_src
 
-***** DONE Prologue
+***** DONE Epilogue
 #+begin_src nix
 };
 #+end_src
@@ -2489,7 +2489,7 @@ tmux
 moreutils
 #+end_src
 
-******** DONE Prologue
+******** DONE Epilogue
 #+begin_src nix
 ];
 #+end_src
@@ -2596,12 +2596,12 @@ guid wrapper for the group utmp!
 withUtempter = true;
 #+end_src
 
-******** DONE Prologue
+******** DONE Epilogue
 #+begin_src nix
 ];
 #+end_src
 
-******* DONE Prologue
+******* DONE Epilogue
 #+begin_src nix
 };
 #+end_src
@@ -2631,7 +2631,7 @@ framework-7840u = nixpkgs.lib.nixosSystem {
 };
 #+end_src
 
-****** Prologue
+****** Epilogue
 #+begin_src nix
 };
 #+end_src
@@ -2657,7 +2657,7 @@ Available through 'home-manager --flake .#your-username@your-hostname'
    };
 #+end_src
 
-***** Prologue
+***** Epilogue
 Let at end of Variables, eachDefaultSystem, Outputs
 #+begin_src nix
 }; ); }

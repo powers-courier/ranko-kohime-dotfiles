@@ -94,10 +94,7 @@ ${battery_power_draw} ${color}Watts ${color #00cc00}$alignr${battery_time} ${col
 $color${hr}
 ${alignc}CPU
 ${color #00cc00}${cpu cpu0}% ${alignc}     ${freq}MHz${alignr}${acpitemp}°C${color}
-${cpubar cpu1 6,190}
-${cpubar cpu2 6,190}
-${cpubar cpu3 6,190}
-${cpubar cpu4 6,190}
+${cpubar cpu0 6,190}
 $alignc${cpugraph cpu0 30,190 00ff00 ff0000 -t -l}
 ${color #ddaa00} ${top name 1}${alignr}${top cpu 1}
 ${color lightgrey} ${top name 2}${alignr}${top cpu 2}

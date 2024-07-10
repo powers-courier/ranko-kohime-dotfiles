@@ -431,9 +431,11 @@ Let's give a try to column-enforce-mode
 Does not appear to have any affect in a remote terminal session...  GUI only?
 Confirmed: Only shows in GUI
 Color codes are numbers in terminal, names in GUI, hex codes not accepted?
-#+begin_src emacs-lisp :tangle no
-(setq-default cursor-type 'box)
+
 (set-cursor-color "#FFA500")
+
+#+begin_src emacs-lisp
+(setq-default cursor-type 'box)
 #+end_src
 
 **** DONE Highlight Point on the row...

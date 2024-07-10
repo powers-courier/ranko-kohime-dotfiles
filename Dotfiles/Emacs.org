@@ -84,7 +84,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* TODO Emacs.el [110/135]
+* TODO Emacs.el [109/136]
 ** DONE Preamble [6/6]
 *** DONE Startup timer
 #+begin_src emacs-lisp
@@ -783,19 +783,19 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 **** DONE Show line numbers
 #+name: line-number-mode
 #+begin_src emacs-lisp
-  (setq-default line-number-mode t)
+(setq-default line-number-mode t)
 #+end_src
 
 **** DONE Show column numbers
 #+name: column-number-mode
 #+begin_src emacs-lisp
-  (setq-default column-number-mode t)
+(setq-default column-number-mode t)
 #+end_src
 
 **** DONE Show clock
 #+name: display-time-mode
 #+begin_src emacs-lisp
-  (setq-default display-time-mode t)
+(setq-default display-time-mode t)
 #+end_src
 
 ** DONE Search [6/6]
@@ -803,45 +803,45 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
 **** DONE Initial Highlight Delay
 #+name: lazy-highlight-initial-delay
 #+begin_src emacs-lisp
-  (setq-default lazy-highlight-initial-delay 5)
+(setq-default lazy-highlight-initial-delay 5)
 #+end_src
 
 **** DONE No Delay Length
 #+name: lazy-highlight-no-delay-length
 #+begin_src emacs-lisp
-  (setq-default lazy-highlight-no-delay-length 6)
+(setq-default lazy-highlight-no-delay-length 6)
 #+end_src
 
 **** DONE Slow down subsequent matches
 #+name: lazy-highlight-interval
 #+begin_src emacs-lisp
-  (setq-default lazy-highlight-interval 0.25)
+(setq-default lazy-highlight-interval 0.25)
 #+end_src
 
 **** DONE Check for user input often to maintain responsiveness
 #+name: lazy-highlight-max-at-a-time
 #+begin_src emacs-lisp
-  (setq-default lazy-highlight-max-at-a-time 5)
+(setq-default lazy-highlight-max-at-a-time 5)
 #+end_src
 
 **** DONE Show count in search prompt
 #+name: isearch-lazy-count
 #+begin_src emacs-lisp
-  (setq-default isearch-lazy-count t)
+(setq-default isearch-lazy-count t)
 #+end_src
 
-** TODO General Settings [11/12]
+** TODO General Settings [10/13]
 *** DONE User Settings [2/2]
 **** DONE Set user name
 #+name: user-full-name
 #+begin_src emacs-lisp
-  (setq-default user-full-name "Ranko Kohime")
+(setq-default user-full-name "Ranko Kohime")
 #+end_src
 
 **** DONE Set user e-mail address
 #+name: user-mail-address
 #+begin_src emacs-lisp
-  (setq-default user-mail-address "ranko.kohime@runbox.com")
+(setq-default user-mail-address "ranko.kohime@runbox.com")
 #+end_src
 
 *** TODO Enable file history with recentf, and periodically save the list
@@ -852,29 +852,29 @@ Still spamming the message log
 
 #+name: recentf
 #+begin_src emacs-lisp
-        (recentf-mode 1)
-        (setq-default recentf-max-menu-items 25)
-        (setq-default recentf-max-saved-items 25)
-        (global-set-key "\C-x\ \C-r" 'recentf-open-files)
-        (run-at-time nil (* 15 60)
-                     (lambda ()
-                       (let ((save-silently t)(inhibit-message t))
-                         (recentf-save-list))))
+(recentf-mode 1)
+(setq-default recentf-max-menu-items 25)
+(setq-default recentf-max-saved-items 25)
+(global-set-key "\C-x\ \C-r" 'recentf-open-files)
+(run-at-time nil (* 15 60)
+             (lambda ()
+               (let ((save-silently t)(inhibit-message t))
+                 (recentf-save-list))))
 #+end_src
 
 *** DONE Suppress certain types of startup messages
 #+name: suppress_startup_messages
 #+begin_src emacs-lisp
-  (custom-set-variables
-    '(warning-suppress-types '((comp)
-      (use-package))))
+(custom-set-variables
+  '(warning-suppress-types '((comp)
+    (use-package))))
 #+end_src
 
 *** DONE Spaces instead of tabs
 [[https://www.emacswiki.org/emacs/NoTabs][Emacs Wiki: No Tabs]]
 #+name: indent-tabs-mode
 #+begin_src emacs-lisp
-  (setq-default indent-tabs-mode nil)
+(setq-default indent-tabs-mode nil)
 #+end_src
 
 *** DONE Delete selected text when typing after a selection
@@ -882,7 +882,7 @@ Still spamming the message log
 (delete-selection-mode 1)
 #+end_src
 
-*** DONE ido-mode [4/4]
+*** TODO ido-mode [4/5]
 **** DONE For buffers...
 #+name: ido-mode
 #+begin_src emacs-lisp
@@ -903,10 +903,12 @@ Still spamming the message log
 #+end_src
 **** DONE Enable vertical mode
 #+begin_src emacs-lisp
-  (use-package ido-vertical-mode
-               :ensure t)
-  (ido-vertical-mode 1)
+(use-package ido-vertical-mode
+             :ensure t)
+(ido-vertical-mode 1)
 #+end_src
+
+**** TODO Enable vertical *selection*
 **** DONE Highlight Search Terms
 #+begin_src emacs-lisp
 (setq-default ido-use-faces t)
@@ -926,8 +928,8 @@ Still spamming the message log
 Maybe works?  Needs testing
 
 #+begin_src emacs-lisp
-  (use-package crdt
-               :ensure t)
+(use-package crdt
+             :ensure t)
 #+end_src
 ** DONE Fancy shit
 *** DONE org-babel-map-src-blocks
@@ -937,19 +939,19 @@ Assign a keybind to it maybe?
 [[https://emacs.stackexchange.com/questions/68041/how-to-list-all-the-code-blocks-in-the-current-buffer-with-no-name][Stack Exchange Example]]
 [[https://doc.endlessparentheses.com/Fun/org-babel-map-src-blocks.html][Endless Parentheses Documentation]]
 #+begin_src emacs-lisp :results output silent
-  (org-babel-map-src-blocks nil
-    (let ((language (org-element-property :language (org-element-context))))
-      (unless language
-        (message "Code block with no language found in line %s" (line-number-at-pos)))))
+(org-babel-map-src-blocks nil
+  (let ((language (org-element-property :language (org-element-context))))
+    (unless language
+      (message "Code block with no language found in line %s" (line-number-at-pos)))))
 #+end_src
 
 ** DONE And Finally, the Success Message
 #+begin_src emacs-lisp
-  (setq-default initial-scratch-message
-    (concat
-      ";;░█▀▀░█▄█░█▀█░█▀▀░█▀▀\n"
-      ";;░█▀▀░█░█░█▀█░█░░░▀▀█\n"
-      ";;░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀\n"
-      "\n"
-      ";;  Task Failed Successfully.\n"))
+(setq-default initial-scratch-message
+  (concat
+    ";;░█▀▀░█▄█░█▀█░█▀▀░█▀▀\n"
+    ";;░█▀▀░█░█░█▀█░█░░░▀▀█\n"
+    ";;░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀\n"
+    "\n"
+    ";;  Task Failed Successfully.\n"))
 #+end_src

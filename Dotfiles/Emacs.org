@@ -779,6 +779,19 @@ Potentially use [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]
         " "))
 #+end_src
 
+Current Mode Line
+#+begin_src emacs-lisp :tangle no
+("%e" mode-line-front-space
+ (:propertize
+  ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+  display
+  (min-width
+   (5.0)))
+ mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
+ (vc-mode vc-mode)
+ "  " mode-line-modes mode-line-misc-info mode-line-end-spaces)
+#+end_src
+
 *** DONE Content [3/3]
 **** DONE Show line numbers
 #+name: line-number-mode

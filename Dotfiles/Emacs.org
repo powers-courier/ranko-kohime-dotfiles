@@ -84,8 +84,8 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* TODO Emacs.el [107/132]
-** DONE Preamble [5/5]
+* TODO Emacs.el [108/133]
+** DONE Preamble [6/6]
 *** DONE Startup timer
 #+begin_src emacs-lisp
   (add-hook 'emacs-startup-hook
@@ -95,6 +95,16 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
           (float-time
            (time-subtract after-init-time before-init-time)))
         gcs-done)))
+#+end_src
+
+*** DONE Start with window maximized
+An alternative to this is changing the shortcut to:
+#+begin_src bash :tangle no
+emacs -mm %f
+#+end_src
+
+#+begin_src emacs-lisp
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 #+end_src
 
 *** DONE Put all the customize junk in it's own file

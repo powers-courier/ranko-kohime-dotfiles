@@ -84,7 +84,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* TODO Emacs.el [109/136]
+* TODO Emacs.el [105/136]
 ** DONE Preamble [6/6]
 *** DONE Startup timer
 #+begin_src emacs-lisp
@@ -135,7 +135,7 @@ This is not automatically loaded at startup.
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
-** TODO Packages [28/33]
+** TODO Packages [24/33]
 *** DONE Preamble [2/2]
 **** DONE Enable Melpa package repository
 #+name: enable-melpa
@@ -303,23 +303,23 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-*** DONE NixOS stuff [3/3]
-**** DONE nix-mode
-  #+begin_src emacs-lisp
-    (use-package nix-mode
-                 :ensure t)
-  #+end_src
+*** TODO NixOS stuff [0/3]
+**** TODO nix-mode
+#+begin_src emacs-lisp :tangle no
+(use-package nix-mode
+             :ensure t)
+#+end_src
 
-**** DONE nixos-options
-  #+begin_src emacs-lisp
-    (use-package nixos-options
-                 :ensure t)
-  #+end_src
+**** TODO nixos-options
+#+begin_src emacs-lisp :tangle no
+(use-package nixos-options
+             :ensure t)
+#+end_src
 
-**** DONE ob-nix
-#+begin_src emacs-lisp
-  (use-package ob-nix
-               :ensure t)
+**** TODO ob-nix
+#+begin_src emacs-lisp :tangle no
+(use-package ob-nix
+             :ensure t)
 #+end_src
 
 *** DONE Languages [2/2]
@@ -502,8 +502,11 @@ WAYYY too laggy in Org doc
 
 *** TODO Highlight indentation
 Double check this in GUI mode, not satisfactory in terminal
+
+And also abusing the CPU!
+
 [[https://github.com/DarthFennec/highlight-indent-guides][highlight-indent-guides GitHub]]
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package highlight-indent-guides
              :ensure t)
 (custom-set-variables
@@ -938,9 +941,9 @@ Still spamming the message log
 ** TODO Collaborative Editing
 [[https://code.librehq.com/qhong/crdt.el/][crdt.el Git Repo]]
 
-Maybe works?  Needs testing
+Maybe works?  Needs testing.  Nope, broken.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package crdt
              :ensure t)
 #+end_src

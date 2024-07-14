@@ -77,6 +77,8 @@ Enable org-num-mode (Set org-startup-numerated to t)
     ;; and run the new block to get the results
     (org-babel-execute-src-block)))
 #+end_src
+
+** Liberally borrow from DistroTube's [[https://gitlab.com/dwt1/dotfiles/-/blob/master/.config/emacs/config.org][config]]
 * Notes
 ** [[https://nhigham.com/2017/11/02/org-mode-syntax-cheat-sheet/][Org Mode Syntax Cheat Sheet]]
 ** Formatting Lisp
@@ -320,6 +322,22 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 #+begin_src emacs-lisp :tangle no
 (use-package ob-nix
              :ensure t)
+#+end_src
+
+*** TODO pdf-tools
+#+begin_src emacs-lisp
+(use-package pdf-tools
+             :ensure t
+             :commands (pdf-loader-install)
+             :mode "\\.pdf\\'"
+             :bind (:map pdf-view-mode-map
+                         ("j" . pdf-view-next-line-or-next-page)
+                         ("k" . pdf-view-previous-line-or-previous-page)
+                         ("C-=" . pdf-view-enlarge)
+                         ("C--" . pdf-view-shrink))
+             :init (pdf-loader-install)
+             :config (add-to-list 'revert-without-query ".pdf"))
+(add-hook 'pdf-view-mode-hook #'(lambda () (interactive) (display-line-numbers-mode -1)))
 #+end_src
 
 *** DONE Languages [2/2]

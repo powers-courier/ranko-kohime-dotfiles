@@ -84,7 +84,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* TODO Emacs.el [105/136]
+* TODO Emacs.el [105/137]
 ** DONE Preamble [6/6]
 *** DONE Startup timer
 #+begin_src emacs-lisp
@@ -135,7 +135,7 @@ This is not automatically loaded at startup.
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
-** TODO Packages [24/33]
+** TODO Packages [24/34]
 *** DONE Preamble [2/2]
 **** DONE Enable Melpa package repository
 #+name: enable-melpa
@@ -434,13 +434,15 @@ Color codes are numbers in terminal, names in GUI, hex codes not accepted?
 
 (set-cursor-color "#FFA500")
 
+#+name: cursor-type
 #+begin_src emacs-lisp
 (setq-default cursor-type 'box)
 #+end_src
 
 **** DONE Highlight Point on the row...
+#+name: global-hl-line-mode
 #+begin_src emacs-lisp
-  (setq-default global-hl-line-mode t)
+(setq-default global-hl-line-mode t)
 #+end_src
 
 **** TODO ...and on the column
@@ -500,7 +502,7 @@ WAYYY too laggy in Org doc
 (setq-default indicate-empty-lines t)
 #+end_src
 
-*** TODO Highlight indentation
+*** WAIT Highlight indentation
 Double check this in GUI mode, not satisfactory in terminal
 
 And also abusing the CPU!

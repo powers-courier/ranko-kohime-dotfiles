@@ -918,6 +918,11 @@ Still spamming the message log
 (delete-selection-mode 1)
 #+end_src
 
+*** Disable electric-indent-mode
+#+begin_src emacs-lisp
+(setq-default electric-indent-mode nil)
+#+end_src
+
 *** TODO ido-mode [4/5]
 **** DONE For buffers...
 #+name: ido-mode

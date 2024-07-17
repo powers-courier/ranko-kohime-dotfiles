@@ -919,14 +919,42 @@ Still spamming the message log
           "M-x "
           (all-completions "" obarray 'commandp))))))
 #+end_src
+
+#+begin_src emacs-lisp
+(use-package smex
+             :ensure t
+             :init )
+#+end_src
+
+***** DONE Save file location
+#+begin_src emacs-lisp
+(setq-default smex-save-file (concat user-emacs-directory "smex-items"))
+#+end_src
+
+***** DONE Bind keys for smex
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-x") 'smex)
+(global-set-key (kbd "M-X") 'smex-major-mode-commands)
+#+end_src
+
+This is your old M-x.
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
+#+end_src
+
 **** DONE Enable vertical mode
 #+begin_src emacs-lisp
 (use-package ido-vertical-mode
-             :ensure t)
+             :ensure t
+             :init )
 (ido-vertical-mode 1)
 #+end_src
 
 **** TODO Enable vertical *selection*
+#+begin_src emacs-lisp
+(setq-default ido-vertical-define-keys 3)
+#+end_src
+
 **** DONE Highlight Search Terms
 #+begin_src emacs-lisp
 (setq-default ido-use-faces t)
@@ -938,6 +966,21 @@ Still spamming the message log
                     :foreground "white")
 (set-face-attribute 'ido-vertical-match-face nil
                     :foreground "#b00000")
+#+end_src
+
+*** DONE Save place in opened files
+#+begin_src emacs-lisp
+(save-place-mode 1)
+#+end_src
+
+*** DONE Revert buffers changed externally
+#+begin_src emacs-lisp
+(global-auto-revert-mode 1)
+#+end_src
+
+*** DONE Do not use dialog boxes in graphical sessions
+#+begin_src emacs-lisp
+(setq-default use-dialog-box nil)
 #+end_src
 
 ** TODO Collaborative Editing

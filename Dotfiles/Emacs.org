@@ -84,7 +84,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 
 
 
-* TODO Emacs.el [105/136]
+* TODO Emacs.el [111/142]
 ** DONE Preamble [6/6]
 *** DONE Startup timer
 #+begin_src emacs-lisp
@@ -846,7 +846,7 @@ Current Mode Line
 (setq-default isearch-lazy-count t)
 #+end_src
 
-** TODO General Settings [10/13]
+** TODO General Settings [16/19]
 *** DONE User Settings [2/2]
 **** DONE Set user name
 #+name: user-full-name
@@ -898,15 +898,17 @@ Still spamming the message log
 (delete-selection-mode 1)
 #+end_src
 
-*** TODO ido-mode [4/5]
+*** TODO ido-mode [7/8]
 **** DONE For buffers...
 #+name: ido-mode
 #+begin_src emacs-lisp
 (require 'ido)
 (ido-mode t)
+(setq-default ido-everywhere t)
 #+end_src
+
 **** DONE ...for M-x
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (global-set-key
      "\M-x"
      (lambda ()

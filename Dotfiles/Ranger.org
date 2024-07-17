@@ -1,0 +1,3461 @@
+#+title: Ranger Configuration
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args+ :mkdirp yes
+#+property: header-args+ :tangle-mode (identity #o444)
+#+property: header-args+ :comments no
+#+property: header-args+ :padline no
+#+property: header-args+ :tangle ~/some/file
+
+
+* commands.py
+# This is a sample commands.py.  You can add your own commands here.
+#
+# Please refer to commands_full.py for all the default commands and a complete
+# documentation.  Do NOT add them all here, or you may end up with defunct
+# commands when upgrading ranger.
+
+# A simple command for demonstration purposes follows.
+# -----------------------------------------------------------------------------
+
+from __future__ import (absolute_import, division, print_function)
+
+# You can import any python module as needed.
+import os
+
+# You always need to import ranger.api.commands here to get the Command class:
+from ranger.api.commands import Command
+
+
+# Any class that is a subclass of "Command" will be integrated into ranger as a
+# command.  Try typing ":my_edit<ENTER>" in ranger!
+class my_edit(Command):
+    # The so-called doc-string of the class will be visible in the built-in
+    # help that is accessible by typing "?c" inside ranger.
+    """:my_edit <filename>
+
+    A sample command for demonstration purposes that opens a file in an editor.
+    """
+
+    # The execute method is called when you run this command in ranger.
+    def execute(self):
+        # self.arg(1) is the first (space-separated) argument to the function.
+        # This way you can write ":my_edit somefilename<ENTER>".
+        if self.arg(1):
+            # self.rest(1) contains self.arg(1) and everything that follows
+            target_filename = self.rest(1)
+        else:
+            # self.fm is a ranger.core.filemanager.FileManager object and gives
+            # you access to internals of ranger.
+            # self.fm.thisfile is a ranger.container.file.File object and is a
+            # reference to the currently selected file.
+            target_filename = self.fm.thisfile.path
+
+        # This is a generic function to print text in ranger.
+        self.fm.notify("Let's edit the file " + target_filename + "!")
+
+        # Using bad=True in fm.notify allows you to print error messages:
+        if not os.path.exists(target_filename):
+            self.fm.notify("The given file does not exist!", bad=True)
+            return
+
+        # This executes a function from ranger.core.acitons, a module with a
+        # variety of subroutines that can help you construct commands.
+        # Check out the source, or run "pydoc ranger.core.actions" for a list.
+        self.fm.edit_file(target_filename)
+
+    # The tab method is called when you press tab, and should return a list of
+    # suggestions that the user will tab through.
+    # tabnum is 1 for <TAB> and -1 for <S-TAB> by default
+    def tab(self, tabnum):
+        # This is a generic tab-completion function that iterates through the
+        # content of the current directory.
+        return self._tab_directory_content()
+* commands_full.py
+# -*- coding: utf-8 -*-
+# This file is part of ranger, the console file manager.
+# This configuration file is licensed under the same terms as ranger.
+# ===================================================================
+#
+# NOTE: If you copied this file to /etc/ranger/commands_full.py or
+# ~/.config/ranger/commands_full.py, then it will NOT be loaded by ranger,
+# and only serve as a reference.
+#
+# ===================================================================
+# This file contains ranger's commands.
+# It's all in python; lines beginning with # are comments.
+#
+# Note that additional commands are automatically generated from the methods
+# of the class ranger.core.actions.Actions.
+#
+# You can customize commands in the files /etc/ranger/commands.py (system-wide)
+# and ~/.config/ranger/commands.py (per user).
+# They have the same syntax as this file.  In fact, you can just copy this
+# file to ~/.config/ranger/commands_full.py with
+# `ranger --copy-config=commands_full' and make your modifications, don't
+# forget to rename it to commands.py.  You can also use
+# `ranger --copy-config=commands' to copy a short sample commands.py that
+# has everything you need to get started.
+# But make sure you update your configs when you update ranger.
+#
+# ===================================================================
+# Every class defined here which is a subclass of `Command' will be used as a
+# command in ranger.  Several methods are defined to interface with ranger:
+#   execute():   called when the command is executed.
+#   cancel():    called when closing the console.
+#   tab(tabnum): called when <TAB> is pressed.
+#   quick():     called after each keypress.
+#
+# tab() argument tabnum is 1 for <TAB> and -1 for <S-TAB> by default
+#
+# The return values for tab() can be either:
+#   None: There is no tab completion
+#   A string: Change the console to this string
+#   A list/tuple/generator: cycle through every item in it
+#
+# The return value for quick() can be:
+#   False: Nothing happens
+#   True: Execute the command afterwards
+#
+# The return value for execute() and cancel() doesn't matter.
+#
+# ===================================================================
+# Commands have certain attributes and methods that facilitate parsing of
+# the arguments:
+#
+# self.line: The whole line that was written in the console.
+# self.args: A list of all (space-separated) arguments to the command.
+# self.quantifier: If this command was mapped to the key "X" and
+#      the user pressed 6X, self.quantifier will be 6.
+# self.arg(n): The n-th argument, or an empty string if it doesn't exist.
+# self.rest(n): The n-th argument plus everything that followed.  For example,
+#      if the command was "search foo bar a b c", rest(2) will be "bar a b c"
+# self.start(n): Anything before the n-th argument.  For example, if the
+#      command was "search foo bar a b c", start(2) will be "search foo"
+#
+# ===================================================================
+# And this is a little reference for common ranger functions and objects:
+#
+# self.fm: A reference to the "fm" object which contains most information
+#      about ranger.
+# self.fm.notify(string): Print the given string on the screen.
+# self.fm.notify(string, bad=True): Print the given string in RED.
+# self.fm.reload_cwd(): Reload the current working directory.
+# self.fm.thisdir: The current working directory. (A File object.)
+# self.fm.thisfile: The current file. (A File object too.)
+# self.fm.thistab.get_selection(): A list of all selected files.
+# self.fm.execute_console(string): Execute the string as a ranger command.
+# self.fm.open_console(string): Open the console with the given string
+#      already typed in for you.
+# self.fm.move(direction): Moves the cursor in the given direction, which
+#      can be something like down=3, up=5, right=1, left=1, to=6, ...
+#
+# File objects (for example self.fm.thisfile) have these useful attributes and
+# methods:
+#
+# tfile.path: The path to the file.
+# tfile.basename: The base name only.
+# tfile.load_content(): Force a loading of the directories content (which
+#      obviously works with directories only)
+# tfile.is_directory: True/False depending on whether it's a directory.
+#
+# For advanced commands it is unavoidable to dive a bit into the source code
+# of ranger.
+# ===================================================================
+
+from __future__ import (absolute_import, division, print_function)
+
+from collections import deque
+import os
+import re
+
+from ranger.api.commands import Command
+
+
+class alias(Command):
+    """:alias <newcommand> <oldcommand>
+
+    Copies the oldcommand as newcommand.
+    """
+
+    context = 'browser'
+    resolve_macros = False
+
+    def execute(self):
+        if not self.arg(1) or not self.arg(2):
+            self.fm.notify('Syntax: alias <newcommand> <oldcommand>', bad=True)
+            return
+
+        self.fm.commands.alias(self.arg(1), self.rest(2))
+
+
+class echo(Command):
+    """:echo <text>
+
+    Display the text in the statusbar.
+    """
+
+    def execute(self):
+        self.fm.notify(self.rest(1))
+
+
+class cd(Command):
+    """:cd [-r] <path>
+
+    The cd command changes the directory.
+    If the path is a file, selects that file.
+    The command 'cd -' is equivalent to typing ``.
+    Using the option "-r" will get you to the real path.
+    """
+
+    def execute(self):
+        if self.arg(1) == '-r':
+            self.shift()
+            destination = os.path.realpath(self.rest(1))
+            if os.path.isfile(destination):
+                self.fm.select_file(destination)
+                return
+        else:
+            destination = self.rest(1)
+
+        if not destination:
+            destination = '~'
+
+        if destination == '-':
+            self.fm.enter_bookmark('`')
+        else:
+            self.fm.cd(destination)
+
+    def _tab_args(self):
+        # dest must be rest because path could contain spaces
+        if self.arg(1) == '-r':
+            start = self.start(2)
+            dest = self.rest(2)
+        else:
+            start = self.start(1)
+            dest = self.rest(1)
+
+        if dest:
+            head, tail = os.path.split(os.path.expanduser(dest))
+            if head:
+                dest_exp = os.path.join(os.path.normpath(head), tail)
+            else:
+                dest_exp = tail
+        else:
+            dest_exp = ''
+        return (start, dest_exp, os.path.join(self.fm.thisdir.path, dest_exp),
+                dest.endswith(os.path.sep))
+
+    @staticmethod
+    def _tab_paths(dest, dest_abs, ends_with_sep):
+        if not dest:
+            try:
+                return next(os.walk(dest_abs))[1], dest_abs
+            except (OSError, StopIteration):
+                return [], ''
+
+        if ends_with_sep:
+            try:
+                return [os.path.join(dest, path) for path in next(os.walk(dest_abs))[1]], ''
+            except (OSError, StopIteration):
+                return [], ''
+
+        return None, None
+
+    def _tab_match(self, path_user, path_file):
+        if self.fm.settings.cd_tab_case == 'insensitive':
+            path_user = path_user.lower()
+            path_file = path_file.lower()
+        elif self.fm.settings.cd_tab_case == 'smart' and path_user.islower():
+            path_file = path_file.lower()
+        return path_file.startswith(path_user)
+
+    def _tab_normal(self, dest, dest_abs):
+        dest_dir = os.path.dirname(dest)
+        dest_base = os.path.basename(dest)
+
+        try:
+            dirnames = next(os.walk(os.path.dirname(dest_abs)))[1]
+        except (OSError, StopIteration):
+            return [], ''
+
+        return [os.path.join(dest_dir, d) for d in dirnames if self._tab_match(dest_base, d)], ''
+
+    def _tab_fuzzy_match(self, basepath, tokens):
+        """ Find directories matching tokens recursively """
+        if not tokens:
+            tokens = ['']
+        paths = [basepath]
+        while True:
+            token = tokens.pop()
+            matches = []
+            for path in paths:
+                try:
+                    directories = next(os.walk(path))[1]
+                except (OSError, StopIteration):
+                    continue
+                matches += [os.path.join(path, d) for d in directories
+                            if self._tab_match(token, d)]
+            if not tokens or not matches:
+                return matches
+            paths = matches
+
+        return None
+
+    def _tab_fuzzy(self, dest, dest_abs):
+        tokens = []
+        basepath = dest_abs
+        while True:
+            basepath_old = basepath
+            basepath, token = os.path.split(basepath)
+            if basepath == basepath_old:
+                break
+            if os.path.isdir(basepath_old) and not token.startswith('.'):
+                basepath = basepath_old
+                break
+            tokens.append(token)
+
+        paths = self._tab_fuzzy_match(basepath, tokens)
+        if not os.path.isabs(dest):
+            paths_rel = self.fm.thisdir.path
+            paths = [os.path.relpath(os.path.join(basepath, path), paths_rel)
+                     for path in paths]
+        else:
+            paths_rel = ''
+        return paths, paths_rel
+
+    def tab(self, tabnum):
+        from os.path import sep
+
+        start, dest, dest_abs, ends_with_sep = self._tab_args()
+
+        paths, paths_rel = self._tab_paths(dest, dest_abs, ends_with_sep)
+        if paths is None:
+            if self.fm.settings.cd_tab_fuzzy:
+                paths, paths_rel = self._tab_fuzzy(dest, dest_abs)
+            else:
+                paths, paths_rel = self._tab_normal(dest, dest_abs)
+
+        paths.sort()
+
+        if self.fm.settings.cd_bookmarks:
+            paths[0:0] = [
+                os.path.relpath(v.path, paths_rel) if paths_rel else v.path
+                for v in self.fm.bookmarks.dct.values() for path in paths
+                if v.path.startswith(os.path.join(paths_rel, path) + sep)
+            ]
+
+        if not paths:
+            return None
+        if len(paths) == 1:
+            return start + paths[0] + sep
+        return [start + dirname + sep for dirname in paths]
+
+
+class chain(Command):
+    """:chain <command1>; <command2>; ...
+
+    Calls multiple commands at once, separated by semicolons.
+    """
+    resolve_macros = False
+
+    def execute(self):
+        if not self.rest(1).strip():
+            self.fm.notify('Syntax: chain <command1>; <command2>; ...', bad=True)
+            return
+        for command in [s.strip() for s in self.rest(1).split(";")]:
+            self.fm.execute_console(command)
+
+
+class shell(Command):
+    escape_macros_for_shell = True
+
+    def execute(self):
+        if self.arg(1) and self.arg(1)[0] == '-':
+            flags = self.arg(1)[1:]
+            command = self.rest(2)
+        else:
+            flags = ''
+            command = self.rest(1)
+
+        if command:
+            self.fm.execute_command(command, flags=flags)
+
+    def tab(self, tabnum):
+        from ranger.ext.get_executables import get_executables
+        if self.arg(1) and self.arg(1)[0] == '-':
+            command = self.rest(2)
+        else:
+            command = self.rest(1)
+        start = self.line[0:len(self.line) - len(command)]
+
+        try:
+            position_of_last_space = command.rindex(" ")
+        except ValueError:
+            return (start + program + ' ' for program
+                    in get_executables() if program.startswith(command))
+        if position_of_last_space == len(command) - 1:
+            selection = self.fm.thistab.get_selection()
+            if len(selection) == 1:
+                return self.line + selection[0].shell_escaped_basename + ' '
+            return self.line + '%s '
+
+        before_word, start_of_word = self.line.rsplit(' ', 1)
+        return (before_word + ' ' + file.shell_escaped_basename
+                for file in self.fm.thisdir.files or []
+                if file.shell_escaped_basename.startswith(start_of_word))
+
+
+class open_with(Command):
+
+    def execute(self):
+        app, flags, mode = self._get_app_flags_mode(self.rest(1))
+        self.fm.execute_file(
+            files=[f for f in self.fm.thistab.get_selection()],
+            app=app,
+            flags=flags,
+            mode=mode)
+
+    def tab(self, tabnum):
+        return self._tab_through_executables()
+
+    def _get_app_flags_mode(self, string):  # pylint: disable=too-many-branches,too-many-statements
+        """Extracts the application, flags and mode from a string.
+
+        examples:
+        "mplayer f 1" => ("mplayer", "f", 1)
+        "atool 4" => ("atool", "", 4)
+        "p" => ("", "p", 0)
+        "" => None
+        """
+
+        app = ''
+        flags = ''
+        mode = 0
+        split = string.split()
+
+        if len(split) == 1:
+            part = split[0]
+            if self._is_app(part):
+                app = part
+            elif self._is_flags(part):
+                flags = part
+            elif self._is_mode(part):
+                mode = part
+
+        elif len(split) == 2:
+            part0 = split[0]
+            part1 = split[1]
+
+            if self._is_app(part0):
+                app = part0
+                if self._is_flags(part1):
+                    flags = part1
+                elif self._is_mode(part1):
+                    mode = part1
+            elif self._is_flags(part0):
+                flags = part0
+                if self._is_mode(part1):
+                    mode = part1
+            elif self._is_mode(part0):
+                mode = part0
+                if self._is_flags(part1):
+                    flags = part1
+
+        elif len(split) >= 3:
+            part0 = split[0]
+            part1 = split[1]
+            part2 = split[2]
+
+            if self._is_app(part0):
+                app = part0
+                if self._is_flags(part1):
+                    flags = part1
+                    if self._is_mode(part2):
+                        mode = part2
+                elif self._is_mode(part1):
+                    mode = part1
+                    if self._is_flags(part2):
+                        flags = part2
+            elif self._is_flags(part0):
+                flags = part0
+                if self._is_mode(part1):
+                    mode = part1
+            elif self._is_mode(part0):
+                mode = part0
+                if self._is_flags(part1):
+                    flags = part1
+
+        return app, flags, int(mode)
+
+    def _is_app(self, arg):
+        return not self._is_flags(arg) and not arg.isdigit()
+
+    @staticmethod
+    def _is_flags(arg):
+        from ranger.core.runner import ALLOWED_FLAGS
+        return all(x in ALLOWED_FLAGS for x in arg)
+
+    @staticmethod
+    def _is_mode(arg):
+        return all(x in '0123456789' for x in arg)
+
+
+class set_(Command):
+    """:set <option name>=<python expression>
+
+    Gives an option a new value.
+
+    Use `:set <option>!` to toggle or cycle it, e.g. `:set flush_input!`
+    """
+    name = 'set'  # don't override the builtin set class
+
+    def execute(self):
+        name = self.arg(1)
+        name, value, _, toggle = self.parse_setting_line_v2()
+        if toggle:
+            self.fm.toggle_option(name)
+        else:
+            self.fm.set_option_from_string(name, value)
+
+    def tab(self, tabnum):  # pylint: disable=too-many-return-statements
+        from ranger.gui.colorscheme import get_all_colorschemes
+        name, value, name_done = self.parse_setting_line()
+        settings = self.fm.settings
+        if not name:
+            return sorted(self.firstpart + setting for setting in settings)
+        if not value and not name_done:
+            return sorted(self.firstpart + setting for setting in settings
+                          if setting.startswith(name))
+        if not value:
+            value_completers = {
+                "colorscheme":
+                # Cycle through colorschemes when name, but no value is specified
+                lambda: sorted(self.firstpart + colorscheme for colorscheme
+                               in get_all_colorschemes(self.fm)),
+
+                "column_ratios":
+                lambda: self.firstpart + ",".join(map(str, settings[name])),
+            }
+
+            def default_value_completer():
+                return self.firstpart + str(settings[name])
+
+            return value_completers.get(name, default_value_completer)()
+        if bool in settings.types_of(name):
+            if 'true'.startswith(value.lower()):
+                return self.firstpart + 'True'
+            if 'false'.startswith(value.lower()):
+                return self.firstpart + 'False'
+        # Tab complete colorscheme values if incomplete value is present
+        if name == "colorscheme":
+            return sorted(self.firstpart + colorscheme for colorscheme
+                          in get_all_colorschemes(self.fm) if colorscheme.startswith(value))
+        return None
+
+
+class setlocal(set_):
+    """:setlocal path=<regular expression> <option name>=<python expression>
+
+    Gives an option a new value.
+    """
+    PATH_RE_DQUOTED = re.compile(r'^setlocal\s+path="(.*?)"')
+    PATH_RE_SQUOTED = re.compile(r"^setlocal\s+path='(.*?)'")
+    PATH_RE_UNQUOTED = re.compile(r'^path=(.*?)$')
+
+    def _re_shift(self, match):
+        if not match:
+            return None
+        path = os.path.expanduser(match.group(1))
+        for _ in range(len(path.split())):
+            self.shift()
+        return path
+
+    def execute(self):
+        path = self._re_shift(self.PATH_RE_DQUOTED.match(self.line))
+        if path is None:
+            path = self._re_shift(self.PATH_RE_SQUOTED.match(self.line))
+        if path is None:
+            path = self._re_shift(self.PATH_RE_UNQUOTED.match(self.arg(1)))
+        if path is None and self.fm.thisdir:
+            path = self.fm.thisdir.path
+        if not path:
+            return
+
+        name, value, _ = self.parse_setting_line()
+        self.fm.set_option_from_string(name, value, localpath=path)
+
+
+class setintag(set_):
+    """:setintag <tag or tags> <option name>=<option value>
+
+    Sets an option for directories that are tagged with a specific tag.
+    """
+
+    def execute(self):
+        tags = self.arg(1)
+        self.shift()
+        name, value, _ = self.parse_setting_line()
+        self.fm.set_option_from_string(name, value, tags=tags)
+
+
+class default_linemode(Command):
+
+    def execute(self):
+        from ranger.container.fsobject import FileSystemObject
+
+        if len(self.args) < 2:
+            self.fm.notify(
+                "Usage: default_linemode [path=<regexp> | tag=<tag(s)>] <linemode>", bad=True)
+
+        # Extract options like "path=..." or "tag=..." from the command line
+        arg1 = self.arg(1)
+        method = "always"
+        argument = None
+        if arg1.startswith("path="):
+            method = "path"
+            argument = re.compile(arg1[5:])
+            self.shift()
+        elif arg1.startswith("tag="):
+            method = "tag"
+            argument = arg1[4:]
+            self.shift()
+
+        # Extract and validate the line mode from the command line
+        lmode = self.rest(1)
+        if lmode not in FileSystemObject.linemode_dict:
+            self.fm.notify(
+                "Invalid linemode: %s; should be %s" % (
+                    lmode, "/".join(FileSystemObject.linemode_dict)),
+                bad=True,
+            )
+
+        # Add the prepared entry to the fm.default_linemodes
+        entry = [method, argument, lmode]
+        self.fm.default_linemodes.appendleft(entry)
+
+        # Redraw the columns
+        if self.fm.ui.browser:
+            for col in self.fm.ui.browser.columns:
+                col.need_redraw = True
+
+    def tab(self, tabnum):
+        return (self.arg(0) + " " + lmode
+                for lmode in self.fm.thisfile.linemode_dict.keys()
+                if lmode.startswith(self.arg(1)))
+
+
+class quit(Command):  # pylint: disable=redefined-builtin
+    """:quit
+
+    Closes the current tab, if there's more than one tab.
+    Otherwise quits if there are no tasks in progress.
+    """
+    def _exit_no_work(self):
+        if self.fm.loader.has_work():
+            self.fm.notify('Not quitting: Tasks in progress: Use `quit!` to force quit')
+        else:
+            self.fm.exit()
+
+    def execute(self):
+        if len(self.fm.tabs) >= 2:
+            self.fm.tab_close()
+        else:
+            self._exit_no_work()
+
+
+class quit_bang(Command):
+    """:quit!
+
+    Closes the current tab, if there's more than one tab.
+    Otherwise force quits immediately.
+    """
+    name = 'quit!'
+    allow_abbrev = False
+
+    def execute(self):
+        if len(self.fm.tabs) >= 2:
+            self.fm.tab_close()
+        else:
+            self.fm.exit()
+
+
+class quitall(Command):
+    """:quitall
+
+    Quits if there are no tasks in progress.
+    """
+    def _exit_no_work(self):
+        if self.fm.loader.has_work():
+            self.fm.notify('Not quitting: Tasks in progress: Use `quitall!` to force quit')
+        else:
+            self.fm.exit()
+
+    def execute(self):
+        self._exit_no_work()
+
+
+class quitall_bang(Command):
+    """:quitall!
+
+    Force quits immediately.
+    """
+    name = 'quitall!'
+    allow_abbrev = False
+
+    def execute(self):
+        self.fm.exit()
+
+
+class terminal(Command):
+    """:terminal
+
+    Spawns an "x-terminal-emulator" starting in the current directory.
+    """
+
+    def execute(self):
+        from ranger.ext.get_executables import get_term
+        self.fm.run(get_term(), flags='f')
+
+
+class delete(Command):
+    """:delete
+
+    Tries to delete the selection or the files passed in arguments (if any).
+    The arguments use a shell-like escaping.
+
+    "Selection" is defined as all the "marked files" (by default, you
+    can mark files with space or v). If there are no marked files,
+    use the "current file" (where the cursor is)
+
+    When attempting to delete non-empty directories or multiple
+    marked files, it will require a confirmation.
+    """
+
+    allow_abbrev = False
+    escape_macros_for_shell = True
+
+    def execute(self):
+        import shlex
+        from functools import partial
+
+        def is_directory_with_files(path):
+            return os.path.isdir(path) and not os.path.islink(path) and len(os.listdir(path)) > 0
+
+        if self.rest(1):
+            files = shlex.split(self.rest(1))
+            many_files = (len(files) > 1 or is_directory_with_files(files[0]))
+        else:
+            cwd = self.fm.thisdir
+            tfile = self.fm.thisfile
+            if not cwd or not tfile:
+                self.fm.notify("Error: no file selected for deletion!", bad=True)
+                return
+
+            # relative_path used for a user-friendly output in the confirmation.
+            files = [f.relative_path for f in self.fm.thistab.get_selection()]
+            many_files = (cwd.marked_items or is_directory_with_files(tfile.path))
+
+        confirm = self.fm.settings.confirm_on_delete
+        if confirm != 'never' and (confirm != 'multiple' or many_files):
+            self.fm.ui.console.ask(
+                "Confirm deletion of: %s (y/N)" % ', '.join(files),
+                partial(self._question_callback, files),
+                ('n', 'N', 'y', 'Y'),
+            )
+        else:
+            # no need for a confirmation, just delete
+            self.fm.delete(files)
+
+    def tab(self, tabnum):
+        return self._tab_directory_content()
+
+    def _question_callback(self, files, answer):
+        if answer == 'y' or answer == 'Y':
+            self.fm.delete(files)
+
+
+class trash(Command):
+    """:trash
+
+    Tries to move the selection or the files passed in arguments (if any) to
+    the trash, using rifle rules with label "trash".
+    The arguments use a shell-like escaping.
+
+    "Selection" is defined as all the "marked files" (by default, you
+    can mark files with space or v). If there are no marked files,
+    use the "current file" (where the cursor is)
+
+    When attempting to trash non-empty directories or multiple
+    marked files, it will require a confirmation.
+    """
+
+    allow_abbrev = False
+    escape_macros_for_shell = True
+
+    def execute(self):
+        import shlex
+        from functools import partial
+
+        def is_directory_with_files(path):
+            return os.path.isdir(path) and not os.path.islink(path) and len(os.listdir(path)) > 0
+
+        if self.rest(1):
+            files = shlex.split(self.rest(1))
+            many_files = (len(files) > 1 or is_directory_with_files(files[0]))
+        else:
+            cwd = self.fm.thisdir
+            tfile = self.fm.thisfile
+            if not cwd or not tfile:
+                self.fm.notify("Error: no file selected for deletion!", bad=True)
+                return
+
+            # relative_path used for a user-friendly output in the confirmation.
+            files = [f.relative_path for f in self.fm.thistab.get_selection()]
+            many_files = (cwd.marked_items or is_directory_with_files(tfile.path))
+
+        confirm = self.fm.settings.confirm_on_delete
+        if confirm != 'never' and (confirm != 'multiple' or many_files):
+            self.fm.ui.console.ask(
+                "Confirm deletion of: %s (y/N)" % ', '.join(files),
+                partial(self._question_callback, files),
+                ('n', 'N', 'y', 'Y'),
+            )
+        else:
+            # no need for a confirmation, just delete
+            self.fm.execute_file(files, label='trash')
+
+    def tab(self, tabnum):
+        return self._tab_directory_content()
+
+    def _question_callback(self, files, answer):
+        if answer == 'y' or answer == 'Y':
+            self.fm.execute_file(files, label='trash')
+
+
+class jump_non(Command):
+    """:jump_non [-FLAGS...]
+
+    Jumps to first non-directory if highlighted file is a directory and vice versa.
+
+    Flags:
+     -r    Jump in reverse order
+     -w    Wrap around if reaching end of filelist
+    """
+    def __init__(self, *args, **kwargs):
+        super(jump_non, self).__init__(*args, **kwargs)
+
+        flags, _ = self.parse_flags()
+        self._flag_reverse = 'r' in flags
+        self._flag_wrap = 'w' in flags
+
+    @staticmethod
+    def _non(fobj, is_directory):
+        return fobj.is_directory if not is_directory else not fobj.is_directory
+
+    def execute(self):
+        tfile = self.fm.thisfile
+        passed = False
+        found_before = None
+        found_after = None
+        for fobj in self.fm.thisdir.files[::-1] if self._flag_reverse else self.fm.thisdir.files:
+            if fobj.path == tfile.path:
+                passed = True
+                continue
+
+            if passed:
+                if self._non(fobj, tfile.is_directory):
+                    found_after = fobj.path
+                    break
+            elif not found_before and self._non(fobj, tfile.is_directory):
+                found_before = fobj.path
+
+        if found_after:
+            self.fm.select_file(found_after)
+        elif self._flag_wrap and found_before:
+            self.fm.select_file(found_before)
+
+
+class mark_tag(Command):
+    """:mark_tag [<tags>]
+
+    Mark all tags that are tagged with either of the given tags.
+    When leaving out the tag argument, all tagged files are marked.
+    """
+    do_mark = True
+
+    def execute(self):
+        cwd = self.fm.thisdir
+        tags = self.rest(1).replace(" ", "")
+        if not self.fm.tags or not cwd.files:
+            return
+        for fileobj in cwd.files:
+            try:
+                tag = self.fm.tags.tags[fileobj.realpath]
+            except KeyError:
+                continue
+            if not tags or tag in tags:
+                cwd.mark_item(fileobj, val=self.do_mark)
+        self.fm.ui.status.need_redraw = True
+        self.fm.ui.need_redraw = True
+
+
+class console(Command):
+    """:console <command>
+
+    Open the console with the given command.
+    """
+
+    def execute(self):
+        position = None
+        if self.arg(1)[0:2] == '-p':
+            try:
+                position = int(self.arg(1)[2:])
+            except ValueError:
+                pass
+            else:
+                self.shift()
+        self.fm.open_console(self.rest(1), position=position)
+
+
+class load_copy_buffer(Command):
+    """:load_copy_buffer
+
+    Load the copy buffer from datadir/copy_buffer
+    """
+    copy_buffer_filename = 'copy_buffer'
+
+    def execute(self):
+        import sys
+        from ranger.container.file import File
+        from os.path import exists
+        fname = self.fm.datapath(self.copy_buffer_filename)
+        unreadable = IOError if sys.version_info[0] < 3 else OSError
+        try:
+            fobj = open(fname, 'r')
+        except unreadable:
+            return self.fm.notify(
+                "Cannot open %s" % (fname or self.copy_buffer_filename), bad=True)
+
+        self.fm.copy_buffer = set(File(g)
+                                  for g in fobj.read().split("\n") if exists(g))
+        fobj.close()
+        self.fm.ui.redraw_main_column()
+        return None
+
+
+class save_copy_buffer(Command):
+    """:save_copy_buffer
+
+    Save the copy buffer to datadir/copy_buffer
+    """
+    copy_buffer_filename = 'copy_buffer'
+
+    def execute(self):
+        import sys
+        fname = None
+        fname = self.fm.datapath(self.copy_buffer_filename)
+        unwritable = IOError if sys.version_info[0] < 3 else OSError
+        try:
+            fobj = open(fname, 'w')
+        except unwritable:
+            return self.fm.notify("Cannot open %s" %
+                                  (fname or self.copy_buffer_filename), bad=True)
+        fobj.write("\n".join(fobj.path for fobj in self.fm.copy_buffer))
+        fobj.close()
+        return None
+
+
+class unmark_tag(mark_tag):
+    """:unmark_tag [<tags>]
+
+    Unmark all tags that are tagged with either of the given tags.
+    When leaving out the tag argument, all tagged files are unmarked.
+    """
+    do_mark = False
+
+
+class mkdir(Command):
+    """:mkdir <dirname>
+
+    Creates a directory with the name <dirname>.
+    """
+
+    def execute(self):
+        from os.path import join, expanduser, lexists
+        from os import makedirs
+
+        dirname = join(self.fm.thisdir.path, expanduser(self.rest(1)))
+        if not lexists(dirname):
+            makedirs(dirname)
+        else:
+            self.fm.notify("file/directory exists!", bad=True)
+
+    def tab(self, tabnum):
+        return self._tab_directory_content()
+
+
+class touch(Command):
+    """:touch <fname>
+
+    Creates a file with the name <fname>.
+    """
+
+    def execute(self):
+        from os.path import join, expanduser, lexists
+
+        fname = join(self.fm.thisdir.path, expanduser(self.rest(1)))
+        if not lexists(fname):
+            open(fname, 'a').close()
+        else:
+            self.fm.notify("file/directory exists!", bad=True)
+
+    def tab(self, tabnum):
+        return self._tab_directory_content()
+
+
+class edit(Command):
+    """:edit <filename>
+
+    Opens the specified file in vim
+    """
+
+    def execute(self):
+        if not self.arg(1):
+            self.fm.edit_file(self.fm.thisfile.path)
+        else:
+            self.fm.edit_file(self.rest(1))
+
+    def tab(self, tabnum):
+        return self._tab_directory_content()
+
+
+class eval_(Command):
+    """:eval [-q] <python code>
+
+    Evaluates the python code.
+    `fm' is a reference to the FM instance.
+    To display text, use the function `p'.
+
+    Examples:
+    :eval fm
+    :eval len(fm.directories)
+    :eval p("Hello World!")
+    """
+    name = 'eval'
+    resolve_macros = False
+
+    def execute(self):
+        # The import is needed so eval() can access the ranger module
+        import ranger  # NOQA pylint: disable=unused-import,unused-variable
+        if self.arg(1) == '-q':
+            code = self.rest(2)
+            quiet = True
+        else:
+            code = self.rest(1)
+            quiet = False
+        global cmd, fm, p, quantifier  # pylint: disable=invalid-name,global-variable-undefined
+        fm = self.fm
+        cmd = self.fm.execute_console
+        p = fm.notify
+        quantifier = self.quantifier
+        try:
+            try:
+                result = eval(code)  # pylint: disable=eval-used
+            except SyntaxError:
+                exec(code)  # pylint: disable=exec-used
+            else:
+                if result and not quiet:
+                    p(result)
+        except Exception as err:  # pylint: disable=broad-except
+            fm.notify("The error `%s` was caused by evaluating the "
+                      "following code: `%s`" % (err, code), bad=True)
+
+
+class rename(Command):
+    """:rename <newname>
+
+    Changes the name of the currently highlighted file to <newname>
+    """
+
+    def execute(self):
+        from ranger.container.file import File
+        from os import access
+
+        new_name = self.rest(1)
+
+        if not new_name:
+            return self.fm.notify('Syntax: rename <newname>', bad=True)
+
+        if new_name == self.fm.thisfile.relative_path:
+            return None
+
+        if access(new_name, os.F_OK):
+            return self.fm.notify("Can't rename: file already exists!", bad=True)
+
+        if self.fm.rename(self.fm.thisfile, new_name):
+            file_new = File(new_name)
+            self.fm.bookmarks.update_path(self.fm.thisfile.path, file_new)
+            self.fm.tags.update_path(self.fm.thisfile.path, file_new.path)
+            self.fm.thisdir.pointed_obj = file_new
+            self.fm.thisfile = file_new
+
+        return None
+
+    def tab(self, tabnum):
+        return self._tab_directory_content()
+
+
+class rename_append(Command):
+    """:rename_append [-FLAGS...]
+
+    Opens the console with ":rename <current file>" with the cursor positioned
+    before the file extension.
+
+    Flags:
+     -a    Position before all extensions
+     -r    Remove everything before extensions
+    """
+    def __init__(self, *args, **kwargs):
+        super(rename_append, self).__init__(*args, **kwargs)
+
+        flags, _ = self.parse_flags()
+        self._flag_ext_all = 'a' in flags
+        self._flag_remove = 'r' in flags
+
+    def execute(self):
+        from ranger import MACRO_DELIMITER, MACRO_DELIMITER_ESC
+
+        tfile = self.fm.thisfile
+        relpath = tfile.relative_path.replace(MACRO_DELIMITER, MACRO_DELIMITER_ESC)
+        basename = tfile.basename.replace(MACRO_DELIMITER, MACRO_DELIMITER_ESC)
+
+        if basename.find('.') <= 0 or os.path.isdir(relpath):
+            self.fm.open_console('rename ' + relpath)
+            return
+
+        if self._flag_ext_all:
+            pos_ext = re.search(r'[^.]+', basename).end(0)
+        else:
+            pos_ext = basename.rindex('.')
+        pos = len(relpath) - len(basename) + pos_ext
+
+        if self._flag_remove:
+            relpath = relpath[:-len(basename)] + basename[pos_ext:]
+            pos -= pos_ext
+
+        self.fm.open_console('rename ' + relpath, position=(7 + pos))
+
+
+class chmod(Command):
+    """:chmod <octal number>
+
+    Sets the permissions of the selection to the octal number.
+
+    The octal number is between 0 and 777. The digits specify the
+    permissions for the user, the group and others.
+
+    A 1 permits execution, a 2 permits writing, a 4 permits reading.
+    Add those numbers to combine them. So a 7 permits everything.
+    """
+
+    def execute(self):
+        mode_str = self.rest(1)
+        if not mode_str:
+            if self.quantifier is None:
+                self.fm.notify("Syntax: chmod <octal number> "
+                               "or specify a quantifier", bad=True)
+                return
+            mode_str = str(self.quantifier)
+
+        try:
+            mode = int(mode_str, 8)
+            if mode < 0 or mode > 0o777:
+                raise ValueError
+        except ValueError:
+            self.fm.notify("Need an octal number between 0 and 777!", bad=True)
+            return
+
+        for fobj in self.fm.thistab.get_selection():
+            try:
+                os.chmod(fobj.path, mode)
+            except OSError as ex:
+                self.fm.notify(ex)
+
+        # reloading directory.  maybe its better to reload the selected
+        # files only.
+        self.fm.thisdir.content_outdated = True
+
+
+class bulkrename(Command):
+    """:bulkrename
+
+    This command opens a list of selected files in an external editor.
+    After you edit and save the file, it will generate a shell script
+    which does bulk renaming according to the changes you did in the file.
+
+    This shell script is opened in an editor for you to review.
+    After you close it, it will be executed.
+    """
+
+    def execute(self):
+        # pylint: disable=too-many-locals,too-many-statements,too-many-branches
+        import sys
+        import tempfile
+        from ranger.container.file import File
+        from ranger.ext.shell_escape import shell_escape as esc
+        py3 = sys.version_info[0] >= 3
+
+        # Create and edit the file list
+        filenames = [f.relative_path for f in self.fm.thistab.get_selection()]
+        with tempfile.NamedTemporaryFile(delete=False) as listfile:
+            listpath = listfile.name
+            if py3:
+                listfile.write("\n".join(filenames).encode(
+                    encoding="utf-8", errors="surrogateescape"))
+            else:
+                listfile.write("\n".join(filenames))
+        self.fm.execute_file([File(listpath)], app='editor')
+        with (open(listpath, 'r', encoding="utf-8", errors="surrogateescape") if
+              py3 else open(listpath, 'r')) as listfile:
+            new_filenames = listfile.read().split("\n")
+        os.unlink(listpath)
+        if all(a == b for a, b in zip(filenames, new_filenames)):
+            self.fm.notify("No renaming to be done!")
+            return
+
+        # Generate script
+        with tempfile.NamedTemporaryFile() as cmdfile:
+            script_lines = []
+            script_lines.append("# This file will be executed when you close"
+                                " the editor.")
+            script_lines.append("# Please double-check everything, clear the"
+                                " file to abort.")
+            new_dirs = []
+            for old, new in zip(filenames, new_filenames):
+                if old != new:
+                    basepath, _ = os.path.split(new)
+                    if (basepath and basepath not in new_dirs
+                            and not os.path.isdir(basepath)):
+                        script_lines.append("mkdir -vp -- {dir}".format(
+                            dir=esc(basepath)))
+                        new_dirs.append(basepath)
+                    script_lines.append("mv -vi -- {old} {new}".format(
+                        old=esc(old), new=esc(new)))
+            # Make sure not to forget the ending newline
+            script_content = "\n".join(script_lines) + "\n"
+            if py3:
+                cmdfile.write(script_content.encode(encoding="utf-8",
+                                                    errors="surrogateescape"))
+            else:
+                cmdfile.write(script_content)
+            cmdfile.flush()
+
+            # Open the script and let the user review it, then check if the
+            # script was modified by the user
+            self.fm.execute_file([File(cmdfile.name)], app='editor')
+            cmdfile.seek(0)
+            script_was_edited = (script_content != cmdfile.read())
+
+            # Do the renaming
+            self.fm.run(['/bin/sh', cmdfile.name], flags='w')
+
+        # Retag the files, but only if the script wasn't changed during review,
+        # because only then we know which are the source and destination files.
+        if not script_was_edited:
+            tags_changed = False
+            for old, new in zip(filenames, new_filenames):
+                if old != new:
+                    oldpath = self.fm.thisdir.path + '/' + old
+                    newpath = self.fm.thisdir.path + '/' + new
+                    if oldpath in self.fm.tags:
+                        old_tag = self.fm.tags.tags[oldpath]
+                        self.fm.tags.remove(oldpath)
+                        self.fm.tags.tags[newpath] = old_tag
+                        tags_changed = True
+            if tags_changed:
+                self.fm.tags.dump()
+        else:
+            fm.notify("files have not been retagged")
+
+
+class relink(Command):
+    """:relink <newpath>
+
+    Changes the linked path of the currently highlighted symlink to <newpath>
+    """
+
+    def execute(self):
+        new_path = self.rest(1)
+        tfile = self.fm.thisfile
+
+        if not new_path:
+            return self.fm.notify('Syntax: relink <newpath>', bad=True)
+
+        if not tfile.is_link:
+            return self.fm.notify('%s is not a symlink!' % tfile.relative_path, bad=True)
+
+        if new_path == os.readlink(tfile.path):
+            return None
+
+        try:
+            os.remove(tfile.path)
+            os.symlink(new_path, tfile.path)
+        except OSError as err:
+            self.fm.notify(err)
+
+        self.fm.reset()
+        self.fm.thisdir.pointed_obj = tfile
+        self.fm.thisfile = tfile
+
+        return None
+
+    def tab(self, tabnum):
+        if not self.rest(1):
+            return self.line + os.readlink(self.fm.thisfile.path)
+        return self._tab_directory_content()
+
+
+class help_(Command):
+    """:help
+
+    Display ranger's manual page.
+    """
+    name = 'help'
+
+    def execute(self):
+        def callback(answer):
+            if answer == "q":
+                return
+            elif answer == "m":
+                self.fm.display_help()
+            elif answer == "c":
+                self.fm.dump_commands()
+            elif answer == "k":
+                self.fm.dump_keybindings()
+            elif answer == "s":
+                self.fm.dump_settings()
+
+        self.fm.ui.console.ask(
+            "View [m]an page, [k]ey bindings, [c]ommands or [s]ettings? (press q to abort)",
+            callback,
+            list("mqkcs")
+        )
+
+
+class copymap(Command):
+    """:copymap <keys> <newkeys1> [<newkeys2>...]
+
+    Copies a "browser" keybinding from <keys> to <newkeys>
+    """
+    context = 'browser'
+
+    def execute(self):
+        if not self.arg(1) or not self.arg(2):
+            return self.fm.notify("Not enough arguments", bad=True)
+
+        for arg in self.args[2:]:
+            self.fm.ui.keymaps.copy(self.context, self.arg(1), arg)
+
+        return None
+
+
+class copypmap(copymap):
+    """:copypmap <keys> <newkeys1> [<newkeys2>...]
+
+    Copies a "pager" keybinding from <keys> to <newkeys>
+    """
+    context = 'pager'
+
+
+class copycmap(copymap):
+    """:copycmap <keys> <newkeys1> [<newkeys2>...]
+
+    Copies a "console" keybinding from <keys> to <newkeys>
+    """
+    context = 'console'
+
+
+class copytmap(copymap):
+    """:copytmap <keys> <newkeys1> [<newkeys2>...]
+
+    Copies a "taskview" keybinding from <keys> to <newkeys>
+    """
+    context = 'taskview'
+
+
+class unmap(Command):
+    """:unmap <keys> [<keys2>, ...]
+
+    Remove the given "browser" mappings
+    """
+    context = 'browser'
+
+    def execute(self):
+        for arg in self.args[1:]:
+            self.fm.ui.keymaps.unbind(self.context, arg)
+
+
+class uncmap(unmap):
+    """:uncmap <keys> [<keys2>, ...]
+
+    Remove the given "console" mappings
+    """
+    context = 'console'
+
+
+class cunmap(uncmap):
+    """:cunmap <keys> [<keys2>, ...]
+
+    Remove the given "console" mappings
+
+    DEPRECATED in favor of uncmap.
+    """
+
+    def execute(self):
+        self.fm.notify("cunmap is deprecated in favor of uncmap!")
+        super(cunmap, self).execute()
+
+
+class unpmap(unmap):
+    """:unpmap <keys> [<keys2>, ...]
+
+    Remove the given "pager" mappings
+    """
+    context = 'pager'
+
+
+class punmap(unpmap):
+    """:punmap <keys> [<keys2>, ...]
+
+    Remove the given "pager" mappings
+
+    DEPRECATED in favor of unpmap.
+    """
+
+    def execute(self):
+        self.fm.notify("punmap is deprecated in favor of unpmap!")
+        super(punmap, self).execute()
+
+
+class untmap(unmap):
+    """:untmap <keys> [<keys2>, ...]
+
+    Remove the given "taskview" mappings
+    """
+    context = 'taskview'
+
+
+class tunmap(untmap):
+    """:tunmap <keys> [<keys2>, ...]
+
+    Remove the given "taskview" mappings
+
+    DEPRECATED in favor of untmap.
+    """
+
+    def execute(self):
+        self.fm.notify("tunmap is deprecated in favor of untmap!")
+        super(tunmap, self).execute()
+
+
+class map_(Command):
+    """:map <keysequence> <command>
+
+    Maps a command to a keysequence in the "browser" context.
+
+    Example:
+    map j move down
+    map J move down 10
+    """
+    name = 'map'
+    context = 'browser'
+    resolve_macros = False
+
+    def execute(self):
+        if not self.arg(1) or not self.arg(2):
+            self.fm.notify("Syntax: {0} <keysequence> <command>".format(self.get_name()), bad=True)
+            return
+
+        self.fm.ui.keymaps.bind(self.context, self.arg(1), self.rest(2))
+
+
+class cmap(map_):
+    """:cmap <keysequence> <command>
+
+    Maps a command to a keysequence in the "console" context.
+
+    Example:
+    cmap <ESC> console_close
+    cmap <C-x> console_type test
+    """
+    context = 'console'
+
+
+class tmap(map_):
+    """:tmap <keysequence> <command>
+
+    Maps a command to a keysequence in the "taskview" context.
+    """
+    context = 'taskview'
+
+
+class pmap(map_):
+    """:pmap <keysequence> <command>
+
+    Maps a command to a keysequence in the "pager" context.
+    """
+    context = 'pager'
+
+
+class scout(Command):
+    """:scout [-FLAGS...] <pattern>
+
+    Swiss army knife command for searching, traveling and filtering files.
+
+    Flags:
+     -a    Automatically open a file on unambiguous match
+     -e    Open the selected file when pressing enter
+     -f    Filter files that match the current search pattern
+     -g    Interpret pattern as a glob pattern
+     -i    Ignore the letter case of the files
+     -k    Keep the console open when changing a directory with the command
+     -l    Letter skipping; e.g. allow "rdme" to match the file "readme"
+     -m    Mark the matching files after pressing enter
+     -M    Unmark the matching files after pressing enter
+     -p    Permanent filter: hide non-matching files after pressing enter
+     -r    Interpret pattern as a regular expression pattern
+     -s    Smart case; like -i unless pattern contains upper case letters
+     -t    Apply filter and search pattern as you type
+     -v    Inverts the match
+
+    Multiple flags can be combined.  For example, ":scout -gpt" would create
+    a :filter-like command using globbing.
+    """
+    # pylint: disable=bad-whitespace
+    AUTO_OPEN     = 'a'
+    OPEN_ON_ENTER = 'e'
+    FILTER        = 'f'
+    SM_GLOB       = 'g'
+    IGNORE_CASE   = 'i'
+    KEEP_OPEN     = 'k'
+    SM_LETTERSKIP = 'l'
+    MARK          = 'm'
+    UNMARK        = 'M'
+    PERM_FILTER   = 'p'
+    SM_REGEX      = 'r'
+    SMART_CASE    = 's'
+    AS_YOU_TYPE   = 't'
+    INVERT        = 'v'
+    # pylint: enable=bad-whitespace
+
+    def __init__(self, *args, **kwargs):
+        super(scout, self).__init__(*args, **kwargs)
+        self._regex = None
+        self.flags, self.pattern = self.parse_flags()
+
+    def execute(self):  # pylint: disable=too-many-branches
+        thisdir = self.fm.thisdir
+        flags = self.flags
+        pattern = self.pattern
+        regex = self._build_regex()
+        count = self._count(move=True)
+
+        self.fm.thistab.last_search = regex
+        self.fm.set_search_method(order="search")
+
+        if (self.MARK in flags or self.UNMARK in flags) and thisdir.files:
+            value = flags.find(self.MARK) > flags.find(self.UNMARK)
+            if self.FILTER in flags:
+                for fobj in thisdir.files:
+                    thisdir.mark_item(fobj, value)
+            else:
+                for fobj in thisdir.files:
+                    if regex.search(fobj.relative_path):
+                        thisdir.mark_item(fobj, value)
+
+        if self.PERM_FILTER in flags:
+            thisdir.filter = regex if pattern else None
+
+        # clean up:
+        self.cancel()
+
+        if self.OPEN_ON_ENTER in flags or \
+                (self.AUTO_OPEN in flags and count == 1):
+            if pattern == '..':
+                self.fm.cd(pattern)
+            else:
+                self.fm.move(right=1)
+                if self.quickly_executed:
+                    self.fm.block_input(0.5)
+
+        if self.KEEP_OPEN in flags and thisdir != self.fm.thisdir:
+            # reopen the console:
+            if not pattern:
+                self.fm.open_console(self.line)
+            else:
+                self.fm.open_console(self.line[0:-len(pattern)])
+
+        if self.quickly_executed and thisdir != self.fm.thisdir and pattern != "..":
+            self.fm.block_input(0.5)
+
+    def cancel(self):
+        self.fm.thisdir.temporary_filter = None
+        self.fm.thisdir.refilter()
+
+    def quick(self):
+        asyoutype = self.AS_YOU_TYPE in self.flags
+        if self.FILTER in self.flags:
+            self.fm.thisdir.temporary_filter = self._build_regex()
+        if self.PERM_FILTER in self.flags and asyoutype:
+            self.fm.thisdir.filter = self._build_regex()
+        if self.FILTER in self.flags or self.PERM_FILTER in self.flags:
+            self.fm.thisdir.refilter()
+        if self._count(move=asyoutype) == 1 and self.AUTO_OPEN in self.flags:
+            return True
+        return False
+
+    def tab(self, tabnum):
+        self._count(move=True, offset=tabnum)
+
+    def _build_regex(self):
+        if self._regex is not None:
+            return self._regex
+
+        frmat = "%s"
+        flags = self.flags
+        pattern = self.pattern
+
+        if pattern == ".":
+            return re.compile("")
+
+        # Handle carets at start and dollar signs at end separately
+        if pattern.startswith('^'):
+            pattern = pattern[1:]
+            frmat = "^" + frmat
+        if pattern.endswith('$'):
+            pattern = pattern[:-1]
+            frmat += "$"
+
+        # Apply one of the search methods
+        if self.SM_REGEX in flags:
+            regex = pattern
+        elif self.SM_GLOB in flags:
+            regex = re.escape(pattern).replace("\\*", ".*").replace("\\?", ".")
+        elif self.SM_LETTERSKIP in flags:
+            regex = ".*".join(re.escape(c) for c in pattern)
+        else:
+            regex = re.escape(pattern)
+
+        regex = frmat % regex
+
+        # Invert regular expression if necessary
+        if self.INVERT in flags:
+            regex = "^(?:(?!%s).)*$" % regex
+
+        # Compile Regular Expression
+        # pylint: disable=no-member
+        options = re.UNICODE
+        if self.IGNORE_CASE in flags or self.SMART_CASE in flags and \
+                pattern.islower():
+            options |= re.IGNORECASE
+        # pylint: enable=no-member
+        try:
+            self._regex = re.compile(regex, options)
+        except re.error:
+            self._regex = re.compile("")
+        return self._regex
+
+    def _count(self, move=False, offset=0):
+        count = 0
+        cwd = self.fm.thisdir
+        pattern = self.pattern
+
+        if not pattern or not cwd.files:
+            return 0
+        if pattern == '.':
+            return 0
+        if pattern == '..':
+            return 1
+
+        deq = deque(cwd.files)
+        deq.rotate(-cwd.pointer - offset)
+        i = offset
+        regex = self._build_regex()
+        for fsobj in deq:
+            if regex.search(fsobj.relative_path):
+                count += 1
+                if move and count == 1:
+                    cwd.move(to=(cwd.pointer + i) % len(cwd.files))
+                    self.fm.thisfile = cwd.pointed_obj
+            if count > 1:
+                return count
+            i += 1
+
+        return count == 1
+
+
+class narrow(Command):
+    """
+    :narrow
+
+    Show only the files selected right now. If no files are selected,
+    disable narrowing.
+    """
+    def execute(self):
+        if self.fm.thisdir.marked_items:
+            selection = [f.basename for f in self.fm.thistab.get_selection()]
+            self.fm.thisdir.narrow_filter = selection
+        else:
+            self.fm.thisdir.narrow_filter = None
+        self.fm.thisdir.refilter()
+
+
+class filter_inode_type(Command):
+    """
+    :filter_inode_type [dfl]
+
+    Displays only the files of specified inode type. Parameters
+    can be combined.
+
+        d display directories
+        f display files
+        l display links
+    """
+
+    def execute(self):
+        if not self.arg(1):
+            self.fm.thisdir.inode_type_filter = ""
+        else:
+            self.fm.thisdir.inode_type_filter = self.arg(1)
+        self.fm.thisdir.refilter()
+
+
+class filter_stack(Command):
+    """
+    :filter_stack ...
+
+    Manages the filter stack.
+
+        filter_stack add FILTER_TYPE ARGS...
+        filter_stack pop
+        filter_stack decompose
+        filter_stack rotate [N=1]
+        filter_stack clear
+        filter_stack show
+    """
+    def execute(self):
+        from ranger.core.filter_stack import SIMPLE_FILTERS, FILTER_COMBINATORS
+
+        subcommand = self.arg(1)
+
+        if subcommand == "add":
+            try:
+                self.fm.thisdir.filter_stack.append(
+                    SIMPLE_FILTERS[self.arg(2)](self.rest(3))
+                )
+            except KeyError:
+                FILTER_COMBINATORS[self.arg(2)](self.fm.thisdir.filter_stack)
+        elif subcommand == "pop":
+            self.fm.thisdir.filter_stack.pop()
+        elif subcommand == "decompose":
+            inner_filters = self.fm.thisdir.filter_stack.pop().decompose()
+            if inner_filters:
+                self.fm.thisdir.filter_stack.extend(inner_filters)
+        elif subcommand == "clear":
+            self.fm.thisdir.filter_stack = []
+        elif subcommand == "rotate":
+            rotate_by = int(self.arg(2) or self.quantifier or 1)
+            self.fm.thisdir.filter_stack = (
+                self.fm.thisdir.filter_stack[-rotate_by:]
+                + self.fm.thisdir.filter_stack[:-rotate_by]
+            )
+        elif subcommand == "show":
+            stack = list(map(str, self.fm.thisdir.filter_stack))
+            pager = self.fm.ui.open_pager()
+            pager.set_source(["Filter stack: "] + stack)
+            pager.move(to=100, percentage=True)
+            return
+        else:
+            self.fm.notify(
+                "Unknown subcommand: {}".format(subcommand),
+                bad=True
+            )
+            return
+
+        self.fm.thisdir.refilter()
+
+
+class grep(Command):
+    """:grep <string>
+
+    Looks for a string in all marked files or directories
+    """
+
+    def execute(self):
+        if self.rest(1):
+            action = ['grep', '--line-number']
+            action.extend(['-e', self.rest(1), '-r'])
+            action.extend(f.path for f in self.fm.thistab.get_selection())
+            self.fm.execute_command(action, flags='p')
+
+
+class flat(Command):
+    """
+    :flat <level>
+
+    Flattens the directory view up to the specified level.
+
+        -1 fully flattened
+         0 remove flattened view
+    """
+
+    def execute(self):
+        try:
+            level_str = self.rest(1)
+            level = int(level_str)
+        except ValueError:
+            level = self.quantifier
+        if level is None:
+            self.fm.notify("Syntax: flat <level>", bad=True)
+            return
+        if level < -1:
+            self.fm.notify("Need an integer number (-1, 0, 1, ...)", bad=True)
+        self.fm.thisdir.unload()
+        self.fm.thisdir.flat = level
+        self.fm.thisdir.load_content()
+
+
+class reset_previews(Command):
+    """:reset_previews
+
+    Reset the file previews.
+    """
+    def execute(self):
+        self.fm.previews = {}
+        self.fm.ui.need_redraw = True
+
+
+# Version control commands
+# --------------------------------
+
+
+class stage(Command):
+    """
+    :stage
+
+    Stage selected files for the corresponding version control system
+    """
+
+    def execute(self):
+        from ranger.ext.vcs import VcsError
+
+        if self.fm.thisdir.vcs and self.fm.thisdir.vcs.track:
+            filelist = [f.path for f in self.fm.thistab.get_selection()]
+            try:
+                self.fm.thisdir.vcs.action_add(filelist)
+            except VcsError as ex:
+                self.fm.notify('Unable to stage files: {0}'.format(ex))
+            self.fm.ui.vcsthread.process(self.fm.thisdir)
+        else:
+            self.fm.notify('Unable to stage files: Not in repository')
+
+
+class unstage(Command):
+    """
+    :unstage
+
+    Unstage selected files for the corresponding version control system
+    """
+
+    def execute(self):
+        from ranger.ext.vcs import VcsError
+
+        if self.fm.thisdir.vcs and self.fm.thisdir.vcs.track:
+            filelist = [f.path for f in self.fm.thistab.get_selection()]
+            try:
+                self.fm.thisdir.vcs.action_reset(filelist)
+            except VcsError as ex:
+                self.fm.notify('Unable to unstage files: {0}'.format(ex))
+            self.fm.ui.vcsthread.process(self.fm.thisdir)
+        else:
+            self.fm.notify('Unable to unstage files: Not in repository')
+
+# Metadata commands
+# --------------------------------
+
+
+class prompt_metadata(Command):
+    """
+    :prompt_metadata <key1> [<key2> [<key3> ...]]
+
+    Prompt the user to input metadata for multiple keys in a row.
+    """
+
+    _command_name = "meta"
+    _console_chain = None
+
+    def execute(self):
+        prompt_metadata._console_chain = self.args[1:]
+        self._process_command_stack()
+
+    def _process_command_stack(self):
+        if prompt_metadata._console_chain:
+            key = prompt_metadata._console_chain.pop()
+            self._fill_console(key)
+        else:
+            for col in self.fm.ui.browser.columns:
+                col.need_redraw = True
+
+    def _fill_console(self, key):
+        metadata = self.fm.metadata.get_metadata(self.fm.thisfile.path)
+        if key in metadata and metadata[key]:
+            existing_value = metadata[key]
+        else:
+            existing_value = ""
+        text = "%s %s %s" % (self._command_name, key, existing_value)
+        self.fm.open_console(text, position=len(text))
+
+
+class meta(prompt_metadata):
+    """
+    :meta <key> [<value>]
+
+    Change metadata of a file.  Deletes the key if value is empty.
+    """
+
+    def execute(self):
+        key = self.arg(1)
+        update_dict = dict()
+        update_dict[key] = self.rest(2)
+        selection = self.fm.thistab.get_selection()
+        for fobj in selection:
+            self.fm.metadata.set_metadata(fobj.path, update_dict)
+        self._process_command_stack()
+
+    def tab(self, tabnum):
+        key = self.arg(1)
+        metadata = self.fm.metadata.get_metadata(self.fm.thisfile.path)
+        if key in metadata and metadata[key]:
+            return [" ".join([self.arg(0), self.arg(1), metadata[key]])]
+        return [self.arg(0) + " " + k for k in sorted(metadata)
+                if k.startswith(self.arg(1))]
+
+
+class linemode(default_linemode):
+    """
+    :linemode <mode>
+
+    Change what is displayed as a filename.
+
+    - "mode" may be any of the defined linemodes (see: ranger.core.linemode).
+      "normal" is mapped to "filename".
+    """
+
+    def execute(self):
+        mode = self.arg(1)
+
+        if mode == "normal":
+            from ranger.core.linemode import DEFAULT_LINEMODE
+            mode = DEFAULT_LINEMODE
+
+        if mode not in self.fm.thisfile.linemode_dict:
+            self.fm.notify("Unhandled linemode: `%s'" % mode, bad=True)
+            return
+
+        self.fm.thisdir.set_linemode_of_children(mode)
+
+        # Ask the browsercolumns to redraw
+        for col in self.fm.ui.browser.columns:
+            col.need_redraw = True
+
+
+class yank(Command):
+    """:yank [name|dir|path]
+
+    Copies the file's name (default), directory or path into both the primary X
+    selection and the clipboard.
+    """
+
+    modes = {
+        '': 'basename',
+        'name_without_extension': 'basename_without_extension',
+        'name': 'basename',
+        'dir': 'dirname',
+        'path': 'path',
+    }
+
+    def execute(self):
+        import subprocess
+
+        def clipboards():
+            from ranger.ext.get_executables import get_executables
+            clipboard_managers = {
+                'xclip': [
+                    ['xclip'],
+                    ['xclip', '-selection', 'clipboard'],
+                ],
+                'xsel': [
+                    ['xsel'],
+                    ['xsel', '-b'],
+                ],
+                'wl-copy': [
+                    ['wl-copy'],
+                ],
+                'pbcopy': [
+                    ['pbcopy'],
+                ],
+            }
+            ordered_managers = ['pbcopy', 'wl-copy', 'xclip', 'xsel']
+            executables = get_executables()
+            for manager in ordered_managers:
+                if manager in executables:
+                    return clipboard_managers[manager]
+            return []
+
+        clipboard_commands = clipboards()
+
+        mode = self.modes[self.arg(1)]
+        selection = self.get_selection_attr(mode)
+
+        new_clipboard_contents = "\n".join(selection)
+        for command in clipboard_commands:
+            process = subprocess.Popen(command, universal_newlines=True,
+                                       stdin=subprocess.PIPE)
+            process.communicate(input=new_clipboard_contents)
+
+    def get_selection_attr(self, attr):
+        return [getattr(item, attr) for item in
+                self.fm.thistab.get_selection()]
+
+    def tab(self, tabnum):
+        return (
+            self.start(1) + mode for mode
+            in sorted(self.modes.keys())
+            if mode
+        )
+
+
+class paste_ext(Command):
+    """
+    :paste_ext
+
+    Like paste but tries to rename conflicting files so that the
+    file extension stays intact (e.g. file_.ext).
+    """
+
+    @staticmethod
+    def make_safe_path(dst):
+        if not os.path.exists(dst):
+            return dst
+
+        dst_name, dst_ext = os.path.splitext(dst)
+
+        if not dst_name.endswith("_"):
+            dst_name += "_"
+            if not os.path.exists(dst_name + dst_ext):
+                return dst_name + dst_ext
+        n = 0
+        test_dst = dst_name + str(n)
+        while os.path.exists(test_dst + dst_ext):
+            n += 1
+            test_dst = dst_name + str(n)
+
+        return test_dst + dst_ext
+
+    def execute(self):
+        return self.fm.paste(make_safe_path=paste_ext.make_safe_path)
+* rc.conf
+# ===================================================================
+# This file contains the default startup commands for ranger.
+# To change them, it is recommended to create either /etc/ranger/rc.conf
+# (system-wide) or ~/.config/ranger/rc.conf (per user) and add your custom
+# commands there.
+#
+# If you copy this whole file there, you may want to set the environment
+# variable RANGER_LOAD_DEFAULT_RC to FALSE to avoid loading it twice.
+#
+# The purpose of this file is mainly to define keybindings and settings.
+# For running more complex python code, please create a plugin in "plugins/" or
+# a command in "commands.py".
+#
+# Each line is a command that will be run before the user interface
+# is initialized.  As a result, you can not use commands which rely
+# on the UI such as :delete or :mark.
+# ===================================================================
+
+** Viewmode
+Which viewmode should be used?  Possible values are:
+    miller: Use miller columns which show multiple levels of the hierarchy
+    multipane: Midnight-commander like multipane view showing all tabs next to each other
+#+begin_src conf
+set viewmode miller
+#+end_src
+
+# How many columns are there, and what are their relative widths?
+set column_ratios 1,3,4
+
+# Which files should be hidden? (regular expression)
+set hidden_filter ^\.|\.(?:pyc|pyo|bak|swp)$|^lost\+found$|^__(py)?cache__$
+
+# Show hidden files? You can toggle this by typing 'zh'
+set show_hidden false
+
+# Ask for a confirmation when running the "delete" command?
+# Valid values are "always", "never", "multiple" (default)
+# With "multiple", ranger will ask only if you delete multiple files at once.
+set confirm_on_delete multiple
+
+# Use non-default path for file preview script?
+# ranger ships with scope.sh, a script that calls external programs (see
+# README.md for dependencies) to preview images, archives, etc.
+#set preview_script ~/.config/ranger/scope.sh
+
+# Use the external preview script or display simple plain text or image previews?
+set use_preview_script true
+
+# Automatically count files in the directory, even before entering them?
+set automatically_count_files true
+
+# Open all images in this directory when running certain image viewers
+# like feh or sxiv?  You can still open selected files by marking them.
+set open_all_images true
+
+# Be aware of version control systems and display information.
+set vcs_aware false
+
+# State of the four backends git, hg, bzr, svn. The possible states are
+# disabled, local (only show local info), enabled (show local and remote
+# information).
+set vcs_backend_git enabled
+set vcs_backend_hg disabled
+set vcs_backend_bzr disabled
+set vcs_backend_svn disabled
+
+# Truncate the long commit messages to this length when shown in the statusbar.
+set vcs_msg_length 50
+
+# Use one of the supported image preview protocols
+set preview_images false
+
+# Set the preview image method. Supported methods:
+#
+# * w3m (default):
+#   Preview images in full color with the external command "w3mimgpreview"?
+#   This requires the console web browser "w3m" and a supported terminal.
+#   It has been successfully tested with "xterm" and "urxvt" without tmux.
+#
+# * iterm2:
+#   Preview images in full color using iTerm2 image previews
+#   (http://iterm2.com/images.html). This requires using iTerm2 compiled
+#   with image preview support.
+#
+#   This feature relies on the dimensions of the terminal's font.  By default, a
+#   width of 8 and height of 11 are used.  To use other values, set the options
+#   iterm2_font_width and iterm2_font_height to the desired values.
+#
+# * terminology:
+#   Previews images in full color in the terminology terminal emulator.
+#   Supports a wide variety of formats, even vector graphics like svg.
+#
+# * urxvt:
+#   Preview images in full color using urxvt image backgrounds. This
+#   requires using urxvt compiled with pixbuf support.
+#
+# * urxvt-full:
+#   The same as urxvt but utilizing not only the preview pane but the
+#   whole terminal window.
+#
+# * kitty:
+#   Preview images in full color using kitty image protocol.
+#   Requires python PIL or pillow library.
+#   If ranger does not share the local filesystem with kitty
+#   the transfer method is changed to encode the whole image;
+#   while slower, this allows remote previews,
+#   for example during an ssh session.
+#   Tmux is unsupported.
+#
+# * ueberzug:
+#   Preview images in full color with the external command "ueberzug".
+#   Images are shown by using a child window.
+#   Only for users who run X11 in GNU/Linux.
+set preview_images_method w3m
+
+# Delay in seconds before displaying an image with the w3m method.
+# Increase it in case of experiencing display corruption.
+set w3m_delay 0.02
+
+# Manually adjust the w3mimg offset when using a terminal which needs this
+set w3m_offset 0
+
+# Default iTerm2 font size (see: preview_images_method: iterm2)
+set iterm2_font_width 8
+set iterm2_font_height 11
+
+# Use a unicode "..." character to mark cut-off filenames?
+set unicode_ellipsis false
+
+# BIDI support - try to properly display file names in RTL languages (Hebrew, Arabic).
+# Requires the python-bidi pip package
+set bidi_support false
+
+# Show dotfiles in the bookmark preview box?
+set show_hidden_bookmarks true
+
+# Which colorscheme to use?  These colorschemes are available by default:
+# default, jungle, snow, solarized
+set colorscheme default
+
+# Preview files on the rightmost column?
+# And collapse (shrink) the last column if there is nothing to preview?
+set preview_files true
+set preview_directories true
+set collapse_preview true
+
+# Wrap long lines in plain text previews?
+set wrap_plaintext_previews false
+
+# Save the console history on exit?
+set save_console_history true
+
+# Draw the status bar on top of the browser window (default: bottom)
+set status_bar_on_top false
+
+# Draw a progress bar in the status bar which displays the average state of all
+# currently running tasks which support progress bars?
+set draw_progress_bar_in_status_bar true
+
+# Draw borders around columns? (separators, outline, both, or none)
+# Separators are vertical lines between columns.
+# Outline draws a box around all the columns.
+# Both combines the two.
+set draw_borders none
+
+# Display the directory name in tabs?
+set dirname_in_tabs false
+
+# Enable the mouse support?
+set mouse_enabled true
+
+# Display the file size in the main column or status bar?
+set display_size_in_main_column true
+set display_size_in_status_bar true
+
+# Display the free disk space in the status bar?
+set display_free_space_in_status_bar true
+
+# Display files tags in all columns or only in main column?
+set display_tags_in_all_columns true
+
+# Set a title for the window? Updates both `WM_NAME` and `WM_ICON_NAME`
+set update_title false
+
+# Set the tmux/screen window-name to "ranger"?
+set update_tmux_title true
+
+# Shorten the title if it gets long?  The number defines how many
+# directories are displayed at once, 0 turns off this feature.
+set shorten_title 3
+
+# Show hostname in titlebar?
+set hostname_in_titlebar true
+
+# Abbreviate $HOME with ~ in the titlebar (first line) of ranger?
+set tilde_in_titlebar false
+
+# How many directory-changes or console-commands should be kept in history?
+set max_history_size 20
+set max_console_history_size 50
+
+# Try to keep so much space between the top/bottom border when scrolling:
+set scroll_offset 8
+
+# Flush the input after each key hit?  (Noticeable when ranger lags)
+set flushinput true
+
+# Padding on the right when there's no preview?
+# This allows you to click into the space to run the file.
+set padding_right true
+
+# Save bookmarks (used with mX and `X) instantly?
+# This helps to synchronize bookmarks between multiple ranger
+# instances but leads to *slight* performance loss.
+# When false, bookmarks are saved when ranger is exited.
+set autosave_bookmarks true
+
+# Save the "`" bookmark to disk.  This can be used to switch to the last
+# directory by typing "``".
+set save_backtick_bookmark true
+
+# You can display the "real" cumulative size of directories by using the
+# command :get_cumulative_size or typing "dc".  The size is expensive to
+# calculate and will not be updated automatically.  You can choose
+# to update it automatically though by turning on this option:
+set autoupdate_cumulative_size false
+
+# Turning this on makes sense for screen readers:
+set show_cursor false
+
+# One of: size, natural, basename, atime, ctime, mtime, type, random
+set sort natural
+
+# Additional sorting options
+set sort_reverse false
+set sort_case_insensitive true
+set sort_directories_first true
+set sort_unicode false
+
+# Enable this if key combinations with the Alt Key don't work for you.
+# (Especially on xterm)
+set xterm_alt_key false
+
+# Whether to include bookmarks in cd command
+set cd_bookmarks true
+
+# Changes case sensitivity for the cd command tab completion
+set cd_tab_case sensitive
+
+# Use fuzzy tab completion with the "cd" command. For example,
+# ":cd /u/lo/b<tab>" expands to ":cd /usr/local/bin".
+set cd_tab_fuzzy false
+
+# Avoid previewing files larger than this size, in bytes.  Use a value of 0 to
+# disable this feature.
+set preview_max_size 0
+
+# The key hint lists up to this size have their sublists expanded.
+# Otherwise the submaps are replaced with "...".
+set hint_collapse_threshold 10
+
+# Add the highlighted file to the path in the titlebar
+set show_selection_in_titlebar true
+
+# The delay that ranger idly waits for user input, in milliseconds, with a
+# resolution of 100ms.  Lower delay reduces lag between directory updates but
+# increases CPU load.
+set idle_delay 2000
+
+# When the metadata manager module looks for metadata, should it only look for
+# a ".metadata.json" file in the current directory, or do a deep search and
+# check all directories above the current one as well?
+set metadata_deep_search false
+
+# Clear all existing filters when leaving a directory
+set clear_filters_on_dir_change false
+
+# Disable displaying line numbers in main column.
+# Possible values: false, absolute, relative.
+set line_numbers false
+
+# When line_numbers=relative show the absolute line number in the
+# current line.
+set relative_current_zero false
+
+# Start line numbers from 1 instead of 0
+set one_indexed false
+
+# Save tabs on exit
+set save_tabs_on_exit false
+
+# Enable scroll wrapping - moving down while on the last item will wrap around to
+# the top and vice versa.
+set wrap_scroll false
+
+# Set the global_inode_type_filter to nothing.  Possible options: d, f and l for
+# directories, files and symlinks respectively.
+set global_inode_type_filter
+
+# This setting allows to freeze the list of files to save I/O bandwidth.  It
+# should be 'false' during start-up, but you can toggle it by pressing F.
+set freeze_files false
+
+# Print file sizes in bytes instead of the default human-readable format.
+set size_in_bytes false
+
+# Warn at startup if RANGER_LEVEL env var is greater than 0, in other words
+# give a warning when you nest ranger in a subshell started by ranger.
+# Special value "error" makes the warning more visible.
+set nested_ranger_warning true
+
+# ===================================================================
+# == Local Options
+# ===================================================================
+# You can set local options that only affect a single directory.
+
+# Examples:
+# setlocal path=~/downloads sort mtime
+
+# ===================================================================
+# == Command Aliases in the Console
+# ===================================================================
+
+alias e     edit
+alias q     quit
+alias q!    quit!
+alias qa    quitall
+alias qa!   quitall!
+alias qall  quitall
+alias qall! quitall!
+alias setl  setlocal
+
+alias filter     scout -prts
+alias find       scout -aets
+alias mark       scout -mr
+alias unmark     scout -Mr
+alias search     scout -rs
+alias search_inc scout -rts
+alias travel     scout -aefklst
+
+# ===================================================================
+# == Define keys for the browser
+# ===================================================================
+
+# Basic
+map     Q quitall
+map     q quit
+copymap q ZZ ZQ
+
+map R     reload_cwd
+map F     set freeze_files!
+map <C-r> reset
+map <C-l> redraw_window
+map <C-c> abort
+map <esc> change_mode normal
+map ~ set viewmode!
+
+map i display_file
+map <A-j> scroll_preview 1
+map <A-k> scroll_preview -1
+map ? help
+map W display_log
+map w taskview_open
+map S shell $SHELL
+
+map :  console
+map ;  console
+map !  console shell%space
+map @  console -p6 shell  %%s
+map #  console shell -p%space
+map s  console shell%space
+map r  chain draw_possible_programs; console open_with%space
+map f  console find%space
+map cd console cd%space
+
+map <C-p> chain console; eval fm.ui.console.history_move(-1)
+
+# Change the line mode
+map Mf linemode filename
+map Mi linemode fileinfo
+map Mm linemode mtime
+map Mh linemode humanreadablemtime
+map Mp linemode permissions
+map Ms linemode sizemtime
+map MH linemode sizehumanreadablemtime
+map Mt linemode metatitle
+
+# Tagging / Marking
+map t       tag_toggle
+map ut      tag_remove
+map "<any>  tag_toggle tag=%any
+map <Space> mark_files toggle=True
+map v       mark_files all=True toggle=True
+map uv      mark_files all=True val=False
+map V       toggle_visual_mode
+map uV      toggle_visual_mode reverse=True
+
+# For the nostalgics: Midnight Commander bindings
+map <F1> help
+map <F2> rename_append
+map <F3> display_file
+map <F4> edit
+map <F5> copy
+map <F6> cut
+map <F7> console mkdir%space
+map <F8> console delete
+#map <F8> console trash
+map <F10> exit
+
+# In case you work on a keyboard with dvorak layout
+map <UP>       move up=1
+map <DOWN>     move down=1
+map <LEFT>     move left=1
+map <RIGHT>    move right=1
+map <HOME>     move to=0
+map <END>      move to=-1
+map <PAGEDOWN> move down=1   pages=True
+map <PAGEUP>   move up=1     pages=True
+map <CR>       move right=1
+#map <DELETE>   console delete
+map <INSERT>   console touch%space
+
+# VIM-like
+copymap <UP>       k
+copymap <DOWN>     j
+copymap <LEFT>     h
+copymap <RIGHT>    l
+copymap <HOME>     gg
+copymap <END>      G
+copymap <PAGEDOWN> <C-F>
+copymap <PAGEUP>   <C-B>
+
+map J  move down=0.5  pages=True
+map K  move up=0.5    pages=True
+copymap J <C-D>
+copymap K <C-U>
+
+# Jumping around
+map H     history_go -1
+map L     history_go 1
+map ]     move_parent 1
+map [     move_parent -1
+map }     traverse
+map {     traverse_backwards
+map )     jump_non
+
+map gh cd ~
+map ge cd /etc
+map gu cd /usr
+map gd cd /dev
+map gl cd -r .
+map gL cd -r %f
+map go cd /opt
+map gv cd /var
+map gm cd /media
+map gi eval fm.cd('/run/media/' + os.getenv('USER'))
+map gM cd /mnt
+map gs cd /srv
+map gp cd /tmp
+map gr cd /
+map gR eval fm.cd(ranger.RANGERDIR)
+map g/ cd /
+map g? cd /usr/share/doc/ranger
+
+# External Programs
+map E  edit
+map du shell -p du --max-depth=1 -h --apparent-size
+map dU shell -p du --max-depth=1 -h --apparent-size | sort -rh
+map yp yank path
+map yd yank dir
+map yn yank name
+map y. yank name_without_extension
+
+# Filesystem Operations
+map =  chmod
+
+map cw console rename%space
+map a  rename_append
+map A  eval fm.open_console('rename ' + fm.thisfile.relative_path.replace("%", "%%"))
+map I  eval fm.open_console('rename ' + fm.thisfile.relative_path.replace("%", "%%"), position=7)
+
+map pp paste
+map po paste overwrite=True
+map pP paste append=True
+map pO paste overwrite=True append=True
+map pl paste_symlink relative=False
+map pL paste_symlink relative=True
+map phl paste_hardlink
+map pht paste_hardlinked_subtree
+map pd console paste dest=
+map p`<any> paste dest=%any_path
+map p'<any> paste dest=%any_path
+
+map dD console delete
+map dT console trash
+
+map dd cut
+map ud uncut
+map da cut mode=add
+map dr cut mode=remove
+map dt cut mode=toggle
+
+map yy copy
+map uy uncut
+map ya copy mode=add
+map yr copy mode=remove
+map yt copy mode=toggle
+
+# Temporary workarounds
+map dgg eval fm.cut(dirarg=dict(to=0), narg=quantifier)
+map dG  eval fm.cut(dirarg=dict(to=-1), narg=quantifier)
+map dj  eval fm.cut(dirarg=dict(down=1), narg=quantifier)
+map dk  eval fm.cut(dirarg=dict(up=1), narg=quantifier)
+map ygg eval fm.copy(dirarg=dict(to=0), narg=quantifier)
+map yG  eval fm.copy(dirarg=dict(to=-1), narg=quantifier)
+map yj  eval fm.copy(dirarg=dict(down=1), narg=quantifier)
+map yk  eval fm.copy(dirarg=dict(up=1), narg=quantifier)
+
+# Searching
+map /  console search%space
+map n  search_next
+map N  search_next forward=False
+map ct search_next order=tag
+map cs search_next order=size
+map ci search_next order=mimetype
+map cc search_next order=ctime
+map cm search_next order=mtime
+map ca search_next order=atime
+
+# Tabs
+map <C-n>     tab_new
+map <C-w>     tab_close
+map <TAB>     tab_move 1
+map <S-TAB>   tab_move -1
+map <A-Right> tab_move 1
+map <A-Left>  tab_move -1
+map gt        tab_move 1
+map gT        tab_move -1
+map gn        tab_new
+map gc        tab_close
+map uq        tab_restore
+map <a-1>     tab_open 1
+map <a-2>     tab_open 2
+map <a-3>     tab_open 3
+map <a-4>     tab_open 4
+map <a-5>     tab_open 5
+map <a-6>     tab_open 6
+map <a-7>     tab_open 7
+map <a-8>     tab_open 8
+map <a-9>     tab_open 9
+map <a-r>     tab_shift 1
+map <a-l>     tab_shift -1
+
+# Sorting
+map or set sort_reverse!
+map oz set sort=random
+map os chain set sort=size;      set sort_reverse=False
+map ob chain set sort=basename;  set sort_reverse=False
+map on chain set sort=natural;   set sort_reverse=False
+map om chain set sort=mtime;     set sort_reverse=False
+map oc chain set sort=ctime;     set sort_reverse=False
+map oa chain set sort=atime;     set sort_reverse=False
+map ot chain set sort=type;      set sort_reverse=False
+map oe chain set sort=extension; set sort_reverse=False
+
+map oS chain set sort=size;      set sort_reverse=True
+map oB chain set sort=basename;  set sort_reverse=True
+map oN chain set sort=natural;   set sort_reverse=True
+map oM chain set sort=mtime;     set sort_reverse=True
+map oC chain set sort=ctime;     set sort_reverse=True
+map oA chain set sort=atime;     set sort_reverse=True
+map oT chain set sort=type;      set sort_reverse=True
+map oE chain set sort=extension; set sort_reverse=True
+
+map dc get_cumulative_size
+
+# Settings
+map zc    set collapse_preview!
+map zd    set sort_directories_first!
+map zh    set show_hidden!
+map <C-h> set show_hidden!
+copymap <C-h> <backspace>
+copymap <backspace> <backspace2>
+map zI    set flushinput!
+map zi    set preview_images!
+map zm    set mouse_enabled!
+map zp    set preview_files!
+map zP    set preview_directories!
+map zs    set sort_case_insensitive!
+map zu    set autoupdate_cumulative_size!
+map zv    set use_preview_script!
+map zf    console filter%space
+copymap zf zz
+
+# Filter stack
+map .d filter_stack add type d
+map .f filter_stack add type f
+map .l filter_stack add type l
+map .m console filter_stack add mime%space
+map .n console filter_stack add name%space
+map .# console filter_stack add hash%space
+map ." filter_stack add duplicate
+map .' filter_stack add unique
+map .| filter_stack add or
+map .& filter_stack add and
+map .! filter_stack add not
+map .r filter_stack rotate
+map .c filter_stack clear
+map .* filter_stack decompose
+map .p filter_stack pop
+map .. filter_stack show
+
+# Bookmarks
+map `<any>  enter_bookmark %any
+map '<any>  enter_bookmark %any
+map m<any>  set_bookmark %any
+map um<any> unset_bookmark %any
+
+map m<bg>   draw_bookmarks
+copymap m<bg>  um<bg> `<bg> '<bg>
+
+# Generate all the chmod bindings with some python help:
+eval for arg in "rwxXst": cmd("map +u{0} shell -f chmod u+{0} %s".format(arg))
+eval for arg in "rwxXst": cmd("map +g{0} shell -f chmod g+{0} %s".format(arg))
+eval for arg in "rwxXst": cmd("map +o{0} shell -f chmod o+{0} %s".format(arg))
+eval for arg in "rwxXst": cmd("map +a{0} shell -f chmod a+{0} %s".format(arg))
+eval for arg in "rwxXst": cmd("map +{0}  shell -f chmod u+{0} %s".format(arg))
+
+eval for arg in "rwxXst": cmd("map -u{0} shell -f chmod u-{0} %s".format(arg))
+eval for arg in "rwxXst": cmd("map -g{0} shell -f chmod g-{0} %s".format(arg))
+eval for arg in "rwxXst": cmd("map -o{0} shell -f chmod o-{0} %s".format(arg))
+eval for arg in "rwxXst": cmd("map -a{0} shell -f chmod a-{0} %s".format(arg))
+eval for arg in "rwxXst": cmd("map -{0}  shell -f chmod u-{0} %s".format(arg))
+
+# ===================================================================
+# == Define keys for the console
+# ===================================================================
+# Note: Unmapped keys are passed directly to the console.
+
+# Basic
+cmap <tab>   eval fm.ui.console.tab()
+cmap <s-tab> eval fm.ui.console.tab(-1)
+cmap <ESC>   eval fm.ui.console.close()
+cmap <CR>    eval fm.ui.console.execute()
+cmap <C-l>   redraw_window
+
+copycmap <ESC> <C-c>
+copycmap <CR>  <C-j>
+
+# Move around
+cmap <up>    eval fm.ui.console.history_move(-1)
+cmap <down>  eval fm.ui.console.history_move(1)
+cmap <left>  eval fm.ui.console.move(left=1)
+cmap <right> eval fm.ui.console.move(right=1)
+cmap <home>  eval fm.ui.console.move(right=0, absolute=True)
+cmap <end>   eval fm.ui.console.move(right=-1, absolute=True)
+cmap <a-b> eval fm.ui.console.move_word(left=1)
+cmap <a-f> eval fm.ui.console.move_word(right=1)
+
+copycmap <a-b> <a-left>
+copycmap <a-f> <a-right>
+
+# Line Editing
+cmap <backspace>  eval fm.ui.console.delete(-1)
+cmap <delete>     eval fm.ui.console.delete(0)
+cmap <C-w>        eval fm.ui.console.delete_word()
+cmap <A-d>        eval fm.ui.console.delete_word(backward=False)
+cmap <C-k>        eval fm.ui.console.delete_rest(1)
+cmap <C-u>        eval fm.ui.console.delete_rest(-1)
+cmap <C-y>        eval fm.ui.console.paste()
+
+# And of course the emacs way
+copycmap <ESC>       <C-g>
+copycmap <up>        <C-p>
+copycmap <down>      <C-n>
+copycmap <left>      <C-b>
+copycmap <right>     <C-f>
+copycmap <home>      <C-a>
+copycmap <end>       <C-e>
+copycmap <delete>    <C-d>
+copycmap <backspace> <C-h>
+
+# Note: There are multiple ways to express backspaces.  <backspace> (code 263)
+# and <backspace2> (code 127).  To be sure, use both.
+copycmap <backspace> <backspace2>
+
+# This special expression allows typing in numerals:
+cmap <allow_quantifiers> false
+
+# ===================================================================
+# == Pager Keybindings
+# ===================================================================
+
+# Movement
+pmap  <down>      pager_move  down=1
+pmap  <up>        pager_move  up=1
+pmap  <left>      pager_move  left=4
+pmap  <right>     pager_move  right=4
+pmap  <home>      pager_move  to=0
+pmap  <end>       pager_move  to=-1
+pmap  <pagedown>  pager_move  down=1.0  pages=True
+pmap  <pageup>    pager_move  up=1.0    pages=True
+pmap  <C-d>       pager_move  down=0.5  pages=True
+pmap  <C-u>       pager_move  up=0.5    pages=True
+
+copypmap <UP>       k  <C-p>
+copypmap <DOWN>     j  <C-n> <CR>
+copypmap <LEFT>     h
+copypmap <RIGHT>    l
+copypmap <HOME>     g
+copypmap <END>      G
+copypmap <C-d>      d
+copypmap <C-u>      u
+copypmap <PAGEDOWN> n  f  <C-F>  <Space>
+copypmap <PAGEUP>   p  b  <C-B>
+
+# Basic
+pmap     <C-l> redraw_window
+pmap     <ESC> pager_close
+copypmap <ESC> q Q i <F3>
+pmap E      edit_file
+
+# ===================================================================
+# == Taskview Keybindings
+# ===================================================================
+
+# Movement
+tmap <up>        taskview_move up=1
+tmap <down>      taskview_move down=1
+tmap <home>      taskview_move to=0
+tmap <end>       taskview_move to=-1
+tmap <pagedown>  taskview_move down=1.0  pages=True
+tmap <pageup>    taskview_move up=1.0    pages=True
+tmap <C-d>       taskview_move down=0.5  pages=True
+tmap <C-u>       taskview_move up=0.5    pages=True
+
+copytmap <UP>       k  <C-p>
+copytmap <DOWN>     j  <C-n> <CR>
+copytmap <HOME>     g
+copytmap <END>      G
+copytmap <C-u>      u
+copytmap <PAGEDOWN> n  f  <C-F>  <Space>
+copytmap <PAGEUP>   p  b  <C-B>
+
+# Changing priority and deleting tasks
+tmap J          eval -q fm.ui.taskview.task_move(-1)
+tmap K          eval -q fm.ui.taskview.task_move(0)
+tmap dd         eval -q fm.ui.taskview.task_remove()
+tmap <pagedown> eval -q fm.ui.taskview.task_move(-1)
+tmap <pageup>   eval -q fm.ui.taskview.task_move(0)
+tmap <delete>   eval -q fm.ui.taskview.task_remove()
+
+# Basic
+tmap <C-l> redraw_window
+tmap <ESC> taskview_close
+copytmap <ESC> q Q w <C-c>
+* rfile.conf
+# vim: ft=cfg
+#
+# This is the configuration file of "rifle", ranger's file executor/opener.
+# Each line consists of conditions and a command.  For each line the conditions
+# are checked and if they are met, the respective command is run.
+#
+# Syntax:
+#   <condition1> , <condition2> , ... = command
+#
+# The command can contain these environment variables:
+#   $1-$9 | The n-th selected file
+#   $@    | All selected files
+#
+# If you use the special command "ask", rifle will ask you what program to run.
+#
+# Prefixing a condition with "!" will negate its result.
+# These conditions are currently supported:
+#   match <regexp> | The regexp matches $1
+#   ext <regexp>   | The regexp matches the extension of $1
+#   mime <regexp>  | The regexp matches the mime type of $1
+#   name <regexp>  | The regexp matches the basename of $1
+#   path <regexp>  | The regexp matches the absolute path of $1
+#   has <program>  | The program is installed (i.e. located in $PATH)
+#   env <variable> | The environment variable "variable" is non-empty
+#   file           | $1 is a file
+#   directory      | $1 is a directory
+#   number <n>     | change the number of this command to n
+#   terminal       | stdin, stderr and stdout are connected to a terminal
+#   X              | A graphical environment is available (darwin, Xorg, or Wayland)
+#
+# There are also pseudo-conditions which have a "side effect":
+#   flag <flags>  | Change how the program is run. See below.
+#   label <label> | Assign a label or name to the command so it can
+#                 | be started with :open_with <label> in ranger
+#                 | or `rifle -p <label>` in the standalone executable.
+#   else          | Always true.
+#
+# Flags are single characters which slightly transform the command:
+#   f | Fork the program, make it run in the background.
+#     |   New command = setsid $command >& /dev/null &
+#   r | Execute the command with root permissions
+#     |   New command = sudo $command
+#   t | Run the program in a new terminal.  If $TERMCMD is not defined,
+#     | rifle will attempt to extract it from $TERM.
+#     |   New command = $TERMCMD -e $command
+# Note: The "New command" serves only as an illustration, the exact
+# implementation may differ.
+# Note: When using rifle in ranger, there is an additional flag "c" for
+# only running the current file even if you have marked multiple files.
+
+#-------------------------------------------
+# Websites
+#-------------------------------------------
+# Rarely installed browsers get higher priority; It is assumed that if you
+# install a rare browser, you probably use it.  Firefox/konqueror/w3m on the
+# other hand are often only installed as fallback browsers.
+ext x?html?, has surf,             X, flag f = surf -- file://"$1"
+ext x?html?, has vimprobable,      X, flag f = vimprobable -- "$@"
+ext x?html?, has vimprobable2,     X, flag f = vimprobable2 -- "$@"
+ext x?html?, has qutebrowser,      X, flag f = qutebrowser -- "$@"
+ext x?html?, has dwb,              X, flag f = dwb -- "$@"
+ext x?html?, has jumanji,          X, flag f = jumanji -- "$@"
+ext x?html?, has luakit,           X, flag f = luakit -- "$@"
+ext x?html?, has uzbl,             X, flag f = uzbl -- "$@"
+ext x?html?, has uzbl-tabbed,      X, flag f = uzbl-tabbed -- "$@"
+ext x?html?, has uzbl-browser,     X, flag f = uzbl-browser -- "$@"
+ext x?html?, has uzbl-core,        X, flag f = uzbl-core -- "$@"
+ext x?html?, has midori,           X, flag f = midori -- "$@"
+ext x?html?, has opera,            X, flag f = opera -- "$@"
+ext x?html?, has firefox,          X, flag f = firefox -- "$@"
+ext x?html?, has seamonkey,        X, flag f = seamonkey -- "$@"
+ext x?html?, has iceweasel,        X, flag f = iceweasel -- "$@"
+ext x?html?, has chromium-browser, X, flag f = chromium-browser -- "$@"
+ext x?html?, has chromium,         X, flag f = chromium -- "$@"
+ext x?html?, has google-chrome,    X, flag f = google-chrome -- "$@"
+ext x?html?, has epiphany,         X, flag f = epiphany -- "$@"
+ext x?html?, has konqueror,        X, flag f = konqueror -- "$@"
+ext x?html?, has elinks,            terminal = elinks "$@"
+ext x?html?, has links2,            terminal = links2 "$@"
+ext x?html?, has links,             terminal = links "$@"
+ext x?html?, has lynx,              terminal = lynx -- "$@"
+ext x?html?, has w3m,               terminal = w3m "$@"
+
+#-------------------------------------------
+# Misc
+#-------------------------------------------
+# Define the "editor" for text files as first action
+mime ^text,  label editor = ${VISUAL:-$EDITOR} -- "$@"
+mime ^text,  label pager  = "$PAGER" -- "$@"
+!mime ^text, label editor, ext xml|json|csv|tex|py|pl|rb|js|sh|php = ${VISUAL:-$EDITOR} -- "$@"
+!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|rb|js|sh|php = "$PAGER" -- "$@"
+
+ext 1                         = man "$1"
+ext s[wmf]c, has zsnes, X     = zsnes "$1"
+ext s[wmf]c, has snes9x-gtk,X = snes9x-gtk "$1"
+ext nes, has fceux, X         = fceux "$1"
+ext exe                       = wine "$1"
+name ^[mM]akefile$            = make
+
+#--------------------------------------------
+# Scripts
+#-------------------------------------------
+ext py  = python3 -- "$1"
+ext pl  = perl -- "$1"
+ext rb  = ruby -- "$1"
+ext js  = node -- "$1"
+ext sh  = sh -- "$1"
+ext php = php -- "$1"
+
+#--------------------------------------------
+# Audio without X
+#-------------------------------------------
+mime ^audio|ogg$, terminal, has mpv      = mpv -- "$@"
+mime ^audio|ogg$, terminal, has mplayer2 = mplayer2 -- "$@"
+mime ^audio|ogg$, terminal, has mplayer  = mplayer -- "$@"
+ext midi?,        terminal, has wildmidi = wildmidi -- "$@"
+
+#--------------------------------------------
+# Video/Audio with a GUI
+#-------------------------------------------
+mime ^video|audio, has gmplayer, X, flag f = gmplayer -- "$@"
+mime ^video|audio, has smplayer, X, flag f = smplayer "$@"
+mime ^video,       has mpv,      X, flag f = mpv -- "$@"
+mime ^video,       has mpv,      X, flag f = mpv --fs -- "$@"
+mime ^video,       has mplayer2, X, flag f = mplayer2 -- "$@"
+mime ^video,       has mplayer2, X, flag f = mplayer2 -fs -- "$@"
+mime ^video,       has mplayer,  X, flag f = mplayer -- "$@"
+mime ^video,       has mplayer,  X, flag f = mplayer -fs -- "$@"
+mime ^video|audio, has vlc,      X, flag f = vlc -- "$@"
+mime ^video|audio, has totem,    X, flag f = totem -- "$@"
+mime ^video|audio, has totem,    X, flag f = totem --fullscreen -- "$@"
+
+#--------------------------------------------
+# Video without X
+#-------------------------------------------
+mime ^video, terminal, !X, has mpv       = mpv -- "$@"
+mime ^video, terminal, !X, has mplayer2  = mplayer2 -- "$@"
+mime ^video, terminal, !X, has mplayer   = mplayer -- "$@"
+
+#-------------------------------------------
+# Documents
+#-------------------------------------------
+ext pdf, has llpp,     X, flag f = llpp "$@"
+ext pdf, has zathura,  X, flag f = zathura -- "$@"
+ext pdf, has mupdf,    X, flag f = mupdf "$@"
+ext pdf, has mupdf-x11,X, flag f = mupdf-x11 "$@"
+ext pdf, has apvlv,    X, flag f = apvlv -- "$@"
+ext pdf, has xpdf,     X, flag f = xpdf -- "$@"
+ext pdf, has evince,   X, flag f = evince -- "$@"
+ext pdf, has atril,    X, flag f = atril -- "$@"
+ext pdf, has okular,   X, flag f = okular -- "$@"
+ext pdf, has epdfview, X, flag f = epdfview -- "$@"
+ext pdf, has qpdfview, X, flag f = qpdfview "$@"
+ext pdf, has open,     X, flag f = open "$@"
+
+ext docx?, has catdoc,       terminal = catdoc -- "$@" | "$PAGER"
+
+ext                        sxc|xlsx?|xlt|xlw|gnm|gnumeric, has gnumeric,    X, flag f = gnumeric -- "$@"
+ext                        sxc|xlsx?|xlt|xlw|gnm|gnumeric, has kspread,     X, flag f = kspread -- "$@"
+ext pptx?|od[dfgpst]|docx?|sxc|xlsx?|xlt|xlw|gnm|gnumeric, has libreoffice, X, flag f = libreoffice "$@"
+ext pptx?|od[dfgpst]|docx?|sxc|xlsx?|xlt|xlw|gnm|gnumeric, has soffice,     X, flag f = soffice "$@"
+ext pptx?|od[dfgpst]|docx?|sxc|xlsx?|xlt|xlw|gnm|gnumeric, has ooffice,     X, flag f = ooffice "$@"
+
+ext djvu, has zathura,X, flag f = zathura -- "$@"
+ext djvu, has evince, X, flag f = evince -- "$@"
+ext djvu, has atril,  X, flag f = atril -- "$@"
+ext djvu, has djview, X, flag f = djview -- "$@"
+
+ext epub, has ebook-viewer, X, flag f = ebook-viewer -- "$@"
+ext epub, has zathura,      X, flag f = zathura -- "$@"
+ext epub, has mupdf,        X, flag f = mupdf -- "$@"
+ext mobi, has ebook-viewer, X, flag f = ebook-viewer -- "$@"
+
+ext cbr,  has zathura,      X, flag f = zathura -- "$@"
+ext cbz,  has zathura,      X, flag f = zathura -- "$@"
+
+#-------------------------------------------
+# Images
+#-------------------------------------------
+mime ^image/svg, has inkscape, X, flag f = inkscape -- "$@"
+mime ^image/svg, has display,  X, flag f = display -- "$@"
+
+mime ^image, has imv,       X, flag f = imv -- "$@"
+mime ^image, has pqiv,      X, flag f = pqiv -- "$@"
+mime ^image, has sxiv,      X, flag f = sxiv -- "$@"
+mime ^image, has feh,       X, flag f = feh -- "$@"
+mime ^image, has mirage,    X, flag f = mirage -- "$@"
+mime ^image, has ristretto, X, flag f = ristretto "$@"
+mime ^image, has eog,       X, flag f = eog -- "$@"
+mime ^image, has eom,       X, flag f = eom -- "$@"
+mime ^image, has nomacs,    X, flag f = nomacs -- "$@"
+mime ^image, has geeqie,    X, flag f = geeqie -- "$@"
+mime ^image, has gpicview,  X, flag f = gpicview -- "$@"
+mime ^image, has gwenview,  X, flag f = gwenview -- "$@"
+mime ^image, has gimp,      X, flag f = gimp -- "$@"
+ext xcf,                    X, flag f = gimp -- "$@"
+
+#-------------------------------------------
+# Archives
+#-------------------------------------------
+
+# avoid password prompt by providing empty password
+ext 7z, has 7z = 7z -p l "$@" | "$PAGER"
+# This requires atool
+ext ace|ar|arc|bz2?|cab|cpio|cpt|deb|dgc|dmg|gz,     has atool = atool --list --each -- "$@" | "$PAGER"
+ext iso|jar|msi|pkg|rar|shar|tar|tgz|xar|xpi|xz|zip, has atool = atool --list --each -- "$@" | "$PAGER"
+ext 7z|ace|ar|arc|bz2?|cab|cpio|cpt|deb|dgc|dmg|gz,  has atool = atool --extract --each -- "$@"
+ext iso|jar|msi|pkg|rar|shar|tar|tgz|xar|xpi|xz|zip, has atool = atool --extract --each -- "$@"
+
+# Listing and extracting archives without atool:
+ext tar|gz|bz2|xz, has tar = tar vvtf "$1" | "$PAGER"
+ext tar|gz|bz2|xz, has tar = for file in "$@"; do tar vvxf "$file"; done
+ext bz2, has bzip2 = for file in "$@"; do bzip2 -dk "$file"; done
+ext zip, has unzip = unzip -l "$1" | "$PAGER"
+ext zip, has unzip = for file in "$@"; do unzip -d "${file%.*}" "$file"; done
+ext ace, has unace = unace l "$1" | "$PAGER"
+ext ace, has unace = for file in "$@"; do unace e "$file"; done
+ext rar, has unrar = unrar l "$1" | "$PAGER"
+ext rar, has unrar = for file in "$@"; do unrar x "$file"; done
+
+#-------------------------------------------
+# Fonts
+#-------------------------------------------
+mime ^font, has fontforge, X, flag f = fontforge "$@"
+
+#-------------------------------------------
+# Flag t fallback terminals
+#-------------------------------------------
+# Rarely installed terminal emulators get higher priority; It is assumed that
+# if you install a rare terminal emulator, you probably use it.
+# gnome-terminal/konsole/xterm on the other hand are often installed as part of
+# a desktop environment or as fallback terminal emulators.
+mime ^ranger/x-terminal-emulator, has terminology = terminology -e "$@"
+mime ^ranger/x-terminal-emulator, has kitty = kitty -- "$@"
+mime ^ranger/x-terminal-emulator, has alacritty = alacritty -e "$@"
+mime ^ranger/x-terminal-emulator, has sakura = sakura -e "$@"
+mime ^ranger/x-terminal-emulator, has lilyterm = lilyterm -e "$@"
+#mime ^ranger/x-terminal-emulator, has cool-retro-term = cool-retro-term -e "$@"
+mime ^ranger/x-terminal-emulator, has termite = termite -x '"$@"'
+#mime ^ranger/x-terminal-emulator, has yakuake = yakuake -e "$@"
+mime ^ranger/x-terminal-emulator, has guake = guake -ne "$@"
+mime ^ranger/x-terminal-emulator, has tilda = tilda -c "$@"
+mime ^ranger/x-terminal-emulator, has st = st -e "$@"
+mime ^ranger/x-terminal-emulator, has terminator = terminator -x "$@"
+mime ^ranger/x-terminal-emulator, has urxvt = urxvt -e "$@"
+mime ^ranger/x-terminal-emulator, has pantheon-terminal = pantheon-terminal -e "$@"
+mime ^ranger/x-terminal-emulator, has lxterminal = lxterminal -e "$@"
+mime ^ranger/x-terminal-emulator, has mate-terminal = mate-terminal -x "$@"
+mime ^ranger/x-terminal-emulator, has xfce4-terminal = xfce4-terminal -x "$@"
+mime ^ranger/x-terminal-emulator, has konsole = konsole -e "$@"
+mime ^ranger/x-terminal-emulator, has gnome-terminal = gnome-terminal -- "$@"
+mime ^ranger/x-terminal-emulator, has xterm = xterm -e "$@"
+
+#-------------------------------------------
+# Misc
+#-------------------------------------------
+label wallpaper, number 11, mime ^image, has feh, X = feh --bg-scale "$1"
+label wallpaper, number 12, mime ^image, has feh, X = feh --bg-tile "$1"
+label wallpaper, number 13, mime ^image, has feh, X = feh --bg-center "$1"
+label wallpaper, number 14, mime ^image, has feh, X = feh --bg-fill "$1"
+
+#-------------------------------------------
+# Generic file openers
+#-------------------------------------------
+label open, has xdg-open = xdg-open -- "$@"
+label open, has open     = open -- "$@"
+
+# Define the editor for non-text files + pager as last action
+              !mime ^text, !ext xml|json|csv|tex|py|pl|rb|js|sh|php  = ask
+label editor, !mime ^text, !ext xml|json|csv|tex|py|pl|rb|js|sh|php  = ${VISUAL:-$EDITOR} -- "$@"
+label pager,  !mime ^text, !ext xml|json|csv|tex|py|pl|rb|js|sh|php  = "$PAGER" -- "$@"
+
+
+######################################################################
+# The actions below are left so low down in this file on purpose, so #
+# they are never triggered accidentally.                             #
+######################################################################
+
+# Execute a file as program/script.
+mime application/x-executable = "$1"
+
+# Move the file to trash using trash-cli.
+label trash, has trash-put = trash-put -- "$@"
+label trash = mkdir -p -- ${XDG_DATA_DIR:-$HOME/.ranger}/ranger-trash; mv -- "$@" ${XDG_DATA_DIR:-$HOME/.ranger}/ranger-trash
+* scope.sh
+#!/usr/bin/env bash
+
+set -o noclobber -o noglob -o nounset -o pipefail
+IFS=$'\n'
+
+## If the option `use_preview_script` is set to `true`,
+## then this script will be called and its output will be displayed in ranger.
+## ANSI color codes are supported.
+## STDIN is disabled, so interactive scripts won't work properly
+
+## This script is considered a configuration file and must be updated manually.
+## It will be left untouched if you upgrade ranger.
+
+## Because of some automated testing we do on the script #'s for comments need
+## to be doubled up. Code that is commented out, because it's an alternative for
+## example, gets only one #.
+
+## Meanings of exit codes:
+## code | meaning    | action of ranger
+## -----+------------+-------------------------------------------
+## 0    | success    | Display stdout as preview
+## 1    | no preview | Display no preview at all
+## 2    | plain text | Display the plain content of the file
+## 3    | fix width  | Don't reload when width changes
+## 4    | fix height | Don't reload when height changes
+## 5    | fix both   | Don't ever reload
+## 6    | image      | Display the image `$IMAGE_CACHE_PATH` points to as an image preview
+## 7    | image      | Display the file directly as an image
+
+## Script arguments
+FILE_PATH="${1}"         # Full path of the highlighted file
+PV_WIDTH="${2}"          # Width of the preview pane (number of fitting characters)
+## shellcheck disable=SC2034 # PV_HEIGHT is provided for convenience and unused
+PV_HEIGHT="${3}"         # Height of the preview pane (number of fitting characters)
+IMAGE_CACHE_PATH="${4}"  # Full path that should be used to cache image preview
+PV_IMAGE_ENABLED="${5}"  # 'True' if image previews are enabled, 'False' otherwise.
+
+FILE_EXTENSION="${FILE_PATH##*.}"
+FILE_EXTENSION_LOWER="$(printf "%s" "${FILE_EXTENSION}" | tr '[:upper:]' '[:lower:]')"
+
+## Settings
+HIGHLIGHT_SIZE_MAX=262143  # 256KiB
+HIGHLIGHT_TABWIDTH=${HIGHLIGHT_TABWIDTH:-8}
+HIGHLIGHT_STYLE=${HIGHLIGHT_STYLE:-pablo}
+HIGHLIGHT_OPTIONS="--replace-tabs=${HIGHLIGHT_TABWIDTH} --style=${HIGHLIGHT_STYLE} ${HIGHLIGHT_OPTIONS:-}"
+PYGMENTIZE_STYLE=${PYGMENTIZE_STYLE:-autumn}
+OPENSCAD_IMGSIZE=${RNGR_OPENSCAD_IMGSIZE:-1000,1000}
+OPENSCAD_COLORSCHEME=${RNGR_OPENSCAD_COLORSCHEME:-Tomorrow Night}
+
+handle_extension() {
+    case "${FILE_EXTENSION_LOWER}" in
+        ## Archive
+        a|ace|alz|arc|arj|bz|bz2|cab|cpio|deb|gz|jar|lha|lz|lzh|lzma|lzo|\
+        rpm|rz|t7z|tar|tbz|tbz2|tgz|tlz|txz|tZ|tzo|war|xpi|xz|Z|zip)
+            atool --list -- "${FILE_PATH}" && exit 5
+            bsdtar --list --file "${FILE_PATH}" && exit 5
+            exit 1;;
+        rar)
+            ## Avoid password prompt by providing empty password
+            unrar lt -p- -- "${FILE_PATH}" && exit 5
+            exit 1;;
+        7z)
+            ## Avoid password prompt by providing empty password
+            7z l -p -- "${FILE_PATH}" && exit 5
+            exit 1;;
+
+        ## PDF
+        pdf)
+            ## Preview as text conversion
+            pdftotext -l 10 -nopgbrk -q -- "${FILE_PATH}" - | \
+              fmt -w "${PV_WIDTH}" && exit 5
+            mutool draw -F txt -i -- "${FILE_PATH}" 1-10 | \
+              fmt -w "${PV_WIDTH}" && exit 5
+            exiftool "${FILE_PATH}" && exit 5
+            exit 1;;
+
+        ## BitTorrent
+        torrent)
+            transmission-show -- "${FILE_PATH}" && exit 5
+            exit 1;;
+
+        ## OpenDocument
+        odt|ods|odp|sxw)
+            ## Preview as text conversion
+            odt2txt "${FILE_PATH}" && exit 5
+            ## Preview as markdown conversion
+            pandoc -s -t markdown -- "${FILE_PATH}" && exit 5
+            exit 1;;
+
+        ## XLSX
+        xlsx)
+            ## Preview as csv conversion
+            ## Uses: https://github.com/dilshod/xlsx2csv
+            xlsx2csv -- "${FILE_PATH}" && exit 5
+            exit 1;;
+
+        ## HTML
+        htm|html|xhtml)
+            ## Preview as text conversion
+            w3m -dump "${FILE_PATH}" && exit 5
+            lynx -dump -- "${FILE_PATH}" && exit 5
+            elinks -dump "${FILE_PATH}" && exit 5
+            pandoc -s -t markdown -- "${FILE_PATH}" && exit 5
+            ;;
+
+        ## JSON
+        json)
+            jq --color-output . "${FILE_PATH}" && exit 5
+            python -m json.tool -- "${FILE_PATH}" && exit 5
+            ;;
+
+        ## Direct Stream Digital/Transfer (DSDIFF) and wavpack aren't detected
+        ## by file(1).
+        dff|dsf|wv|wvc)
+            mediainfo "${FILE_PATH}" && exit 5
+            exiftool "${FILE_PATH}" && exit 5
+            ;; # Continue with next handler on failure
+    esac
+}
+
+handle_image() {
+    ## Size of the preview if there are multiple options or it has to be
+    ## rendered from vector graphics. If the conversion program allows
+    ## specifying only one dimension while keeping the aspect ratio, the width
+    ## will be used.
+    local DEFAULT_SIZE="1920x1080"
+
+    local mimetype="${1}"
+    case "${mimetype}" in
+        ## SVG
+        # image/svg+xml|image/svg)
+        #     convert -- "${FILE_PATH}" "${IMAGE_CACHE_PATH}" && exit 6
+        #     exit 1;;
+
+        ## DjVu
+        # image/vnd.djvu)
+        #     ddjvu -format=tiff -quality=90 -page=1 -size="${DEFAULT_SIZE}" \
+        #           - "${IMAGE_CACHE_PATH}" < "${FILE_PATH}" \
+        #           && exit 6 || exit 1;;
+
+        ## Image
+        image/*)
+            local orientation
+            orientation="$( identify -format '%[EXIF:Orientation]\n' -- "${FILE_PATH}" )"
+            ## If orientation data is present and the image actually
+            ## needs rotating ("1" means no rotation)...
+            if [[ -n "$orientation" && "$orientation" != 1 ]]; then
+                ## ...auto-rotate the image according to the EXIF data.
+                convert -- "${FILE_PATH}" -auto-orient "${IMAGE_CACHE_PATH}" && exit 6
+            fi
+
+            ## `w3mimgdisplay` will be called for all images (unless overriden
+            ## as above), but might fail for unsupported types.
+            exit 7;;
+
+        ## Video
+        # video/*)
+        #     # Thumbnail
+        #     ffmpegthumbnailer -i "${FILE_PATH}" -o "${IMAGE_CACHE_PATH}" -s 0 && exit 6
+        #     exit 1;;
+
+        ## PDF
+        # application/pdf)
+        #     pdftoppm -f 1 -l 1 \
+        #              -scale-to-x "${DEFAULT_SIZE%x*}" \
+        #              -scale-to-y -1 \
+        #              -singlefile \
+        #              -jpeg -tiffcompression jpeg \
+        #              -- "${FILE_PATH}" "${IMAGE_CACHE_PATH%.*}" \
+        #         && exit 6 || exit 1;;
+
+
+        ## ePub, MOBI, FB2 (using Calibre)
+        # application/epub+zip|application/x-mobipocket-ebook|\
+        # application/x-fictionbook+xml)
+        #     # ePub (using https://github.com/marianosimone/epub-thumbnailer)
+        #     epub-thumbnailer "${FILE_PATH}" "${IMAGE_CACHE_PATH}" \
+        #         "${DEFAULT_SIZE%x*}" && exit 6
+        #     ebook-meta --get-cover="${IMAGE_CACHE_PATH}" -- "${FILE_PATH}" \
+        #         >/dev/null && exit 6
+        #     exit 1;;
+
+        ## Font
+        application/font*|application/*opentype)
+            preview_png="/tmp/$(basename "${IMAGE_CACHE_PATH%.*}").png"
+            if fontimage -o "${preview_png}" \
+                         --pixelsize "120" \
+                         --fontname \
+                         --pixelsize "80" \
+                         --text "  ABCDEFGHIJKLMNOPQRSTUVWXYZ  " \
+                         --text "  abcdefghijklmnopqrstuvwxyz  " \
+                         --text "  0123456789.:,;(*!?') ff fl fi ffi ffl  " \
+                         --text "  The quick brown fox jumps over the lazy dog.  " \
+                         "${FILE_PATH}";
+            then
+                convert -- "${preview_png}" "${IMAGE_CACHE_PATH}" \
+                    && rm "${preview_png}" \
+                    && exit 6
+            else
+                exit 1
+            fi
+            ;;
+
+        ## Preview archives using the first image inside.
+        ## (Very useful for comic book collections for example.)
+        # application/zip|application/x-rar|application/x-7z-compressed|\
+        #     application/x-xz|application/x-bzip2|application/x-gzip|application/x-tar)
+        #     local fn=""; local fe=""
+        #     local zip=""; local rar=""; local tar=""; local bsd=""
+        #     case "${mimetype}" in
+        #         application/zip) zip=1 ;;
+        #         application/x-rar) rar=1 ;;
+        #         application/x-7z-compressed) ;;
+        #         *) tar=1 ;;
+        #     esac
+        #     { [ "$tar" ] && fn=$(tar --list --file "${FILE_PATH}"); } || \
+        #     { fn=$(bsdtar --list --file "${FILE_PATH}") && bsd=1 && tar=""; } || \
+        #     { [ "$rar" ] && fn=$(unrar lb -p- -- "${FILE_PATH}"); } || \
+        #     { [ "$zip" ] && fn=$(zipinfo -1 -- "${FILE_PATH}"); } || return
+        #
+        #     fn=$(echo "$fn" | python -c "import sys; import mimetypes as m; \
+        #             [ print(l, end='') for l in sys.stdin if \
+        #               (m.guess_type(l[:-1])[0] or '').startswith('image/') ]" |\
+        #         sort -V | head -n 1)
+        #     [ "$fn" = "" ] && return
+        #     [ "$bsd" ] && fn=$(printf '%b' "$fn")
+        #
+        #     [ "$tar" ] && tar --extract --to-stdout \
+        #         --file "${FILE_PATH}" -- "$fn" > "${IMAGE_CACHE_PATH}" && exit 6
+        #     fe=$(echo -n "$fn" | sed 's/[][*?\]/\\\0/g')
+        #     [ "$bsd" ] && bsdtar --extract --to-stdout \
+        #         --file "${FILE_PATH}" -- "$fe" > "${IMAGE_CACHE_PATH}" && exit 6
+        #     [ "$bsd" ] || [ "$tar" ] && rm -- "${IMAGE_CACHE_PATH}"
+        #     [ "$rar" ] && unrar p -p- -inul -- "${FILE_PATH}" "$fn" > \
+        #         "${IMAGE_CACHE_PATH}" && exit 6
+        #     [ "$zip" ] && unzip -pP "" -- "${FILE_PATH}" "$fe" > \
+        #         "${IMAGE_CACHE_PATH}" && exit 6
+        #     [ "$rar" ] || [ "$zip" ] && rm -- "${IMAGE_CACHE_PATH}"
+        #     ;;
+    esac
+
+    # openscad_image() {
+    #     TMPPNG="$(mktemp -t XXXXXX.png)"
+    #     openscad --colorscheme="${OPENSCAD_COLORSCHEME}" \
+    #         --imgsize="${OPENSCAD_IMGSIZE/x/,}" \
+    #         -o "${TMPPNG}" "${1}"
+    #     mv "${TMPPNG}" "${IMAGE_CACHE_PATH}"
+    # }
+
+    # case "${FILE_EXTENSION_LOWER}" in
+    #     ## 3D models
+    #     ## OpenSCAD only supports png image output, and ${IMAGE_CACHE_PATH}
+    #     ## is hardcoded as jpeg. So we make a tempfile.png and just
+    #     ## move/rename it to jpg. This works because image libraries are
+    #     ## smart enough to handle it.
+    #     csg|scad)
+    #         openscad_image "${FILE_PATH}" && exit 6
+    #         ;;
+    #     3mf|amf|dxf|off|stl)
+    #         openscad_image <(echo "import(\"${FILE_PATH}\");") && exit 6
+    #         ;;
+    # esac
+}
+
+handle_mime() {
+    local mimetype="${1}"
+    case "${mimetype}" in
+        ## RTF and DOC
+        text/rtf|*msword)
+            ## Preview as text conversion
+            ## note: catdoc does not always work for .doc files
+            ## catdoc: http://www.wagner.pp.ru/~vitus/software/catdoc/
+            catdoc -- "${FILE_PATH}" && exit 5
+            exit 1;;
+
+        ## DOCX, ePub, FB2 (using markdown)
+        ## You might want to remove "|epub" and/or "|fb2" below if you have
+        ## uncommented other methods to preview those formats
+        *wordprocessingml.document|*/epub+zip|*/x-fictionbook+xml)
+            ## Preview as markdown conversion
+            pandoc -s -t markdown -- "${FILE_PATH}" && exit 5
+            exit 1;;
+
+        ## XLS
+        *ms-excel)
+            ## Preview as csv conversion
+            ## xls2csv comes with catdoc:
+            ##   http://www.wagner.pp.ru/~vitus/software/catdoc/
+            xls2csv -- "${FILE_PATH}" && exit 5
+            exit 1;;
+
+        ## Text
+        text/* | */xml)
+            ## Syntax highlight
+            if [[ "$( stat --printf='%s' -- "${FILE_PATH}" )" -gt "${HIGHLIGHT_SIZE_MAX}" ]]; then
+                exit 2
+            fi
+            if [[ "$( tput colors )" -ge 256 ]]; then
+                local pygmentize_format='terminal256'
+                local highlight_format='xterm256'
+            else
+                local pygmentize_format='terminal'
+                local highlight_format='ansi'
+            fi
+            env HIGHLIGHT_OPTIONS="${HIGHLIGHT_OPTIONS}" highlight \
+                --out-format="${highlight_format}" \
+                --force -- "${FILE_PATH}" && exit 5
+            env COLORTERM=8bit bat --color=always --style="plain" \
+                -- "${FILE_PATH}" && exit 5
+            pygmentize -f "${pygmentize_format}" -O "style=${PYGMENTIZE_STYLE}"\
+                -- "${FILE_PATH}" && exit 5
+            exit 2;;
+
+        ## DjVu
+        image/vnd.djvu)
+            ## Preview as text conversion (requires djvulibre)
+            djvutxt "${FILE_PATH}" | fmt -w "${PV_WIDTH}" && exit 5
+            exiftool "${FILE_PATH}" && exit 5
+            exit 1;;
+
+        ## Image
+        image/*)
+            ## Preview as text conversion
+            # img2txt --gamma=0.6 --width="${PV_WIDTH}" -- "${FILE_PATH}" && exit 4
+            exiftool "${FILE_PATH}" && exit 5
+            exit 1;;
+
+        ## Video and audio
+        video/* | audio/*)
+            mediainfo "${FILE_PATH}" && exit 5
+            exiftool "${FILE_PATH}" && exit 5
+            exit 1;;
+    esac
+}
+
+handle_fallback() {
+    echo '----- File Type Classification -----' && file --dereference --brief -- "${FILE_PATH}" && exit 5
+    exit 1
+}
+
+
+MIMETYPE="$( file --dereference --brief --mime-type -- "${FILE_PATH}" )"
+if [[ "${PV_IMAGE_ENABLED}" == 'True' ]]; then
+    handle_image "${MIMETYPE}"
+fi
+handle_extension
+handle_mime "${MIMETYPE}"
+handle_fallback
+
+exit 1

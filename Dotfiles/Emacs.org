@@ -542,7 +542,7 @@ And also abusing the CPU!
 
 *** DONE Set visual-line-mode (word wrap)
 #+begin_src emacs-lisp
-(setq-default global-visual-line-mode)
+(setq-default global-visual-line-mode t)
 #+end_src
 
 *** DONE Set default font, maybe

@@ -1015,13 +1015,7 @@ persistent_logging: false
   # Highlight window damage information.
   #highlight_damage: false
 
-** Conky
-:properties:
-:header-args: :tangle .config/conky/conky.conf
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments both
-:end:
-
+** [[file:Conky.org][Conky]]
 ** [[file:Emacs.org][Emacs]]
 ** MangoHud [0/0]
 :properties:
@@ -2112,6 +2106,7 @@ sharpen=5
 #+end_src
 
 ** [[file:NeoVim.org][NeoVim]]
+** [[file:Ranger.org][Ranger]]
 * NixOS Configuration
 ** Notes
 *** Use system.nixos.label to add boot label

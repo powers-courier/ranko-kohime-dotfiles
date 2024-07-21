@@ -8,6 +8,9 @@
 #+property: header-args+ :padline no
 #+property: header-args+ :tangle ~/some/file
 
+* Notes
+Afterwards, set RANGER_LOAD_DEFAULT_RC=false as an environment variable to avoid loading the global configuration in addition to the local.
+
 
 * commands.py
 # This is a sample commands.py.  You can add your own commands here.

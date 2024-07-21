@@ -30,6 +30,8 @@ to view the report
 
 ** [[https://nfo-maker.com/][NFO Maker]]
 
+** [[https://zed.dev/][Zed.dev]]
+
 * Todo
 ** Add [[https://github.com/skeeto/endlessh][Endlessh]] for servers perhaps?
 ** Checkout [[https://yggdrasil-network.github.io/][Yggdrasil Network]] for VPN

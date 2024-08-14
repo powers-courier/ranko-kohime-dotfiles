@@ -79,6 +79,7 @@ Enable org-num-mode (Set org-startup-numerated to t)
 #+end_src
 
 ** Liberally borrow from DistroTube's [[https://gitlab.com/dwt1/dotfiles/-/blob/master/.config/emacs/config.org][config]]
+** Try tmr package?
 * Notes
 ** [[https://nhigham.com/2017/11/02/org-mode-syntax-cheat-sheet/][Org Mode Syntax Cheat Sheet]]
 ** Formatting Lisp

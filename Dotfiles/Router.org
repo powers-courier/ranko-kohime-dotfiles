@@ -1,0 +1,474 @@
+#+title: NixOS Router Configuration
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+
+This will probably not require flakes, so we'll just put the flat configuration.nix here
+
+* Notes
+DHCP provided by Kea
+Use [[https://github.com/chayleaf/nixos-router][NixOS Router]]?
+
+* Router Configuration [7/11]
+:properties:
+:header-args+: :tangle ~/Dotfiles/nix/router-configuration.nix
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments no :padline no
+:header-args+: :shebang "{ config, pkgs, ... }:"
+:end:
+** NoWeb Variables [4/4]
+*** DONE router-user
+#+name: router-user
+#+begin_src text :tangle no
+routeymcrouterface
+#+end_src
+
+*** DONE router-hostname
+#+name: router-hostname
+#+begin_src text :tangle no
+routey-mcrouterface
+#+end_src
+
+*** DONE router-localisation
+#+name: router-localisation
+#+begin_src text :tangle no
+en_US.UTF-8
+#+end_src
+
+*** router-static-dhcp
+#+name: router-static-dhcp
+#+begin_src text :tangle no
+#+end_src
+
+*** DONE router-timezone
+#+name: router-timezone
+#+begin_src text :tangle no
+America/Chicago
+#+end_src
+
+** DONE Premable
+#+begin_src nix
+{
+#+end_src
+
+** DONE imports
+#+begin_src nix
+imports = [
+            ./hardware-configuration.nix
+          ];
+#+end_src
+
+** DONE boot
+#+begin_src nix
+boot.loader.systemd-boot.enable = true;
+boot.loader.efi.canTouchEfiVariables = false;
+#+end_src
+
+** TODO environment [2/3]
+*** DONE environment.Preabmle
+#+begin_src nix
+environment = {
+#+end_src
+
+*** TODO systemPackages
+#+begin_src nix
+systemPackages = with pkgs; [
+
+                            ];
+#+end_src
+
+*** DONE environment.Prologue
+#+begin_src nix
+};
+#+end_src
+
+** DONE Internationalisation [4/4]
+*** DONE i18n.Preamble
+#+begin_src nix
+i18n = {
+#+end_src
+
+*** DONE defaultLocale
+#+begin_src nix :noweb yes
+defaultLocale = "<<router-localisation>>";
+#+end_src
+
+*** DONE extraLocaleSettings
+#+begin_src nix :noweb yes
+extraLocaleSettings = {
+                        LC_ADDRESS = "<<router-localisation>>";
+                        LC_IDENTIFICATION = "<<router-localisation>>";
+                        LC_MEASUREMENT = "<<router-localisation>>";
+                        LC_MONETARY = "<<router-localisation>>";
+                        LC_NAME = "<<router-localisation>>";
+                        LC_NUMERIC = "<<router-localisation>>";
+                        LC_PAPER = "<<router-localisation>>";
+                        LC_TELEPHONE = "<<router-localisation>>";
+                        LC_TIME = "<<router-localisation>>";
+                      };
+#+end_src
+
+*** DONE i18n.Prologue
+#+begin_src nix
+};
+#+end_src
+
+** TODO networking [3/6]
+*** DONE networking.Preamble
+#+begin_src nix
+networking = {
+#+end_src
+
+*** TODO firewall [5/7]
+**** DONE firewall.Preamble
+#+begin_src nix
+firewall = {
+#+end_src
+
+**** TODO allowedTCPPorts
+#+begin_src nix :tangle no
+networking.firewall.allowedTCPPorts = [ ... ];
+#+end_src
+
+**** TODO allowedUDPPorts
+#+begin_src nix :tangle no
+networking.firewall.allowedUDPPorts = [ ... ];
+#+end_src
+
+**** DONE allowPing
+#+begin_src nix
+allowPing = false;
+#+end_src
+
+**** DONE checkReversePath
+#+begin_src nix
+checkReversePath = strict;
+#+end_src
+
+**** DONE enable
+#+begin_src nix
+enable = true;
+#+end_src
+
+**** DONE firewall.Prologue
+#+begin_src nix
+};
+#+end_src
+
+*** DONE hostName
+#+begin_src nix :noweb yes
+hostName = "<<router-hostname>>";
+#+end_src
+
+*** TODO networkmanager [3/3]
+**** DONE Preamble
+#+begin_src nix
+networkmanager = {
+#+end_src
+
+**** DONE enable
+#+begin_src nix
+enable = true;
+#+end_src
+
+**** DONE Prologue
+#+begin_src nix
+};
+#+end_src
+
+*** TODO wireless [3/3]
+**** DONE Preabmle
+#+begin_src nix
+wireless = {
+#+end_src
+
+**** DONE enable
+#+begin_src nix
+enable = true;
+#+end_src
+
+**** DONE Prologue
+#+begin_src nix
+};
+#+end_src
+
+*** DONE networking.Prologue
+#+begin_src nix
+};
+#+end_src
+
+** TODO services
+*** services.Preamble
+#+begin_src nix
+services = {
+#+end_src
+
+*** openssh
+**** openssh.Preamble
+#+begin_src nix
+services.openssh = {
+#+end_src
+
+**** enable
+#+begin_src nix
+enable = true;
+#+end_src
+
+**** hostKeys
+#+begin_src nix
+hostKeys = [
+  {
+    bits = 4096;
+    openSSHFormat = true;
+    path = "/persistent/etc/ssh/ssh_host_rsa_key";
+    rounds = 100;
+    type = "rsa";
+  }
+  {
+    comment = "key comment";
+    path = "/persistent/etc/ssh/ssh_host_ed25519_key";
+    rounds = 100;
+    type = "ed25519";
+  }
+]
+#+end_src
+
+**** listenAddress
+#+begin_src nix
+listenAddress = [
+                  { addr = "192.168.0.1"; port = 22; }
+                ];
+#+end_src
+
+**** openFirewall
+#+begin_src nix
+openFirewall = true;
+#+end_src
+
+**** settings
+***** Preamble
+#+begin_src nix
+settings = {
+#+end_src
+
+***** AllowUsers
+#+begin_src nix :noweb yes
+AllowUsers = [ <<router-user>> ]
+#+end_src
+
+***** PasswordAuthentication
+#+begin_src nix
+PasswordAuthentication = false;
+#+end_src
+
+***** PermitRootLogin
+#+begin_src nix
+PermitRootLogin  = no;
+#+end_src
+
+#+begin_src nix
+    # Ciphers and keying
+    #RekeyLimit default none
+    
+    # Logging
+    #SyslogFacility AUTH
+    #LogLevel INFO
+    
+    # Authentication:
+    
+    #LoginGraceTime 2m
+    #StrictModes yes
+    #MaxAuthTries 6
+    #MaxSessions 10
+    
+    #PubkeyAuthentication yes
+    
+    # Expect .ssh/authorized_keys2 to be disregarded by default in future.
+    #AuthorizedKeysFile	.ssh/authorized_keys .ssh/authorized_keys2
+    
+    #AuthorizedPrincipalsFile none
+    
+    #AuthorizedKeysCommand none
+    #AuthorizedKeysCommandUser nobody
+    
+    # For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
+    #HostbasedAuthentication no
+    # Change to yes if you don't trust ~/.ssh/known_hosts for
+    # HostbasedAuthentication
+    #IgnoreUserKnownHosts no
+    # Don't read the user's ~/.rhosts and ~/.shosts files
+    #IgnoreRhosts yes
+    
+    # To disable tunneled clear text passwords, change to no here!
+    #PermitEmptyPasswords no
+    
+    # Change to yes to enable challenge-response passwords (beware issues with
+    # some PAM modules and threads)
+    KbdInteractiveAuthentication no
+    
+    # Kerberos options
+    #KerberosAuthentication no
+    #KerberosOrLocalPasswd yes
+    #KerberosTicketCleanup yes
+    #KerberosGetAFSToken no
+    
+    # GSSAPI options
+    #GSSAPIAuthentication no
+    #GSSAPICleanupCredentials yes
+    #GSSAPIStrictAcceptorCheck yes
+    #GSSAPIKeyExchange no
+    
+    # Set this to 'yes' to enable PAM authentication, account processing,
+    # and session processing. If this is enabled, PAM authentication will
+    # be allowed through the KbdInteractiveAuthentication and
+    # PasswordAuthentication.  Depending on your PAM configuration,
+    # PAM authentication via KbdInteractiveAuthentication may bypass
+    # the setting of "PermitRootLogin without-password".
+    # If you just want the PAM account and session checks to run without
+    # PAM authentication, then enable this but set PasswordAuthentication
+    # and KbdInteractiveAuthentication to 'no'.
+    UsePAM yes
+    
+    #AllowAgentForwarding yes
+    #AllowTcpForwarding yes
+    #GatewayPorts no
+    X11Forwarding yes
+    #X11DisplayOffset 10
+    #X11UseLocalhost yes
+    #PermitTTY yes
+    PrintMotd no
+    #PrintLastLog yes
+    #TCPKeepAlive yes
+    #PermitUserEnvironment no
+    #Compression delayed
+    #ClientAliveInterval 0
+    #ClientAliveCountMax 3
+    #UseDNS no
+    #PidFile /run/sshd.pid
+    #MaxStartups 10:30:100
+    #PermitTunnel no
+    #ChrootDirectory none
+    #VersionAddendum none
+    
+    # no default banner path
+    #Banner none
+    
+    # Allow client to pass locale environment variables
+    AcceptEnv LANG LC_*
+    
+    # override default of no subsystems
+    Subsystem	sftp	/usr/lib/openssh/sftp-server
+    
+    # Example of overriding settings on a per-user basis
+    #Match User anoncvs
+    #	X11Forwarding no
+    #	AllowTcpForwarding no
+    #	PermitTTY no
+    #	ForceCommand cvs server
+};
+#+end_src
+
+**** openssh.Prologue
+#+begin_src nix
+};
+#+end_src
+
+*** services.Prologue
+#+begin_src nix
+};
+#+end_src
+
+** DONE system [3/3]
+*** DONE system.Preamble
+#+begin_src nix
+system = {
+#+end_src
+
+*** DONE stateVersion
+#+begin_src nix
+stateVersion = "23.11";
+#+end_src
+
+*** DONE system.Prologue
+#+begin_src nix
+};
+#+end_src
+
+** DONE time
+#+begin_src nix :noweb yes
+time.timeZone = "<<router-timezone>>";
+#+end_src
+
+** TODO users [3/4]
+*** DONE users.Preamble
+#+begin_src nix
+users = {
+#+end_src
+*** DONE mutableUsers
+Disable changing of user accounts and passwords
+
+#+begin_src nix
+mutableUsers = false;
+#+end_src
+
+*** TODO users2 [3/4]
+**** DONE users2.Preamble
+#+begin_src nix
+users = {
+#+end_src
+**** TODO Actual User [2/3]
+***** DONE Actual User.Preamble
+#+begin_src nix :noweb yes
+<<router-user>> = {
+#+end_src
+
+***** TODO openssh
+#+begin_src nix
+openssh.authorizedKeys.keys = [ ]
+#+end_src
+
+***** DONE Actual User.Prologue
+#+begin_src nix
+};
+#+end_src
+
+**** DONE root user [3/3]
+***** DONE root user.Preamble
+#+begin_src nix
+root. = {
+#+end_src
+
+***** DONE hashedPassword
+Setting this to "!" effectively disables root login
+#+begin_src nix
+hashedPassword = "!";
+#+end_src
+
+***** DONE root user.Prologue
+#+begin_src nix
+};
+#+end_src
+
+**** DONE users2.Prologue
+#+begin_src nix
+};
+#+end_src
+
+*** DONE users.Prologue
+#+begin_src nix
+};
+#+end_src
+** DONE Prologue
+#+begin_src nix
+}
+#+end_src
+** Default configuration.nix
+#+begin_src nil :tangle no
+  # Some programs need SUID wrappers, can be configured further or are
+  # started in user sessions.
+  # programs.mtr.enable = true;
+  # programs.gnupg.agent = {
+  #   enable = true;
+  #   enableSSHSupport = true;
+  # };
+#+end_src

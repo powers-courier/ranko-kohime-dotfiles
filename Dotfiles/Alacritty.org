@@ -1,344 +1,412 @@
-# Import additional configuration files
-#
-# Imports are loaded in order, skipping all missing files, with the importing
-# file being loaded last. If a field is already present in a previous import, it
-# will be replaced.
-#
-# All imports must either be absolute paths starting with `/`, or paths relative
-# to the user's home directory starting with `~/`.
+#+title: Alacritty Configuration
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args+ :mkdirp yes
+#+property: header-args+ :tangle-mode (identity #o444)
+#+property: header-args+ :comments no
+#+property: header-args+ :padline no
+#+property: header-args+ :tangle .config/alacritty/alacritty.yml
+
+
+*  Alacritty [0/0]
+**  Import additional configuration files
+Imports are loaded in order, skipping all missing files, with the importing
+file being loaded last. If a field is already present in a previous import, it
+will be replaced.
+
+All imports must either be absolute paths starting with `/`, or paths relative
+to the user's home directory starting with `~/`.
+
+/path/to/alacritty.yml
+
+#+begin_src yaml
 #import:
-#  - /path/to/alacritty.yml
+#+end_src
 
-# Any items in the `env` entry below will be added as
-# environment variables. Some entries may override variables
-# set by alacritty itself.
+**  Environment variables
+Any items in the `env` entry below will be added as
+environment variables. Some entries may override variables
+set by alacritty itself.
+#+begin_src yaml
 #env:
-  # TERM variable
-  #
-  # This value is used to set the `$TERM` environment variable for
-  # each instance of Alacritty. If it is not present, alacritty will
-  # check the local terminfo database and use `alacritty` if it is
-  # available, otherwise `xterm-256color` is used.
-  #TERM: alacritty
+#+end_src
 
+**  TERM variable
+This value is used to set the `$TERM` environment variable for
+each instance of Alacritty. If it is not present, alacritty will
+check the local terminfo database and use `alacritty` if it is
+available, otherwise `xterm-256color` is used.
+#+begin_src yaml
+#TERM: alacritty
+#+end_src
+
+**  Window settings
+***  Window dimensions (changes require restart)
+Number of lines/columns (not pixels) in the terminal. Both lines and columns
+must be non-zero for this to take effect. The number of columns must be at
+least `2`, while using a value of `0` for columns and lines will fall back
+to the window manager's recommended size
+#+begin_src yaml
 #window:
-  # Window dimensions (changes require restart)
-  #
-  # Number of lines/columns (not pixels) in the terminal. Both lines and columns
-  # must be non-zero for this to take effect. The number of columns must be at
-  # least `2`, while using a value of `0` for columns and lines will fall back
-  # to the window manager's recommended size
   #dimensions:
-  #  columns: 0
-  #  lines: 0
+    #columns: 0
+    #lines: 0
+#+end_src
 
-  # Window position (changes require restart)
-  #
-  # Specified in number of pixels.
-  # If the position is not set, the window manager will handle the placement.
+***  Window position (changes require restart)
+Specified in number of pixels.
+If the position is not set, the window manager will handle the placement.
+#+begin_src yaml
   #position:
-  #  x: 0
-  #  y: 0
+    #x: 0
+    #y: 0
+#+end_src
 
-  # Window padding (changes require restart)
-  #
-  # Blank space added around the window in pixels. This padding is scaled
-  # by DPI and the specified value is always added at both opposing sides.
+***  Window padding (changes require restart)
+Blank space added around the window in pixels. This padding is scaled
+by DPI and the specified value is always added at both opposing sides.
+#+begin_src yaml
   #padding:
-  #  x: 0
-  #  y: 0
+    #x: 0
+    #y: 0
+#+end_src
 
-  # Spread additional padding evenly around the terminal content.
+***  Spread additional padding evenly around the terminal content.
+#+begin_src yaml
   #dynamic_padding: false
-
-  # Window decorations
-  #
-  # Values for `decorations`:
-  #     - full: Borders and title bar
-  #     - none: Neither borders nor title bar
-  #
-  # Values for `decorations` (macOS only):
-  #     - transparent: Title bar, transparent background and title bar buttons
-  #     - buttonless: Title bar, transparent background and no title bar buttons
+#+end_src
+***  Window decorations
+Values for `decorations`:
+  - full: Borders and title bar
+  - none: Neither borders nor title bar
+Values for `decorations` (macOS only):
+  - transparent: Title bar, transparent background and title bar buttons
+  - buttonless: Title bar, transparent background and no title bar buttons
+#+begin_src yaml
   #decorations: full
+#+end_src
 
-  # Background opacity
-  #
-  # Window opacity as a floating point number from `0.0` to `1.0`.
-  # The value `0.0` is completely transparent and `1.0` is opaque.
+***  Background opacity
+Window opacity as a floating point number from `0.0` to `1.0`.
+The value `0.0` is completely transparent and `1.0` is opaque.
+#+begin_src yaml
   #opacity: 1.0
+#+end_src
 
-  # Startup Mode (changes require restart)
-  #
-  # Values for `startup_mode`:
-  #   - Windowed
-  #   - Maximized
-  #   - Fullscreen
-  #
-  # Values for `startup_mode` (macOS only):
-  #   - SimpleFullscreen
+***  Startup Mode (changes require restart)
+Values for `startup_mode`:
+  - Windowed
+  - Maximized
+  - Fullscreen
+Values for `startup_mode` (macOS only):
+  - SimpleFullscreen
+#+begin_src yaml
   #startup_mode: Windowed
+#+end_src
 
-  # Window title
+***  Window title
+#+begin_src yaml
   #title: Alacritty
+#+end_src
 
-  # Allow terminal applications to change Alacritty's window title.
+***  Allow terminal applications to change Alacritty's window title.
+#+begin_src yaml
   #dynamic_title: true
+#+end_src
 
-  # Window class (Linux/BSD only):
+***  Window class (Linux/BSD only):
+#+begin_src yaml
   #class:
-    # Application instance name
     #instance: Alacritty
-    # General application class
     #general: Alacritty
+#+end_src
 
-  # Decorations theme variant
-  #
-  # Override the variant of the System theme/GTK theme/Wayland client side
-  # decorations. Commonly supported values are `Dark`, `Light`, and `None` for
-  # auto pick-up. Set this to `None` to use the default theme variant.
+***  Decorations theme variant
+Override the variant of the System theme/GTK theme/Wayland client side
+decorations. Commonly supported values are `Dark`, `Light`, and `None` for
+auto pick-up. Set this to `None` to use the default theme variant.
+#+begin_src yaml
   #decorations_theme_variant: None
+#+end_src
 
-  # Resize increments
-  #
-  # Prefer resizing window by discrete steps equal to cell dimensions.
+***  Resize increments
+Prefer resizing window by discrete steps equal to cell dimensions.
+#+begin_src yaml
   #resize_increments: false
+#+end_src
 
-  # Make `Option` key behave as `Alt` (macOS only):
-  #   - OnlyLeft
-  #   - OnlyRight
-  #   - Both
-  #   - None (default)
+***  Make `Option` key behave as `Alt` (macOS only):
+- OnlyLeft
+- OnlyRight
+- Both
+- None (default)
+#+begin_src yaml
   #option_as_alt: None
+#+end_src
 
+***  Scrolling
+#+begin_src yaml
 #scrolling:
-  # Maximum number of lines in the scrollback buffer.
-  # Specifying '0' will disable scrolling.
+#+end_src
+****  Maximum number of lines in the scrollback buffer.
+Specifying '0' will disable scrolling.
+#+begin_src yaml
   #history: 10000
+#+end_src
 
-  # Scrolling distance multiplier.
+****  Scrolling distance multiplier.
+#+begin_src yaml
   #multiplier: 3
+#+end_src
 
-# Font configuration
+**  Font configuration
+#+begin_src yaml
 font:
+#+end_src
+
+***  Normal face
+#+begin_src yaml
   normal:
     family: "MesloLGS NF"
-
-    # The `style` can be specified to pick a specific face.
     #style: Regular
+#+end_src
 
-  # Bold font face
+***  Bold face
+If the bold family is not specified, it will fall back to the
+value specified for the normal font.
+#+begin_src yaml
   #bold:
-    # Font family
-    #
-    # If the bold family is not specified, it will fall back to the
-    # value specified for the normal font.
     #family: monospace
-
-    # The `style` can be specified to pick a specific face.
     #style: Bold
+#+end_src
 
-  # Italic font face
+***  Italic face
+If the italic family is not specified, it will fall back to the
+value specified for the normal font.
+#+begin_src yaml
   #italic:
-    # Font family
-    #
-    # If the italic family is not specified, it will fall back to the
-    # value specified for the normal font.
     #family: monospace
-
-    # The `style` can be specified to pick a specific face.
     #style: Italic
+#+end_src
 
-  # Bold italic font face
+***  Bold italic face
+If the bold italic family is not specified, it will fall back to the
+value specified for the normal font.
+#+begin_src yaml
   #bold_italic:
-    # Font family
-    #
-    # If the bold italic family is not specified, it will fall back to the
-    # value specified for the normal font.
     #family: monospace
-
-    # The `style` can be specified to pick a specific face.
     #style: Bold Italic
+#+end_src
 
-  # Point size
+***  Point size
+#+begin_src yaml
   #size: 11.0
+#+end_src
 
-  # Offset is the extra space around each character. `offset.y` can be thought
-  # of as modifying the line spacing, and `offset.x` as modifying the letter
-  # spacing.
+***  Offset
+Offset is the extra space around each character. `offset.y` can be thought
+of as modifying the line spacing, and `offset.x` as modifying the letter
+spacing.
+#+begin_src yaml
   #offset:
-  #  x: 0
-  #  y: 0
+    #x: 0
+    #y: 0
+#+end_src
 
-  # Glyph offset determines the locations of the glyphs within their cells with
-  # the default being at the bottom. Increasing `x` moves the glyph to the
-  # right, increasing `y` moves the glyph upward.
+***  Glyph offset
+Glyph offset determines the locations of the glyphs within their cells with
+the default being at the bottom. Increasing `x` moves the glyph to the
+right, increasing `y` moves the glyph upward.
+#+begin_src yaml
   #glyph_offset:
-  #  x: 0
-  #  y: 0
+    #x: 0
+    #y: 0
+#+end_src
 
-  # Use built-in font for box drawing characters.
-  #
-  # If `true`, Alacritty will use a custom built-in font for box drawing
-  # characters (Unicode points 2500 - 259f).
-  #
+***  Use built-in font for box drawing characters.
+If `true`, Alacritty will use a custom built-in font for box drawing
+characters (Unicode points 2500 - 259f).
+#+begin_src yaml
   #builtin_box_drawing: true
+#+end_src
 
-# If `true`, bold text is drawn using the bright color variants.
+**  Colors
+***  If `true`, bold text is drawn using the bright color variants.
+#+begin_src yaml
 #draw_bold_text_with_bright_colors: false
+#+end_src
 
-# Colors (Tomorrow Night)
+***  Colors
+#+begin_src yaml
 #colors:
-  # Default colors
-  #primary:
-  #  background: '#1d1f21'
-  #  foreground: '#c5c8c6'
+#+end_src
+****  Default colors
+#+begin_src yaml
+#primary:
+  #background: '#1d1f21'
+  #foreground: '#c5c8c6'
+#+end_src
 
-    # Bright and dim foreground colors
-    #
-    # The dimmed foreground color is calculated automatically if it is not
-    # present. If the bright foreground color is not set, or
-    # `draw_bold_text_with_bright_colors` is `false`, the normal foreground
-    # color will be used.
-    #dim_foreground: '#828482'
-    #bright_foreground: '#eaeaea'
+****  Bright and dim foreground colors
+The dimmed foreground color is calculated automatically if it is not
+present. If the bright foreground color is not set, or
+`draw_bold_text_with_bright_colors` is `false`, the normal foreground
+color will be used.
+#+begin_src yaml
+#dim_foreground: '#828482'
+#bright_foreground: '#eaeaea'
+#+end_src
 
-  # Cursor colors
-  #
-  # Colors which should be used to draw the terminal cursor.
-  #
-  # Allowed values are CellForeground/CellBackground, which reference the
-  # affected cell, or hexadecimal colors like #ff00ff.
-  #cursor:
-  #  text: CellBackground
-  #  cursor: CellForeground
+****  Cursor colors
+Colors which should be used to draw the terminal cursor.
 
-  # Vi mode cursor colors
-  #
-  # Colors for the cursor when the vi mode is active.
-  #
-  # Allowed values are CellForeground/CellBackground, which reference the
-  # affected cell, or hexadecimal colors like #ff00ff.
-  #vi_mode_cursor:
-  #  text: CellBackground
-  #  cursor: CellForeground
+Allowed values are CellForeground/CellBackground, which reference the
+affected cell, or hexadecimal colors like #ff00ff.
 
-  # Search colors
-  #
-  # Colors used for the search bar and match highlighting.
-  #search:
-    # Allowed values are CellForeground/CellBackground, which reference the
-    # affected cell, or hexadecimal colors like #ff00ff.
-    #matches:
-    #  foreground: '#000000'
-    #  background: '#ffffff'
-    #focused_match:
-    #  foreground: '#ffffff'
-    #  background: '#000000'
+#+begin_src yaml
+#cursor:
+  #text: CellBackground
+  #cursor: CellForeground
+#+end_src
+*****  Vi mode cursor colors
+Colors for the cursor when the vi mode is active.
 
-  # Keyboard hints
-  #hints:
-    # First character in the hint label
-    #
-    # Allowed values are CellForeground/CellBackground, which reference the
-    # affected cell, or hexadecimal colors like #ff00ff.
-    #start:
-    #  foreground: '#1d1f21'
-    #  background: '#e9ff5e'
+Allowed values are CellForeground/CellBackground, which reference the
+affected cell, or hexadecimal colors like #ff00ff.
+#+begin_src yaml
+#vi_mode_cursor:
+  #text: CellBackground
+  #cursor: CellForeground
+#+end_src
 
-    # All characters after the first one in the hint label
-    #
-    # Allowed values are CellForeground/CellBackground, which reference the
-    # affected cell, or hexadecimal colors like #ff00ff.
-    #end:
-    #  foreground: '#e9ff5e'
-    #  background: '#1d1f21'
+*****  Search colors
+Colors used for the search bar and match highlighting.
 
-  # Line indicator
-  #
-  # Color used for the indicator displaying the position in history during
-  # search and vi mode.
-  #
-  # By default, these will use the opposing primary color.
-  #line_indicator:
-  #  foreground: None
-  #  background: None
+Allowed values are CellForeground/CellBackground, which reference the
+affected cell, or hexadecimal colors like #ff00ff.
+#+begin_src yaml
+#search:
+  #matches:
+    #foreground: '#000000'
+    #background: '#ffffff'
+  #focused_match:
+    #foreground: '#ffffff'
+    #background: '#000000'
+#+end_src
 
-  # Footer bar
-  #
-  # Color used for the footer bar on the bottom, used by search regex input,
-  # hyperlink URI preview, etc.
-  #
-  #footer_bar:
-  #  background: '#c5c8c6'
-  #  foreground: '#1d1f21'
+*****  Keyboard hints
+******  First character in the hint label
+Allowed values are CellForeground/CellBackground, which reference the
+affected cell, or hexadecimal colors like #ff00ff.
+#+begin_src yaml
+#start:
+#  foreground: '#1d1f21'
+#  background: '#e9ff5e'
+#+end_src
 
-  # Selection colors
-  #
-  # Colors which should be used to draw the selection area.
-  #
-  # Allowed values are CellForeground/CellBackground, which reference the
-  # affected cell, or hexadecimal colors like #ff00ff.
-  #selection:
-  #  text: CellBackground
-  #  background: CellForeground
+******  All characters after the first one in the hint label
+Allowed values are CellForeground/CellBackground, which reference the
+affected cell, or hexadecimal colors like #ff00ff.
+#+begin_src yaml
+#end:
+#  foreground: '#e9ff5e'
+#  background: '#1d1f21'
+#+end_src
 
-  # Normal colors
-  #normal:
-  #  black:   '#1d1f21'
-  #  red:     '#cc6666'
-  #  green:   '#b5bd68'
-  #  yellow:  '#f0c674'
-  #  blue:    '#81a2be'
-  #  magenta: '#b294bb'
-  #  cyan:    '#8abeb7'
-  #  white:   '#c5c8c6'
+*****  Line indicator
+Color used for the indicator displaying the position in history during
+search and vi mode.
 
-  # Bright colors
-  #bright:
-  #  black:   '#666666'
-  #  red:     '#d54e53'
-  #  green:   '#b9ca4a'
-  #  yellow:  '#e7c547'
-  #  blue:    '#7aa6da'
-  #  magenta: '#c397d8'
-  #  cyan:    '#70c0b1'
-  #  white:   '#eaeaea'
+By default, these will use the opposing primary color.
+#+begin_src yaml
+#line_indicator:
+#  foreground: None
+#  background: None
+#+end_src
 
-  # Dim colors
-  #
-  # If the dim colors are not set, they will be calculated automatically based
-  # on the `normal` colors.
-  #dim:
-  #  black:   '#131415'
-  #  red:     '#864343'
-  #  green:   '#777c44'
-  #  yellow:  '#9e824c'
-  #  blue:    '#556a7d'
-  #  magenta: '#75617b'
-  #  cyan:    '#5b7d78'
-  #  white:   '#828482'
+*****  Footer bar
+Color used for the footer bar on the bottom, used by search regex input,
+hyperlink URI preview, etc.
+#+begin_src yaml
+#footer_bar:
+#  background: '#c5c8c6'
+#  foreground: '#1d1f21'
+#+end_src
 
-  # Indexed Colors
-  #
-  # The indexed colors include all colors from 16 to 256.
-  # When these are not set, they're filled with sensible defaults.
-  #
-  # Example:
-  #   `- { index: 16, color: '#ff00ff' }`
-  #
-  #indexed_colors: []
+*****  Selection colors
+Colors which should be used to draw the selection area.
 
-  # Transparent cell backgrounds
-  #
-  # Whether or not `window.opacity` applies to all cell backgrounds or only to
-  # the default background. When set to `true` all cells will be transparent
-  # regardless of their background color.
-  #transparent_background_colors: false
+Allowed values are CellForeground/CellBackground, which reference the
+affected cell, or hexadecimal colors like #ff00ff.
+#+begin_src yaml
+#selection:
+#  text: CellBackground
+#  background: CellForeground
+#+end_src
 
-# Bell
-#
-# The bell is rung every time the BEL control character is received.
+*****  Normal colors
+#+begin_src yaml
+#normal:
+#  black:   '#1d1f21'
+#  red:     '#cc6666'
+#  green:   '#b5bd68'
+#  yellow:  '#f0c674'
+#  blue:    '#81a2be'
+#  magenta: '#b294bb'
+#  cyan:    '#8abeb7'
+#  white:   '#c5c8c6'
+#+end_src
+
+*****  Bright colors
+#+begin_src yaml
+#bright:
+#  black:   '#666666'
+#  red:     '#d54e53'
+#  green:   '#b9ca4a'
+#  yellow:  '#e7c547'
+#  blue:    '#7aa6da'
+#  magenta: '#c397d8'
+#  cyan:    '#70c0b1'
+#  white:   '#eaeaea'
+#+end_src
+
+*****  Dim colors
+If the dim colors are not set, they will be calculated automatically based
+on the `normal` colors.
+#+begin_src yaml
+#dim:
+#  black:   '#131415'
+#  red:     '#864343'
+#  green:   '#777c44'
+#  yellow:  '#9e824c'
+#  blue:    '#556a7d'
+#  magenta: '#75617b'
+#  cyan:    '#5b7d78'
+#  white:   '#828482'
+#+end_src
+
+*****  Indexed Colors
+The indexed colors include all colors from 16 to 256.
+When these are not set, they're filled with sensible defaults.
+
+Example:
+  `- { index: 16, color: '#ff00ff' }`
+#+begin_src yaml
+#indexed_colors: []
+#+end_src
+
+*****  Transparent cell backgrounds
+Whether or not `window.opacity` applies to all cell backgrounds or only to
+the default background. When set to `true` all cells will be transparent
+regardless of their background color.
+#+begin_src yaml
+#transparent_background_colors: false
+#+end_src
+
+****  Bell
+The bell is rung every time the BEL control character is received.
+
 #bell:
   # Visual Bell Animation
   #
@@ -377,7 +445,7 @@ font:
   #
   #command: None
 
-#selection:
+****  selection:
   # This string contains all characters that are used as separators for
   # "semantic words" in Alacritty.
   #semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
@@ -385,7 +453,7 @@ font:
   # When set to `true`, selected text will be copied to the primary clipboard.
   #save_to_clipboard: false
 
-#cursor:
+****  cursor:
   # Cursor style
   #style:
     # Cursor shape
@@ -429,28 +497,32 @@ font:
   # from `0.0` to `1.0`.
   #thickness: 0.15
 
-# Live config reload (changes require restart)
+**  Live config reload (changes require restart)
+#+begin_src yaml
 #live_config_reload: true
+#+end_src
 
-# Shell
-#
-# You can set `shell.program` to the path of your favorite shell, e.g.
-# `/bin/fish`. Entries in `shell.args` are passed unmodified as arguments to the
-# shell.
-#
-# Default:
-#   - (Linux/BSD/macOS) `$SHELL` or the user's login shell, if `$SHELL` is unset
-#   - (Windows) powershell
-#shell:
-#  program: /bin/bash
-#  args:
-#    - --login
+**  Shell
+You can set `shell.program` to the path of your favorite shell, e.g. `/bin/fish`.
+Entries in `shell.args` are passed unmodified as arguments to the shell.
 
-# Startup directory
-#
-# Directory the shell is started in. If this is unset, or `None`, the working
-# directory of the parent process will be used.
+Default:
+  - (Linux/BSD/macOS) `$SHELL` or the user's login shell, if `$SHELL` is unset
+  - (Windows) powershell
+
+#+begin_src yaml
+shell:
+  program: /bin/bash
+  args:
+    - --login
+#+end_src
+
+**  Startup directory
+Directory the shell is started in. If this is unset, or `None`, the working
+directory of the parent process will be used.
+#+begin_src yaml
 #working_directory: None
+#+end_src
 
 # Offer IPC using `alacritty msg` (unix only)
 #ipc_socket: true
@@ -898,3 +970,4 @@ persistent_logging: false
 
   # Highlight window damage information.
   #highlight_damage: false
+

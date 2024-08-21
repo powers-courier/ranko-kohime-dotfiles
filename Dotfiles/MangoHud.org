@@ -1,0 +1,368 @@
+#    -*- mode: org -*-
+
+* MangoHud [0/0]
+  :properties:
+  :header-args+: :tangle .config/MangoHud/MangoHud.conf
+  :header-args+: :tangle-mode (identity #o444)
+  :header-args+: :comments both
+  :ARCHIVE_TIME: 2024-08-21 Wed 21:27
+  :ARCHIVE_FILE: ~/Dotfiles/Dotfiles.org
+  :ARCHIVE_OLPATH: App Configuration
+  :ARCHIVE_CATEGORY: Dotfiles
+  :end:
+### MangoHud configuration file
+### Uncomment any options you wish to enable. Default options are left uncommented
+### Use some_parameter=0 to disable a parameter (only works with on/off parameters)
+### Everything below can be used / overridden with the environment variable MANGOHUD_CONFIG instead
+** Performance [3/3]
+- [X] Limit the application FPS.
+Comma-separated list of one or more FPS values (e.g. 0,30,60). 0 means unlimited (unless VSynced).
+#+name: fps_limit
+#+begin_src conf
+# fps_limit=
+#+end_src
+- [X] VSync
+[0-3] 0 = adaptive; 1 = off; 2 = mailbox; 3 = on
+#+name: vsync
+#+begin_src conf
+# vsync=
+#+end_src
+- [X] OpenGL VSync
+[0-N] 0 = off; >=1 = wait for N v-blanks, N > 1 acts as a FPS limiter (FPS = display refresh rate / N)
+#+name: gl_vsync
+#+begin_src conf
+# gl_vsync=
+#+end_src
+
+** Visual [3/3]
+*** DONE Preamble
+- [X] Custom text centered useful for a header
+#+name: custom_text_center
+#+begin_src conf
+# custom_text_center =
+#+end_src
+- [X] Legacy layout
+#+name: legacy_layout
+#+begin_src conf
+legacy_layout = false
+#+end_src
+
+*** DONE Display the current CPU information [8/8]
+- [X] CPU Stats
+#+name: cpu_stats
+#+begin_src conf
+cpu_stats
+#+end_src
+- [X] CPU Temp
+#+name: cpu_temp
+#+begin_src conf
+cpu_temp
+#+end_src
+- [X] CPU Power
+#+name: cpu_power
+#+begin_src conf
+cpu_power
+#+end_src
+- [X] CPU Text
+#+name: CPU Text
+#+begin_src conf
+# cpu_text = "CPU"
+#+end_src
+- [X] CPU Clock Speed
+#+name: cpu_mhz
+#+begin_src conf
+cpu_mhz
+#+end_src
+- [X] CPU Load Change
+#+name: cpu_load_change
+#+begin_src conf
+cpu_load_change
+#+end_src
+- [X] CPU Load Value
+#+name: cpu_load_value
+#+begin_src conf
+cpu_load_value
+#+end_src
+- [X] CPU Load Color Chart
+#+name: cpu_load_color
+#+begin_src conf
+cpu_load_color
+#+end_src
+
+*** DONE Display the current GPU information [11/11]
+- [X] GPU Stats
+#+name: gpu_stats
+#+begin_src conf
+gpu_stats
+#+end_src
+- [X] GPU Temp
+#+name: gpu_temp
+#+begin_src conf
+gpu_temp
+#+end_src
+- [X] GPU Core Clock
+#+name: gpu_core_clock
+#+begin_src conf
+gpu_core_clock
+#+end_src
+- [X] GPU Mem Clock
+#+name: gpu_mem_clock
+#+begin_src conf
+gpu_mem_clock
+#+end_src
+- [X] GPU Name
+#+name: gpu_name
+#+begin_src conf
+gpu_name
+#+end_src
+- [X] GPU Power
+#+name: gpu_power
+#+begin_src conf
+gpu_power
+#+end_src
+- [X] GPU Text
+#+name: gpu_text
+#+begin_src conf
+# gpu_text = "GPU"
+#+end_src
+- [X] Vulkan Driver
+#+name: vulkan_driver
+#+begin_src conf
+# vulkan_driver
+#+end_src
+- [X] GPU Load Change
+#+name: gpu_load_change
+#+begin_src conf
+gpu_load_change
+#+end_src
+- [X] GPU Load Value
+#+name: gpu_load_value
+#+begin_src conf
+gpu_load_value
+#+end_src
+- [X] GPU Load Color Chart
+#+name: gpu_load_color
+#+begin_src conf
+gpu_load_color
+#+end_src
+
+*** Display FPS and frametime
+#+begin_src conf
+fps
+# fps_sampling_period=
+frametime
+#+end_src
+
+*** Display loaded MangoHud architecture
+#+begin_src conf
+# arch
+#+end_src
+
+*** Display the frametime line graph
+#+begin_src conf
+frame_timing
+histogram
+#+end_src
+
+*** Display the current system time
+#+begin_src conf
+# time
+#+end_src
+
+*** Display the current resolution
+#+begin_src conf
+# resolution
+#+end_src
+
+*** Show current fps limit
+#+begin_src conf
+#  show_fps_limit
+#+end_src
+
+*** Display custom text
+#+begin_src conf
+# custom_text
+#+end_src
+
+*** Time formatting examples
+#+begin_src conf
+# time_format = %H:%M
+# time_format = [ %T %F ]
+# time_format = %X # locally formatted time, because of limited glyph range, missing characters may show as '?' (e.g. Japanese)
+#+end_src
+
+*** Change the hud font size (default is 24)
+#+begin_src conf
+font_size=16
+# font_scale=1.0
+# font_size_text=24
+# font_scale_media_player = 0.55
+# no_small_font
+#+end_src
+
+*** Change default font (set location to .TTF/.OTF file )
+**** Set font for the whole hud
+#+begin_src conf
+# font_file=
+#+end_src
+
+**** Set font only for text like media player metadata
+#+begin_src conf
+# font_file_text=
+#+end_src
+
+**** Set font glyph ranges.
+Defaults to latin-only. Don't forget to set font_file/text_font_file to font that
+supports these.  Probably don't enable all at once because of memory usage and
+hardware limits concerns.  If you experience crashes or text is just squares,
+reduce glyph range or reduce font size.
+#+begin_src conf
+# font_glyph_ranges=korean, chinese, chinese_simplified, japanese, cyrillic, thai, vietnamese, latin_ext_a, latin_ext_b
+#+end_src
+
+*** Change the hud position (default is top-left)
+#+begin_src conf
+position=top-left
+#+end_src
+
+*** Display the current CPU load & frequency for each core
+#+begin_src conf
+# core_load
+# core_load_change
+#+end_src
+
+*** IO read and write for the app (not system)
+#+begin_src conf
+# io_read
+# io_write
+# io_stats
+#+end_src
+
+*** Display system ram / swap space / vram usage
+#+begin_src conf
+ram
+# swap
+vram
+#+end_src
+
+*** Display MangoHud, engine or Wine version
+#+begin_src conf
+# version
+# engine_version
+# wine
+#+end_src
+
+*** Disable / hide the hud by default
+#+begin_src conf
+# no_display
+#+end_src
+
+*** Hud position offset
+#+begin_src conf
+# offset_x=
+# offset_y=
+#+end_src
+
+*** Hud dimensions
+#+begin_src conf
+# width=
+# height=
+# table_columns=
+# cellpadding_y=
+#+end_src
+
+*** Hud transparency / alpha
+#+begin_src conf
+background_alpha=0.5
+# alpha=
+#+end_src
+
+*** Color customization
+#+begin_src conf
+# text_color=FFFFFF
+# gpu_color=2E9762
+# cpu_color=2E97CB
+# vram_color=AD64C1
+# ram_color=C26693
+# engine_color=EB5B5B
+# io_color=A491D3
+# frametime_color=00FF00
+# background_color=020202
+# media_player_color=FFFFFF
+# wine_color=732010
+#+end_src
+
+*** Show media player metadata
+#+begin_src conf
+# media_player
+# media_player_name = spotify
+# media_player_order = title,artist,album
+#+end_src
+
+*** Specify gpu with pci bus id for amdgpu and NVML stats.
+Set to 'domain:bus:slot.function'
+#+begin_src conf
+# pci_dev = 0:0a:0.0
+#+end_src
+
+*** Blacklist
+#+begin_src conf
+# blacklist =
+#+end_src
+
+** Workarounds
+Options starting with "gl_*" are for OpenGL.
+*** Specify what to use for getting display size.
+Options are "viewport", "scissorbox" or disabled. Defaults to using glXQueryDrawable.
+#+begin_src conf
+# gl_size_query = viewport
+#+end_src
+
+*** (Re)bind given framebuffer before MangoHud gets drawn.
+Helps with Crusader Kings III.
+#+begin_src conf
+# gl_bind_framebuffer = 0
+#+end_src
+
+*** Don't swap origin if using GL_UPPER_LEFT. Helps with Ryujinx.
+#+begin_src conf
+# gl_dont_flip = 1
+#+end_src
+
+** Interaction
+*** Change toggle keybinds for the hud & logging
+#+begin_src conf
+# toggle_hud=Shift_R+F12
+# toggle_fps_limit=Shift_L+F1
+# toggle_logging=Shift_L+F2
+# reload_cfg=Shift_L+F4
+# upload_log=Shift_L+F3
+#+end_src
+
+** Log
+*** Automatically start the log after X seconds
+#+begin_src conf
+# autostart_log = 1
+#+end_src
+
+*** Set amount of time in seconds that the logging will run for
+#+begin_src conf
+# log_duration
+#+end_src
+
+*** Set location of the output files (required for logging)
+#+begin_src conf
+# output_folder = /home/<USERNAME>/mangologs
+#+end_src
+
+*** Permit uploading logs directly to FlightlessMango.com
+#+begin_src conf
+# permit_upload=1
+#+end_src
+
+*** Define a '+'-separated list of percentiles shown in the benchmark results.
+Use "AVG" to get a mean average. Default percentiles are 97+AVG+1+0.1
+#+begin_src conf
+# benchmark_percentiles=
+#+end_src
+

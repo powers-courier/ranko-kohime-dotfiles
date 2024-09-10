@@ -1013,6 +1013,9 @@ programs.git = {
   enable=true;
   userName = "Ranko Kohime";
   userEmail = "ranko.kohime@runbox.com";
+  aliases = {
+    st = "status";
+  };
 };
 #+end_src
 Add signing key?

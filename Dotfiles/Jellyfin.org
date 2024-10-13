@@ -1,0 +1,85 @@
+#+title: My Dotfiles
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments both :tangle nix/jellyfin.nix
+
+* TODO Jellyfin [1/3]
+:properties:
+:header-args+: :shebang "{ config, pkgs, ... }:"
+:end:
+
+** Preamble
+#+begin_src nix
+{
+#+end_src
+
+** WAIT Intel low-power encoding kernel parameter
+It is not clear what this actually does, nor what setting would be optimal for the current hardware
+(Intel N200, Alder Lake-N)
+[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
+#+begin_src nix
+boot.kernelParams = [
+    "i915.enable_guc=2"
+  ];
+#+end_src
+
+** DONE Enable vaapi on OS-level
+intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
+#+begin_src nix
+  nixpkgs.config.packageOverrides = pkgs: {
+    vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+  };
+  hardware.opengl = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver
+      vaapiIntel
+      vaapiVdpau
+      libvdpau-va-gl
+      intel-compute-runtime
+    ];
+  };
+#+end_src
+
+** TODO Enable Jellyfin service
+#+begin_src nix
+services.jellyfin = {
+  enable = true;
+  extraPackages = with pkgs; [
+    jellyfin
+    jellyfin-ffmpeg
+    jellyfin-web
+  ];
+  openFirewall = true;
+  user = "ranko";
+  group = "";
+};
+#+end_src
+
+** Epilogue
+#+begin_src nix
+}
+#+end_src
+
+** Docker Edition
+#+begin_src nix :tangle no
+{ config, pkgs, ... }:
+{
+  virtualisation.oci-containers.containers."jellyfin" = {
+    autoStart = true;
+    image = "jellyfin/jellyfin";
+    device = "/dev/dri:/dev/dri";     # Double check this line before putting into production
+    volumes = [
+      "/media/Containers/Jellyfin/config:/config"
+      "/media/Containers/Jellyfin/cache:/cache"
+      "/media/Containers/Jellyfin/log:/log"
+      "/mnt/Videos:/media"
+    ];
+    ports = [ "8096:8096" ];
+    environment = {
+      JELLYFIN_LOG_DIR = "/log";
+    };
+  };
+}
+#+end_src

@@ -796,8 +796,11 @@ sharpen=5
 - [ ] Bootstrap Home Manager
 
 ** ~/Dotfiles/nix/home-manager.nix
+* PiKVM
+** TESmart GPIO Configuration (Model HKS0801A30)
 :properties:
 :header-args: :tangle ~/Dotfiles/nix/home-manager.nix
+:header-args+: :tangle ~/Dotfiles/etc/kvmd/override.d/tesmart.yml
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments no
 :header-args+: :padline no
@@ -1088,6 +1091,138 @@ flake-utils.lib.eachDefaultSystem (system:
 ****** DONE Variable Preamble
 #+begin_src nix
 let
+#+begin_src yaml
+kvmd:
+#+end_src
+*** GPIO
+#+begin_src yaml
+    gpio:
+#+end_src
+
+**** Driver
+#+begin_src yaml
+        drivers:
+            tes:
+                type: tesmart
+                host: 192.168.1.10
+                port: 5000
+#+end_src
+
+**** Scheme
+***** Preamble
+#+begin_src yaml
+        scheme:
+#+end_src
+***** Port 1
+#+begin_src yaml
+            server0_led:
+                driver: tes
+                pin: 0
+                mode: input
+            server0_switch:
+                driver: tes
+                pin: 0
+                mode: output
+                switch: false
+#+end_src
+***** Port 2
+#+begin_src yaml
+            server1_led:
+                driver: tes
+                pin: 1
+                mode: input
+            server1_switch:
+                driver: tes
+                pin: 1
+                mode: output
+                switch: false
+#+end_src
+***** Port 3
+#+begin_src yaml
+            server2_led:
+                driver: tes
+                pin: 2
+                mode: input
+            server2_switch:
+                driver: tes
+                pin: 2
+                mode: output
+                switch: false
+#+end_src
+***** Port 4
+#+begin_src yaml
+            server3_led:
+                driver: tes
+                pin: 3
+                mode: input
+            server3_switch:
+                driver: tes
+                pin: 3
+                mode: output
+                switch: false
+#+end_src
+***** Port 5
+#+begin_src yaml
+            server4_led:
+                driver: tes
+                pin: 4
+                mode: input
+            server4_switch:
+                driver: tes
+                pin: 4
+                mode: output
+                switch: false
+#+end_src
+***** Port 6
+#+begin_src yaml
+            server5_led:
+                driver: tes
+                pin: 5
+                mode: input
+            server5_switch:
+                driver: tes
+                pin: 5
+                mode: output
+                switch: false
+#+end_src
+***** Port 7
+#+begin_src yaml
+            server6_led:
+                driver: tes
+                pin: 6
+                mode: input
+            server6_switch:
+                driver: tes
+                pin: 6
+                mode: output
+                switch: false
+#+end_src
+***** Port 8
+#+begin_src yaml
+            server7_led:
+                driver: tes
+                pin: 7
+                mode: input
+            server7_switch:
+                driver: tes
+                pin: 7
+                mode: output
+                switch: false
+#+end_src
+**** View
+#+begin_src yaml
+        view:
+            table:
+                - ["TESmart Switch"]
+                - []
+                - ["#n200-1", server0_led, server0_switch|Switch]
+                - ["#n200-2", server1_led, server1_switch|Switch]
+                - ["#n200-3", server2_led, server2_switch|Switch]
+                - ["#n100-1", server3_led, server3_switch|Switch]
+                - ["#Svartalfheim", server4_led, server3_switch|Switch]
+                - ["#Unassigned 6", server5_led, server3_switch|Switch]
+                - ["#Unassigned 7", server6_led, server3_switch|Switch]
+                - ["#Unassigned 8", server7_led, server3_switch|Switch]
 #+end_src
 
 ****** DONE Import the NixOS Library

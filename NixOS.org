@@ -1,0 +1,833 @@
+#+title: NixOS Configuration
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments both
+
+* NixOS Configuration
+** Notes
+*** Use system.nixos.label to add boot label
+*** [[https://github.com/Misterio77/nix-starter-configs][Nix Starter Config]]
+*** [[https://github.com/nix-community/disko/][Disko]] for automatic partitioning
+*** [[https://nixos.asia/en/nixos-install-disko][Install]] using Disko
+
+** TODO Install Checklist [0/5]
+- [ ] Get all Nix files (including disko configuration) on install media
+- [ ] Bootstrap disko
+- [ ] Partition disk using disko
+- [ ] Install NixOS
+- [ ] Bootstrap Home Manager
+
+** ~/Dotfiles/nix/home-manager.nix
+:properties:
+:header-args: :tangle ~/Dotfiles/nix/home-manager.nix
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments no
+:header-args+: :padline no
+:header-args+: :shebang "{ config, pkgs, inputs, lib, ... }:"
+:end:
+
+*** Preamble
+#+begin_src nix
+{
+#+end_src
+
+*** User configuration
+#+begin_src nix
+  home.username = "ranko";
+  home.homeDirectory = "/home/ranko";
+  home.stateVersion = "23.11";
+#+end_src
+
+*** Allow Unfree packages (do we actually want this?)
+#+begin_src nix :tangle no
+  nixpkgs = {
+		config = {
+			allowUnfree = true;
+			allowUnfreePredicate = (_: true);
+		};
+	};
+#+end_src
+
+  # Let Home Manager install and manage itself.
+  programs.home-manager.enable = true;
+  home.packages = with pkgs; [
+        bat
+        fzf
+        ripgrep
+        jq
+        tree
+	];
+
+*** NeoVIM
+#+begin_src nix
+  programs.neovim = {
+        enable = true;
+        viAlias = true;
+        vimAlias = true;
+        };
+#+end_src
+
+	home.sessionVariables = {
+		EDITOR="nvim";
+	};
+
+	programs.zsh = {
+		enable = true;
+	};
+
+	programs.zsh.oh-my-zsh= {
+		enable = true;
+		plugins = ["git" "python" "docker" "fzf"];
+		theme = "dpoggi";
+	};
+
+}
+
+** Bootstrap Home-manager [1/4]
+:properties:
+:header-args+: :tangle ~/.nix-flake/bootstrap-home-manager.sh
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments both
+:header-args+: :shebang "#!/bin/bash"
+:end:
+
+*** DONE Enable flakes for bootstrapping
+#+begin_src bash
+export NIX_CONFIG="experimental-features = nix-command flakes"
+#+end_src
+
+*** TODO Load home-manager in shell
+#+begin_src bash
+nix shell "nixpkgs#home-manager"
+#+end_src
+
+*** TODO Change to directory
+#+begin_src bash
+cd ~/.nix-flake
+#+end_src
+
+*** TODO Build system
+#+begin_src bash
+sudo nixos-rebuild switch --flake ".#hostname"
+#+end_src
+
+** configuration.nix
+:properties:
+:header-args: :tangle ~/Dotfiles/nix/configuration.nix
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments no
+:header-args+: :padline no
+:header-args+: :shebang "{ config, pkgs, ... }:"
+:end:
+
+*** Variables
+#+begin_src nix
+let
+  loKale = "en_US.UTF-8";
+in
+#+end_src
+
+*** Preamble
+#+begin_src nix
+{
+#+end_src
+
+*** Imports
+#+begin_src nix
+  imports =
+    [
+      ./hardware-configuration.nix
+    ];
+#+end_src
+
+*** Bootloader
+#+begin_src nix
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+#+end_src
+
+*** Hostname
+Should this be in the flake?
+#+begin_src nix
+  networking.hostName = "nixos";
+#+end_src
+
+*** Enable Wi-Fi
+#+begin_src nix
+  # networking.wireless.enable = true;
+#+end_src
+
+*** Network Proxy
+We never use this, but it's good to have the option for those rare moments
+#+begin_src nix :tangle no
+  networking.proxy.default = "http://user:password@proxy:port/";
+  networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+#+end_src
+
+*** Enable Network Manager
+#+begin_src nix
+  networking.networkmanager.enable = true;
+#+end_src
+
+*** Set Time Zone
+#+begin_src nix
+  time.timeZone = "America/Chicago";
+#+end_src
+
+*** Set Locale
+Should this also be dictated by the flake?
+#+begin_src nix
+  i18n.defaultLocale = loKale;
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = loKale;
+    LC_IDENTIFICATION = loKale;
+    LC_MEASUREMENT = loKale;
+    LC_MONETARY = loKale;
+    LC_NAME = loKale;
+    LC_NUMERIC = loKale;
+    LC_PAPER = loKale;
+    LC_TELEPHONE = loKale;
+    LC_TIME = loKale;
+  };
+#+end_src
+
+*** 
+*** Automatic unattended upgrades with surprise rebort
+#+begin_src nix :tangle no
+system.autoUpgrade.enable = true;
+system.autoUpgrade.allowReboot = true;
+#+end_src
+
+*** Services
+**** OpenSSH
+#+begin_src nix
+services.openssh.enable = true;
+#+end_src
+
+**** Tailscale
+Enabling tailscale is as simple as adding the following to your Nix config,
+then use "sudo tailscale login"
+
+#+begin_src nix
+services.tailscale.enable = true;
+#+end_src
+
+** ~/.config/nixpkgs/home.nix
+*** How do: `home-manager switch`
+*** Appearance
+**** Cursor Size
+#+begin_src nix
+home-manager.users.myUser = {
+  home.pointerCursor = {
+    name = "Adwaita";
+    package = pkgs.gnome.adwaita-icon-theme;
+    size = 48;
+    x11 = {
+      enable = true;
+      defaultCursor = "Adwaita";
+    };
+  };
+};
+#+end_src
+*** Git User
+#+begin_src nix
+programs.git = {
+  enable=true;
+  userName = "Ranko Kohime";
+  userEmail = "ranko.kohime@runbox.com";
+  aliases = {
+    st = "status";
+  };
+};
+#+end_src
+Add signing key?
+Add rebase = false?
+
+** System
+*** ~/Dotfiles/nix/flake.nix
+:properties:
+:header-args: :tangle ~/Dotfiles/nix/flake.nix
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments no
+:header-args+: :padline no
+:end:
+**** Preamble
+#+begin_src nix
+{
+#+end_src
+
+**** Description
+#+begin_src nix
+description = "Ranko Kohime's Flake";
+#+end_src
+
+**** DONE Inputs [6/6]
+***** DONE Preabmle
+#+begin_src nix
+inputs = {
+#+end_src
+
+***** DONE Nixpkgs (unstable)
+#+begin_src nix
+nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+#+end_src
+
+***** DONE Home Manager
+#+begin_src nix
+home-manager.url = "github:nix-community/home-manager";
+home-manager.inputs.nixpkgs.follows = "nixpkgs";
+#+end_src
+
+***** DONE Flake Utils
+#+begin_src nix
+flake-utils.url = "github:numtide/flake-utils";
+#+end_src
+
+***** DONE Hardware
+#+begin_src nix
+hardware.url = "github:nixos/nixos-hardware";
+#+end_src
+
+***** DONE Epilogue
+#+begin_src nix
+};
+#+end_src
+
+**** Outputs [1/1]
+***** DONE Preamble
+"self" references the directory of the flake file, in this case ~/Dotfiles/nix/
+"nixpkgs" references the inputs above
+
+Gippity Says:
+"The use of eachDefaultSystem here abstracts away some of the complexities associated with managing configurations across different system architectures. Instead of defining each possible system configuration manually, you define a single function that describes how to build the system configuration for any given system type. flake-utils then handles applying this function to the set of default systems that Nix supports."
+
+#+begin_src nix
+outputs = { self, nixpkgs, home-manager, hardware, ... }: {
+flake-utils.lib.eachDefaultSystem (system:
+#+end_src
+
+***** Variables [3/4]
+****** DONE Variable Preamble
+#+begin_src nix
+let
+#+end_src
+
+****** DONE Import the NixOS Library
+#+begin_src nix
+pkgs = import nixpkgs {
+       inherit system;
+       config = {}; };
+#+end_src
+
+****** TODO Common Shell Utilities [3/5]
+******* DONE Preamable
+#+begin_src nix
+commonShellUtils = { config, pkgs, ...}: {
+#+end_src
+
+******* TODO environment.systemPackages [7/8]
+******** DONE Preamble
+#+begin_src nix
+environment.systemPackages = with pkgs; [
+#+end_src
+
+******** DONE File Management
+Git is a version control system
+Ranger is a paned file-manager
+Tree prints pretty file trees
+#+begin_src nix
+git
+ranger
+tree
+#+end_src
+
+******** DONE Networking
+iperf3 is a network bandwidth tester
+Nmap is a network scanner
+#+begin_src nix
+iperf3
+iptraf-ng
+nmap
+#+end_src
+
+******** DONE Shells
+Mosh enables portable SSH connections
+ZSH is a shell
+
+Do we want to install [[https://github.com/ohmyzsh/ohmyzsh.git][Oh My ZSH]]?
+Also consider Powerlevel10k and zsh-autosuggestions
+#+begin_src nix
+mosh
+zsh
+#+end_src
+
+******** DONE Task Management
+htop is task manager
+pv is Pipe Viewer
+#+begin_src nix
+htop
+pv
+#+end_src
+
+******** DONE Terminal Multiplexers
+Byobu is a skin of sorts on top of Tmux, which is enabled below
+
+Do we want to install [[https://github.com/tmux-plugins/tpm][tmux-plugin-manager]]?
+#+begin_src nix
+byobu
+tmux
+#+end_src
+
+******** TODO Unsorted
+#+begin_src nix
+moreutils
+#+end_src
+
+******** DONE Epilogue
+#+begin_src nix
+];
+#+end_src
+
+******* DONE programs.neovim
+#+begin_src nix :noweb yes
+programs.neovim = [
+  defaultEditor = true;
+  enable = true;
+  viAlias = true;
+  vimAlias = true;
+  configure = {
+    customRC = ''
+      <<neovim-configuration>>
+    ''};
+];
+#+end_src
+
+******* TODO programs.tmux [9/15]
+******** DONE Preamble
+#+begin_src nix
+programs.tmux = [
+#+end_src
+******** DONE baseIndex
+Base index for windows and panes.
+#+begin_src nix
+baseIndex = 1;
+#+end_src
+
+******** DONE clock24
+Use 24 hour clock.
+#+begin_src nix
+clock24 = true;
+#+end_src
+
+******** DONE enable
+#+begin_src nix
+enable = true;
+#+end_src
+
+******** DONE escapeTime
+Time in milliseconds for which tmux waits after an escape is input.
+#+begin_src nix
+escapeTime = 500;
+#+end_src
+
+******** TODO extraConfig
+Additional contents of /etc/tmux.conf, to be run after sourcing plugins.
+#+begin_src nix :noweb yes
+extraConfig = ''
+  <<tmux-configuration>>
+''
+#+end_src
+
+******** TODO extraConfigBeforePlugins
+Additional contents of /etc/tmux.conf, to be run before sourcing plugins.
+#+begin_src nix :tangle no
+extraConfigBeforePlugins = ''
+''
+#+end_src
+
+******** DONE historyLimit
+Maximum number of lines held in window history.
+#+begin_src nix
+historyLimit = 100000;
+#+end_src
+
+******** DONE keyMode
+VI or Emacs style shortcuts.  one of "emacs", "vi"
+#+begin_src nix
+keyMode = "vi";
+#+end_src
+
+******** TODO plugins
+#+begin_src nix
+plugins = with pkgs.tmuxPlugins; [
+
+];
+#+end_src
+
+******** TODO secureSocket
+Store tmux socket under /run, which is more secure than /tmp, but as a downside it doesn’t survive
+user logout.
+#+begin_src nix
+secureSocket = true;
+#+end_src
+
+******** DONE shortcut
+Ctrl followed by this key is used as the main shortcut.
+#+begin_src nix
+shortcut = "a";
+#+end_src
+
+******** TODO terminal
+#+begin_src nix
+terminal = "screen-256color";
+#+end_src
+
+******** TODO withUtempter
+Whether to enable libutempter for tmux. This is required so that tmux can write to /var/run/utmp
+(which can be queried with /who/ to display currently connected user sessions). Note, this will add a
+guid wrapper for the group utmp!
+#+begin_src nix
+withUtempter = true;
+#+end_src
+
+******** DONE Epilogue
+#+begin_src nix
+];
+#+end_src
+
+******* DONE Epilogue
+#+begin_src nix
+};
+#+end_src
+
+****** DONE Variable Prologue
+#+begin_src nix
+in {
+#+end_src
+
+***** nixosConfigurations [1/1]
+NixOS configuration entrypoint
+Available through 'nixos-rebuild --flake .#your-hostname'
+****** DONE Preamble
+#+begin_src nix
+nixosConfigurations = {
+#+end_src
+
+****** Framework
+******* 7840u
+#+begin_src nix
+framework-7840u = nixpkgs.lib.nixosSystem {
+  specialArgs = { inherit inputs; };
+  modules = [
+    ./configuration.nix
+    ./hardware/framework-7840u.nix
+  ];
+};
+#+end_src
+
+****** Epilogue
+#+begin_src nix
+};
+#+end_src
+
+***** homeConfigurations
+home-manager configuration entrypoint
+Available through 'home-manager --flake .#your-username@your-hostname'
+
+****** Preamble
+#+begin_src nix
+   homeConfigurations = {
+#+end_src
+#+begin_src nix
+     # FIXME replace with your username@hostname
+     "user@FIXME" = home-manager.lib.homeManagerConfiguration {
+       pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+       extraSpecialArgs = { inherit inputs; }; # Pass flake inputs to our config
+       #  Our main home-manager configuration file
+       modules = [
+           ./home-manager/home.nix
+           ];
+     };
+   };
+#+end_src
+
+***** Epilogue
+Let at end of Variables, eachDefaultSystem, Outputs
+#+begin_src nix
+}; ); }
+#+end_src
+*** Default configuration.nix
+#+begin_src none :tangle no
+{ config, pkgs, ... }:
+
+{
+  imports =
+    [ # Include the results of the hardware scan.
+      ./hardware-configuration.nix
+    ];
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  networking.hostName = "nixos"; # Define your hostname.
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  # Configure network proxy if necessary
+  # networking.proxy.default = "http://user:password@proxy:port/";
+  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  networking.networkmanager.enable = true;
+#+end_src
+  # Select internationalisation properties.
+
+  # Configure keymap in X11
+  services.xserver = {
+    layout = "us";
+    xkbVariant = "";
+  };
+
+  services.logind = {
+    extraConfig = "lidSwitch=ignore";
+  };
+
+  # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.users.ranko = {
+    isNormalUser = true;
+    description = "Ranko Kohime";
+    extraGroups = [ "networkmanager" "wheel" ];
+    packages = with pkgs; [];
+  };
+
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
+
+  # List packages installed in system profile. To search, run:
+  # $ nix search wget
+  environment.systemPackages = with pkgs; [
+  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+  #  wget
+  pkgs.intel-gpu-tools
+  ];
+
+  # Some programs need SUID wrappers, can be configured further or are
+  # started in user sessions.
+  # programs.mtr.enable = true;
+  # programs.gnupg.agent = {
+  #   enable = true;
+  #   enableSSHSupport = true;
+  # };
+
+  # List services that you want to enable:
+
+  # Enable the OpenSSH daemon.
+  services.openssh.enable = true;
+
+    # 1. enable vaapi on OS-level
+    nixpkgs.config.packageOverrides = pkgs: {
+      vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+    };
+    hardware.opengl = {
+      enable = true;
+      extraPackages = with pkgs; [
+        intel-media-driver
+        vaapiIntel
+        vaapiVdpau
+        libvdpau-va-gl
+        intel-compute-runtime # OpenCL filter support (hardware tonemapping and subtitle burn-in)
+      ];
+    };
+
+
+
+    services.jellyfin = {
+      enable = true;
+      openFirewall = true;
+    };
+
+    services.tailscale.enable = true;
+
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
+
+  # This value determines the NixOS release from which the default
+  # settings for stateful data, like file locations and database versions
+  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # this value at the release version of the first install of this system.
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  system.stateVersion = "23.11"; # Did you read the comment?
+
+}
+
+*** TODO Nextcloud
+[[https://carjorvaz.com/posts/the-holy-grail-nextcloud-setup-made-easy-by-nixos/][The Holy Grail Nextcloud setup made easy by NixOS]]
+
+#+begin_src nix
+{ pkgs, ... }:
+{
+  services.nextcloud = {
+    enable = true;
+    hostName = "nextcloud.tld";
+    database.createLocally = true;
+    config = {
+      dbtype = "pgsql";
+      adminpassFile = "/path/to/admin-pass-file";
+    };
+  };
+
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
+}
+#+end_src
+
+Jupiter Broadcasting's take:
+#+begin_src nix
+{ self, config, lib, pkgs, ... }: {
+  # Based on https://carjorvaz.com/posts/the-holy-grail-nextcloud-setup-made-easy-by-nixos/
+  security.acme = {
+    acceptTerms = true;
+    defaults = {
+      email = "wes+barn-acme@jupiterbroadcasting.com";
+      dnsProvider = "cloudflare";
+      # location of your CLOUDFLARE_DNS_API_TOKEN=[value]
+      # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=
+      environmentFile = "/REPLACE/WITH/YOUR/PATH";
+    };
+  };
+  services = {
+    nginx.virtualHosts = {
+      "YOUR.DOMAIN.NAME" = {
+        forceSSL = true;
+        enableACME = true;
+        # Use DNS Challenege.
+        acmeRoot = null;
+      };
+    };
+    # 
+    nextcloud = {
+      enable = true;
+      hostName = "YOUR.DOMAIN.NAME";
+      # Need to manually increment with every major upgrade.
+      package = pkgs.nextcloud28;
+      # Let NixOS install and configure the database automatically.
+      database.createLocally = true;
+      # Let NixOS install and configure Redis caching automatically.
+      configureRedis = true;
+      # Increase the maximum file upload size.
+      maxUploadSize = "16G";
+      https = true;
+      autoUpdateApps.enable = true;
+      extraAppsEnable = true;
+      extraApps = with config.services.nextcloud.package.packages.apps; {
+        # List of apps we want to install and are already packaged in
+        # https://github.com/NixOS/nixpkgs/blob/master/pkgs/servers/nextcloud/packages/nextcloud-apps.json
+        inherit calendar contacts notes onlyoffice tasks cookbook qownnotesapi;
+        # Custom app example.
+        socialsharing_telegram = pkgs.fetchNextcloudApp rec {
+          url =
+            "https://github.com/nextcloud-releases/socialsharing/releases/download/v3.0.1/socialsharing_telegram-v3.0.1.tar.gz";
+          license = "agpl3";
+          sha256 = "sha256-8XyOslMmzxmX2QsVzYzIJKNw6rVWJ7uDhU1jaKJ0Q8k=";
+        };
+      };
+      config = {
+        overwriteProtocol = "https";
+        defaultPhoneRegion = "US";
+        dbtype = "pgsql";
+        adminuser = "admin";
+        adminpassFile = "/REPLACE/WITH/YOUR/PATH";
+      };
+      # Suggested by Nextcloud's health check.
+      phpOptions."opcache.interned_strings_buffer" = "16";
+    };
+    # Nightly database backups.
+    postgresqlBackup = {
+      enable = true;
+      startAt = "*-*-* 01:15:00";
+    };
+  };
+}
+#+end_src
+*** environment.systemPackages
+**** Enable Unfree (Do we actually want this?)
+#+begin_src nix :tangle no
+  nixpkgs.config.allowUnfree = true;
+#+end_src
+
+**** Preamble
+#+begin_src nix
+  environment.systemPackages = with pkgs [
+#+end_src
+
+**** Console
+***** Shells
+#+begin_src nix
+  bash
+  byobu
+  fish
+  mosh
+  tmux
+  zsh
+#+end_src
+
+***** Task Management
+#+begin_src nix
+  glances
+  htop
+#+end_src
+
+**** Epilogue
+#+begin_src nix
+];
+#+end_src
+
+*** Other bits
+**** Handle lid switch on laptops
+#+begin_src nix :tangle no
+services.logind = {
+extraConfig = "HandlePowerKey=suspend";
+lidSwitch = "suspend";
+};
+#+end_src
+
+**** CryFS for encrypted files on cloud backup
+**** Mount remote filesystems using SSHFS
+#+begin_src nix
+{
+  system.fsPackages = [ pkgs.sshfs ];
+
+  fileSystems."/mnt/my-dir" = {
+    device = "my-user@example.com:/my-dir/";
+    fsType = "sshfs";
+    options =
+      [ # Filesystem options
+        "allow_other"          # for non-root access
+        "_netdev"              # this is a network fs
+        "x-systemd.automount"  # mount on demand
+
+        # SSH options
+        "reconnect"              # handle connection drops
+        "ServerAliveInterval=15" # keep connections alive
+        "IdentityFile=/var/secrets/example-key"
+      ];
+  };
+}
+#+end_src
+**** Enable OpenSSH with keys on /persistent
+#+begin_src conf :tangle no
+{
+  services.openssh = {
+    enable = true;
+    hostKeys = [
+      {
+        path = "/persist/ssh/ssh_host_ed25519_key";
+        type = "ed25519";
+      }
+      {
+        path = "/persist/ssh/ssh_host_rsa_key";
+        type = "rsa";
+        bits = 8192;
+      }
+    ];
+  };
+}
+#+end_src

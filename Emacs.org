@@ -114,7 +114,7 @@ Emacs doesn't like this being /dev/null, so we'll be nice about it.
 This is not automatically loaded at startup.
 #+name: custom-file
 #+begin_src emacs-lisp
-  (setq-default custom-file (concat user-emacs-directory "/custom.el"))
+(setq-default custom-file (concat user-emacs-directory "/custom.el"))
 #+end_src
 
 *** DONE Disable "disabled-command-fuction"
@@ -541,9 +541,14 @@ And also abusing the CPU!
 (setq-default scroll-margin 5)
 #+end_src
 
-*** DONE Set visual-line-mode (word wrap)
-#+begin_src emacs-lisp
+*** DONE Set word wrap
+This method doesn't enable kill line on wrapped lines
+#+begin_src emacs-lisp :tangle no
 (setq-default global-visual-line-mode t)
+#+end_src
+
+#+begin_src emacs-lisp
+(setq-default word-wrap t)
 #+end_src
 
 *** DONE Set default font, maybe
@@ -1040,4 +1045,34 @@ Assign a keybind to it maybe?
     ";;░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀\n"
     "\n"
     ";;  Task Failed Successfully.\n"))
+#+end_src
+
+* TODO Emacs.nix [0/0]
+:properties:
+:header-args: :tangle ~/Dotfiles/nix/emacs.nix
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments no
+:header-args+: :padline no
+:header-args+: :shebang "{ nixpkgs }:"
+:end:
+
+#+begin_src nix
+{
+  emacsPackage = nixpkgs.emacs.override {
+    # Add any desired customization here, such as enabling additional Emacs packages
+    nativeComp = true; # Example: enable native compilation if desired
+  };
+
+  # NixOS module for configuring Emacs
+  config = { config, pkgs, ... }: {
+    environment.systemPackages = [ pkgs.emacs ];
+
+    # Optional: add Emacs configurations or plugins as needed
+    programs.emacs = {
+      enable = true;
+      package = pkgs.emacs;
+      # Additional Emacs settings could be specified here
+    };
+  };
+}
 #+end_src

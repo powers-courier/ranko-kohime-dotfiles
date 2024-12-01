@@ -52,6 +52,7 @@ to view the report
 ** [[file:Alacritty.org][Alacritty]]
 ** [[file:Conky.org][Conky]]
 ** [[file:Emacs.org][Emacs]]
+** [[file:Glances.org][Glances]]
 ** [[file:MangoHud.org][MangoHud]]
 ** MPV [0/0]
 *** input.conf

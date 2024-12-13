@@ -391,6 +391,17 @@ moreutils
 ];
 #+end_src
 
+******* TODO programs.fish
+#+begin_src nix
+programs.fish = [
+  enable = true;
+  promptInit = "";
+  shellInit = "";
+  loginShellInit = "";
+  interactiveShellInit = "";
+];
+#+end_src
+
 ******* DONE programs.neovim
 #+begin_src nix :noweb yes
 programs.neovim = [

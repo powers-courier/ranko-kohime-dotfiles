@@ -844,3 +844,14 @@ lidSwitch = "suspend";
   };
 }
 #+end_src
+**** sudo
+#+begin_src nix
+{pkgs, ...}: {
+  security.sudo = {
+    extraConfig = ''
+      Defaults insults
+    '';
+  };
+}
+#+end_src
+

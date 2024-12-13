@@ -793,7 +793,7 @@ sharpen=5
 
 ** [[file:NeoVim.org][NeoVim]]
 ** [[file:Ranger.org][Ranger]]
-* NixOS Configuration
+* [[file:NixOS.org][NixOS Configuration]]
 * PiKVM
 ** TESmart GPIO Configuration (Model HKS0801A30)
 :properties:
@@ -801,6 +801,8 @@ sharpen=5
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments no
 :end:
+
+Taken from [[https://docs.pikvm.org/tesmart/][TESMART managed multiport KVM switch]]
 
 *** Notes
 The LAN port on the front of the device defaults to a static IP address of 192.168.1.10, and can only be changed with the desktop software.

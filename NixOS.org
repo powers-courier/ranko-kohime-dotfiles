@@ -172,7 +172,7 @@ We never use this, but it's good to have the option for those rare moments
 
 *** Set Time Zone
 #+begin_src nix
-  time.timeZone = "America/Chicago";
+time.timeZone = "America/Chicago";
 #+end_src
 
 *** Set Locale
@@ -193,7 +193,7 @@ Should this also be dictated by the flake?
 #+end_src
 
 *** 
-*** Automatic unattended upgrades with surprise rebort
+*** TODO Automatic unattended upgrades with surprise rebort
 #+begin_src nix :tangle no
 system.autoUpgrade.enable = true;
 system.autoUpgrade.allowReboot = true;
@@ -252,12 +252,13 @@ Add rebase = false?
 :header-args+: :comments no
 :header-args+: :padline no
 :end:
-**** Preamble
+
+**** DONE Preamble
 #+begin_src nix
 {
 #+end_src
 
-**** Description
+**** DONE Description
 #+begin_src nix
 description = "Ranko Kohime's Flake";
 #+end_src
@@ -294,7 +295,7 @@ hardware.url = "github:nixos/nixos-hardware";
 };
 #+end_src
 
-**** Outputs [1/1]
+**** TODO Outputs [24/36]
 ***** DONE Preamble
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -307,7 +308,7 @@ outputs = { self, nixpkgs, home-manager, hardware, ... }: {
 flake-utils.lib.eachDefaultSystem (system:
 #+end_src
 
-***** Variables [3/4]
+***** TODO Variables [22/33]
 ****** DONE Variable Preamble
 #+begin_src nix
 let
@@ -320,7 +321,7 @@ pkgs = import nixpkgs {
        config = {}; };
 #+end_src
 
-****** TODO Common Shell Utilities [3/5]
+****** TODO Common Shell Utilities [19/29]
 ******* DONE Preamable
 #+begin_src nix
 commonShellUtils = { config, pkgs, ...}: {
@@ -363,9 +364,11 @@ zsh
 #+end_src
 
 ******** DONE Task Management
+glances is fancy task manager
 htop is task manager
 pv is Pipe Viewer
 #+begin_src nix
+glances
 htop
 pv
 #+end_src
@@ -376,7 +379,6 @@ Byobu is a skin of sorts on top of Tmux, which is enabled below
 Do we want to install [[https://github.com/tmux-plugins/tpm][tmux-plugin-manager]]?
 #+begin_src nix
 byobu
-tmux
 #+end_src
 
 ******** TODO Unsorted

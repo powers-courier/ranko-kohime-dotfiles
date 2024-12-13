@@ -874,3 +874,12 @@ lidSwitch = "suspend";
 }
 #+end_src
 
+**** openSSH
+#+begin_src nix
+{pkgs, ...}: {
+  services.openssh = {
+    settings.PermitRootLogin = "no";
+    enable = true;
+  };
+}
+#+end_src

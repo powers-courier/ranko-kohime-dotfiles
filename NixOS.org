@@ -353,13 +353,11 @@ nmap
 #+end_src
 
 ******** DONE Shells
-Mosh enables portable SSH connections
 ZSH is a shell
 
 Do we want to install [[https://github.com/ohmyzsh/ohmyzsh.git][Oh My ZSH]]?
 Also consider Powerlevel10k and zsh-autosuggestions
 #+begin_src nix
-mosh
 zsh
 #+end_src
 

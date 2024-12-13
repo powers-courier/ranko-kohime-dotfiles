@@ -855,3 +855,13 @@ lidSwitch = "suspend";
 }
 #+end_src
 
+**** mosh
+#+begin_src nix
+{pkgs, ...}: {
+  programs.mosh = {
+    enable = true;
+    openFirewall = true;
+  };
+}
+#+end_src
+

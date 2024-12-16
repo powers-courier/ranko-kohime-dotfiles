@@ -386,17 +386,6 @@ moreutils
 ];
 #+end_src
 
-******* TODO programs.fish
-#+begin_src nix
-programs.fish = [
-  enable = true;
-  promptInit = "";
-  shellInit = "";
-  loginShellInit = "";
-  interactiveShellInit = "";
-];
-#+end_src
-
 ******* DONE programs.neovim
 #+begin_src nix :noweb yes
 programs.neovim = [
@@ -771,7 +760,6 @@ Jupiter Broadcasting's take:
 #+begin_src nix
   bash
   byobu
-  fish
   tmux
 #+end_src
 
@@ -860,6 +848,7 @@ lidSwitch = "suspend";
 {pkgs, ...}: {
   programs.gnupg.agent = {
     ./shell/alias.nix
+    ./shell/fish.nix
     ./shell/mosh.nix
     ./shell/openssh.nix
     ./shell/zsh.nix
@@ -1075,6 +1064,23 @@ alias openports='netstat -nutlp | grep LISTEN'
 **** openSSH
 #+begin_src nix
 {pkgs, ...}: {
+**** TODO fish
+:properties:
+:header-args+: :tangle ~/Dotfiles/nix/modules/shell/fish.nix
+:end:
+
+#+begin_src nix
+{
+  programs.fish = {
+    enable = true;
+    interactiveShellInit = "";
+    loginShellInit = "";
+    promptInit = "";
+    shellInit = "";
+  };
+}
+#+end_src
+
 **** TODO mosh
 :properties:
 :header-args+: :tangle ~/Dotfiles/nix/modules/shell/mosh.nix

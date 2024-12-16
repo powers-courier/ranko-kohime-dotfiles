@@ -776,7 +776,6 @@ Jupiter Broadcasting's take:
   byobu
   fish
   tmux
-  zsh
 #+end_src
 
 ***** Task Management
@@ -865,6 +864,7 @@ lidSwitch = "suspend";
   programs.gnupg.agent = {
     ./shell/alias.nix
     ./shell/mosh.nix
+    ./shell/zsh.nix
 **** TODO Aliases [14/17]
 :properties:
 :header-args+: :tangle ~/Dotfiles/nix/modules/shell/alias.nix
@@ -1096,3 +1096,168 @@ alias openports='netstat -nutlp | grep LISTEN'
   };
 }
 #+end_src
+
+**** TODO zsh
+:properties:
+:header-args+: :tangle ~/Dotfiles/nix/modules/shell/zsh.nix
+:end:
+
+***** Variables
+#+begin_src nix
+let
+#+end_src
+
+****** Directory Options
+#+begin_src nix
+zshDirectoryOptions = [
+#+end_src
+
+Automatically change directory if "command" is a valid folder
+#+begin_src nix
+"AUTO_CD"
+#+end_src
+
+Add previous directory to the stack automatically
+#+begin_src nix
+"AUTO_PUSHD"
+#+end_src
+
+Try to prepend a "command" with ~ if folder exists within home directory before giving up
+#+begin_src nix
+"CDABLE_VARS"
+#+end_src
+
+Don’t push multiple copies of the same directory onto the directory stack
+#+begin_src nix
+"PUSHD_IGNORE_DUPS"
+#+end_src
+
+Fin
+#+begin_src nix
+];
+#+end_src
+
+****** History Options
+
+#+begin_src nix
+zshHistoryOptions = [
+#+end_src
+
+Do not overwrite, but append history file
+#+begin_src nix
+"APPEND_HISTORY"
+#+end_src
+
+If a new command line being added to the history list duplicates an older one, the older command is removed from the list (even if it is not the previous event)
+#+begin_src nix
+"HIST_IGNORE_ALL_DUPS"
+#+end_src
+
+Do not enter command lines into the history list if they are duplicates of the previous event
+#+begin_src nix
+"HIST_IGNORE_DUPS"
+#+end_src
+
+"HIST_IGNORE_SPACE"
+"HIST_NO_FUNCTIONS"
+
+Don't save the usage of the command "history" to the history file
+#+begin_src nix
+"HIST_NO_STORE"
+#+end_src
+
+Checks history file before appending for duplicate entries
+#+begin_src nix
+"HIST_SAVE_NO_DUPS"
+#+end_src
+
+"HIST_STAMPS=\"yyyy-mm-dd\""
+''HISTFILE="$HOME/.zsh_history_$(whoami)@$(cat /etc/hostname)"''
+
+Immediately add new entries to history file as commands are executed instead of waiting for shell to exit
+#+begin_src nix
+"INC_APPEND_HISTORY"
+#+end_src
+
+#+begin_src nix
+"HISTSIZE=999999999"
+"SAVEHIST=999999999"
+#+end_src
+
+Fin
+#+begin_src nix
+];
+#+end_src
+
+****** Epilogue
+#+begin_src nix
+in
+#+end_src
+
+***** Configuration
+#+begin_src nix
+{
+  programs.zsh = {
+    enable = true;
+    syntaxHighlighting = {
+      enable = true;
+      highlighters = [
+        "brackets"
+        "cursor"
+        "main"
+      ]
+      patterns = {
+        "rm -rf *" = "fg=white,bold,bg=red";
+      };
+    };
+    setOptions =
+      zshDirectoryOptions ++
+      zshHistoryOptions ++ [
+#+end_src
+
+Beep on errors
+#+begin_src nix
+"BEEP"
+#+end_src
+
+Extended globglobglobglobblobBobLoblawsLawBlog
+#+begin_src bash
+"EXTENDED_GLOB"
+#+end_src
+
+Pause on `rm *`
+#+begin_src nix
+"RM_STAR_WAIT"
+#+end_src
+
+#+begin_src nix
+    ];
+    vteIntegration = true;
+  };
+};
+#+end_src
+
+***** TODO Key Setups
+#bindkey -e
+  # also do history expansion on space
+#bindkey ' ' magic-space
+  # setup backspace correctly
+#  stty erase `tput kbs`
+  # Alternate Backspace
+#  stty erase ^?
+  # Insert Key
+#bindkey '^[[2~' overwrite-mode
+  # Delete Key
+#bindkey '^[[3~' delete-char
+  # Home Key
+#bindkey '^[[1~' beginning-of-line
+  # End Key
+#bindkey '^[[4~' end-of-line
+  # Beginning of History
+#bindkey '^[[5~' beginning-of-history
+  # End of History
+#bindkey '^[[6~' end-of-history
+  # Tab Completion
+#bindkey '^i' expand-or-complete-prefix
+#bindkey '^[[1;5D' backward-word
+#bindkey '^[[1;5C' forward-word

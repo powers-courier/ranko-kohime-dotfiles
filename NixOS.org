@@ -400,99 +400,6 @@ programs.neovim = [
 ];
 #+end_src
 
-******* TODO programs.tmux [9/15]
-******** DONE Preamble
-#+begin_src nix
-programs.tmux = [
-#+end_src
-******** DONE baseIndex
-Base index for windows and panes.
-#+begin_src nix
-baseIndex = 1;
-#+end_src
-
-******** DONE clock24
-Use 24 hour clock.
-#+begin_src nix
-clock24 = true;
-#+end_src
-
-******** DONE enable
-#+begin_src nix
-enable = true;
-#+end_src
-
-******** DONE escapeTime
-Time in milliseconds for which tmux waits after an escape is input.
-#+begin_src nix
-escapeTime = 500;
-#+end_src
-
-******** TODO extraConfig
-Additional contents of /etc/tmux.conf, to be run after sourcing plugins.
-#+begin_src nix :noweb yes
-extraConfig = ''
-  <<tmux-configuration>>
-''
-#+end_src
-
-******** TODO extraConfigBeforePlugins
-Additional contents of /etc/tmux.conf, to be run before sourcing plugins.
-#+begin_src nix :tangle no
-extraConfigBeforePlugins = ''
-''
-#+end_src
-
-******** DONE historyLimit
-Maximum number of lines held in window history.
-#+begin_src nix
-historyLimit = 100000;
-#+end_src
-
-******** DONE keyMode
-VI or Emacs style shortcuts.  one of "emacs", "vi"
-#+begin_src nix
-keyMode = "vi";
-#+end_src
-
-******** TODO plugins
-#+begin_src nix
-plugins = with pkgs.tmuxPlugins; [
-
-];
-#+end_src
-
-******** TODO secureSocket
-Store tmux socket under /run, which is more secure than /tmp, but as a downside it doesn’t survive
-user logout.
-#+begin_src nix
-secureSocket = true;
-#+end_src
-
-******** DONE shortcut
-Ctrl followed by this key is used as the main shortcut.
-#+begin_src nix
-shortcut = "a";
-#+end_src
-
-******** TODO terminal
-#+begin_src nix
-terminal = "screen-256color";
-#+end_src
-
-******** TODO withUtempter
-Whether to enable libutempter for tmux. This is required so that tmux can write to /var/run/utmp
-(which can be queried with /who/ to display currently connected user sessions). Note, this will add a
-guid wrapper for the group utmp!
-#+begin_src nix
-withUtempter = true;
-#+end_src
-
-******** DONE Epilogue
-#+begin_src nix
-];
-#+end_src
-
 ******* DONE Epilogue
 #+begin_src nix
 };
@@ -759,7 +666,6 @@ Jupiter Broadcasting's take:
 ***** Shells
 #+begin_src nix
   byobu
-  tmux
 #+end_src
 
 ***** Task Management
@@ -864,6 +770,7 @@ lidSwitch = "suspend";
     ./shell/fish.nix
     ./shell/mosh.nix
     ./shell/openssh.nix
+    ./shell/tmux.nix
     ./shell/zsh.nix
   ];
 }
@@ -1283,6 +1190,97 @@ fi
     };
   };
 }
+#+end_src
+
+**** TODO tmux
+:properties:
+:header-args+: :tangle ~/Dotfiles/nix/modules/shell/tmux.nix
+:end:
+
+#+begin_src nix
+programs.tmux = {
+  enable = true;
+#+end_src
+
+***** DONE 24-hour Clock
+#+begin_src nix
+clock24 = true;
+#+end_src
+
+***** DONE baseIndex
+Base index for windows and panes.  Defaults to 0
+#+begin_src nix
+baseIndex = 1;
+#+end_src
+
+***** DONE escapeTime
+Time in milliseconds for which tmux waits after an escape is input.
+#+begin_src nix
+escapeTime = 500;
+#+end_src
+
+***** TODO extraConfig
+Additional contents of /etc/tmux.conf, to be run after sourcing plugins.
+#+begin_src nix :noweb yes
+extraConfig = ''
+  <<tmux-configuration>>
+''
+#+end_src
+
+***** TODO extraConfigBeforePlugins
+Additional contents of /etc/tmux.conf, to be run before sourcing plugins.
+#+begin_src nix :tangle no
+extraConfigBeforePlugins = ''
+''
+#+end_src
+
+***** DONE historyLimit
+Maximum number of lines held in window history.
+#+begin_src nix
+historyLimit = 100000;
+#+end_src
+
+***** DONE keyMode
+VI or Emacs style shortcuts.  one of "emacs", "vi"
+#+begin_src nix
+keyMode = "vi";
+#+end_src
+
+***** TODO plugins
+#+begin_src nix
+plugins = with pkgs.tmuxPlugins; [
+
+];
+#+end_src
+
+***** TODO secureSocket
+Store tmux socket under /run, which is more secure than /tmp, but as a downside it doesn’t survive user logout.
+#+begin_src nix
+secureSocket = true;
+#+end_src
+
+***** DONE shortcut
+Ctrl followed by this key is used as the main shortcut.
+#+begin_src nix
+shortcut = "a";
+#+end_src
+
+***** TODO terminal
+#+begin_src nix
+terminal = "screen-256color";
+#+end_src
+
+***** TODO withUtempter
+Whether to enable libutempter for tmux. This is required so that tmux can write to /var/run/utmp
+(which can be queried with /who/ to display currently connected user sessions). Note, this will add a
+guid wrapper for the group utmp!
+#+begin_src nix
+withUtempter = true;
+#+end_src
+
+***** DONE Epilogue
+#+begin_src nix
+};
 #+end_src
 
 **** TODO zsh

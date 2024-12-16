@@ -844,14 +844,31 @@ lidSwitch = "suspend";
 #+end_src
 
 **** GnuPG
+** Module Files
+*** TODO Shell [17/26]
+:properties:
+:header-args+: :shebang "{ config, pkgs, lib, ... }:
+:end:
+
+**** DONE shell.nix
+:properties:
+:header-args+: :tangle ~/Dotfiles/nix/modules/shell.nix
+:end:
+
 #+begin_src nix
 {pkgs, ...}: {
   programs.gnupg.agent = {
+{
+  imports = [
     ./shell/alias.nix
     ./shell/fish.nix
     ./shell/mosh.nix
     ./shell/openssh.nix
     ./shell/zsh.nix
+  ];
+}
+#+end_src
+
 **** TODO Aliases [14/17]
 :properties:
 :header-args+: :tangle ~/Dotfiles/nix/modules/shell/alias.nix

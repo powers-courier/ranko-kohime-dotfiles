@@ -864,6 +864,7 @@ lidSwitch = "suspend";
   programs.gnupg.agent = {
     ./shell/alias.nix
     ./shell/mosh.nix
+    ./shell/openssh.nix
     ./shell/zsh.nix
 **** TODO Aliases [14/17]
 :properties:
@@ -1090,9 +1091,28 @@ alias openports='netstat -nutlp | grep LISTEN'
   };
 }
 #+end_src
+
+**** TODO openSSH
+:properties:
+:header-args+: :tangle ~/Dotfiles/nix/modules/shell/openssh.nix
+:end:
+
+#+begin_src nix
+{
   services.openssh = {
-    settings.PermitRootLogin = "no";
+    allowSFTP = true;
     enable = true;
+    openFirewall = true;
+    ports = [
+      22
+    ];
+    settings = {
+      GatewayPorts = "yes";
+      PasswordAuthentication = false;
+      PermitRootLogin = "no";
+      PrintMotd = true;
+      X11Forwarding = true;
+    };
   };
 }
 #+end_src

@@ -34,6 +34,7 @@ to view the report
 
 * Todo
 ** Add [[https://github.com/skeeto/endlessh][Endlessh]] for servers perhaps?
+** Design Nix config for RPi Zero as VPN endpoint with static route management
 ** Checkout [[https://yggdrasil-network.github.io/][Yggdrasil Network]] for VPN
 ** Count lines of code with [[https://github.com/XAMPPRocky/tokei][Tokei]]
 ** Edit NixOS configuration graphically with [[https://github.com/snowfallorg/nixos-conf-editor][NixOS Conf Editor]]
@@ -797,7 +798,7 @@ sharpen=5
 * PiKVM
 ** TESmart GPIO Configuration (Model HKS0801A30)
 :properties:
-:header-args+: :tangle ~/Dotfiles/etc/kvmd/override.d/tesmart.yml
+:header-args+: :tangle ~/Dotfiles/PiKVM/etc/kvmd/override.d/tesmart.yml
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments no
 :end:

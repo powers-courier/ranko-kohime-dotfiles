@@ -247,10 +247,7 @@ Add rebase = false?
 ** System
 *** ~/Dotfiles/nix/flake.nix
 :properties:
-:header-args: :tangle ~/Dotfiles/nix/flake.nix
-:header-args+: :tangle-mode (identity #o444)
-:header-args+: :comments no
-:header-args+: :padline no
+:header-args+: :tangle ~/Dotfiles/nix/flake.nix
 :end:
 
 **** DONE Preamble

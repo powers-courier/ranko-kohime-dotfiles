@@ -775,7 +775,6 @@ Jupiter Broadcasting's take:
   bash
   byobu
   fish
-  mosh
   tmux
   zsh
 #+end_src
@@ -853,12 +852,9 @@ lidSwitch = "suspend";
 }
 #+end_src
 
-**** mosh
 #+begin_src nix
 {pkgs, ...}: {
-  programs.mosh = {
     enable = true;
-    openFirewall = true;
   };
 }
 #+end_src
@@ -868,6 +864,7 @@ lidSwitch = "suspend";
 {pkgs, ...}: {
   programs.gnupg.agent = {
     ./shell/alias.nix
+    ./shell/mosh.nix
 **** TODO Aliases [14/17]
 :properties:
 :header-args+: :tangle ~/Dotfiles/nix/modules/shell/alias.nix
@@ -1080,6 +1077,19 @@ alias openports='netstat -nutlp | grep LISTEN'
 **** openSSH
 #+begin_src nix
 {pkgs, ...}: {
+**** TODO mosh
+:properties:
+:header-args+: :tangle ~/Dotfiles/nix/modules/shell/mosh.nix
+:end:
+
+#+begin_src nix
+{
+  programs.mosh = {
+    enable = true;
+    openFirewall = true;
+  };
+}
+#+end_src
   services.openssh = {
     settings.PermitRootLogin = "no";
     enable = true;

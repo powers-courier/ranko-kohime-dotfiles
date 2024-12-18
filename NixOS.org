@@ -750,9 +750,9 @@ lidSwitch = "suspend";
 
 **** GnuPG
 ** Module Files
-*** TODO Shell [17/26]
+*** TODO Shell [27/55]
 :properties:
-:header-args+: :shebang "{ config, pkgs, lib, ... }:
+:header-args+: :shebang "{ config, pkgs, lib, ... }:"
 :end:
 
 **** DONE shell.nix
@@ -1000,9 +1000,8 @@ alias openports='netstat -nutlp | grep LISTEN'
 }
 #+end_src
 
-**** openSSH
-**** TODO Bashrc [0/11]
-***** TODO If not running interactively, don't do anything
+***** TODO Bashrc [0/11]
+****** TODO If not running interactively, don't do anything
 #+begin_src bash
 case $- in
     *i*) ;;
@@ -1010,48 +1009,48 @@ case $- in
 esac
 #+end_src
 
-***** TODO Source global definitions
+****** TODO Source global definitions
 #+begin_src bash
 if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 #+end_src
 
-***** TODO History
-****** DONE Quiet history
+****** TODO History
+******* DONE Quiet history
 Don't put duplicate lines or lines starting with space in the history.
 See bash(1) for more options
 #+begin_src bash
 HISTCONTROL=ignoreboth
 #+end_src
 
-****** DONE Append to the history file, don't overwrite it
+******* DONE Append to the history file, don't overwrite it
 #+begin_src bash
 shopt -s histappend
 #+end_src
 
-****** DONE History length
+******* DONE History length
 for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 #+begin_src bash
 HISTSIZE=100000
 HISTFILESIZE=200000
 #+end_src
 
-***** TODO Window size check
+****** TODO Window size check
 check the window size after each command and, if necessary,
 update the values of LINES and COLUMNS.
 #+begin_src bash
 shopt -s checkwinsize
 #+end_src
 
-***** TODO I... AM... GLOBSTAR!!
+****** TODO I... AM... GLOBSTAR!!
 If set, the pattern "**" used in a pathname expansion context will
 match all files and zero or more directories and subdirectories.
 #+begin_src bash
 shopt -s globstar
 #+end_src
 
-***** TODO Fancy Prompt
+****** TODO Fancy Prompt
 set a fancy prompt (non-color, unless we know we "want" color)
 #+begin_src bash
 case "$TERM" in
@@ -1059,7 +1058,7 @@ case "$TERM" in
 esac
 #+end_src
 
-****** TODO Color Prompt
+******* TODO Color Prompt
 uncomment for a colored prompt, if the terminal has the capability; turned
 off by default to not distract the user: the focus in a terminal window
 should be on the output of commands, not on the prompt
@@ -1091,7 +1090,7 @@ fi
 unset color_prompt force_color_prompt
 #+end_src
 
-***** TODO Set GUI Terminal Title
+****** TODO Set GUI Terminal Title
 If this is an xterm set the title to user@host:dir
 #+begin_src bash
 case "$TERM" in
@@ -1103,12 +1102,12 @@ xterm*|rxvt*)
 esac
 #+end_src
 
-***** WAIT Colored GCC warnings and errors
+****** WAIT Colored GCC warnings and errors
 #+begin_src bash
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 #+end_src
 
-***** TODO Alias definitions
+****** TODO Alias definitions
 You may want to put all your additions into a separate file like
 ~/.bash_aliases, instead of adding them here directly.
 See /usr/share/doc/bash-doc/examples in the bash-doc package.
@@ -1119,7 +1118,7 @@ if [ -f $HOME/.aliasrc ]; then
 fi
 #+end_src
 
-***** TODO Programmable completion features
+****** TODO Programmable completion features
 enable programmable completion features (you don't need to enable
 this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 sources /etc/bash.bashrc).
@@ -1133,7 +1132,7 @@ if ! shopt -oq posix; then
 fi
 #+end_src
 
-
+**** DONE byobu
 #+begin_src nix
 {pkgs, ...}: {
 **** TODO fish

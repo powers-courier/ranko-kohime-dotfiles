@@ -4,14 +4,15 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no
 
-* NixOS Configuration
-** Notes
-*** Use system.nixos.label to add boot label
-*** [[https://github.com/Misterio77/nix-starter-configs][Nix Starter Config]]
-*** [[https://github.com/nix-community/disko/][Disko]] for automatic partitioning
-*** [[https://nixos.asia/en/nixos-install-disko][Install]] using Disko
+* Notes
+** Use system.nixos.label to add boot label
+** [[https://github.com/Misterio77/nix-starter-configs][Nix Starter Config]]
+** [[https://github.com/nix-community/disko/][Disko]] for automatic partitioning
+** [[https://nixos.asia/en/nixos-install-disko][Install]] using Disko
+** ZFS: [[https://www.reddit.com/r/zfs/comments/88vd1v/dataset_normalizationformd/][Dataset normalization=formD]]
+** [[https://openzfs.github.io/openzfs-docs/Getting%20Started/NixOS/Root%20on%20ZFS.html][NixOS Root on ZFS]]
 
-** TODO Install Checklist [0/5]
+* TODO Install Checklist [0/5]
 - [ ] Get all Nix files (including disko configuration) on install media
 - [ ] Bootstrap disko
 - [ ] Partition disk using disko

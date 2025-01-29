@@ -20,20 +20,33 @@
 - [ ] Bootstrap Home Manager
 
 ** ~/Dotfiles/nix/home-manager.nix
+* Disko
+** DONE Single disk ZFS pool
 :properties:
 :header-args: :tangle ~/Dotfiles/nix/home-manager.nix
 :header-args+: :tangle-mode (identity #o444)
 :header-args+: :comments no
 :header-args+: :padline no
 :header-args+: :shebang "{ config, pkgs, inputs, lib, ... }:"
+:header-args+: :tangle ~/Dotfiles/nix/disko.nix
 :end:
 
 *** Preamble
+*** DONE Prologue
 #+begin_src nix
 {
+  disko.devices = {
+    disk = {
+      nvme0n1 = {
+        type = "disk";
+        device = "/dev/nvme0n1";
+        content = {
+          type = "gpt";
 #+end_src
 
 *** User configuration
+*** DONE Partitions
+**** DONE Partition Prologue
 #+begin_src nix
   home.username = "ranko";
   home.homeDirectory = "/home/ranko";
@@ -48,6 +61,7 @@
 			allowUnfreePredicate = (_: true);
 		};
 	};
+partitions = [
 #+end_src
 
   # Let Home Manager install and manage itself.
@@ -61,6 +75,7 @@
 	];
 
 *** NeoVIM
+**** DONE ESP
 #+begin_src nix
   programs.neovim = {
         enable = true;
@@ -83,6 +98,16 @@
 		theme = "dpoggi";
 	};
 
+{
+  name = "ESP";
+  start = "1MiB";
+  end = "1024MiB";
+  type = "EF00";
+  content = {
+    type = "filesystem";
+    format = "vfat";
+    mountpoint = "/boot";
+  };
 }
 
 ** Bootstrap Home-manager [1/4]
@@ -130,6 +155,7 @@ in
 #+end_src
 
 *** Preamble
+**** DONE Swap
 #+begin_src nix
 {
 #+end_src
@@ -190,7 +216,14 @@ Should this also be dictated by the flake?
     LC_PAPER = loKale;
     LC_TELEPHONE = loKale;
     LC_TIME = loKale;
+  name = "swap";
+  start = "1024MiB";
+  size = "4GiB";
+  content = {
+    type = "swap";
+    randomEncryption = false;
   };
+}
 #+end_src
 
 *** 
@@ -202,16 +235,28 @@ system.autoUpgrade.allowReboot = true;
 
 *** Services
 **** OpenSSH
+**** DONE ZFS pool
 #+begin_src nix
 services.openssh.enable = true;
+{
+  name = "zfs";
+  start = "5GiB";
+  end = "100%";
+  content = {
+    type = "zfs";
+    pool = "rpool";
+  };
+}
 #+end_src
 
 **** Tailscale
 Enabling tailscale is as simple as adding the following to your Nix config,
 then use "sudo tailscale login"
 
+**** DONE Partition Epilogue
 #+begin_src nix
 services.tailscale.enable = true;
+];
 #+end_src
 
 ** ~/.config/nixpkgs/home.nix
@@ -232,6 +277,7 @@ home-manager.users.myUser = {
 };
 #+end_src
 *** Git User
+*** DONE Epilogue
 #+begin_src nix
 programs.git = {
   enable=true;
@@ -241,6 +287,7 @@ programs.git = {
     st = "status";
   };
 };
+}; }; }; }; }
 #+end_src
 Add signing key?
 Add rebase = false?

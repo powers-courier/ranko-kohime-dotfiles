@@ -18,7 +18,7 @@ while paraentheses () spawn a new subshell
 * TODO Todo
 ** Blink Lights on Nic
 [[https://serverfault.com/questions/321913/what-is-the-command-to-flash-a-nic-link-light][Server Fault - What is the command to flash a NIC link light?]]
-** 
+** Use [[https://github.com/duclos-cavalcanti/shmenu][shmenu]] as the menu provider?
 
 * TODO Bash Menu [5/19]
 ** DONE Preamble [0/0]

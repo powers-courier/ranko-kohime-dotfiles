@@ -796,6 +796,23 @@ sharpen=5
 ** [[file:Ranger.org][Ranger]]
 * [[file:NixOS.org][NixOS Configuration]]
 * PiKVM
+** Static networking config for direct connection to TESmart KVM Switch
+:properties:
+:header-args+: :tangle ~/Dotfiles/PiKVM/etc/systemd/network/eth1.network
+:header-args+: :tangle-mode (identity #o444)
+:header-args+: :comments no
+:end:
+
+#+begin_src conf
+[Match]
+MACAddress=b0:a7:b9:2c:cf:61
+
+[Network]
+Address=192.168.1.5/24
+#+end_src
+
+** Tailscale VPN
+[[https://tailscale.com/kb/1292/pikvm][Access PiKVM from anywhere - TailScale Documentation]]
 ** TESmart GPIO Configuration (Model HKS0801A30)
 :properties:
 :header-args+: :tangle ~/Dotfiles/PiKVM/etc/kvmd/override.d/tesmart.yml

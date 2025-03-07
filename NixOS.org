@@ -21,7 +21,6 @@
 
 ** ~/Dotfiles/nix/home-manager.nix
 * Disko
-** DONE Single disk ZFS pool
 :properties:
 :header-args: :tangle ~/Dotfiles/nix/home-manager.nix
 :header-args+: :tangle-mode (identity #o444)
@@ -34,6 +33,9 @@
 *** Preamble
 *** DONE Prologue
 #+begin_src nix
+** DONE Single disk ZFS pool on NVMe SSD @ nvme0n1
+*** DONE Configuration file
+#+begin_src nix :tangle ~/Dotfiles/nix/disko-single-nvme-zfs.nix
 {
   disko.devices = {
     disk = {
@@ -42,6 +44,14 @@
         device = "/dev/nvme0n1";
         content = {
           type = "gpt";
+          partitions = [
+            <<disko-single-nvme-zfs-partitions>>
+          ];
+        };
+      };
+    };
+  };
+}
 #+end_src
 
 *** User configuration
@@ -126,16 +136,72 @@ export NIX_CONFIG="experimental-features = nix-command flakes"
 *** TODO Load home-manager in shell
 #+begin_src bash
 nix shell "nixpkgs#home-manager"
+**** DONE Swap
+#+begin_src nix :noweb-ref disko-single-nvme-zfs-partitions
+{
+  name = "swap";
+  size = "64GiB";
+  content = {
+    type = "swap";
+    randomEncryption = true;
+  };
+}
 #+end_src
 
 *** TODO Change to directory
 #+begin_src bash
 cd ~/.nix-flake
+**** DONE ZFS pool [9/9]
+#+begin_src nix :noweb-ref disko-single-nvme-zfs-partitions
+{
+  name = "zfs";
+  size = "100%";
+  content = {
+    type = "zfs";
+    pool = "tank";
+    options = { ashift = "12"; autotrim = "on"; };
+    datasets = {
+      <<disko-single-nvme-zfs-datasets>>
+    };
+  };
+}
 #+end_src
 
 *** TODO Build system
 #+begin_src bash
 sudo nixos-rebuild switch --flake ".#hostname"
+**** DONE ZFS pool Datasets [6/6]
+***** DONE /
+#+begin_src nix :noweb-ref disko-single-nvme-zfs-datasets
+root = {
+  type = "zfs_fs";
+  mountpoint = "/";
+  options = { compression = "zstd"; };
+};
+#+end_src
+***** DONE /home
+#+begin_src nix :noweb-ref disko-single-nvme-zfs-datasets
+home = {
+  type = "zfs_fs";
+  mountpoint = "/home";
+  options = { compression = "zstd"; };
+};
+#+end_src
+***** DONE /nix
+#+begin_src nix :noweb-ref disko-single-nvme-zfs-datasets
+nix = {
+  type = "zfs_fs";
+  mountpoint = "/nix";
+  options = { compression = "zstd-19"; };
+};
+#+end_src
+***** DONE /persistent
+#+begin_src nix :noweb-ref disko-single-nvme-zfs-datasets
+persistent = {
+  type = "zfs_fs";
+  mountpoint = "/persistent";
+  options = { compression = "zstd-19"; };
+};
 #+end_src
 
 ** configuration.nix

@@ -100,6 +100,48 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 <<emacs-success-message>>
 #+end_src
 
+* TODO Emacs.nix [0/0]
+:properties:
+:header-args+: :tangle ~/Dotfiles/nix/modules/emacs.nix
+:header-args+: :shebang "{ nixpkgs }:"
+:end:
+
+#+begin_src nix
+{
+  emacsPackage = nixpkgs.emacs.override {
+    # Add any desired customization here, such as enabling additional Emacs packages
+    nativeComp = true; # Example: enable native compilation if desired
+  };
+
+  # NixOS module for configuring Emacs
+  config = { config, pkgs, ... }: {
+    environment.systemPackages = [ pkgs.emacs ];
+
+    programs.emacs = {
+      enable = true;
+      package = pkgs.emacs;
+      # Additional Emacs settings could be specified here
+      
+    };
+  };
+}
+
+#+end_src
+
+Ready to import into Nix HM config
+#+begin_src nix :tangle no
+<<emacs-preamble-settings>>
+<<emacs-packages>>
+<<emacs-visual-settings>>
+<<emacs-org-mode-settings>>
+<<emacs-key-bindings>>
+<<emacs-modeline-settings>>
+<<emacs-search-settings>>
+<<emacs-fancy-shit>>
+<<emacs-general-settings>>
+<<emacs-success-message>>
+#+end_src
+
 * TODO Configuration [116/144]
 ** DONE Preamble [6/6]
 :properties:

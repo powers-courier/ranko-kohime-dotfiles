@@ -2,7 +2,7 @@
 #+author: Ranko Kohime
 #+email: ranko.kohime@runbox.com
 #+startup: content
-#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
 * Notes
 ** Use system.nixos.label to add boot label
@@ -11,11 +11,16 @@
 ** [[https://nixos.asia/en/nixos-install-disko][Install]] using Disko
 ** ZFS: [[https://www.reddit.com/r/zfs/comments/88vd1v/dataset_normalizationformd/][Dataset normalization=formD]]
 ** [[https://openzfs.github.io/openzfs-docs/Getting%20Started/NixOS/Root%20on%20ZFS.html][NixOS Root on ZFS]]
+** [[https://github.com/nix-community/nixos-anywhere-examples/blob/main/flake.nix][nixos-anywhere example flake]]
+** [[https://github.com/nix-systems/nix-systems][nix-systems - externally extensible flake systems]]
+** meld - Graphical diff tool
 
 * TODO Install Checklist [0/5]
 - [ ] Get all Nix files (including disko configuration) on install media
+- [ ] Build script for running nixos-anywhere
 - [ ] Bootstrap disko
 - [ ] Partition disk using disko
+- [ ] Use ZFSBootMenu for minimum ESP
 - [ ] Install NixOS
 - [ ] Bootstrap Home Manager
 
@@ -380,30 +385,37 @@ description = "Ranko Kohime's Flake";
 inputs = {
 #+end_src
 
-***** DONE Nixpkgs (unstable)
-#+begin_src nix
+** DONE Inputs [5/5]
+*** DONE Nixpkgs (unstable)
+#+begin_src nix :noweb-ref nix-flake-inputs
 nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 #+end_src
 
-***** DONE Home Manager
-#+begin_src nix
+*** DONE Disko
+#+begin_src nix :noweb-ref nix-flake-inputs
+disko.url = "github:nix-community/disko";
+#+end_src
+
+*** DONE Home Manager
+#+begin_src nix :noweb-ref nix-flake-inputs
 home-manager.url = "github:nix-community/home-manager";
 home-manager.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-***** DONE Flake Utils
-#+begin_src nix
+*** DONE Flake Utils
+#+begin_src nix :noweb-ref nix-flake-inputs
 flake-utils.url = "github:numtide/flake-utils";
 #+end_src
 
-***** DONE Hardware
-#+begin_src nix
+*** DONE Hardware
+#+begin_src nix :noweb-ref nix-flake-inputs
 hardware.url = "github:nixos/nixos-hardware";
 #+end_src
 
-***** DONE Epilogue
-#+begin_src nix
-};
+** TODO Variables [1/2]
+**** DONE Import the NixOS Library
+#+begin_src nix noweb-ref nix-flake-variables
+loKale = "en_US.UTF-8";
 #+end_src
 
 **** TODO Outputs [24/36]
@@ -431,20 +443,20 @@ pkgs = import nixpkgs {
        inherit system;
        config = {}; };
 #+end_src
-
-****** TODO Common Shell Utilities [19/29]
-******* DONE Preamable
+*** TODO Outputs
+* TODO Common Shell Utilities [19/29]
+** DONE Preamable
 #+begin_src nix
 commonShellUtils = { config, pkgs, ...}: {
 #+end_src
 
-******* TODO environment.systemPackages [7/8]
-******** DONE Preamble
+** TODO environment.systemPackages [7/8]
+*** DONE Preamble
 #+begin_src nix
 environment.systemPackages = with pkgs; [
 #+end_src
 
-******** DONE File Management
+*** DONE File Management
 Git is a version control system
 Ranger is a paned file-manager
 Tree prints pretty file trees
@@ -454,7 +466,7 @@ ranger
 tree
 #+end_src
 
-******** DONE Networking
+*** DONE Networking
 iperf3 is a network bandwidth tester
 Nmap is a network scanner
 #+begin_src nix
@@ -463,7 +475,7 @@ iptraf-ng
 nmap
 #+end_src
 
-******** DONE Shells
+*** DONE Shells
 ZSH is a shell
 
 Do we want to install [[https://github.com/ohmyzsh/ohmyzsh.git][Oh My ZSH]]?
@@ -472,7 +484,7 @@ Also consider Powerlevel10k and zsh-autosuggestions
 zsh
 #+end_src
 
-******** DONE Task Management
+*** DONE Task Management
 glances is fancy task manager
 htop is task manager
 pv is Pipe Viewer
@@ -482,7 +494,7 @@ htop
 pv
 #+end_src
 
-******** DONE Terminal Multiplexers
+*** DONE Terminal Multiplexers
 Byobu is a skin of sorts on top of Tmux, which is enabled below
 
 Do we want to install [[https://github.com/tmux-plugins/tpm][tmux-plugin-manager]]?
@@ -490,17 +502,17 @@ Do we want to install [[https://github.com/tmux-plugins/tpm][tmux-plugin-manager
 byobu
 #+end_src
 
-******** TODO Unsorted
+*** TODO Unsorted
 #+begin_src nix
 moreutils
 #+end_src
 
-******** DONE Epilogue
+*** DONE Epilogue
 #+begin_src nix
 ];
 #+end_src
 
-******* DONE programs.neovim
+** DONE programs.neovim
 #+begin_src nix :noweb yes
 programs.neovim = [
   defaultEditor = true;
@@ -514,7 +526,7 @@ programs.neovim = [
 ];
 #+end_src
 
-******* DONE Epilogue
+** DONE Epilogue
 #+begin_src nix
 };
 #+end_src
@@ -532,9 +544,7 @@ Available through 'nixos-rebuild --flake .#your-hostname'
 nixosConfigurations = {
 #+end_src
 
-****** Framework
-******* 7840u
-#+begin_src nix
+#+begin_src nix :tangle no
 framework-7840u = nixpkgs.lib.nixosSystem {
   specialArgs = { inherit inputs; };
   modules = [
@@ -542,6 +552,10 @@ framework-7840u = nixpkgs.lib.nixosSystem {
     ./hardware/framework-7840u.nix
   ];
 };
+#+end_src
+****** DONE Preamble
+#+begin_src nix
+nixosConfigurations = {
 #+end_src
 
 ****** Epilogue
@@ -862,16 +876,10 @@ lidSwitch = "suspend";
 }
 #+end_src
 
-**** GnuPG
-** Module Files
-*** TODO Shell [27/55]
+**** TODO File Management [0/1]
+***** TODO Git
 :properties:
-:header-args+: :shebang "{ config, pkgs, lib, ... }:"
-:end:
-
-**** DONE shell.nix
-:properties:
-:header-args+: :tangle ~/Dotfiles/nix/modules/shell.nix
+:header-args+: :tangle ~/Dotfiles/nix/modules/git.nix
 :end:
 
 #+begin_src nix
@@ -890,23 +898,25 @@ lidSwitch = "suspend";
 }
 #+end_src
 
-**** TODO Aliases [14/17]
+**** TODO Shell [27/57]
 :properties:
-:header-args+: :tangle ~/Dotfiles/nix/modules/shell/alias.nix
+:header-args+: :tangle ~/Dotfiles/nix/modules/shell.nix
 :end:
 
+***** TODO Aliases [15/18]
+****** DONE Prologue
 #+begin_src nix
 environment.shellAliases = {
 #+end_src
 
-***** DONE Audio
+****** DONE Audio
 #+begin_src nix
 flacmeta = " metaflac --add-replay-gain *.flac";
 tag = " easytag .; exfalso .; exit";
 vgain = " vorbisgain -a *.ogg";
 #+end_src
 
-***** DONE Directory navigation and listing
+****** DONE Directory navigation and listing
 #+begin_src nix
 .. = " cd ..";
 ... = " cd ../..";
@@ -917,7 +927,7 @@ ll = " ls -AhlF --color=always";
 lll = " ls -AhlF |less";
 #+end_src
 
-***** DONE Editors
+****** DONE Editors
 #+begin_src nix
 e = "emacs";
 n = "nano";
@@ -926,14 +936,14 @@ vi = "nvim";
 vim = "nvim";
 #+end_src
 
-***** DONE Exits
+****** DONE Exits
 #+begin_src nix
 :q = " exit";
 q = " exit";
 x = " exit";
 #+end_src
 
-***** DONE File Handling
+****** DONE File Handling
 #+begin_src nix
 cp = " cp -v";
 lns = " ln -sv";
@@ -942,7 +952,7 @@ rm = " rm";
 tale = " tail -n 30";
 #+end_src
 
-***** TODO Gaming
+****** TODO Gaming
 #+begin_src nix
 battle = "$HOME/bin/battlenet.sh";
 steamium = "/usr/bin/chromium --user-data-dir=$HOME/.config/steamium"
@@ -950,7 +960,7 @@ surveysays = "sed -i -e '/SurveyDate/ s/"[0-9].*"/"'$(date +%Y-%m-%d -d "1 year 
 xbox = "$HOME/bin/xboxdrv.sh";
 #+end_src
 
-***** DONE Git
+****** DONE Git
 #+begin_src nix
 ga = " git add";
 gc = " git commit -m";
@@ -963,7 +973,7 @@ gitpr = " git pull;git submodule foreach git pull";
 gunstage = " git reset"
 #+end_src
 
-***** DONE Mysterious History
+****** DONE Mysterious History
 These commands will not be committed to history
 #+begin_src nix
 alias = " alias";
@@ -978,7 +988,7 @@ pkill = " pkill";
 ssh = " ssh";
 #+end_src
 
-***** DONE Package Management
+****** DONE Package Management
 #+begin_src nix
 garup = " garuda-update";
 nixrs = " nixos-rebuild switch";
@@ -986,20 +996,20 @@ pacup = " pacman -Syuu";
 syn = " synaptic";
 #+end_src
 
-***** DONE Pass
+****** DONE Pass
 #+begin_src nix
 pass = " ~/.local/bin/pass.sh";
 #+end_src
 
-***** DONE Shell [3/3]
-****** DONE Multiplexing
+****** DONE Shell [3/3]
+******* DONE Multiplexing
 #+begin_src nix
 b = " byobu";
 br = " byobu -r";
 ta = " tmux attach";
 #+end_src
 
-****** DONE Tools
+******* DONE Tools
 #+begin_src nix
 f = " free -m";
 iotop = " sudo iotop -ao";
@@ -1018,24 +1028,24 @@ Pipe Viewer
 pvr = " pv --progress --timer --eta --rate --bytes --average-rate";
 #+end_src
 
-****** DONE Udev
+******* DONE Udev
 #+begin_src nix
 udevre = " udevadm control --reload-rules";
 #+end_src
 
-***** DONE Epilogue
+****** DONE Epilogue
 #+begin_src nix
 };
 #+end_src
 
-***** WAIT X server root access
+****** WAIT X server root access
 Allows the root user to access the running X server...  But why?
 #+begin_src nix :tangle no
 alias allowroot='xhost +local:root'    # Allow root access to X server
 alias denyroot='xhost -'               # Deny root access to X server
 #+end_src
 
-***** WAIT Unsorted
+****** WAIT Unsorted
 alias bat='upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|to\ full|percentage|voltage|energy"'
 alias dupesort='awk '"'"'!seen[$0]++'"'"' '
 alias fgri=' find -print 2>/dev/null|grep --color=auto -i'
@@ -1092,11 +1102,7 @@ alias openports='netstat -nutlp | grep LISTEN'
 # Transfer whole disk
 # dd if=/dev/sdz bs=8M|gzip -c3|ssh ranko@yggdrasil 'cat - > /path/to/save/to'
 
-**** DONE bash
-:properties:
-:header-args+: :tangle ~/Dotfiles/nix/modules/shell/bash.nix
-:end:
-
+***** TODO bash
 #+begin_src nix
 {
   programs.bash = {
@@ -1114,8 +1120,8 @@ alias openports='netstat -nutlp | grep LISTEN'
 }
 #+end_src
 
-***** TODO Bashrc [0/11]
-****** TODO If not running interactively, don't do anything
+****** TODO Bashrc [0/11]
+******* TODO If not running interactively, don't do anything
 #+begin_src bash
 case $- in
     *i*) ;;
@@ -1123,48 +1129,48 @@ case $- in
 esac
 #+end_src
 
-****** TODO Source global definitions
+******* TODO Source global definitions
 #+begin_src bash
 if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 #+end_src
 
-****** TODO History
-******* DONE Quiet history
+******* TODO History
+******** DONE Quiet history
 Don't put duplicate lines or lines starting with space in the history.
 See bash(1) for more options
 #+begin_src bash
 HISTCONTROL=ignoreboth
 #+end_src
 
-******* DONE Append to the history file, don't overwrite it
+******** DONE Append to the history file, don't overwrite it
 #+begin_src bash
 shopt -s histappend
 #+end_src
 
-******* DONE History length
+******** DONE History length
 for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 #+begin_src bash
 HISTSIZE=100000
 HISTFILESIZE=200000
 #+end_src
 
-****** TODO Window size check
+******* TODO Window size check
 check the window size after each command and, if necessary,
 update the values of LINES and COLUMNS.
 #+begin_src bash
 shopt -s checkwinsize
 #+end_src
 
-****** TODO I... AM... GLOBSTAR!!
+******* TODO I... AM... GLOBSTAR!!
 If set, the pattern "**" used in a pathname expansion context will
 match all files and zero or more directories and subdirectories.
 #+begin_src bash
 shopt -s globstar
 #+end_src
 
-****** TODO Fancy Prompt
+******* TODO Fancy Prompt
 set a fancy prompt (non-color, unless we know we "want" color)
 #+begin_src bash
 case "$TERM" in
@@ -1172,7 +1178,7 @@ case "$TERM" in
 esac
 #+end_src
 
-******* TODO Color Prompt
+******** TODO Color Prompt
 uncomment for a colored prompt, if the terminal has the capability; turned
 off by default to not distract the user: the focus in a terminal window
 should be on the output of commands, not on the prompt
@@ -1204,7 +1210,7 @@ fi
 unset color_prompt force_color_prompt
 #+end_src
 
-****** TODO Set GUI Terminal Title
+******* TODO Set GUI Terminal Title
 If this is an xterm set the title to user@host:dir
 #+begin_src bash
 case "$TERM" in
@@ -1216,12 +1222,12 @@ xterm*|rxvt*)
 esac
 #+end_src
 
-****** WAIT Colored GCC warnings and errors
+******* WAIT Colored GCC warnings and errors
 #+begin_src bash
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 #+end_src
 
-****** TODO Alias definitions
+******* TODO Alias definitions
 You may want to put all your additions into a separate file like
 ~/.bash_aliases, instead of adding them here directly.
 See /usr/share/doc/bash-doc/examples in the bash-doc package.
@@ -1232,7 +1238,7 @@ if [ -f $HOME/.aliasrc ]; then
 fi
 #+end_src
 
-****** TODO Programmable completion features
+******* TODO Programmable completion features
 enable programmable completion features (you don't need to enable
 this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 sources /etc/bash.bashrc).
@@ -1246,7 +1252,7 @@ if ! shopt -oq posix; then
 fi
 #+end_src
 
-**** DONE byobu
+***** DONE byobu
 #+begin_src nix
 {pkgs, ...}: {
 **** TODO fish
@@ -1305,34 +1311,33 @@ fi
 }
 #+end_src
 
-**** TODO tmux
-:properties:
-:header-args+: :tangle ~/Dotfiles/nix/modules/shell/tmux.nix
-:end:
+***** TODO tmux
+tmux.conf excerpt to toggle on/off session keybindings and prefix handling]]
 
+****** Prologue
 #+begin_src nix
 programs.tmux = {
   enable = true;
 #+end_src
 
-***** DONE 24-hour Clock
+****** DONE 24-hour Clock
 #+begin_src nix
 clock24 = true;
 #+end_src
 
-***** DONE baseIndex
+****** DONE baseIndex
 Base index for windows and panes.  Defaults to 0
 #+begin_src nix
 baseIndex = 1;
 #+end_src
 
-***** DONE escapeTime
+****** DONE escapeTime
 Time in milliseconds for which tmux waits after an escape is input.
 #+begin_src nix
 escapeTime = 500;
 #+end_src
 
-***** TODO extraConfig
+****** TODO extraConfig
 Additional contents of /etc/tmux.conf, to be run after sourcing plugins.
 #+begin_src nix :noweb yes
 extraConfig = ''
@@ -1340,50 +1345,50 @@ extraConfig = ''
 ''
 #+end_src
 
-***** TODO extraConfigBeforePlugins
+****** TODO extraConfigBeforePlugins
 Additional contents of /etc/tmux.conf, to be run before sourcing plugins.
 #+begin_src nix :tangle no
 extraConfigBeforePlugins = ''
 ''
 #+end_src
 
-***** DONE historyLimit
+****** DONE historyLimit
 Maximum number of lines held in window history.
 #+begin_src nix
 historyLimit = 100000;
 #+end_src
 
-***** DONE keyMode
+****** DONE keyMode
 VI or Emacs style shortcuts.  one of "emacs", "vi"
 #+begin_src nix
 keyMode = "vi";
 #+end_src
 
-***** TODO plugins
+****** TODO plugins
 #+begin_src nix
 plugins = with pkgs.tmuxPlugins; [
 
 ];
 #+end_src
 
-***** TODO secureSocket
+****** TODO secureSocket
 Store tmux socket under /run, which is more secure than /tmp, but as a downside it doesn’t survive user logout.
 #+begin_src nix
 secureSocket = true;
 #+end_src
 
-***** DONE shortcut
+****** DONE shortcut
 Ctrl followed by this key is used as the main shortcut.
 #+begin_src nix
 shortcut = "a";
 #+end_src
 
-***** TODO terminal
+****** TODO terminal
 #+begin_src nix
 terminal = "screen-256color";
 #+end_src
 
-***** TODO withUtempter
+****** TODO withUtempter
 Whether to enable libutempter for tmux. This is required so that tmux can write to /var/run/utmp
 (which can be queried with /who/ to display currently connected user sessions). Note, this will add a
 guid wrapper for the group utmp!
@@ -1391,22 +1396,22 @@ guid wrapper for the group utmp!
 withUtempter = true;
 #+end_src
 
-***** DONE Epilogue
+****** DONE Epilogue
 #+begin_src nix
 };
 #+end_src
 
-**** TODO zsh
+***** TODO zsh
 :properties:
 :header-args+: :tangle ~/Dotfiles/nix/modules/shell/zsh.nix
 :end:
 
-***** Variables
+****** Variables
 #+begin_src nix
 let
 #+end_src
 
-****** Directory Options
+******* Directory Options
 #+begin_src nix
 zshDirectoryOptions = [
 #+end_src
@@ -1436,7 +1441,7 @@ Fin
 ];
 #+end_src
 
-****** History Options
+******* History Options
 
 #+begin_src nix
 zshHistoryOptions = [
@@ -1488,12 +1493,12 @@ Fin
 ];
 #+end_src
 
-****** Epilogue
+******* Epilogue
 #+begin_src nix
 in
 #+end_src
 
-***** Configuration
+****** Configuration
 #+begin_src nix
 {
   programs.zsh = {
@@ -1536,7 +1541,7 @@ Pause on `rm *`
 };
 #+end_src
 
-***** TODO Key Setups
+****** TODO Key Setups
 #bindkey -e
   # also do history expansion on space
 #bindkey ' ' magic-space

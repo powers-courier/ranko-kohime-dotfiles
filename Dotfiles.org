@@ -3084,7 +3084,6 @@ if [ -e /sys/class/power_supply/BAT0/capacity ]
 fi
 #+end_src
 
-
 ** Shell Scripts
 *** backup.sh [0/1]
 :properties:

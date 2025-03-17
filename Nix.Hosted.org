@@ -1,0 +1,199 @@
+#+title: Nix Hosting
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments both :noweb yes
+
+* TODO Jellyfin [8/9]
+** Remote access nodes
+#+begin_src nix :shebang "{ config, pkgs, proxyHostname, ... }:" :tangle nix/jellyfin-remote.nix
+{
+  networking.hostName = proxyHostname;
+
+  <<jellyfin-remote-firewall>>
+  <<jellyfin-remote-tailscale>>
+  <<jellyfin-remote-traefik>>
+  <<jellyfin-remote-avahi>>
+  <<jellyfin-remote-avahi-conf>>
+
+  environment.systemPackages = with pkgs; [
+    tailscale
+    traefik
+    avahi
+  ];
+
+  systemd.services.traefik = {
+    after = [ "tailscale.service" ];
+    wants = [ "tailscale.service" ];
+  };
+}
+#+end_src
+*** Networking
+#+begin_src nix :noweb-ref jellyfin-remote-firewall
+networking = {
+  firewall = {
+    enable = true;
+    allowedTCPPorts = [ 8096 ]; # Traefik listens here
+    allowedUDPPorts = [ 5353 ]; # mDNS uses UDP 5353
+  };
+};
+#+end_src
+*** Tailscale
+#+begin_src nix :noweb-ref jellyfin-remote-tailscale
+services.tailscale = {
+  enable = true;
+  openFirewall = true;
+};
+#+end_src
+*** Traefik
+#+begin_src nix :noweb-ref jellyfin-remote-traefik
+services.traefik = {
+  enable = true;
+  staticConfigOptions = {
+    entryPoints.web.address = ":8096";
+    http = {
+      routers = {
+        jellyfin = {
+          rule = "Host(`*`)"; # Catch-all for any hostname (or leave unspecified)
+          service = "jellyfin";
+        };
+      };
+      services = {
+        jellyfin.loadBalancer.servers = [{ url = "http://jellyfin.theatomicass.com:8096"; }];
+      };
+    };
+  };
+};
+#+end_src
+*** mDNS with Avahi
+nssmdns4 = Enable mDNS for IPv4 name resolution
+
+#+begin_src nix :noweb-ref jellyfin-remote-avahi
+services.avahi = {
+  enable = true;
+  nssmdns4 = true;
+  publish = {
+    enable = true;
+    addresses = true;
+    userServices = true;
+  };
+};
+#+end_src
+
+#+begin_src nix :noweb-ref jellyfin-remote-avahi-conf
+environment.etc."avahi/services/jellyfin.service".text = ''
+  <?xml version="1.0" standalone='no'?>
+  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+  <service-group>
+    <name>Jellyfin Proxy</name>
+    <service>
+      <type>_http._tcp</type>
+      <port>8096</port>
+      <txt-record>description=Jellyfin Media Server Proxy</txt-record>
+    </service>
+  </service-group>
+'';
+#+end_src
+
+** WAIT Intel low-power encoding kernel parameter
+It is not clear what this actually does, nor what setting would be optimal for the current hardware
+(Intel N200, Alder Lake-N)
+[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
+
+#+begin_src nix
+boot.kernelParams = [
+    "i915.enable_guc=2"
+  ];
+#+end_src
+
+** Intel Quick Sync Video (QSV)
+#+begin_src nix
+hardware.opengl = {
+  enable = true;
+  extraPackages = with pkgs; [
+    vpl-gpu-rt
+  ];
+};
+#+end_src
+
+** DONE Enable vaapi on OS-level
+intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
+#+begin_src nix
+nixpkgs.config.packageOverrides = pkgs: {
+  vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+};
+hardware.opengl = {
+  enable = true;
+  extraPackages = with pkgs; [
+    intel-media-driver
+    vaapiIntel
+    vaapiVdpau
+    libvdpau-va-gl
+    intel-compute-runtime
+  ];
+};
+#+end_src
+
+** DONE Enable Jellyfin service [6/6]
+*** DONE Preamble
+#+begin_src nix
+services.jellyfin = {
+#+end_src
+
+*** DONE Enable
+#+begin_src nix
+enable = true;
+#+end_src
+
+*** DONE Packages
+#+begin_src nix
+extraPackages = with pkgs; [
+  jellyfin
+  jellyfin-ffmpeg
+  jellyfin-web
+];
+#+end_src
+
+*** DONE openFirewall
+#+begin_src nix
+openFirewall = true;
+#+end_src
+
+*** DONE User/Group
+On default install, first user is 1000, users group is 100
+#+begin_src nix
+user = "ranko";
+group = "users";
+#+end_src
+
+*** DONE Epilogue
+#+begin_src nix
+};
+#+end_src
+
+** Epilogue
+#+begin_src nix
+}
+#+end_src
+
+** Docker Edition
+#+begin_src nix :tangle no
+{ config, pkgs, ... }:
+{
+  virtualisation.oci-containers.containers."jellyfin" = {
+    autoStart = true;
+    image = "jellyfin/jellyfin";
+    device = "/dev/dri:/dev/dri";     # Double check this line before putting into production
+    volumes = [
+      "/media/Containers/Jellyfin/config:/config"
+      "/media/Containers/Jellyfin/cache:/cache"
+      "/media/Containers/Jellyfin/log:/log"
+      "/Mounts/Videos:/media/Videos"
+    ];
+    ports = [ "8096:8096" ];
+    environment = {
+      JELLYFIN_LOG_DIR = "/log";
+    };
+  };
+}
+#+end_src

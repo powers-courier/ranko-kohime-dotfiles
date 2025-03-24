@@ -2,17 +2,20 @@
 #+author: Ranko Kohime
 #+email: ranko.kohime@runbox.com
 #+startup: content
-#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments both :noweb yes
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :noweb yes
 
 * TODO Cluster Module
-#+begin_src nix :tangle nix/modules/cluster-hosts.nix
+#+begin_src nix :shebang "{ config, pkgs, proxyHostname, ... }:" :tangle nix/modules/cluster-hosts.nix
+{
 <<jellyfin-bootParams>>
 <<jellyfin-intel-qsv>>
 <<jellyfin-docker-swarm>>
+<<jellyfin-user>>
 <<jellyfin-filesystems>>
+}
 #+end_src
 
-* TODO Remote access proxy nodes
+* DONE Remote access proxy nodes [4/4]
 #+begin_src nix :shebang "{ config, pkgs, proxyHostname, ... }:" :tangle nix/modules/remote-proxy-nodes.nix
 {
   networking.hostName = proxyHostname;
@@ -35,24 +38,28 @@
   };
 }
 #+end_src
-*** Networking
+
+** DONE Networking
+Traefik listens on TCP 8096
+Avahi listens on UDP 5353
 #+begin_src nix :noweb-ref jellyfin-remote-firewall
 networking = {
   firewall = {
     enable = true;
-    allowedTCPPorts = [ 8096 ]; # Traefik listens here
-    allowedUDPPorts = [ 5353 ]; # mDNS uses UDP 5353
+    allowedTCPPorts = [ 8096 ];
+    allowedUDPPorts = [ 5353 ];
   };
 };
 #+end_src
-*** Tailscale
+** DONE Tailscale
+Requires manual setup to add to Tailnet
 #+begin_src nix :noweb-ref jellyfin-remote-tailscale
 services.tailscale = {
   enable = true;
   openFirewall = true;
 };
 #+end_src
-*** Traefik
+** DONE Traefik
 #+begin_src nix :noweb-ref jellyfin-remote-traefik
 services.traefik = {
   enable = true;
@@ -72,7 +79,7 @@ services.traefik = {
   };
 };
 #+end_src
-*** mDNS with Avahi
+** DONE mDNS with Avahi
 nssmdns4 = Enable mDNS for IPv4 name resolution
 
 #+begin_src nix :noweb-ref jellyfin-remote-avahi
@@ -103,7 +110,7 @@ environment.etc."avahi/services/jellyfin.service".text = ''
 #+end_src
 
 
-* TODO Jellyfin [0/2]
+* TODO Jellyfin [2/6]
 ** Hardware Enablement
 *** TODO i915.enable_guc
 [[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
@@ -140,35 +147,38 @@ hardware = {
 };
 #+end_src
 
-** Docker
+** DONE Docker
 [[https://forums.docker.com/t/error-response-from-daemon-live-restore-daemon-configuration-is-incompatible-with-swarm-mode/28428][Error response from daemon: –live-restore daemon configuration is incompatible with swarm mode]]
 #+begin_src nix :noweb-ref jellyfin-docker-swarm
 virtualisation.docker.enable = true;
 virtualisation.docker.daemon.settings.live-restore = false;
 #+end_src
 
-#+begin_src cmd :tangle no
+Requires manual setup for multiple managers, follow instructions
+#+begin_src bash :tangle no
 docker swarm init
 #+end_src
 
-** User / Group
-#+begin_src nix
+** DONE User / Group
+#+begin_src nix :noweb-ref jellyfin-user
 users = {
   users.jellyfin = {
     isSystemUser = true;
     uid = 8096;
-    groups = "jellyfin"l
+    groups = "jellyfin";
   };
   groups.jellyfin.gid = 8096;
 };
 #+end_src
 
+** TODO Filesystems
 #+begin_src nix :noweb-ref jellyfin-filesystems
 fileSystems."/Mounts/JellyfinConfig" = {
   device = 
+}
 #+end_src
 
-** rffmpeg
+** TODO rffmpeg
 #+begin_src nix
 environment.systemPackages = with pkgs; [
   (pkgs.callPackage ({ stdenv, fetchFromGitHub, python3 }:
@@ -234,4 +244,62 @@ services:
       - /usr/bin/rffmpeg:/usr/local/bin/rffmpeg:ro
     devices:
       - /dev/dri:/dev/dri
+#+end_src
+
+* Postgres VM
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/postgres-vm.nix
+{
+  imports = [
+    (import ./modules/locale.nix { inherit vars; })
+  ];
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  <<postgres-vm-networking>>
+  <<postgres-vm-service>>
+  time.timeZone = timeZern;
+  environment.systemPackages = with pkgs; [ postgresql_15 ];
+  services.openssh.enable = true;
+  system.stateVersion = "25.05";
+}
+#+end_src
+
+** DONE Networking
+#+begin_src nix :noweb-ref postgres-vm-networking
+networking = {
+  hostName = "postgres-vm";
+  firewall = {
+    enable = true;
+    allowedTCPPorts = [ 5432 ];
+    extraCommands = ''
+      iptables -A INPUT -p tcp --dport 5432 -s 192.168.0.0/24 -j ACCEPT
+      iptables -A INPUT -p tcp --dport 5432 -j DROP
+    '';
+  };
+  networkmanager.enable = true;
+  wireless.enable = false;
+};
+#+end_src
+
+** DONE Postgres Service
+#+begin_src nix :noweb-ref postgres-vm-service
+services.postgresql = {
+  enable = true;
+  package = pkgs.postgresql_15;
+  dataDir = "/var/lib/postgresql/15";
+  authentication = pkgs.lib.mkOverride 10 ''
+    local all all trust
+    host jellyfin jellyfin 192.168.0.0/24 md5
+  '';
+  initialScript = pkgs.writeText "init.sql" ''
+    CREATE USER jellyfin WITH PASSWORD 'your-secure-password';
+    CREATE DATABASE jellyfin OWNER jellyfin;
+  '';
+  settings = {
+    listen_addresses = "192.168.0.24";
+    port = 5432;
+    shared_buffers = "1GB";
+    work_mem = "8MB";
+    max_connections = 50;
+  };
+};
 #+end_src

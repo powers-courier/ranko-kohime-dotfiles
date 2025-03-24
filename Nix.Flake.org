@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [9/12]
+* TODO Flake [11/14]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -21,7 +21,9 @@ Gippity Says:
   };
 
   let
-    <<nix-flake-variables>>
+    flake-variables = {
+      <<nix-flake-variables>>
+    };
   in
 
   outputs =
@@ -122,5 +124,31 @@ pkgs = import nixpkgs {
 :end:
 *** Postgres server
 #+begin_src nix
+postgres-vm = nixpkgs.lib.nixosSystem {
+  system = "x86_64-linux";
+  specialArgs = { vars = vars; };
+  modules = [
+    ./hosts/postgres-hardware.nix
+    ./hosts/postgres-vm.nix
+  ];
+};
+#+end_src
 
+** DONE Modules [1/1]
+*** DONE Locale
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/locale.nix
+i18n = {
+  defaultLocale = loKale;
+  extraLocaleSettings = {
+    LC_ADDRESS = loKale;
+    LC_IDENTIFICATION = loKale;
+    LC_MEASUREMENT = loKale;
+    LC_MONETARY = loKale;
+    LC_NAME = loKale;
+    LC_NUMERIC = loKale;
+    LC_PAPER = loKale;
+    LC_TELEPHONE = loKale;
+    LC_TIME = loKale;
+  };
+};
 #+end_src

@@ -1330,18 +1330,6 @@ time.timeZone = "America/Chicago";
 *** Set Locale
 Should this also be dictated by the flake?
 #+begin_src nix
-  i18n.defaultLocale = loKale;
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = loKale;
-    LC_IDENTIFICATION = loKale;
-    LC_MEASUREMENT = loKale;
-    LC_MONETARY = loKale;
-    LC_NAME = loKale;
-    LC_NUMERIC = loKale;
-    LC_PAPER = loKale;
-    LC_TELEPHONE = loKale;
-    LC_TIME = loKale;
-  };
 #+end_src
 
 *** TODO Automatic unattended upgrades with surprise rebort

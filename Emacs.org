@@ -142,7 +142,7 @@ Ready to import into Nix HM config
 <<emacs-success-message>>
 #+end_src
 
-* TODO Configuration [116/144]
+* TODO Configuration [118/144]
 ** DONE Preamble [6/6]
 :properties:
 :header-args+: :noweb-ref emacs-preamble-settings
@@ -197,7 +197,7 @@ This is not automatically loaded at startup.
   (add-to-list 'load-path (concat user-emacs-directory "/custom"))
 #+end_src
 
-** TODO Packages [24/34]
+** TODO Packages [26/34]
 :properties:
 :header-args+: :noweb-ref emacs-packages
 :end:
@@ -368,21 +368,21 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
                :ensure t)
 #+end_src
 
-*** TODO NixOS stuff [0/3]
-**** TODO nix-mode
-#+begin_src emacs-lisp :noweb-ref no
+*** TODO NixOS stuff [2/3]
+**** DONE nix-mode
+#+begin_src emacs-lisp
 (use-package nix-mode
              :ensure t)
 #+end_src
 
 **** TODO nixos-options
-#+begin_src emacs-lisp :noweb-ref no
+#+begin_src emacs-lisp
 (use-package nixos-options
              :ensure t)
 #+end_src
 
-**** TODO ob-nix
-#+begin_src emacs-lisp :noweb-ref no
+**** DONE ob-nix
+#+begin_src emacs-lisp
 (use-package ob-nix
              :ensure t)
 #+end_src
@@ -406,16 +406,22 @@ Working, but needs $GNUPGHOME set somewhow, or it can't access the encryption ke
 *** DONE Languages [2/2]
 **** DONE Dart
 #+begin_src emacs-lisp
-  (use-package dart-mode
-               :ensure t)
-  (use-package dart-server
-               :ensure t)
+(use-package dart-mode
+             :ensure t)
+(use-package dart-server
+             :ensure t)
 #+end_src
 
 **** DONE Python
 #+begin_src emacs-lisp
-  (use-package elpy
-               :ensure t)
+(use-package elpy
+             :ensure t)
+#+end_src
+
+**** Yaml
+#+begin_src emacs-lisp
+(use-package yaml-mode
+             :ensure t)
 #+end_src
 
 ** TODO Visual Settings [21/28]

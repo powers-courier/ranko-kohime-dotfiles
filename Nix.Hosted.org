@@ -4,9 +4,16 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments both :noweb yes
 
-* TODO Jellyfin [8/9]
-** Remote access nodes
-#+begin_src nix :shebang "{ config, pkgs, proxyHostname, ... }:" :tangle nix/jellyfin-remote.nix
+* TODO Cluster Module
+#+begin_src nix :tangle nix/modules/cluster-hosts.nix
+<<jellyfin-bootParams>>
+<<jellyfin-intel-qsv>>
+<<jellyfin-docker-swarm>>
+<<jellyfin-filesystems>>
+#+end_src
+
+* TODO Remote access proxy nodes
+#+begin_src nix :shebang "{ config, pkgs, proxyHostname, ... }:" :tangle nix/modules/remote-proxy-nodes.nix
 {
   networking.hostName = proxyHostname;
 
@@ -95,105 +102,136 @@ environment.etc."avahi/services/jellyfin.service".text = ''
 '';
 #+end_src
 
-** WAIT Intel low-power encoding kernel parameter
-It is not clear what this actually does, nor what setting would be optimal for the current hardware
-(Intel N200, Alder Lake-N)
+
+* TODO Jellyfin [0/2]
+** Hardware Enablement
+*** TODO i915.enable_guc
 [[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
 
-#+begin_src nix
+#+begin_src nix :noweb-ref jellyfin-bootParams
 boot.kernelParams = [
     "i915.enable_guc=2"
   ];
 #+end_src
 
-** Intel Quick Sync Video (QSV)
-#+begin_src nix
-hardware.opengl = {
-  enable = true;
-  extraPackages = with pkgs; [
-    vpl-gpu-rt
-  ];
-};
-#+end_src
-
-** DONE Enable vaapi on OS-level
+*** TODO Intel Quick Sync Video (QSV)
 intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
-#+begin_src nix
+#+begin_src nix :noweb-ref jellyfin-intel-qsv
 nixpkgs.config.packageOverrides = pkgs: {
   vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
 };
-hardware.opengl = {
-  enable = true;
-  extraPackages = with pkgs; [
-    intel-media-driver
-    vaapiIntel
-    vaapiVdpau
-    libvdpau-va-gl
-    intel-compute-runtime
-  ];
+hardware = {
+  enableAllFirmware = true;
+  opengl = {
+    enable = true;
+    driSupport = true;
+    driSupport32Bit = false;
+    extraPackages = with pkgs; [
+      intel-compute-runtime
+      intel-media-driver
+      libva
+      libva-utils
+      libvdpau-va-gl
+      vaapiIntel
+      vaapiVdpau
+      vpl-gpu-rt
+    ];
+  };
 };
 #+end_src
 
-** DONE Enable Jellyfin service [6/6]
-*** DONE Preamble
-#+begin_src nix
-services.jellyfin = {
+** Docker
+[[https://forums.docker.com/t/error-response-from-daemon-live-restore-daemon-configuration-is-incompatible-with-swarm-mode/28428][Error response from daemon: –live-restore daemon configuration is incompatible with swarm mode]]
+#+begin_src nix :noweb-ref jellyfin-docker-swarm
+virtualisation.docker.enable = true;
+virtualisation.docker.daemon.settings.live-restore = false;
 #+end_src
 
-*** DONE Enable
-#+begin_src nix
-enable = true;
+#+begin_src cmd :tangle no
+docker swarm init
 #+end_src
 
-*** DONE Packages
+** User / Group
 #+begin_src nix
-extraPackages = with pkgs; [
-  jellyfin
-  jellyfin-ffmpeg
-  jellyfin-web
+users = {
+  users.jellyfin = {
+    isSystemUser = true;
+    uid = 8096;
+    groups = "jellyfin"l
+  };
+  groups.jellyfin.gid = 8096;
+};
+#+end_src
+
+#+begin_src nix :noweb-ref jellyfin-filesystems
+fileSystems."/Mounts/JellyfinConfig" = {
+  device = 
+#+end_src
+
+** rffmpeg
+#+begin_src nix
+environment.systemPackages = with pkgs; [
+  (pkgs.callPackage ({ stdenv, fetchFromGitHub, python3 }:
+    stdenv.mkDerivation {
+      pname = "rffmpeg";
+      version = "1.0.2"; # Latest as of now
+      src = fetchFromGitHub {
+        owner = "joshuaboniface";
+        repo = "rffmpeg";
+        rev = "v1.0.2";
+        sha256 = "sha256-..."; # Run `nix-prefetch-github joshuaboniface rffmpeg v1.0.2`
+      };
+      buildInputs = [ python3 ];
+      installPhase = ''
+        mkdir -p $out/bin
+        cp rffmpeg.py $out/bin/rffmpeg
+        chmod +x $out/bin/rffmpeg
+      '';
+    }) {})
+  ffmpeg-full
 ];
 #+end_src
 
-*** DONE openFirewall
+rffmpeg.yml
 #+begin_src nix
-openFirewall = true;
+environment.etc."rffmpeg/rffmpeg.yml".text = ''
+  hosts:
+    - host: n200-1\n  user: jellyfin
+    - host: n200-2\n  user: jellyfin
+    - host: n200-3\n  user: jellyfin
+'';
 #+end_src
+** Docker Compose
+#+begin_src yaml :noweb-ref jellyfin-docker-compose
+version: "3"
+services:
+  traefik:
+    image: traefik:latest
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:8096"
+    ports:
+      - "8096:8096"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      replicas: 3
 
-*** DONE User/Group
-On default install, first user is 1000, users group is 100
-#+begin_src nix
-user = "ranko";
-group = "users";
-#+end_src
-
-*** DONE Epilogue
-#+begin_src nix
-};
-#+end_src
-
-** Epilogue
-#+begin_src nix
-}
-#+end_src
-
-** Docker Edition
-#+begin_src nix :tangle no
-{ config, pkgs, ... }:
-{
-  virtualisation.oci-containers.containers."jellyfin" = {
-    autoStart = true;
-    image = "jellyfin/jellyfin";
-    device = "/dev/dri:/dev/dri";     # Double check this line before putting into production
-    volumes = [
-      "/media/Containers/Jellyfin/config:/config"
-      "/media/Containers/Jellyfin/cache:/cache"
-      "/media/Containers/Jellyfin/log:/log"
-      "/Mounts/Videos:/media/Videos"
-    ];
-    ports = [ "8096:8096" ];
-    environment = {
-      JELLYFIN_LOG_DIR = "/log";
-    };
-  };
-}
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    user: "8096:8096"
+    deploy:
+      replicas: 1
+    labels:
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.theatomicass.com`)"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+    environment:
+      - JELLYFIN_DATABASE_URL=postgresql://jellyfin:your-secure-password@192.168.0.24:5432/jellyfin
+      - JELLYFIN_FFMPEG_PATH=/usr/local/bin/rffmpeg
+    volumes:
+      - /Mounts/Videos:/media
+      - /Mounts/JellyfinConfig:/config
+      - /usr/bin/rffmpeg:/usr/local/bin/rffmpeg:ro
+    devices:
+      - /dev/dri:/dev/dri
 #+end_src

@@ -1,0 +1,126 @@
+#+title: NixOS Flake
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
+
+* TODO Flake [9/12]
+Outputs:
+"self" references the directory of the flake file, in this case ~/Dotfiles/nix/
+"nixpkgs" references the inputs above
+Gippity Says:
+"The use of eachDefaultSystem here abstracts away some of the complexities associated with managing configurations across different system architectures. Instead of defining each possible system configuration manually, you define a single function that describes how to build the system configuration for any given system type. flake-utils then handles applying this function to the set of default systems that Nix supports."
+
+** TODO Flake
+#+begin_src nix :tangle ~/Dotfiles/nix/flake.nix
+{
+  description = "Ranko Kohime's Flake, now with 100% more ZFS!";
+
+  inputs = {
+    <<nix-flake-inputs>>
+  };
+
+  let
+    <<nix-flake-variables>>
+  in
+
+  outputs =
+    {
+      self,
+      <<nix-flake-output-header>>
+      ...
+    }:
+    {
+      nixosConfigurations = {
+        <<nix-flake-host-configurations>>
+      };
+    }
+#+end_src
+
+** DONE Inputs [5/5]
+:properties:
+:header-args: :noweb-ref nix-flake-inputs
+:end:
+*** DONE Nixpkgs (unstable)
+#+begin_src nix
+nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+#+end_src
+
+#+begin_src nix :noweb-ref nix-flake-output-header
+nixpkgs,
+#+end_src
+
+*** DONE Disko
+#+begin_src nix
+disko.url = "github:nix-community/disko";
+#+end_src
+
+#+begin_src nix :noweb-ref nix-flake-output-header
+disko,
+#+end_src
+
+*** DONE Home Manager
+#+begin_src nix
+home-manager.url = "github:nix-community/home-manager";
+home-manager.inputs.nixpkgs.follows = "nixpkgs";
+#+end_src
+
+#+begin_src nix :noweb-ref nix-flake-output-header
+home-manager,
+#+end_src
+
+*** DONE Flake Utils
+#+begin_src nix
+flake-utils.url = "github:numtide/flake-utils";
+#+end_src
+
+#+begin_src nix :noweb-ref nix-flake-output-header
+flake-utils,
+#+end_src
+
+*** DONE Hardware
+#+begin_src nix
+hardware.url = "github:nixos/nixos-hardware";
+#+end_src
+
+#+begin_src nix :noweb-ref nix-flake-output-header
+hardware,
+#+end_src
+
+** TODO Variables [3/4]
+:properties:
+:header-args+: :noweb-ref nix-flake-variables
+:end:
+
+*** DONE Set the locale
+#+begin_src nix
+loKale = "en_US.UTF-8";
+#+end_src
+
+*** DONE Timezone
+#+begin_src nix
+timeZern = "Etc/UTC";
+#+end_src
+
+*** DONE File server local address
+#+begin_src nix
+fileServerIP = "192.168.0.2";
+#+end_src
+
+*** TODO Import the NixOS Library
+
+#+begin_src nix :tangle no
+pkgs = import nixpkgs {
+       inherit system;
+       config = {};
+};
+#+end_src
+
+** Host Configurations
+:properties:
+:header-args+: :noweb-ref nix-flake-host-configurations
+:end:
+*** Postgres server
+#+begin_src nix
+
+#+end_src

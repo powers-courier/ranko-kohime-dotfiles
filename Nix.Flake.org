@@ -165,3 +165,14 @@ zramSwap = {
   swapDevices = 1;
 };
 #+end_src
+** Users
+*** Ranko Kohime
+#+begin_src nix :shebang "{ config, ... }:" :tangle nix/users/ranko.nix
+{
+  users.users.ranko = {
+    isNormalUser = true;
+    description = "Ranko Kohime";
+    extraGroups = [ "networkmanager" "wheel" ];
+  };
+}
+#+end_src

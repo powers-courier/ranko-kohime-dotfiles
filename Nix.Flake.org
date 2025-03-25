@@ -135,7 +135,15 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 };
 #+end_src
 
-** DONE Modules [2/2]
+** DONE Modules [3/3]
+*** DONE Default bootloader
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/bootloader-default.nix
+{
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+}
+#+end_src
+
 *** DONE Locale
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/locale.nix
 {

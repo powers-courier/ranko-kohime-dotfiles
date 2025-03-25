@@ -2,6 +2,8 @@
 {
   imports = [
     ../modules/locale.nix
+    ../modules/zram.nix
+    ../users/ranko.nix
   ];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -27,7 +29,7 @@
       host jellyfin jellyfin 192.168.0.0/24 md5
     '';
     initialScript = pkgs.writeText "init.sql" ''
-      CREATE USER jellyfin WITH PASSWORD 'your-secure-password';
+      CREATE USER jellyfin WITH PASSWORD 'password';
       CREATE DATABASE jellyfin OWNER jellyfin;
     '';
     settings = {

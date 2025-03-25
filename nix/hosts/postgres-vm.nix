@@ -1,12 +1,5 @@
 { config, pkgs, lib, vars, ... }:
 {
-  imports = [
-    ../modules/locale.nix
-    ../modules/zram.nix
-    ../users/ranko.nix
-  ];
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
   networking = {
     hostName = "postgres-vm";
     firewall = {

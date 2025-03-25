@@ -30,12 +30,65 @@
   in
     {
       nixosConfigurations = {
+        n100-1 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { vars = vars; };
+          networking.hostName = n100-1;
+          modules = [
+            ./hosts/n100-1-hardware.nix
+            ./modules/bootloader-default.nix
+            ./modules/flake-enabler.nix
+            ./modules/locale.nix
+            ./modules/zram.nix
+            ./users/ranko.nix
+          ];
+        };
+        n200-1 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { vars = vars; };
+          modules = [
+            ./hosts/n200-1-hardware.nix
+            ./modules/bootloader-default.nix
+            ./modules/flake-enabler.nix
+            ./modules/locale.nix
+            ./modules/zram.nix
+            ./users/ranko.nix
+          ];
+        };
+        n200-2 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { vars = vars; };
+          modules = [
+            ./hosts/n200-2-hardware.nix
+            ./modules/bootloader-default.nix
+            ./modules/flake-enabler.nix
+            ./modules/locale.nix
+            ./modules/zram.nix
+            ./users/ranko.nix
+          ];
+        };
+        n200-3 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { vars = vars; };
+          modules = [
+            ./hosts/n200-3-hardware.nix
+            ./modules/bootloader-default.nix
+            ./modules/flake-enabler.nix
+            ./modules/locale.nix
+            ./modules/zram.nix
+            ./users/ranko.nix
+          ];
+        };
         postgres-vm = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { vars = vars; };
           modules = [
             ./hosts/postgres-hardware.nix
             ./hosts/postgres-vm.nix
+            ./modules/bootloader-default.nix
+            ./modules/locale.nix
+            ./modules/zram.nix
+            ./users/ranko.nix
           ];
         };
       };

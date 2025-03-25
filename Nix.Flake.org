@@ -20,23 +20,24 @@ Gippity Says:
     <<nix-flake-inputs>>
   };
 
-  let
-    flake-variables = {
-      <<nix-flake-variables>>
-    };
-  in
-
   outputs =
     {
       self,
       <<nix-flake-output-header>>
       ...
     }:
+
+  let
+    flake-variables = {
+      <<nix-flake-variables>>
+    };
+  in
     {
       nixosConfigurations = {
         <<nix-flake-host-configurations>>
       };
     }
+}
 #+end_src
 
 ** DONE Inputs [5/5]

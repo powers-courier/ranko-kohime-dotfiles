@@ -36,7 +36,7 @@ Gippity Says:
       nixosConfigurations = {
         <<nix-flake-host-configurations>>
       };
-    }
+    };
 }
 #+end_src
 

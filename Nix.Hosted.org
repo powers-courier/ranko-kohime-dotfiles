@@ -247,16 +247,16 @@ services:
 #+end_src
 
 * Postgres VM
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/postgres-vm.nix
+#+begin_src nix :shebang "{ config, pkgs, lib, vars, ... }:" :tangle nix/hosts/postgres-vm.nix
 {
   imports = [
-    (import ./modules/locale.nix { inherit vars; })
+    ../modules/locale.nix
   ];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   <<postgres-vm-networking>>
   <<postgres-vm-service>>
-  time.timeZone = timeZern;
+  time.timeZone = vars.timeZern;
   environment.systemPackages = with pkgs; [ postgresql_15 ];
   services.openssh.enable = true;
   system.stateVersion = "25.05";
@@ -291,11 +291,11 @@ services.postgresql = {
     host jellyfin jellyfin 192.168.0.0/24 md5
   '';
   initialScript = pkgs.writeText "init.sql" ''
-    CREATE USER jellyfin WITH PASSWORD 'your-secure-password';
+    CREATE USER jellyfin WITH PASSWORD 'password';
     CREATE DATABASE jellyfin OWNER jellyfin;
   '';
   settings = {
-    listen_addresses = "192.168.0.24";
+    listen_addresses = lib.mkForce "192.168.0.24";
     port = 5432;
     shared_buffers = "1GB";
     work_mem = "8MB";

@@ -1,7 +1,9 @@
 { config, ... }:
-users.users.ranko = {
-  isNormalUser = true;
-  description = "Ranko Kohime";
-  extraGroups = [ "networkmanager" "wheel" ];
-  packages = with pkgs; [];
-};
+{
+  users.users.ranko = {
+    isNormalUser = true;
+    description = "Ranko Kohime";
+    extraGroups = [ "networkmanager" "wheel" ];
+    packages = with pkgs; [];
+  };
+}

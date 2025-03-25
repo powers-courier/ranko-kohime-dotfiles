@@ -246,11 +246,13 @@ services:
       - /dev/dri:/dev/dri
 #+end_src
 
-* Postgres VM
+* DONE Postgres VM
 #+begin_src nix :shebang "{ config, pkgs, lib, vars, ... }:" :tangle nix/hosts/postgres-vm.nix
 {
   imports = [
     ../modules/locale.nix
+    ../modules/zram.nix
+    ../users/ranko.nix
   ];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;

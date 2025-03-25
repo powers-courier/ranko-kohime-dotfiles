@@ -28,7 +28,7 @@ Gippity Says:
     }:
 
   let
-    flake-variables = {
+    vars = {
       <<nix-flake-variables>>
     };
   in
@@ -112,7 +112,7 @@ fileServerIP = "192.168.0.2";
 
 *** TODO Import the NixOS Library
 
-#+begin_src nix :tangle no
+#+begin_src nix :noweb-ref no
 pkgs = import nixpkgs {
        inherit system;
        config = {};

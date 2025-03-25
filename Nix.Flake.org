@@ -144,6 +144,13 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 }
 #+end_src
 
+*** DONE Flake Enabler
+#+begin_src nix :shebang "{ config, ... }:" :tangle nix/modules/flake-enabler.nix
+{
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+}
+#+end_src
+
 *** DONE Locale
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/locale.nix
 {

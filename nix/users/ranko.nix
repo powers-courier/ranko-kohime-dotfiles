@@ -4,6 +4,5 @@
     isNormalUser = true;
     description = "Ranko Kohime";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [];
   };
 }

@@ -155,3 +155,13 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   };
 }
 #+end_src
+
+*** DONE zramSwap
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/zram.nix
+zramSwap = {
+  enable = true;
+  priority = 1;
+  memoryPercent = 100;
+  swapDevices = 1;
+};
+#+end_src

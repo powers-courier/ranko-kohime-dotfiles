@@ -26,10 +26,31 @@
       loKale = "en_US.UTF-8";
       timeZern = "Etc/UTC";
       truenas-ip = "192.168.0.2";
+      proxyCount = 3;
+      Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
+        num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
+        name = "jelly-proxy-${num}";
+      in {
+        name = name;
+        value = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { vars = vars; };
+          modules = [
+            ./hosts/${name}-hardware.nix
+            ({ config, pkgs, truenas-ip, ... }: {
+              networking.hostName = name;
+              system.stateVersion = "25.05";
+            })
+            ./hosts/jelly-proxy-01-hardware.nix
+            ./modules/default-modules.nix
+            ./modules/remote-proxy-nodes.nix
+          ];
+        };
+      }) (builtins.genList (i: i) proxyCount));
     };
   in
     {
-      nixosConfigurations = {
+      nixosConfigurations = Jelly-Proxy-Configs // {
         jelly-proxy-01 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { vars = vars; };
@@ -41,7 +62,6 @@
             ./hosts/jelly-proxy-01-hardware.nix
             ./modules/default-modules.nix
             ./modules/remote-proxy-nodes.nix
-            ./modules/tailscale.nix
           ];
         };
         n100-1 = nixpkgs.lib.nixosSystem {
@@ -54,7 +74,6 @@
             })
             ./hosts/n100-1-hardware.nix
             ./modules/default-modules.nix
-            ./modules/tailscale.nix
           ];
         };
         n200-1 = nixpkgs.lib.nixosSystem {
@@ -67,7 +86,6 @@
             })
             ./hosts/n200-1-hardware.nix
             ./modules/default-modules.nix
-            ./modules/tailscale.nix
           ];
         };
         n200-2 = nixpkgs.lib.nixosSystem {
@@ -80,7 +98,6 @@
             })
             ./hosts/n200-2-hardware.nix
             ./modules/default-modules.nix
-            ./modules/tailscale.nix
           ];
         };
         n200-3 = nixpkgs.lib.nixosSystem {
@@ -93,7 +110,6 @@
             })
             ./hosts/n200-3-hardware.nix
             ./modules/default-modules.nix
-            ./modules/tailscale.nix
           ];
         };
         postgres-vm = nixpkgs.lib.nixosSystem {

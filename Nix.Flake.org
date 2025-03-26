@@ -4,14 +4,14 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [23/31]
+* TODO Flake [24/31]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
 Gippity Says:
 "The use of eachDefaultSystem here abstracts away some of the complexities associated with managing configurations across different system architectures. Instead of defining each possible system configuration manually, you define a single function that describes how to build the system configuration for any given system type. flake-utils then handles applying this function to the set of default systems that Nix supports."
 
-** TODO Flake
+** DONE Flake
 #+begin_src nix :tangle ~/Dotfiles/nix/flake.nix
 {
   description = "Ranko Kohime's Flake, now with 100% more ZFS!";
@@ -30,10 +30,11 @@ Gippity Says:
   let
     vars = {
       <<nix-flake-variables>>
+      <<proxy-host-generator>>
     };
   in
     {
-      nixosConfigurations = {
+      nixosConfigurations = Jelly-Proxy-Configs // {
         <<nix-flake-host-configurations>>
       };
     };
@@ -124,6 +125,47 @@ pkgs = import nixpkgs {
 :header-args+: :noweb-ref nix-flake-host-configurations
 :end:
 *** Proxy Hosts
+**** Proxy Host Generator
+***** Explanation
+****** proxyCount:
+Set to 3—generates jelly-proxy-01, jelly-proxy-02, jelly-proxy-03.
+Change to 5 for jelly-proxy-05, etc.
+****** builtins.genList:
+builtins.genList (i: i) 3 → [0 1 2]—a list of indices.
+i + 1 shifts it to 1, 2, 3 for numbering.
+****** map:
+Loops over [0 1 2], creating a list of { name = ...; value = ...; } pairs.
+num: Pads with 0 for 01-09 (e.g., if i < 9 then "0${toString (i + 1)}"), then plain numbers (10, 11, ...).
+****** builtins.listToAttrs:
+Turns the list into an attrset:
+****** networking.hostName = name:
+Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynamically—no repetition.
+****** // Operator:
+Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
+***** Code
+#+begin_src nix :noweb-ref proxy-host-generator
+proxyCount = 3;
+Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
+  num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
+  name = "jelly-proxy-${num}";
+in {
+  name = name;
+  value = nixpkgs.lib.nixosSystem {
+    system = "x86_64-linux";
+    specialArgs = { vars = vars; };
+    modules = [
+      ./hosts/${name}-hardware.nix
+      ({ config, pkgs, truenas-ip, ... }: {
+        networking.hostName = name;
+        system.stateVersion = "25.05";
+      })
+      ./hosts/jelly-proxy-01-hardware.nix
+      ./modules/default-modules.nix
+      ./modules/remote-proxy-nodes.nix
+    ];
+  };
+}) (builtins.genList (i: i) proxyCount));
+#+end_src
 **** Jelly-Proxy-01
 #+begin_src nix
 jelly-proxy-01 = nixpkgs.lib.nixosSystem {
@@ -137,7 +179,6 @@ jelly-proxy-01 = nixpkgs.lib.nixosSystem {
     ./hosts/jelly-proxy-01-hardware.nix
     ./modules/default-modules.nix
     ./modules/remote-proxy-nodes.nix
-    ./modules/tailscale.nix
   ];
 };
 #+end_src
@@ -155,7 +196,6 @@ n100-1 = nixpkgs.lib.nixosSystem {
     })
     ./hosts/n100-1-hardware.nix
     ./modules/default-modules.nix
-    ./modules/tailscale.nix
   ];
 };
 #+end_src
@@ -172,7 +212,6 @@ n200-1 = nixpkgs.lib.nixosSystem {
     })
     ./hosts/n200-1-hardware.nix
     ./modules/default-modules.nix
-    ./modules/tailscale.nix
   ];
 };
 #+end_src
@@ -189,7 +228,6 @@ n200-2 = nixpkgs.lib.nixosSystem {
     })
     ./hosts/n200-2-hardware.nix
     ./modules/default-modules.nix
-    ./modules/tailscale.nix
   ];
 };
 #+end_src
@@ -206,7 +244,6 @@ n200-3 = nixpkgs.lib.nixosSystem {
     })
     ./hosts/n200-3-hardware.nix
     ./modules/default-modules.nix
-    ./modules/tailscale.nix
   ];
 };
 #+end_src
@@ -230,6 +267,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-modules.nix
 {
   imports = [
+    ({ config, vars, ... }: { time.timeZone = vars.timeZern; })
     ./bootloader-default.nix
     ./flake-enabler.nix
     ./locale.nix

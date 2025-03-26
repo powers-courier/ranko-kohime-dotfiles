@@ -5,6 +5,7 @@
     ./flake-enabler.nix
     ./locale.nix
     ./openssh.nix
+    ./tailscale.nix
     ./zram.nix
     ../users/ranko.nix
   ];

@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [18/30]
+* TODO Flake [23/31]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -224,9 +224,9 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 };
 #+end_src
 
-** TODO Modules [7/10]
-*** TODO Default Modules [4/6]
-**** TODO Default module importer
+** DONE Modules [11/11]
+*** DONE Default Modules [7/7]
+**** DONE Default module importer
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-modules.nix
 {
   imports = [
@@ -234,6 +234,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
     ./flake-enabler.nix
     ./locale.nix
     ./openssh.nix
+    ./tailscale.nix
     ./zram.nix
     ../users/ranko.nix
   ];
@@ -274,7 +275,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 }
 #+end_src
 
-**** OpenSSH
+**** DONE OpenSSH
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/openssh.nix
 {
   services.openssh = {
@@ -294,7 +295,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 }
 #+end_src
 
-**** TODO Tailscale
+**** DONE Tailscale
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/tailscale.nix
 {
   services.tailscale = {

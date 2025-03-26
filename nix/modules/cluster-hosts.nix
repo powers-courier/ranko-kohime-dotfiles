@@ -34,7 +34,5 @@ users = {
   };
   groups.jellyfin.gid = 8096;
 };
-fileSystems."/Mounts/JellyfinConfig" = {
-  device = 
-}
+
 }

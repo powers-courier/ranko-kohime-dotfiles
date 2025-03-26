@@ -1,7 +1,5 @@
-{ config, pkgs, proxyHostname, ... }:
+{ config, pkgs, ... }:
 {
-  networking.hostName = proxyHostname;
-
   networking = {
     firewall = {
       enable = true;

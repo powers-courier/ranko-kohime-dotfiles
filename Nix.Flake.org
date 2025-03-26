@@ -124,6 +124,28 @@ pkgs = import nixpkgs {
 :header-args+: :noweb-ref nix-flake-host-configurations
 :end:
 *** Postgres server
+*** Proxy Hosts
+**** Jelly-Proxy-01
+#+begin_src nix
+jelly-proxy-01 = nixpkgs.lib.nixosSystem {
+  system = "x86_64-linux";
+  specialArgs = { vars = vars; };
+  modules = [
+    ({ config, pkgs, ... }: {
+      networking.hostName = "jelly-proxy-01";
+      system.stateVersion = "25.05";
+    })
+    ./hosts/jelly-proxy-01-hardware.nix
+    ./modules/bootloader-default.nix
+    ./modules/flake-enabler.nix
+    ./modules/locale.nix
+    ./modules/remote-proxy-nodes.nix
+    ./modules/zram.nix
+    ./users/ranko.nix
+  ];
+};
+#+end_src
+
 #+begin_src nix
 postgres-vm = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";

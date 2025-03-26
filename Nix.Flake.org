@@ -244,46 +244,48 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/nfs-share-videos.nix
 *** DONE Network Filesystems [1/1]
 **** Documents et al
+*** DONE Network Filesystems [2/2]
+**** DONE Documents et al
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/nfs-share-documents.nix
 {
   fileSystems = {
     "/Mounts/Disks" = {
-      device = "${truenas-ip}:/mnt/Svartalfheim/Disks";
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/Disks";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
     "/Mounts/Documents" = {
-      device = "${truenas-ip}:/mnt/Svartalfheim/Documents";
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/Documents";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
     "/Mounts/Downloads" = {
-      device = "${truenas-ip}:/mnt/Svartalfheim/Downloads";
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/Downloads";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
     "/Mounts/LGC_Actual" = {
-      device = "${truenas-ip}:/mnt/Svartalfheim/LGC_Actual";
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Actual";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
     "/Mounts/LGC_Lore_Table" = {
-      device = "${truenas-ip}:/mnt/Svartalfheim/LGC_Lore_Table";
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Lore_Table";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
     "/Mounts/Library" = {
-      device = "${truenas-ip}:/mnt/Svartalfheim/Library";
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/Library";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
     "/Mounts/Music" = {
-      device = "${truenas-ip}:/mnt/Svartalfheim/Music";
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/Music";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
     "/Mounts/Workspace" = {
-      device = "${truenas-ip}:/mnt/Svartalfheim/Workspace";
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/Workspace";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
@@ -294,59 +296,33 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 {
   fileSystems = {
     "/Mounts/JellyConfig" = {
-      device = "${truenas-ip}:/mnt/Svartalfheim/Videos/JellyConfig";
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos/JellyConfig";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
     "/Mounts/Videos" = {
-      device = "${truenas-ip}:/mnt/Svartalfheim/Videos";
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
     "/Mounts/youtube-dl" = {
-      device = "${truenas-ip}:/mnt/youtube-dl/youtube-dl";
+      device = "${vars.truenas-ip}:/mnt/youtube-dl/youtube-dl";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
   };
 }
 #+end_src
-
-*** DONE Default bootloader
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/bootloader-default.nix
+*** Tailscale
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/tailscale.nix
 {
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  services.tailscale = {
+    enable = true;
+    openFirewall = true;
+    port = 0;
+  }
 }
 #+end_src
-
-*** DONE Flake Enabler
-#+begin_src nix :shebang "{ config, ... }:" :tangle nix/modules/flake-enabler.nix
-{
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-}
-#+end_src
-
-*** DONE Locale
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/locale.nix
-{
-  i18n = {
-    defaultLocale = vars.loKale;
-    extraLocaleSettings = {
-      LC_ADDRESS = vars.loKale;
-      LC_IDENTIFICATION = vars.loKale;
-      LC_MEASUREMENT = vars.loKale;
-      LC_MONETARY = vars.loKale;
-      LC_NAME = vars.loKale;
-      LC_NUMERIC = vars.loKale;
-      LC_PAPER = vars.loKale;
-      LC_TELEPHONE = vars.loKale;
-      LC_TIME = vars.loKale;
-    };
-  };
-}
-#+end_src
-
 *** DONE zramSwap
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/zram.nix
 {
@@ -358,8 +334,9 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   };
 }
 #+end_src
+
 ** Users
-*** Ranko Kohime
+*** DONE Ranko Kohime
 #+begin_src nix :shebang "{ config, ... }:" :tangle nix/users/ranko.nix
 {
   users.users.ranko = {

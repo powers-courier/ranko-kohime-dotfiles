@@ -301,7 +301,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
     enable = true;
     openFirewall = true;
     port = 0;
-  }
+  };
 }
 #+end_src
 **** DONE zramSwap

@@ -30,8 +30,8 @@ Gippity Says:
   let
     vars = {
       <<nix-flake-variables>>
-      <<proxy-host-generator>>
     };
+    <<proxy-host-generator>>
   in
     {
       nixosConfigurations = Jelly-Proxy-Configs // {

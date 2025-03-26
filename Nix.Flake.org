@@ -144,7 +144,7 @@ Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynami
 Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
 ***** Code
 #+begin_src nix :noweb-ref proxy-host-generator
-proxyCount = 3;
+proxyCount = 1;
 Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
   num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
   name = "jelly-proxy-${num}";

@@ -27,7 +27,7 @@
       timeZern = "Etc/UTC";
       truenas-ip = "192.168.0.2";
     };
-    proxyCount = 3;
+    proxyCount = 1;
     Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
       num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
       name = "jelly-proxy-${num}";

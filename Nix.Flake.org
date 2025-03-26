@@ -105,9 +105,9 @@ loKale = "en_US.UTF-8";
 timeZern = "Etc/UTC";
 #+end_src
 
-*** DONE File server local address
+*** DONE Svartalfheim file server IP address
 #+begin_src nix
-fileServerIP = "192.168.0.2";
+truenas-ip = "192.168.0.2";
 #+end_src
 
 *** TODO Import the NixOS Library

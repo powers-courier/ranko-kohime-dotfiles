@@ -16,10 +16,8 @@
 #+end_src
 
 * DONE Remote access proxy nodes [4/4]
-#+begin_src nix :shebang "{ config, pkgs, proxyHostname, ... }:" :tangle nix/modules/remote-proxy-nodes.nix
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/remote-proxy-nodes.nix
 {
-  networking.hostName = proxyHostname;
-
   <<jellyfin-remote-firewall>>
   <<jellyfin-remote-tailscale>>
   <<jellyfin-remote-traefik>>
@@ -110,8 +108,20 @@ environment.etc."avahi/services/jellyfin.service".text = ''
 #+end_src
 
 
-* TODO Jellyfin [2/6]
-** Hardware Enablement
+* TODO Jellyfin [2/7]
+** Module
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/jellyfin-docker.nix
+{
+  imports = [
+    ./nfs-share-videos.nix
+  ];
+  <<jellyfin-bootParams>>
+  <<jellyfin-intel-qsv>>
+  <<jellyfin-docker-swarm>>
+  <<jellyfin-user>>
+}
+#+end_src
+** TODO Hardware Enablement [0/2]
 *** TODO i915.enable_guc
 [[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
 

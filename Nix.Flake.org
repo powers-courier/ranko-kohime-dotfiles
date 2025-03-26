@@ -235,15 +235,50 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   modules = [
     ./hosts/postgres-hardware.nix
     ./hosts/postgres-vm.nix
+    ./modules/bootloader-default.nix
+    ./modules/locale.nix
+    ./modules/zram.nix
+    ./users/ranko.nix
   ];
 };
 #+end_src
 
-** DONE Modules [3/3]
-*** Network Filesystems
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/nfs-share-videos.nix
-*** DONE Network Filesystems [1/1]
-**** Documents et al
+** DONE Modules [7/7]
+*** DONE Default bootloader
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/bootloader-default.nix
+{
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+}
+#+end_src
+
+*** DONE Flake Enabler
+#+begin_src nix :shebang "{ config, ... }:" :tangle nix/modules/flake-enabler.nix
+{
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+}
+#+end_src
+
+*** DONE Locale
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/locale.nix
+{
+  i18n = {
+    defaultLocale = vars.loKale;
+    extraLocaleSettings = {
+      LC_ADDRESS = vars.loKale;
+      LC_IDENTIFICATION = vars.loKale;
+      LC_MEASUREMENT = vars.loKale;
+      LC_MONETARY = vars.loKale;
+      LC_NAME = vars.loKale;
+      LC_NUMERIC = vars.loKale;
+      LC_PAPER = vars.loKale;
+      LC_TELEPHONE = vars.loKale;
+      LC_TIME = vars.loKale;
+    };
+  };
+}
+#+end_src
+
 *** DONE Network Filesystems [2/2]
 **** DONE Documents et al
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/nfs-share-documents.nix

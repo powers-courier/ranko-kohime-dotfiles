@@ -25,20 +25,41 @@
     vars = {
       loKale = "en_US.UTF-8";
       timeZern = "Etc/UTC";
-      fileServerIP = "192.168.0.2";
+      truenas-ip = "192.168.0.2";
     };
   in
     {
       nixosConfigurations = {
+        jelly-proxy-01 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { vars = vars; };
+          modules = [
+            ({ config, pkgs, ... }: {
+              networking.hostName = "jelly-proxy-01";
+              system.stateVersion = "25.05";
+            })
+            ./hosts/jelly-proxy-01-hardware.nix
+            ./modules/bootloader-default.nix
+            ./modules/flake-enabler.nix
+            ./modules/locale.nix
+            ./modules/remote-proxy-nodes.nix
+            ./modules/zram.nix
+            ./users/ranko.nix
+          ];
+        };
         n100-1 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { vars = vars; };
-          networking.hostName = n100-1;
           modules = [
+            ({ config, pkgs, ... }: {
+              networking.hostName = "n100-1";
+              system.stateVersion = "23.11";
+            })
             ./hosts/n100-1-hardware.nix
             ./modules/bootloader-default.nix
             ./modules/flake-enabler.nix
             ./modules/locale.nix
+            ./modules/nfs-share-videos.nix
             ./modules/zram.nix
             ./users/ranko.nix
           ];
@@ -47,6 +68,10 @@
           system = "x86_64-linux";
           specialArgs = { vars = vars; };
           modules = [
+            ({ config, pkgs, ... }: {
+              networking.hostName = "n200-1";
+              system.stateVersion = "24.05";
+            })
             ./hosts/n200-1-hardware.nix
             ./modules/bootloader-default.nix
             ./modules/flake-enabler.nix
@@ -59,6 +84,10 @@
           system = "x86_64-linux";
           specialArgs = { vars = vars; };
           modules = [
+            ({ config, pkgs, ... }: {
+              networking.hostName = "n200-2";
+              system.stateVersion = "24.05";
+            })
             ./hosts/n200-2-hardware.nix
             ./modules/bootloader-default.nix
             ./modules/flake-enabler.nix
@@ -71,6 +100,10 @@
           system = "x86_64-linux";
           specialArgs = { vars = vars; };
           modules = [
+            ({ config, pkgs, ... }: {
+              networking.hostName = "n200-3";
+              system.stateVersion = "24.05";
+            })
             ./hosts/n200-3-hardware.nix
             ./modules/bootloader-default.nix
             ./modules/flake-enabler.nix

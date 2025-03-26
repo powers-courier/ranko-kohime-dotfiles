@@ -171,13 +171,6 @@ users = {
 };
 #+end_src
 
-** TODO Filesystems
-#+begin_src nix :noweb-ref jellyfin-filesystems
-fileSystems."/Mounts/JellyfinConfig" = {
-  device = 
-}
-#+end_src
-
 ** TODO rffmpeg
 #+begin_src nix
 environment.systemPackages = with pkgs; [

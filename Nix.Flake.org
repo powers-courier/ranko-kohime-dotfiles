@@ -167,7 +167,7 @@ in {
 }) (builtins.genList (i: i) proxyCount));
 #+end_src
 **** Jelly-Proxy-01
-#+begin_src nix
+#+begin_src nix :noweb-ref no
 jelly-proxy-01 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { vars = vars; };

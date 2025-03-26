@@ -51,19 +51,6 @@
   in
     {
       nixosConfigurations = Jelly-Proxy-Configs // {
-        jelly-proxy-01 = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { vars = vars; };
-          modules = [
-            ({ config, pkgs, ... }: {
-              networking.hostName = "jelly-proxy-01";
-              system.stateVersion = "25.05";
-            })
-            ./hosts/jelly-proxy-01-hardware.nix
-            ./modules/default-modules.nix
-            ./modules/remote-proxy-nodes.nix
-          ];
-        };
         n100-1 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { vars = vars; };

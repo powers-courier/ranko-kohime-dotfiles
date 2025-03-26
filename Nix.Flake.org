@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [19/27]
+* TODO Flake [18/30]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -135,12 +135,9 @@ jelly-proxy-01 = nixpkgs.lib.nixosSystem {
       system.stateVersion = "25.05";
     })
     ./hosts/jelly-proxy-01-hardware.nix
-    ./modules/bootloader-default.nix
-    ./modules/flake-enabler.nix
-    ./modules/locale.nix
+    ./modules/default-modules.nix
     ./modules/remote-proxy-nodes.nix
-    ./modules/zram.nix
-    ./users/ranko.nix
+    ./modules/tailscale.nix
   ];
 };
 #+end_src
@@ -157,12 +154,8 @@ n100-1 = nixpkgs.lib.nixosSystem {
       system.stateVersion = "23.11";
     })
     ./hosts/n100-1-hardware.nix
-    ./modules/bootloader-default.nix
-    ./modules/flake-enabler.nix
-    ./modules/locale.nix
-    ./modules/nfs-share-videos.nix
-    ./modules/zram.nix
-    ./users/ranko.nix
+    ./modules/default-modules.nix
+    ./modules/tailscale.nix
   ];
 };
 #+end_src
@@ -178,11 +171,8 @@ n200-1 = nixpkgs.lib.nixosSystem {
       system.stateVersion = "24.05";
     })
     ./hosts/n200-1-hardware.nix
-    ./modules/bootloader-default.nix
-    ./modules/flake-enabler.nix
-    ./modules/locale.nix
-    ./modules/zram.nix
-    ./users/ranko.nix
+    ./modules/default-modules.nix
+    ./modules/tailscale.nix
   ];
 };
 #+end_src
@@ -198,11 +188,8 @@ n200-2 = nixpkgs.lib.nixosSystem {
       system.stateVersion = "24.05";
     })
     ./hosts/n200-2-hardware.nix
-    ./modules/bootloader-default.nix
-    ./modules/flake-enabler.nix
-    ./modules/locale.nix
-    ./modules/zram.nix
-    ./users/ranko.nix
+    ./modules/default-modules.nix
+    ./modules/tailscale.nix
   ];
 };
 #+end_src
@@ -218,11 +205,8 @@ n200-3 = nixpkgs.lib.nixosSystem {
       system.stateVersion = "24.05";
     })
     ./hosts/n200-3-hardware.nix
-    ./modules/bootloader-default.nix
-    ./modules/flake-enabler.nix
-    ./modules/locale.nix
-    ./modules/zram.nix
-    ./users/ranko.nix
+    ./modules/default-modules.nix
+    ./modules/tailscale.nix
   ];
 };
 #+end_src
@@ -235,16 +219,27 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   modules = [
     ./hosts/postgres-hardware.nix
     ./hosts/postgres-vm.nix
-    ./modules/bootloader-default.nix
-    ./modules/locale.nix
-    ./modules/zram.nix
-    ./users/ranko.nix
+    ./modules/default-modules.nix
   ];
 };
 #+end_src
 
-** DONE Modules [7/7]
-*** DONE Default bootloader
+** TODO Modules [7/10]
+*** TODO Default Modules [4/6]
+**** TODO Default module importer
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-modules.nix
+{
+  imports = [
+    ./bootloader-default.nix
+    ./flake-enabler.nix
+    ./locale.nix
+    ./openssh.nix
+    ./zram.nix
+    ../users/ranko.nix
+  ];
+}
+#+end_src
+**** DONE Default bootloader
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/bootloader-default.nix
 {
   boot.loader.systemd-boot.enable = true;
@@ -252,14 +247,14 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 }
 #+end_src
 
-*** DONE Flake Enabler
+**** DONE Flake Enabler
 #+begin_src nix :shebang "{ config, ... }:" :tangle nix/modules/flake-enabler.nix
 {
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 }
 #+end_src
 
-*** DONE Locale
+**** DONE Locale
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/locale.nix
 {
   i18n = {
@@ -275,6 +270,48 @@ postgres-vm = nixpkgs.lib.nixosSystem {
       LC_TELEPHONE = vars.loKale;
       LC_TIME = vars.loKale;
     };
+  };
+}
+#+end_src
+
+**** OpenSSH
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/openssh.nix
+{
+  services.openssh = {
+    banner = "Welcome to ";
+    enable = true;
+    extraConfig ="";
+    openFirewall = true;
+    ports = [ 22 ];
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "prohibit-password";
+      PrintMotd = true;
+      StrictModes = true;
+      X11Forwarding = true;
+    };
+  };
+}
+#+end_src
+
+**** TODO Tailscale
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/tailscale.nix
+{
+  services.tailscale = {
+    enable = true;
+    openFirewall = true;
+    port = 0;
+  }
+}
+#+end_src
+**** DONE zramSwap
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/zram.nix
+{
+  zramSwap = {
+    enable = true;
+    priority = 1;
+    memoryPercent = 100;
+    swapDevices = 1;
   };
 }
 #+end_src
@@ -348,28 +385,6 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   };
 }
 #+end_src
-*** Tailscale
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/tailscale.nix
-{
-  services.tailscale = {
-    enable = true;
-    openFirewall = true;
-    port = 0;
-  }
-}
-#+end_src
-*** DONE zramSwap
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/zram.nix
-{
-  zramSwap = {
-    enable = true;
-    priority = 1;
-    memoryPercent = 100;
-    swapDevices = 1;
-  };
-}
-#+end_src
-
 ** Users
 *** DONE Ranko Kohime
 #+begin_src nix :shebang "{ config, ... }:" :tangle nix/users/ranko.nix

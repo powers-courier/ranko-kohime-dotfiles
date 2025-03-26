@@ -39,12 +39,9 @@
               system.stateVersion = "25.05";
             })
             ./hosts/jelly-proxy-01-hardware.nix
-            ./modules/bootloader-default.nix
-            ./modules/flake-enabler.nix
-            ./modules/locale.nix
+            ./modules/default-modules.nix
             ./modules/remote-proxy-nodes.nix
-            ./modules/zram.nix
-            ./users/ranko.nix
+            ./modules/tailscale.nix
           ];
         };
         n100-1 = nixpkgs.lib.nixosSystem {
@@ -56,12 +53,8 @@
               system.stateVersion = "23.11";
             })
             ./hosts/n100-1-hardware.nix
-            ./modules/bootloader-default.nix
-            ./modules/flake-enabler.nix
-            ./modules/locale.nix
-            ./modules/nfs-share-videos.nix
-            ./modules/zram.nix
-            ./users/ranko.nix
+            ./modules/default-modules.nix
+            ./modules/tailscale.nix
           ];
         };
         n200-1 = nixpkgs.lib.nixosSystem {
@@ -73,11 +66,8 @@
               system.stateVersion = "24.05";
             })
             ./hosts/n200-1-hardware.nix
-            ./modules/bootloader-default.nix
-            ./modules/flake-enabler.nix
-            ./modules/locale.nix
-            ./modules/zram.nix
-            ./users/ranko.nix
+            ./modules/default-modules.nix
+            ./modules/tailscale.nix
           ];
         };
         n200-2 = nixpkgs.lib.nixosSystem {
@@ -89,11 +79,8 @@
               system.stateVersion = "24.05";
             })
             ./hosts/n200-2-hardware.nix
-            ./modules/bootloader-default.nix
-            ./modules/flake-enabler.nix
-            ./modules/locale.nix
-            ./modules/zram.nix
-            ./users/ranko.nix
+            ./modules/default-modules.nix
+            ./modules/tailscale.nix
           ];
         };
         n200-3 = nixpkgs.lib.nixosSystem {
@@ -105,11 +92,8 @@
               system.stateVersion = "24.05";
             })
             ./hosts/n200-3-hardware.nix
-            ./modules/bootloader-default.nix
-            ./modules/flake-enabler.nix
-            ./modules/locale.nix
-            ./modules/zram.nix
-            ./users/ranko.nix
+            ./modules/default-modules.nix
+            ./modules/tailscale.nix
           ];
         };
         postgres-vm = nixpkgs.lib.nixosSystem {
@@ -118,10 +102,7 @@
           modules = [
             ./hosts/postgres-hardware.nix
             ./hosts/postgres-vm.nix
-            ./modules/bootloader-default.nix
-            ./modules/locale.nix
-            ./modules/zram.nix
-            ./users/ranko.nix
+            ./modules/default-modules.nix
           ];
         };
       };

@@ -5,13 +5,10 @@
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :noweb yes
 
 * TODO Cluster Module
-#+begin_src nix :shebang "{ config, pkgs, proxyHostname, ... }:" :tangle nix/modules/cluster-hosts.nix
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/cluster-hosts.nix
 {
-<<jellyfin-bootParams>>
-<<jellyfin-intel-qsv>>
 <<jellyfin-docker-swarm>>
 <<jellyfin-user>>
-<<jellyfin-filesystems>>
 }
 #+end_src
 

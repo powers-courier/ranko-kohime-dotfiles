@@ -1,7 +1,5 @@
-{ config, pkgs, proxyHostname, ... }:
+{ config, pkgs, vars, ... }:
 {
-
-
 virtualisation.docker.enable = true;
 virtualisation.docker.daemon.settings.live-restore = false;
 users = {

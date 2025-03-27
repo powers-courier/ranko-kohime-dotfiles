@@ -60,6 +60,9 @@
             })
             ./hosts/n100-1-hardware.nix
             ./modules/default-modules.nix
+            ./modules/nfs-share-documents.nix
+            ./modules/nfs-share-videos.nix
+            ./modules/packages-multimedia.nix
           ];
         };
         postgres-vm = nixpkgs.lib.nixosSystem {

@@ -185,6 +185,9 @@ in {
       })
       ./hosts/${name}-hardware.nix
       ./modules/default-modules.nix
+      ./modules/nfs-share-videos.nix
+      ./modules/packages-multimedia.nix
+      ./modules/xfce-desktop.nix
     ];
   };
 }) (builtins.genList (i: i) swarmCount));
@@ -202,6 +205,9 @@ n100-1 = nixpkgs.lib.nixosSystem {
     })
     ./hosts/n100-1-hardware.nix
     ./modules/default-modules.nix
+    ./modules/nfs-share-documents.nix
+    ./modules/nfs-share-videos.nix
+    ./modules/packages-multimedia.nix
   ];
 };
 #+end_src
@@ -219,8 +225,8 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 };
 #+end_src
 
-** DONE Modules [11/11]
-*** DONE Default Modules [7/7]
+** TODO Modules [13/14]
+*** DONE Default Modules [8/8]
 **** DONE Default module importer
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-modules.nix
 {
@@ -229,6 +235,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
     ./bootloader-default.nix
     ./flake-enabler.nix
     ./locale.nix
+    ./networking.nix
     ./openssh.nix
     ./tailscale.nix
     ./zram.nix
@@ -239,8 +246,10 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 **** DONE Default bootloader
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/bootloader-default.nix
 {
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader = {
+    systemd-boot.enable = true;
+    efi.canTouchEfiVariables = true;
+  };
 }
 #+end_src
 

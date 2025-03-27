@@ -5,6 +5,7 @@
     ./bootloader-default.nix
     ./flake-enabler.nix
     ./locale.nix
+    ./networking.nix
     ./openssh.nix
     ./tailscale.nix
     ./zram.nix

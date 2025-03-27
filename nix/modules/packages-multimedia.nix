@@ -3,15 +3,16 @@
   boot.kernelParams = [
     "i915.enable_guc=2"
   ];
-nixpkgs.config.packageOverrides = pkgs: {
-  vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
-};
+  nixpkgs.config = {
+    allowUnfree = true;
+    packageOverrides = pkgs: {
+      vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+    };
+  };
   hardware = {
     enableAllFirmware = true;
-    opengl = {
+    graphics = {
       enable = true;
-      driSupport = true;
-      driSupport32Bit = false;
       extraPackages = with pkgs; [
         ffmpeg
         flac

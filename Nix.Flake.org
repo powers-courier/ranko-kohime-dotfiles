@@ -376,6 +376,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   };
 }
 #+end_src
+
 **** DONE Jellyfin
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/nfs-share-videos.nix
 {
@@ -441,6 +442,7 @@ nixpkgs.config.packageOverrides = pkgs: {
 }
 #+end_src
 
+*** Packages
 **** Pass (Unix Password Manager)
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/packages-pass.nix
 {
@@ -453,6 +455,18 @@ nixpkgs.config.packageOverrides = pkgs: {
      enableSSHSupport = true;
   };
   services.pcscd.enable = true;
+}
+#+end_src
+*** Terminal Packages
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/packages-terminal.nix
+{
+  environment.systemPackages = [
+    byobu
+    glances
+    lm_sensors
+    neovim
+    tmux
+  ];
 }
 #+end_src
 *** DONE XFCE Desktop

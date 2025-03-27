@@ -182,7 +182,7 @@ users = {
 #+end_src
 
 ** TODO rffmpeg
-#+begin_src nix
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/jellyfin-rffmpeg-package.nix
 environment.systemPackages = with pkgs; [
   (pkgs.callPackage ({ stdenv, fetchFromGitHub, python3 }:
     stdenv.mkDerivation {
@@ -191,8 +191,9 @@ environment.systemPackages = with pkgs; [
       src = fetchFromGitHub {
         owner = "joshuaboniface";
         repo = "rffmpeg";
-        rev = "v1.0.2";
-        sha256 = "sha256-..."; # Run `nix-prefetch-github joshuaboniface rffmpeg v1.0.2`
+        rev = "df5214cc9d5eb843558752e30a0eee909d1fb99a";
+        # nix-prefetch-github joshuaboniface rffmpeg
+        sha256 = "hash": "sha256-y0skEOgs2DO/kgy2DvL/x4iWzEU3F4Vxiw47TFrVMRQ=";
       };
       buildInputs = [ python3 ];
       installPhase = ''
@@ -206,7 +207,7 @@ environment.systemPackages = with pkgs; [
 #+end_src
 
 rffmpeg.yml
-#+begin_src nix
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/jellyfin-rffmpeg-config.nix
 environment.etc."rffmpeg/rffmpeg.yml".text = ''
   hosts:
     - host: n200-1\n  user: jellyfin

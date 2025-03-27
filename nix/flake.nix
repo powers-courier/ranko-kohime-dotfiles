@@ -60,6 +60,7 @@
             })
             ./hosts/n100-1-hardware.nix
             ./modules/default-modules.nix
+            .modules/jellyfin-rffmpeg-package.nix
             ./modules/nfs-share-documents.nix
             ./modules/nfs-share-videos.nix
             ./modules/packages-multimedia.nix

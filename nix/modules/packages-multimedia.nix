@@ -14,7 +14,7 @@
     graphics = {
       enable = true;
       extraPackages = with pkgs; [
-        ffmpeg
+        ffmpeg-full
         flac
         handbrake
         intel-compute-runtime

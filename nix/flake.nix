@@ -37,12 +37,11 @@
         system = "x86_64-linux";
         specialArgs = { vars = vars; };
         modules = [
-          ./hosts/${name}-hardware.nix
           ({ config, pkgs, vars, ... }: {
             networking.hostName = name;
             system.stateVersion = "25.05";
           })
-          ./hosts/jelly-proxy-01-hardware.nix
+          ./hosts/${name}-hardware.nix
           ./modules/default-modules.nix
           ./modules/remote-proxy-nodes.nix
         ];

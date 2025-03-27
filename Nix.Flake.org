@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [24/31]
+* TODO Flake [24/29]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -154,37 +154,20 @@ in {
     system = "x86_64-linux";
     specialArgs = { vars = vars; };
     modules = [
-      ./hosts/${name}-hardware.nix
       ({ config, pkgs, vars, ... }: {
         networking.hostName = name;
         system.stateVersion = "25.05";
       })
-      ./hosts/jelly-proxy-01-hardware.nix
+      ./hosts/${name}-hardware.nix
       ./modules/default-modules.nix
       ./modules/remote-proxy-nodes.nix
     ];
   };
 }) (builtins.genList (i: i) proxyCount));
 #+end_src
-**** Jelly-Proxy-01
-#+begin_src nix :noweb-ref no
-jelly-proxy-01 = nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
-  specialArgs = { vars = vars; };
-  modules = [
-    ({ config, pkgs, ... }: {
-      networking.hostName = "jelly-proxy-01";
-      system.stateVersion = "25.05";
-    })
-    ./hosts/jelly-proxy-01-hardware.nix
-    ./modules/default-modules.nix
-    ./modules/remote-proxy-nodes.nix
-  ];
-};
-#+end_src
 
-*** TODO Servers [1/5]
-**** Swarm node generator
+*** TODO Servers [1/3]
+**** TODO Swarm node generator
 #+begin_src nix :noweb-ref swarm-node-generator
 swarmCount = 3;
 Swarm-Node-Configs = builtins.listToAttrs (map (i: let
@@ -196,12 +179,11 @@ in {
     system = "x86_64-linux";
     specialArgs = { vars = vars; };
     modules = [
-      ./hosts/${name}-hardware.nix
       ({ config, pkgs, vars, ... }: {
         networking.hostName = name;
         system.stateVersion = "24.05";
       })
-      ./hosts/n200-1-hardware.nix
+      ./hosts/${name}-hardware.nix
       ./modules/default-modules.nix
     ];
   };

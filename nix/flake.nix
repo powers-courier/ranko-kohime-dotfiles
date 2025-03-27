@@ -38,7 +38,7 @@
         specialArgs = { vars = vars; };
         modules = [
           ./hosts/${name}-hardware.nix
-          ({ config, pkgs, truenas-ip, ... }: {
+          ({ config, pkgs, vars, ... }: {
             networking.hostName = name;
             system.stateVersion = "25.05";
           })
@@ -60,42 +60,6 @@
               system.stateVersion = "23.11";
             })
             ./hosts/n100-1-hardware.nix
-            ./modules/default-modules.nix
-          ];
-        };
-        n200-1 = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { vars = vars; };
-          modules = [
-            ({ config, pkgs, ... }: {
-              networking.hostName = "n200-1";
-              system.stateVersion = "24.05";
-            })
-            ./hosts/n200-1-hardware.nix
-            ./modules/default-modules.nix
-          ];
-        };
-        n200-2 = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { vars = vars; };
-          modules = [
-            ({ config, pkgs, ... }: {
-              networking.hostName = "n200-2";
-              system.stateVersion = "24.05";
-            })
-            ./hosts/n200-2-hardware.nix
-            ./modules/default-modules.nix
-          ];
-        };
-        n200-3 = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { vars = vars; };
-          modules = [
-            ({ config, pkgs, ... }: {
-              networking.hostName = "n200-3";
-              system.stateVersion = "24.05";
-            })
-            ./hosts/n200-3-hardware.nix
             ./modules/default-modules.nix
           ];
         };

@@ -155,7 +155,7 @@ in {
     specialArgs = { vars = vars; };
     modules = [
       ./hosts/${name}-hardware.nix
-      ({ config, pkgs, truenas-ip, ... }: {
+      ({ config, pkgs, vars, ... }: {
         networking.hostName = name;
         system.stateVersion = "25.05";
       })
@@ -184,6 +184,30 @@ jelly-proxy-01 = nixpkgs.lib.nixosSystem {
 #+end_src
 
 *** TODO Servers [1/5]
+**** Swarm node generator
+#+begin_src nix :noweb-ref swarm-node-generator
+swarmCount = 3;
+Swarm-Node-Configs = builtins.listToAttrs (map (i: let
+  num = toString (i + 1);
+  name = "n200-${num}";
+in {
+  name = name;
+  value = nixpkgs.lib.nixosSystem {
+    system = "x86_64-linux";
+    specialArgs = { vars = vars; };
+    modules = [
+      ./hosts/${name}-hardware.nix
+      ({ config, pkgs, vars, ... }: {
+        networking.hostName = name;
+        system.stateVersion = "24.05";
+      })
+      ./hosts/n200-1-hardware.nix
+      ./modules/default-modules.nix
+    ];
+  };
+}) (builtins.genList (i: i) swarmCount));
+#+end_src
+
 **** TODO N100-1
 #+begin_src nix
 n100-1 = nixpkgs.lib.nixosSystem {
@@ -201,7 +225,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
 #+end_src
 
 **** TODO N200-1
-#+begin_src nix
+#+begin_src nix :noweb-ref no
 n200-1 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { vars = vars; };
@@ -217,7 +241,7 @@ n200-1 = nixpkgs.lib.nixosSystem {
 #+end_src
 
 **** TODO N200-2
-#+begin_src nix
+#+begin_src nix :noweb-ref no
 n200-2 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { vars = vars; };
@@ -233,7 +257,7 @@ n200-2 = nixpkgs.lib.nixosSystem {
 #+end_src
 
 **** TODO N200-3
-#+begin_src nix
+#+begin_src nix :noweb-ref no
 n200-3 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { vars = vars; };

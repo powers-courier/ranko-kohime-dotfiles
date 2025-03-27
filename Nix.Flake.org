@@ -382,6 +382,28 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   };
 }
 #+end_src
+*** DONE XFCE Desktop
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/xfce-desktop.nix
+{
+  services = {
+    displayManager.autoLogin = {
+      enable = true;
+      user = "ranko";
+    };
+    xserver = {
+      displayManager = {
+        lightdm.enable = true;
+      };
+      desktopManager.xfce.enable = true;
+      enable = true;
+      xkb = {
+        layout = "us";
+        variant = "";
+      };
+    };
+  };
+}
+#+end_src
 ** Users
 *** DONE Ranko Kohime
 #+begin_src nix :shebang "{ config, ... }:" :tangle nix/users/ranko.nix

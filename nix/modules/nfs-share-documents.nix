@@ -41,4 +41,5 @@
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
+  };
 }

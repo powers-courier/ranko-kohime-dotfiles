@@ -224,54 +224,6 @@ n100-1 = nixpkgs.lib.nixosSystem {
 };
 #+end_src
 
-**** TODO N200-1
-#+begin_src nix :noweb-ref no
-n200-1 = nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
-  specialArgs = { vars = vars; };
-  modules = [
-    ({ config, pkgs, ... }: {
-      networking.hostName = "n200-1";
-      system.stateVersion = "24.05";
-    })
-    ./hosts/n200-1-hardware.nix
-    ./modules/default-modules.nix
-  ];
-};
-#+end_src
-
-**** TODO N200-2
-#+begin_src nix :noweb-ref no
-n200-2 = nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
-  specialArgs = { vars = vars; };
-  modules = [
-    ({ config, pkgs, ... }: {
-      networking.hostName = "n200-2";
-      system.stateVersion = "24.05";
-    })
-    ./hosts/n200-2-hardware.nix
-    ./modules/default-modules.nix
-  ];
-};
-#+end_src
-
-**** TODO N200-3
-#+begin_src nix :noweb-ref no
-n200-3 = nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
-  specialArgs = { vars = vars; };
-  modules = [
-    ({ config, pkgs, ... }: {
-      networking.hostName = "n200-3";
-      system.stateVersion = "24.05";
-    })
-    ./hosts/n200-3-hardware.nix
-    ./modules/default-modules.nix
-  ];
-};
-#+end_src
-
 **** DONE Postgres server
 #+begin_src nix
 postgres-vm = nixpkgs.lib.nixosSystem {

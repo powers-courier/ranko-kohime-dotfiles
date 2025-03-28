@@ -510,7 +510,7 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
     users.jellyfin = {
       extraGroups = [ "video" ];
       group = "jellyfin";
-      isSystemUser = true;
+      isNormalUser = true;
       uid = 8096;
     };
   };

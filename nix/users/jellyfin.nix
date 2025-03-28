@@ -8,7 +8,7 @@
     users.jellyfin = {
       extraGroups = [ "video" ];
       group = "jellyfin";
-      isSystemUser = true;
+      isNormalUser = true;
       uid = 8096;
     };
   };

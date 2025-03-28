@@ -47,9 +47,33 @@
         ];
       };
     }) (builtins.genList (i: i) proxyCount));
+    swarmCount = 3;
+    Swarm-Node-Configs = builtins.listToAttrs (map (i: let
+      num = toString (i + 1);
+      name = "n200-${num}";
+    in {
+      name = name;
+      value = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { vars = vars; };
+        modules = [
+          ({ config, pkgs, vars, ... }: {
+            networking.hostName = name;
+            system.stateVersion = "24.05";
+          })
+          ./hosts/${name}-hardware.nix
+          ./modules/default-modules.nix
+          ./modules/jellyfin-rffmpeg-package.nix
+          ./modules/nfs-share-videos.nix
+          ./modules/packages-multimedia.nix
+          ./modules/xfce-desktop.nix
+          ./users/jellyfin.nix
+        ];
+      };
+    }) (builtins.genList (i: i) swarmCount));
   in
     {
-      nixosConfigurations = Jelly-Proxy-Configs // {
+      nixosConfigurations = Jelly-Proxy-Configs // Swarm-Node-Configs // {
         n100-1 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { vars = vars; };

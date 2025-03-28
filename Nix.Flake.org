@@ -502,14 +502,15 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 #+begin_src nix :shebang "{ config, ... }:" :tangle nix/users/jellyfin.nix
 {
   users = {
+    groups.jellyfin = {
+      gid = 8096;
+      name = "jellyfin";
+    };
     users.jellyfin = {
+      extraGroups = [ "video" ];
+      group = "jellyfin";
       isSystemUser = true;
       uid = 8096;
-      groups = "jellyfin";
-    };
-    groups = {
-      jellyfin.gid = 8096;
-      video.members = [ "jellyfin" ];
     };
   };
 }

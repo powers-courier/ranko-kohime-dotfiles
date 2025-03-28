@@ -161,39 +161,72 @@ environment.etc."rffmpeg/rffmpeg.yml".text = ''
     - host: n200-3\n  user: jellyfin
 '';
 #+end_src
+
 ** Docker Compose
-#+begin_src yaml :noweb-ref jellyfin-docker-compose
+#+begin_example
+docker stack deploy -c docker-compose.yml jellyfin-traefik
+#+end_example
+
+Types of allowing access for transcoding
+#+begin_example
+1. cap_add
+  cap_add:
+    - SYS_ADMIN
+
+2. Privileged
+  privileged: true # Full host access
+
+3. Manual service creation
+  After deploying stack:
+  docker service update --device-add /dev/dri:/dev/dri jellyfin-stack_jellyfin
+#+end_example
+
+#+begin_src yaml :tangle nix/docker/jellyfin-traefik.yml
 version: "3"
 services:
   traefik:
     image: traefik:latest
     command:
       - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
       - "--entrypoints.web.address=:8096"
     ports:
+      - "8080:8080"
       - "8096:8096"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     deploy:
+      mode: replicated
       replicas: 3
+    networks:
+      - jellyfin-net
 
   jellyfin:
     image: jellyfin/jellyfin:latest
     user: "8096:8096"
     deploy:
+      mode: replicated
       replicas: 1
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.theatomicass.com`)"
-      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8095"
+      - "traefik.docker.network=jellyfin-net"
     environment:
-      - JELLYFIN_DATABASE_URL=postgresql://jellyfin:your-secure-password@192.168.0.24:5432/jellyfin
-      - JELLYFIN_FFMPEG_PATH=/usr/local/bin/rffmpeg
+      - JELLYFIN_DATABASE_URL=postgresql://jellyfin:password@192.168.0.24:5432/jellyfin
+      - JELLYFIN_PublishedServerUrl=http://jellyfin.theatomicass.com:8096
+      - JELLYFIN_HttpServerPortNumber=8095
+#      - JELLYFIN_FFMPEG_PATH=/usr/local/bin/rffmpeg
     volumes:
       - /Mounts/Videos:/media
-      - /Mounts/JellyfinConfig:/config
+      - /Mounts/JellyConfig:/config
       - /usr/bin/rffmpeg:/usr/local/bin/rffmpeg:ro
-    devices:
-      - /dev/dri:/dev/dri
+    networks:
+      - jellyfin-net
+
+networks:
+  jellyfin-net:
+    driver: overlay
 #+end_src
 
 * DONE Postgres VM

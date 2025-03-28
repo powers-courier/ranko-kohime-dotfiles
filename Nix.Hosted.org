@@ -128,21 +128,6 @@ Requires manual setup for multiple managers, follow instructions
 docker swarm init
 #+end_src
 
-** DONE User / Group
-#+begin_src nix :noweb-ref jellyfin-user
-users = {
-  users.jellyfin = {
-    isSystemUser = true;
-    uid = 8096;
-    groups = "jellyfin";
-  };
-  groups = {
-    jellyfin.gid = 8096;
-    video.members = [ "jellyfin" ];
-  };
-};
-#+end_src
-
 ** TODO rffmpeg
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/jellyfin-rffmpeg-package.nix
 environment.systemPackages = with pkgs; [

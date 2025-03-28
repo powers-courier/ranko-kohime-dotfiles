@@ -190,6 +190,7 @@ in {
       ./modules/nfs-share-videos.nix
       ./modules/packages-multimedia.nix
       ./modules/xfce-desktop.nix
+      ./users/jellyfin.nix
     ];
   };
 }) (builtins.genList (i: i) swarmCount));
@@ -207,10 +208,11 @@ n100-1 = nixpkgs.lib.nixosSystem {
     })
     ./hosts/n100-1-hardware.nix
     ./modules/default-modules.nix
-    .modules/jellyfin-rffmpeg-package.nix
+    ./modules/jellyfin-rffmpeg-package.nix
     ./modules/nfs-share-documents.nix
     ./modules/nfs-share-videos.nix
     ./modules/packages-multimedia.nix
+    ./users/jellyfin.nix
   ];
 };
 #+end_src
@@ -496,6 +498,23 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 }
 #+end_src
 ** Users
+*** DONE Jellyfin
+#+begin_src nix :shebang "{ config, ... }:" :tangle nix/users/jellyfin.nix
+{
+  users = {
+    users.jellyfin = {
+      isSystemUser = true;
+      uid = 8096;
+      groups = "jellyfin";
+    };
+    groups = {
+      jellyfin.gid = 8096;
+      video.members = [ "jellyfin" ];
+    };
+  };
+}
+#+end_src
+
 *** DONE Ranko Kohime
 #+begin_src nix :shebang "{ config, ... }:" :tangle nix/users/ranko.nix
 {

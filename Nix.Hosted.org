@@ -109,9 +109,6 @@ environment.etc."avahi/services/jellyfin.service".text = ''
 ** Module
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/jellyfin-docker.nix
 {
-  imports = [
-    ./packages-multimedia.nix
-  ];
   <<jellyfin-docker-swarm>>
 }
 #+end_src

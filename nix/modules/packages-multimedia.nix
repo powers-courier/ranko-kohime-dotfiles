@@ -25,7 +25,6 @@
         libvdpau-va-gl
         mediainfo
         mkvtoolnix
-        mkvtoolnix-cli
         vaapiIntel
         vaapiVdpau
         vorbisgain

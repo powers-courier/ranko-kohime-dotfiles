@@ -32,9 +32,10 @@ Gippity Says:
       <<nix-flake-variables>>
     };
     <<proxy-host-generator>>
+    <<swarm-node-generator>>
   in
     {
-      nixosConfigurations = Jelly-Proxy-Configs // {
+      nixosConfigurations = Jelly-Proxy-Configs // Swarm-Node-Configs // {
         <<nix-flake-host-configurations>>
       };
     };
@@ -120,7 +121,7 @@ pkgs = import nixpkgs {
 };
 #+end_src
 
-** Host Configurations
+** TODO Host Configurations[1/4]
 :properties:
 :header-args+: :noweb-ref nix-flake-host-configurations
 :end:
@@ -185,7 +186,7 @@ in {
       })
       ./hosts/${name}-hardware.nix
       ./modules/default-modules.nix
-      .modules/jellyfin-rffmpeg-package.nix
+      ./modules/jellyfin-rffmpeg-package.nix
       ./modules/nfs-share-videos.nix
       ./modules/packages-multimedia.nix
       ./modules/xfce-desktop.nix

@@ -1,0 +1,44 @@
+version: "3"
+services:
+  traefik:
+    image: traefik:latest
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+      - "--entrypoints.web.address=:8096"
+    ports:
+      - "8096:8096"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      mode: replicated
+      replicas: 3
+    networks:
+      - jellyfin-net
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    user: "8096:8096"
+    deploy:
+      mode: replicated
+      replicas: 1
+    labels:
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.theatomicass.com`)"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+    environment:
+      - JELLYFIN_DATABASE_URL=postgresql://jellyfin:password@192.168.0.24:5432/jellyfin
+#      - JELLYFIN_FFMPEG_PATH=/usr/local/bin/rffmpeg
+    volumes:
+      - /Mounts/Videos:/media
+      - /Mounts/JellyConfig:/config
+      - /usr/bin/rffmpeg:/usr/local/bin/rffmpeg:ro
+    labels:
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.theatomicass.com`)"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+      - "traefik.docker.network=jellyfin-net"
+    networks:
+      - jellyfin-net
+
+networks:
+  jellyfin-net:
+    driver: overlay

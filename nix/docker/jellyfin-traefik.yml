@@ -36,7 +36,7 @@ services:
     volumes:
       - /Mounts/Videos:/media
       - /Mounts/JellyConfig:/config
-      - /usr/bin/rffmpeg:/usr/local/bin/rffmpeg:ro
+#      - /usr/bin/rffmpeg:/usr/local/bin/rffmpeg:ro
     networks:
       - jellyfin-net
 

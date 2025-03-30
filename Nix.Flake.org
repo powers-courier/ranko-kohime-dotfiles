@@ -554,7 +554,7 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
   ];
   programs.gnupg.agent = {
      enable = true;
-     pinentryFlavor = "curses";
+     pinentryPackage = pkgs.pinentry-curses;
      enableSSHSupport = true;
   };
   services.pcscd.enable = true;

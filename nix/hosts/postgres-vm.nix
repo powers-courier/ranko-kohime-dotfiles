@@ -34,7 +34,10 @@
     };
   };
   time.timeZone = vars.timeZern;
-  environment.systemPackages = with pkgs; [ postgresql_15 ];
+  environment.systemPackages = with pkgs; [
+  glances
+  postgresql_15
+  ];
   services.openssh.enable = true;
   system.stateVersion = "25.05";
 }

@@ -5,7 +5,7 @@
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :noweb yes
 
 * TODO Cluster Module
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/cluster-hosts.nix
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/hosts/cluster-hosts.nix
 {
 <<jellyfin-docker-swarm>>
 <<jellyfin-user>>
@@ -13,13 +13,6 @@
 #+end_src
 
 * TODO Jellyfin [2/7]
-** Module
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/jellyfin-docker.nix
-{
-  <<jellyfin-docker-swarm>>
-}
-#+end_src
-
 ** DONE Docker
 [[https://forums.docker.com/t/error-response-from-daemon-live-restore-daemon-configuration-is-incompatible-with-swarm-mode/28428][Error response from daemon: –live-restore daemon configuration is incompatible with swarm mode]]
 #+begin_src nix :noweb-ref jellyfin-docker-swarm

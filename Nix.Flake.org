@@ -162,7 +162,7 @@ in {
       })
       ./hosts/${name}-hardware.nix
       ./modules/default-modules.nix
-      ./modules/remote-proxy-nodes.nix
+      ./hosts/remote-proxy-nodes.nix
     ];
   };
 }) (builtins.genList (i: i) proxyCount));
@@ -624,3 +624,98 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
   };
 }
 #+end_src
+
+* Hosts
+** DONE Remote access proxy nodes [4/4]
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/remote-proxy-nodes.nix
+{
+  <<jellyfin-remote-firewall>>
+  <<jellyfin-remote-tailscale>>
+  <<jellyfin-remote-traefik>>
+  <<jellyfin-remote-avahi>>
+  <<jellyfin-remote-avahi-conf>>
+
+  environment.systemPackages = with pkgs; [
+    tailscale
+    traefik
+    avahi
+  ];
+
+  systemd.services.traefik = {
+    after = [ "tailscale.service" ];
+    wants = [ "tailscale.service" ];
+  };
+}
+#+end_src
+
+*** DONE Networking
+Traefik listens on TCP 8096
+Avahi listens on UDP 5353
+#+begin_src nix :noweb-ref jellyfin-remote-firewall
+networking = {
+  firewall = {
+    enable = true;
+    allowedTCPPorts = [ 8096 ];
+    allowedUDPPorts = [ 5353 ];
+  };
+};
+#+end_src
+*** DONE Tailscale
+Requires manual setup to add to Tailnet
+#+begin_src nix :noweb-ref jellyfin-remote-tailscale
+services.tailscale = {
+  enable = true;
+  openFirewall = true;
+};
+#+end_src
+*** DONE Traefik
+#+begin_src nix :noweb-ref jellyfin-remote-traefik
+services.traefik = {
+  enable = true;
+  staticConfigOptions = {
+    entryPoints.web.address = ":8096";
+    http = {
+      routers = {
+        jellyfin = {
+          rule = "Host(`*`)"; # Catch-all for any hostname (or leave unspecified)
+          service = "jellyfin";
+        };
+      };
+      services = {
+        jellyfin.loadBalancer.servers = [{ url = "http://jellyfin.theatomicass.com:8096"; }];
+      };
+    };
+  };
+};
+#+end_src
+*** DONE mDNS with Avahi
+nssmdns4 = Enable mDNS for IPv4 name resolution
+
+#+begin_src nix :noweb-ref jellyfin-remote-avahi
+services.avahi = {
+  enable = true;
+  nssmdns4 = true;
+  publish = {
+    enable = true;
+    addresses = true;
+    userServices = true;
+  };
+};
+#+end_src
+
+#+begin_src nix :noweb-ref jellyfin-remote-avahi-conf
+environment.etc."avahi/services/jellyfin.service".text = ''
+  <?xml version="1.0" standalone='no'?>
+  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+  <service-group>
+    <name>Jellyfin Proxy</name>
+    <service>
+      <type>_http._tcp</type>
+      <port>8096</port>
+      <txt-record>description=Jellyfin Media Server Proxy</txt-record>
+    </service>
+  </service-group>
+'';
+#+end_src
+
+

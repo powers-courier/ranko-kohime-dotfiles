@@ -219,7 +219,9 @@ n100-1 = nixpkgs.lib.nixosSystem {
 ***** Module
 #+begin_src nix :noweb-ref none :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/n100-1-module.nix
 {
-  environment.systemPackages = [
+  environment.systemPackages = with pkgs; [
+    emacs
+    neovim
   ];
   networking.hostName = "n100-1";
 
@@ -380,7 +382,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   <<postgres-vm-service>>
   time.timeZone = vars.timeZern;
   environment.systemPackages = with pkgs; [
-  postgresql_15
+    postgresql_15
   ];
   services.openssh.enable = true;
   system.stateVersion = "25.05";

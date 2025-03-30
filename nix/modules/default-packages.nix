@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 {
-  environment.systemPackages = [
+  environment.systemPackages = with pkgs; [
   byobu
   git
   glances

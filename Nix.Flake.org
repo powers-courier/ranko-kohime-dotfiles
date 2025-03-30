@@ -327,7 +327,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 **** Packages
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-packages.nix
 {
-  environment.systemPackages = [
+  environment.systemPackages = with pkgs; [
   byobu
   git
   glances

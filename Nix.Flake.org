@@ -211,6 +211,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
     ./modules/nfs-share-documents.nix
     ./modules/nfs-share-videos.nix
     ./modules/packages-multimedia.nix
+    ./modules/xfce-desktop.nix
     ./users/jellyfin.nix
   ];
 };

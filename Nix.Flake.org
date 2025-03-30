@@ -361,7 +361,17 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   };
 }
 #+end_src
-*** Hosts
+*** TODO Emacs Daemon
+#+begin_src nix :shebang "{ configs, pkgs, ... }:" :tangle nix/modules/emacs-server.nix
+{
+  services = {
+    emacs = {
+      enable = true;
+    };
+  };
+}
+#+end_src
+*** DONE Hosts [3/3]
 **** DONE Postgres VM
 #+begin_src nix :shebang "{ config, pkgs, lib, vars, ... }:" :tangle nix/hosts/postgres-vm.nix
 {

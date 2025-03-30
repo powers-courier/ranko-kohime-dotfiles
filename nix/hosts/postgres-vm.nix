@@ -35,7 +35,6 @@
   };
   time.timeZone = vars.timeZern;
   environment.systemPackages = with pkgs; [
-  glances
   postgresql_15
   ];
   services.openssh.enable = true;

@@ -2,6 +2,7 @@
 {
   environment.systemPackages = with pkgs; [
     emacs
+    mate.engrampa
     neovim
   ];
   networking.hostName = "n100-1";

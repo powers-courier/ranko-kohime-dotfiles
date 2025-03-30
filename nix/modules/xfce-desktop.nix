@@ -1,9 +1,12 @@
 { config, pkgs, vars, ... }:
 {
   services = {
-    displayManager.autoLogin = {
-      enable = true;
-      user = "ranko";
+    displayManager = {
+      autoLogin = {
+        enable = true;
+        user = "ranko";
+      };
+      defaultSession = "xfce";
     };
     xserver = {
       displayManager = {

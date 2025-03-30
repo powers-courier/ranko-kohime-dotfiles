@@ -561,8 +561,8 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
       autoLogin = {
         enable = true;
         user = "ranko";
-      defaultSession = "xfce";
       };
+      defaultSession = "xfce";
     };
     xserver = {
       displayManager = {

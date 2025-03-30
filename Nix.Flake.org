@@ -316,7 +316,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/openssh.nix
 {
   services.openssh = {
-    banner = "Welcome to... wherever you happen to be";
+    banner = "Welcome to... wherever you happen to be\n";
     enable = true;
     extraConfig ="";
     openFirewall = true;

@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 {
   services.openssh = {
-    banner = "Welcome to... wherever you happen to be";
+    banner = "Welcome to... wherever you happen to be\n";
     enable = true;
     extraConfig ="";
     openFirewall = true;

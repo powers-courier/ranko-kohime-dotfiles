@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [32/41]
+* TODO Flake [33/43]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -210,6 +210,8 @@ n100-1 = nixpkgs.lib.nixosSystem {
     ./modules/nfs-share-documents.nix
     ./modules/nfs-share-videos.nix
     ./modules/packages-multimedia.nix
+    ./modules/packages-pass.nix
+    ./modules/packages-terminal.nix
     ./modules/xfce-desktop.nix
     ./users/jellyfin.nix
   ];
@@ -245,8 +247,8 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 };
 #+end_src
 
-** TODO Modules [17/20]
-*** DONE Default Modules [8/8]
+** TODO Modules [18/22]
+*** DONE Default Modules [9/9]
 **** DONE Default module importer
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-modules.nix
 {
@@ -331,7 +333,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   };
 }
 #+end_src
-**** Packages
+**** DONE Packages
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-packages.nix
 {
   environment.systemPackages = with pkgs; [
@@ -544,11 +546,11 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 #+end_src
 
 *** Packages
-**** Pass (Unix Password Manager)
+**** TODO Pass (Unix Password Manager)
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/packages-pass.nix
 {
   environment.systemPackages = [
-    pass
+    pkgs.pass
   ];
   programs.gnupg.agent = {
      enable = true;
@@ -561,11 +563,12 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 **** TODO Terminal Packages
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/packages-terminal.nix
 {
-  environment.systemPackages = [
+  environment.systemPackages = with pkgs; [
     byobu
     glances
     lm_sensors
     neovim
+    ranger
     tmux
   ];
 }

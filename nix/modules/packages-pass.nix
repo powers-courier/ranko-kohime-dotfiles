@@ -1,7 +1,7 @@
 { config, pkgs, vars, ... }:
 {
   environment.systemPackages = [
-    pass
+    pkgs.pass
   ];
   programs.gnupg.agent = {
      enable = true;

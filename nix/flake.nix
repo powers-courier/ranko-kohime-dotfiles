@@ -86,6 +86,8 @@
             ./modules/nfs-share-documents.nix
             ./modules/nfs-share-videos.nix
             ./modules/packages-multimedia.nix
+            ./modules/packages-pass.nix
+            ./modules/packages-terminal.nix
             ./modules/xfce-desktop.nix
             ./users/jellyfin.nix
           ];

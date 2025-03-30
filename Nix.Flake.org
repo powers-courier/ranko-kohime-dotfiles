@@ -324,7 +324,18 @@ postgres-vm = nixpkgs.lib.nixosSystem {
   };
 }
 #+end_src
-
+**** Packages
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-packages.nix
+{
+  environment.systemPackages = [
+  byobu
+  git
+  glances
+  lm_sensors
+  tmux
+  ];
+}
+#+end_src
 **** DONE Tailscale
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/tailscale.nix
 {

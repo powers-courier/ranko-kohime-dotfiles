@@ -204,11 +204,8 @@ n100-1 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { vars = vars; };
   modules = [
-    ({ config, pkgs, ... }: {
-      networking.hostName = "n100-1";
-      system.stateVersion = "23.11";
-    })
     ./hosts/n100-1-hardware.nix
+    ./hosts/n100-1-module.nix
     ./modules/default-modules.nix
     ./modules/jellyfin-rffmpeg-package.nix
     ./modules/nfs-share-documents.nix
@@ -218,7 +215,16 @@ n100-1 = nixpkgs.lib.nixosSystem {
   ];
 };
 #+end_src
-
+***** Module
+#+begin_src nix :noweb-ref none :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/n100-1-module.nix
+{
+  environment.systemPackages = [
+  ];
+  networking.hostName = "n100-1";
+  programs.firefox.enable = true;
+  system.stateVersion = "23.11";
+}
+#+end_src
 **** DONE Postgres server
 #+begin_src nix
 postgres-vm = nixpkgs.lib.nixosSystem {
@@ -238,7 +244,12 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-modules.nix
 {
   imports = [
-    ({ config, vars, ... }: { time.timeZone = vars.timeZern; })
+    (
+      { config, vars, ... }:
+        {
+          time.timeZone = vars.timeZern;
+        }
+    )
     ./bootloader-default.nix
     ./flake-enabler.nix
     ./locale.nix
@@ -535,9 +546,12 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/xfce-desktop.nix
 {
   services = {
-    displayManager.autoLogin = {
-      enable = true;
-      user = "ranko";
+    displayManager = {
+      autoLogin = {
+        enable = true;
+        user = "ranko";
+      defaultSession = "xfce";
+      };
     };
     xserver = {
       displayManager = {

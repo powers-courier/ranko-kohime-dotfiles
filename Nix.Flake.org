@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [24/29]
+* TODO Flake [30/40]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -238,7 +238,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
 };
 #+end_src
 
-** TODO Modules [13/15]
+** TODO Modules [17/20]
 *** DONE Default Modules [8/8]
 **** DONE Default module importer
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-modules.nix
@@ -255,6 +255,7 @@ postgres-vm = nixpkgs.lib.nixosSystem {
     ./locale.nix
     ./networking.nix
     ./openssh.nix
+    ./default-packages.nix
     ./tailscale.nix
     ./zram.nix
     ../users/ranko.nix

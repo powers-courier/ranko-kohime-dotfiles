@@ -80,11 +80,8 @@
           system = "x86_64-linux";
           specialArgs = { vars = vars; };
           modules = [
-            ({ config, pkgs, ... }: {
-              networking.hostName = "n100-1";
-              system.stateVersion = "23.11";
-            })
             ./hosts/n100-1-hardware.nix
+            ./hosts/n100-1-module.nix
             ./modules/default-modules.nix
             ./modules/jellyfin-rffmpeg-package.nix
             ./modules/nfs-share-documents.nix

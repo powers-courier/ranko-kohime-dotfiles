@@ -44,7 +44,7 @@
           })
           ./hosts/${name}-hardware.nix
           ./modules/default-modules.nix
-          ./modules/remote-proxy-nodes.nix
+          ./hosts/remote-proxy-nodes.nix
         ];
       };
     }) (builtins.genList (i: i) proxyCount));
@@ -64,7 +64,6 @@
           })
           ./hosts/${name}-hardware.nix
           ./modules/default-modules.nix
-          ./modules/jellyfin-docker.nix
           ./modules/jellyfin-rffmpeg-package.nix
           ./modules/nfs-share-videos.nix
           ./modules/packages-multimedia.nix
@@ -87,6 +86,7 @@
             ./modules/nfs-share-documents.nix
             ./modules/nfs-share-videos.nix
             ./modules/packages-multimedia.nix
+            ./modules/xfce-desktop.nix
             ./users/jellyfin.nix
           ];
         };

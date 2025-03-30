@@ -1,6 +1,8 @@
 { config, pkgs, ... }:
 {
-  environment.systemPackages = [
+  environment.systemPackages = with pkgs; [
+    emacs
+    neovim
   ];
   networking.hostName = "n100-1";
 

@@ -3,21 +3,21 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    hardware.url = "github:nixos/nixos-hardware";
     disko.url = "github:nix-community/disko";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
-    hardware.url = "github:nixos/nixos-hardware";
   };
 
   outputs =
     {
       self,
       nixpkgs,
+      hardware,
       disko,
       home-manager,
       flake-utils,
-      hardware,
       ...
     }:
 

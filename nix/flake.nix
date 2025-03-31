@@ -51,6 +51,14 @@
   in
     {
       nixosConfigurations = Jelly-Proxy-Configs // {
+        main-host = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { vars = vars; };
+          modules = [
+            ./hosts/main-host-hardware.nix
+            ./modules/default-modules.nix
+          ];
+        };
         n100-1 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { vars = vars; };

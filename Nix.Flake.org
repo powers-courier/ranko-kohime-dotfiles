@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [33/43]
+* TODO Flake [36/43]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -32,10 +32,9 @@ Gippity Says:
       <<nix-flake-variables>>
     };
     <<proxy-host-generator>>
-    <<swarm-node-generator>>
   in
     {
-      nixosConfigurations = Jelly-Proxy-Configs // Swarm-Node-Configs // {
+      nixosConfigurations = Jelly-Proxy-Configs // {
         <<nix-flake-host-configurations>>
       };
     };
@@ -122,7 +121,7 @@ pkgs = import nixpkgs {
 };
 #+end_src
 
-** TODO Host Configurations[2/4]
+** DONE Host Configurations[4/4]
 :properties:
 :header-args+: :noweb-ref nix-flake-host-configurations
 :end:
@@ -168,36 +167,9 @@ in {
 }) (builtins.genList (i: i) proxyCount));
 #+end_src
 
-*** TODO Servers [2/3]
-**** DONE Swarm node generator
-#+begin_src nix :noweb-ref swarm-node-generator
-swarmCount = 3;
-Swarm-Node-Configs = builtins.listToAttrs (map (i: let
-  num = toString (i + 1);
-  name = "n200-${num}";
-in {
-  name = name;
-  value = nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
-    specialArgs = { vars = vars; };
-    modules = [
-      ({ config, pkgs, vars, ... }: {
-        networking.hostName = name;
-        system.stateVersion = "24.05";
-      })
-      ./hosts/${name}-hardware.nix
-      ./modules/default-modules.nix
-      ./modules/jellyfin-rffmpeg-package.nix
-      ./modules/nfs-share-videos.nix
-      ./modules/packages-multimedia.nix
-      ./modules/xfce-desktop.nix
-      ./users/jellyfin.nix
-    ];
-  };
-}) (builtins.genList (i: i) swarmCount));
 #+end_src
 
-**** TODO N100-1
+**** DONE N100-1 [1/1]
 #+begin_src nix
 n100-1 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
@@ -206,7 +178,6 @@ n100-1 = nixpkgs.lib.nixosSystem {
     ./hosts/n100-1-hardware.nix
     ./hosts/n100-1-module.nix
     ./modules/default-modules.nix
-    ./modules/jellyfin-rffmpeg-package.nix
     ./modules/nfs-share-documents.nix
     ./modules/nfs-share-videos.nix
     ./modules/packages-multimedia.nix
@@ -217,7 +188,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
   ];
 };
 #+end_src
-***** Module
+***** DONE Module
 #+begin_src nix :noweb-ref none :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/n100-1-module.nix
 {
   environment.systemPackages = with pkgs; [
@@ -233,18 +204,6 @@ n100-1 = nixpkgs.lib.nixosSystem {
 
   system.stateVersion = "23.11";
 }
-#+end_src
-**** DONE Postgres server
-#+begin_src nix
-postgres-vm = nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
-  specialArgs = { vars = vars; };
-  modules = [
-    ./hosts/postgres-hardware.nix
-    ./hosts/postgres-vm.nix
-    ./modules/default-modules.nix
-  ];
-};
 #+end_src
 
 ** TODO Modules [18/22]
@@ -375,61 +334,6 @@ postgres-vm = nixpkgs.lib.nixosSystem {
     };
   };
 }
-#+end_src
-*** DONE Hosts [3/3]
-**** DONE Postgres VM
-#+begin_src nix :shebang "{ config, pkgs, lib, vars, ... }:" :tangle nix/hosts/postgres-vm.nix
-{
-  <<postgres-vm-networking>>
-  <<postgres-vm-service>>
-  time.timeZone = vars.timeZern;
-  environment.systemPackages = with pkgs; [
-    postgresql_15
-  ];
-  services.openssh.enable = true;
-  system.stateVersion = "25.05";
-}
-#+end_src
-
-***** DONE Networking
-#+begin_src nix :noweb-ref postgres-vm-networking
-networking = {
-  hostName = "postgres-vm";
-  firewall = {
-    enable = true;
-    allowedTCPPorts = [ 5432 ];
-    extraCommands = ''
-      iptables -A INPUT -p tcp --dport 5432 -s 192.168.0.0/24 -j ACCEPT
-      iptables -A INPUT -p tcp --dport 5432 -j DROP
-    '';
-  };
-  networkmanager.enable = true;
-  wireless.enable = false;
-};
-#+end_src
-
-***** DONE Postgres Service
-#+begin_src nix :noweb-ref postgres-vm-service
-services.postgresql = {
-  enable = true;
-  package = pkgs.postgresql_15;
-  dataDir = "/var/lib/postgresql/15";
-  authentication = pkgs.lib.mkOverride 10 ''
-    local all all trust
-    host jellyfin jellyfin 192.168.0.0/24 md5
-  '';
-  initialScript = pkgs.writeText "init.sql" ''
-    CREATE USER jellyfin WITH PASSWORD 'password';
-    CREATE DATABASE jellyfin OWNER jellyfin;
-  '';
-  settings = {
-    listen_addresses = lib.mkForce "192.168.0.24";
-    port = 5432;
-    shared_buffers = "1GB";
-    work_mem = "8MB";
-    max_connections = 50;
-  };
-};
 #+end_src
 *** DONE Network Filesystems [2/2]
 **** DONE Documents et al
@@ -628,133 +532,14 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 }
 #+end_src
 
-* TODO Hosts [7/9]
-** TODO Cluster Module
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/hosts/cluster-hosts.nix
 {
-<<jellyfin-docker-swarm>>
-<<jellyfin-user>>
-}
+
+
+
+
 #+end_src
 
-*** DONE Docker
-[[https://forums.docker.com/t/error-response-from-daemon-live-restore-daemon-configuration-is-incompatible-with-swarm-mode/28428][Error response from daemon: –live-restore daemon configuration is incompatible with swarm mode]]
-#+begin_src nix :noweb-ref jellyfin-docker-swarm
-virtualisation.docker.enable = true;
-virtualisation.docker.daemon.settings.live-restore = false;
 #+end_src
-
-Requires manual setup for multiple managers, follow instructions
-#+begin_src bash :tangle no
-docker swarm init
-#+end_src
-
-*** DONE rffmpeg
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/jellyfin-rffmpeg-package.nix
-{
-  environment.systemPackages = with pkgs; [
-    (pkgs.callPackage ({ stdenv, fetchFromGitHub, python3 }:
-      stdenv.mkDerivation {
-        pname = "rffmpeg";
-        version = "1.0.2"; # Latest as of now
-        src = fetchFromGitHub {
-          owner = "joshuaboniface";
-          repo = "rffmpeg";
-          rev = "df5214cc9d5eb843558752e30a0eee909d1fb99a";
-          # nix-prefetch-github joshuaboniface rffmpeg
-          sha256 = "sha256-y0skEOgs2DO/kgy2DvL/x4iWzEU3F4Vxiw47TFrVMRQ=";
-        };
-        buildInputs = [ python3 ];
-        installPhase = ''
-          mkdir -p $out/bin
-          cp rffmpeg $out/bin/rffmpeg
-          chmod +x $out/bin/rffmpeg
-        '';
-      }) {})
-    ffmpeg-full
-  ];
-}
-#+end_src
-
-rffmpeg.yml
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/jellyfin-rffmpeg-config.nix
-environment.etc."rffmpeg/rffmpeg.yml".text = ''
-  hosts:
-    - host: n200-1\n  user: jellyfin
-    - host: n200-2\n  user: jellyfin
-    - host: n200-3\n  user: jellyfin
-'';
-#+end_src
-
-*** TODO Docker Compose
-#+begin_example
-docker stack deploy -c docker-compose.yml jellyfin-traefik
-#+end_example
-
-Types of allowing access for transcoding
-#+begin_example
-1. cap_add
-  cap_add:
-    - SYS_ADMIN
-
-2. Privileged
-  privileged: true # Full host access
-
-3. Manual service creation
-  After deploying stack:
-  docker service update --device-add /dev/dri:/dev/dri jellyfin-stack_jellyfin
-#+end_example
-
-#+begin_src yaml :tangle nix/docker/jellyfin-traefik.yml
-version: "3"
-services:
-#  traefik:
-#    image: traefik:latest
-#    command:
-#      - "--providers.docker=true"
-#      - "--providers.docker.swarmMode=true"
-#      - "--entrypoints.web.address=:8096"
-#    ports:
-#      - "8080:8080"
-#      - "8096:8096"
-#    volumes:
-#      - "/var/run/docker.sock:/var/run/docker.sock"
-#    deploy:
-#      mode: replicated
-#      replicas: 3
-#    networks:
-#      - jellyfin-net
-
-  jellyfin:
-    image: jellyfin/jellyfin:latest
-    user: "8096:8096"
-    deploy:
-      mode: replicated
-      replicas: 1
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.theatomicass.com`)"
-#      - "traefik.http.services.jellyfin.loadbalancer.server.port=8095"
-#      - "traefik.docker.network=jellyfin-net"
-    environment:
-      - JELLYFIN_DATABASE_URL=postgresql://jellyfin:password@192.168.0.24:5432/jellyfin
-      - JELLYFIN_PublishedServerUrl=http://jellyfin.theatomicass.com:8096
-      - JELLYFIN_HttpServerPortNumber=8096
-#      - JELLYFIN_FFMPEG_PATH=/usr/local/bin/rffmpeg
-    ports:
-      - "8096:8096"
-    volumes:
-      - /Mounts/Videos:/media
-      - /Mounts/JellyConfig:/config
-#      - /run/current-system/sw/bin/rffmpeg:/usr/local/bin/rffmpeg:ro
-    networks:
-      - jellyfin-net
-
-networks:
-  jellyfin-net:
-    driver: overlay
-#+end_src
-
 ** DONE Remote access proxy nodes [4/4]
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/remote-proxy-nodes.nix
 {

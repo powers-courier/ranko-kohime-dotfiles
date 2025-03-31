@@ -4,6 +4,7 @@
     emacs
     mate.engrampa
     neovim
+    python3
   ];
   networking.hostName = "n100-1";
 

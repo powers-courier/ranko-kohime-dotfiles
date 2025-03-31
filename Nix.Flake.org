@@ -174,10 +174,7 @@ main-host = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { vars = vars; };
   modules = [
-    ({ config, pkgs, vars, ... }: {
-      networking.hostName = main-host;
-      system.stateVersion = "25.05";
-    })
+    ./hosts/main-host.nix
     ./hosts/main-host-hardware.nix
     ./modules/default-modules.nix
   ];
@@ -570,6 +567,13 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 }
 #+end_src
 
+*** Jellyfin
+#+begin_src nix :noweb-ref jellyfin-service
+services.jellyfin = {
+  cacheDir = "\${cfg.dataDir}/cache"
+  enable = true;
+  openFirewall = true;
+};
 #+end_src
 ** DONE Remote access proxy nodes [4/4]
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/remote-proxy-nodes.nix

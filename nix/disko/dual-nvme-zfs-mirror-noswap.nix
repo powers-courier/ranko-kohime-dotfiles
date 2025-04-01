@@ -91,6 +91,11 @@
             mountpoint = "/home";
             options.mountpoint = "legacy";
           };
+          "var" = {
+            type = "zfs_fs";
+            mountpoint = "/var";
+            options.mountpoint = "legacy";
+          };
         };
       };
     };

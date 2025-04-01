@@ -101,12 +101,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 #+end_src
 
 * TODO Emacs.nix [0/0]
-:properties:
-:header-args+: :tangle ~/Dotfiles/nix/modules/emacs.nix
-:header-args+: :shebang "{ nixpkgs }:"
-:end:
-
-#+begin_src nix
+#+begin_src nix :shebang "{ nixpkgs }:" :tangle ~/Dotfiles/nix/modules/emacs.nix
 {
   emacsPackage = nixpkgs.emacs.override {
     # Add any desired customization here, such as enabling additional Emacs packages
@@ -121,7 +116,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
       enable = true;
       package = pkgs.emacs;
       # Additional Emacs settings could be specified here
-      
+      <<emacs-success-message>>
     };
   };
 }
@@ -139,10 +134,9 @@ Ready to import into Nix HM config
 <<emacs-search-settings>>
 <<emacs-fancy-shit>>
 <<emacs-general-settings>>
-<<emacs-success-message>>
 #+end_src
 
-* TODO Configuration [118/144]
+* TODO Configuration [118/146]
 ** DONE Preamble [6/6]
 :properties:
 :header-args+: :noweb-ref emacs-preamble-settings

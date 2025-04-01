@@ -342,7 +342,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
 **** Dual NVMe ZFS Mirror, no swap
 Run command:
 #+begin_example
-sudo nix run github:nix-community/disko -- --mode zap_create_mount ./disko-config.nix
+sudo nix run --experimental-features 'nix-command flakes' github:nix-community/disko -- --mode zap_create_mount ./disko-config.nix
 #+end_example
 
 #+begin_src nix :tangle nix/disko/dual-nvme-zfs-mirror-noswap.nix
@@ -350,7 +350,7 @@ sudo nix run github:nix-community/disko -- --mode zap_create_mount ./disko-confi
   disko.devices = {
     disk = {
       nvme0 = {
-        device = "/dev/nvme0";
+        device = "/dev/nvme0n1";
         type = "disk";
         content = {
           type = "table";
@@ -367,7 +367,7 @@ sudo nix run github:nix-community/disko -- --mode zap_create_mount ./disko-confi
         };
       };
       nvme1 = {
-        device = "/dev/nvme1";
+        device = "/dev/nvme1n1";
         type = "disk";
         content = {
           type = "table";

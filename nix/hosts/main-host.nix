@@ -10,7 +10,7 @@
   ];
 
   networking.hostName = "main-host";
-  networking.hostID = "2b7f3c3a";
+  networking.hostId = "2b7f3c3a";
 
   system.stateVersion = "25.05";
 

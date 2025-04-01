@@ -950,6 +950,26 @@ Current Mode Line
 (setq-default isearch-lazy-count t)
 #+end_src
 
+** TODO Editing [3/4]
+*** DONE Spaces instead of tabs
+[[https://www.emacswiki.org/emacs/NoTabs][Emacs Wiki: No Tabs]]
+#+name: indent-tabs-mode
+#+begin_src emacs-lisp
+(setq-default indent-tabs-mode nil)
+#+end_src
+
+*** DONE Delete selected text when typing after a selection
+#+name: delete-selection-mode
+#+begin_src emacs-lisp
+(delete-selection-mode 1)
+#+end_src
+
+*** DONE Disable electric-indent-mode
+#+name: electric-indent-mode
+#+begin_src emacs-lisp
+(setq-default electric-indent-mode nil)
+#+end_src
+
 ** TODO Collaborative Editing
 [[https://code.librehq.com/qhong/crdt.el/][crdt.el Git Repo]]
 
@@ -1018,25 +1038,6 @@ Still spamming the message log
 (custom-set-variables
   '(warning-suppress-types '((comp)
     (use-package))))
-#+end_src
-
-*** DONE Spaces instead of tabs
-[[https://www.emacswiki.org/emacs/NoTabs][Emacs Wiki: No Tabs]]
-#+name: indent-tabs-mode
-#+begin_src emacs-lisp
-(setq-default indent-tabs-mode nil)
-#+end_src
-
-*** DONE Delete selected text when typing after a selection
-#+name: delete-selection-mode
-#+begin_src emacs-lisp
-(delete-selection-mode 1)
-#+end_src
-
-*** DONE Disable electric-indent-mode
-#+name: electric-indent-mode
-#+begin_src emacs-lisp
-(setq-default electric-indent-mode nil)
 #+end_src
 
 *** DONE ido-mode [8/8]

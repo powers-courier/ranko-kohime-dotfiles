@@ -678,7 +678,7 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 *** TODO Jellyfin
 #+begin_src nix :noweb-ref jellyfin-service
 services.jellyfin = {
-  cacheDir = "\${cfg.dataDir}/cache"
+  cacheDir = "\${cfg.dataDir}/cache";
   enable = true;
   openFirewall = true;
 };

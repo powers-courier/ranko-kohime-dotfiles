@@ -55,6 +55,7 @@
           system = "x86_64-linux";
           specialArgs = { vars = vars; };
           modules = [
+            ./hosts/main-host.nix
             ./hosts/main-host-hardware.nix
             ./modules/default-modules.nix
           ];

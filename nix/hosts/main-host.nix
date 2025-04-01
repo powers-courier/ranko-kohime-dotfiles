@@ -14,7 +14,7 @@
   system.stateVersion = "25.05";
 
   services.jellyfin = {
-    cacheDir = "\${cfg.dataDir}/cache"
+    cacheDir = "\${cfg.dataDir}/cache";
     enable = true;
     openFirewall = true;
   };

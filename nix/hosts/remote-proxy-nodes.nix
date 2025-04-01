@@ -23,7 +23,11 @@
           };
         };
         services = {
-          jellyfin.loadBalancer.servers = [{ url = "http://jellyfin.theatomicass.com:8096"; }];
+          jellyfin = {
+            loadBalancer = {
+              servers = [{ url = "http://mainhost.${tailscale-fqdn}:8096"; }];
+            };
+          };
         };
       };
     };

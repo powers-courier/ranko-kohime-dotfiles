@@ -487,6 +487,7 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
     neovim
     ranger
     tmux
+    tree
   ];
 }
 #+end_src
@@ -545,8 +546,8 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 }
 #+end_src
 
-* DONE Hosts [5/5]
-** Main Host [0/0]
+* TODO Hosts [5/7]
+** TODO Main Host [0/1]
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/main-host.nix
 {
   imports = [
@@ -567,7 +568,7 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 }
 #+end_src
 
-*** Jellyfin
+*** TODO Jellyfin
 #+begin_src nix :noweb-ref jellyfin-service
 services.jellyfin = {
   cacheDir = "\${cfg.dataDir}/cache"
@@ -631,7 +632,11 @@ services.traefik = {
         };
       };
       services = {
-        jellyfin.loadBalancer.servers = [{ url = "http://jellyfin.theatomicass.com:8096"; }];
+        jellyfin = {
+          loadBalancer = {
+            servers = [{ url = "http://mainhost.${tailscale-fqdn}:8096"; }];
+          };
+        };
       };
     };
   };

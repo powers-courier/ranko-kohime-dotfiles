@@ -7,5 +7,6 @@
     neovim
     ranger
     tmux
+    tree
   ];
 }

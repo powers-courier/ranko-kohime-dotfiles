@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [36/43]
+* TODO Flake [33/40]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -219,7 +219,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
 }
 #+end_src
 
-** TODO Modules [18/22]
+** TODO Modules [16/20]
 *** DONE Default Modules [9/9]
 **** DONE Default module importer
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-modules.nix
@@ -337,6 +337,108 @@ n100-1 = nixpkgs.lib.nixosSystem {
     swapDevices = 1;
   };
 }
+#+end_src
+*** Disko
+**** Dual NVMe ZFS Mirror, no swap
+Run command:
+#+begin_example
+sudo nix run github:nix-community/disko -- --mode zap_create_mount ./disko-config.nix
+#+end_example
+
+#+begin_src nix :tangle nix/disko/dual-nvme-zfs-mirror-noswap.nix
+{
+  disko.devices = {
+    disk = {
+      nvme0 = {
+        device = "/dev/nvme0";
+        type = "disk";
+        content = {
+          type = "table";
+          format = "gpt";
+          partitions = [
+            {
+                <<disko-dual-nvme-esp>>
+                content.mountpoint = "/boot/efi0";
+            }
+            {
+              <<disko-dual-nvme-zpart>>
+            }
+          ];
+        };
+      };
+      nvme1 = {
+        device = "/dev/nvme1";
+        type = "disk";
+        content = {
+          type = "table";
+          format = "gpt";
+          partitions = [
+            {
+                <<disko-dual-nvme-esp>>
+                content.mountpoint = "/boot/efi1";
+            }
+            {
+              <<disko-dual-nvme-zpart>>
+            }
+          ];
+        };
+      };
+    };
+    zpool = {
+      zroot = {
+        type = "zpool";
+        mode = "mirror";
+        rootFsOptions = {
+          compression = "zstd";
+          "com.sun:auto-snapshot" = "false";
+        };
+        datasets = {
+          "root" = {
+            type = "zfs_fs";
+            mountpoint = "/";
+            options.mountpoint = "legacy";
+          };
+          "boot" = {
+            type = "zfs_fs";
+            mountpoint = "/boot";
+            options.mountpoint = "legacy";
+          };
+          "nix" = {
+            type = "zfs_fs";
+            mountpoint = "/nix";
+            options.mountpoint = "legacy";
+          };
+          "home" = {
+            type = "zfs_fs";
+            mountpoint = "/home";
+            options.mountpoint = "legacy";
+          };
+        };
+      };
+    };
+  };
+}
+#+end_src
+***** DONE ESP
+#+begin_src nix :noweb-ref disko-dual-nvme-esp
+name = "ESP";
+start = "1MiB";
+end = "1GiB";
+bootable = true;
+content = {
+  type = "filesystem";
+  format = "vfat";
+};
+#+end_src
+***** DONE ZFS Partition
+#+begin_src nix :noweb-ref disko-dual-nvme-zpart
+name = "zfs";
+start = "1GiB";
+end = "100%";
+content = {
+  type = "zfs";
+  pool = "zroot";
+};
 #+end_src
 *** TODO Emacs Daemon
 #+begin_src nix :shebang "{ configs, pkgs, ... }:" :tangle nix/modules/emacs-server.nix

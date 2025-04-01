@@ -17,7 +17,9 @@
   services.jellyfin = {
     cacheDir = "\${cfg.dataDir}/cache";
     enable = true;
+    group = "jellyfin";
     openFirewall = true;
+    user = "jellyfin";
   };
 
 }

@@ -681,7 +681,9 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 services.jellyfin = {
   cacheDir = "\${cfg.dataDir}/cache";
   enable = true;
+  group = "jellyfin";
   openFirewall = true;
+  user = "jellyfin";
 };
 #+end_src
 ** DONE Remote access proxy nodes [4/4]

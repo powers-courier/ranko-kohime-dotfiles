@@ -13,25 +13,25 @@
     enableAllFirmware = true;
     graphics = {
       enable = true;
-      extraPackages = with pkgs; [
-        ffmpeg-full
-        flac
-        handbrake
-        intel-compute-runtime
-        intel-gpu-tools
-        intel-media-driver
-        libva
-        libva-utils
-        libvdpau-va-gl
-        mediainfo
-        mkvtoolnix
-        vaapiIntel
-        vaapiVdpau
-        vorbisgain
-        vorbis-tools
-        vpl-gpu-rt
-      ];
+      extraPackages = with pkgs; [ ];
     };
   };
-
+  environment.systemPackages = with pkgs; [
+    ffmpeg-full
+    flac
+    handbrake
+    intel-compute-runtime
+    intel-gpu-tools
+    intel-media-driver
+    libva
+    libva-utils
+    libvdpau-va-gl
+    mediainfo
+    mkvtoolnix
+    vaapiIntel
+    vaapiVdpau
+    vorbisgain
+    vorbis-tools
+    vpl-gpu-rt
+  ];
 }

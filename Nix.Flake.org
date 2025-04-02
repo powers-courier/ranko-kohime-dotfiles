@@ -625,7 +625,7 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 #+end_src
 ** DONE Users [2/2]
 *** DONE Jellyfin
-#+begin_src nix :shebang "{ config, ... }:" :tangle nix/users/jellyfin.nix
+#+begin_src nix :shebang "{ config, lib, ... }:" :tangle nix/users/jellyfin.nix
 {
   users = {
     groups.jellyfin = {
@@ -636,7 +636,7 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
       extraGroups = [ "video" ];
       group = "jellyfin";
       isNormalUser = true;
-      isSystemUser = false;
+      isSystemUser = lib.mkForce false;
       uid = 8096;
     };
   };

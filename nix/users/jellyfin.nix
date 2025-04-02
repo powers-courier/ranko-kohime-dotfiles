@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 {
   users = {
     groups.jellyfin = {
@@ -9,7 +9,7 @@
       extraGroups = [ "video" ];
       group = "jellyfin";
       isNormalUser = true;
-      isSystemUser = false;
+      isSystemUser = lib.mkForce false;
       uid = 8096;
     };
   };

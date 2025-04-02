@@ -2,6 +2,7 @@
 {
   environment.systemPackages = with pkgs; [
     emacs
+    gprename
     mate.engrampa
     neovim
     python3

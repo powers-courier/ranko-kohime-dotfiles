@@ -205,6 +205,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
 {
   environment.systemPackages = with pkgs; [
     emacs
+    gprename
     mate.engrampa
     neovim
     python3

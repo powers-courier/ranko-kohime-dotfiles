@@ -9,6 +9,7 @@
       extraGroups = [ "video" ];
       group = "jellyfin";
       isNormalUser = true;
+      isSystemUser = false;
       uid = 8096;
     };
   };

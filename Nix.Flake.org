@@ -687,7 +687,7 @@ services.jellyfin = {
 };
 #+end_src
 ** DONE Remote access proxy nodes [4/4]
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/remote-proxy-nodes.nix
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/hosts/remote-proxy-nodes.nix
 {
   <<jellyfin-remote-firewall>>
   <<jellyfin-remote-tailscale>>
@@ -744,7 +744,7 @@ services.traefik = {
       services = {
         jellyfin = {
           loadBalancer = {
-            servers = [{ url = "http://mainhost.${tailscale-fqdn}:8096"; }];
+            servers = [{ url = "http://mainhost.${vars.tailscale-fqdn}:8096"; }];
           };
         };
       };

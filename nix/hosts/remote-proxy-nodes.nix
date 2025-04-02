@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, vars, ... }:
 {
   networking = {
     firewall = {
@@ -25,7 +25,7 @@
         services = {
           jellyfin = {
             loadBalancer = {
-              servers = [{ url = "http://mainhost.${tailscale-fqdn}:8096"; }];
+              servers = [{ url = "http://mainhost.${vars.tailscale-fqdn}:8096"; }];
             };
           };
         };

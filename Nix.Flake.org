@@ -95,7 +95,6 @@ flake-utils,
 :properties:
 :header-args+: :noweb-ref nix-flake-variables
 :end:
-
 *** DONE Set the locale
 #+begin_src nix
 loKale = "en_US.UTF-8";
@@ -199,25 +198,6 @@ n100-1 = nixpkgs.lib.nixosSystem {
     ./users/jellyfin.nix
   ];
 };
-#+end_src
-***** DONE Module
-#+begin_src nix :noweb-ref none :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/n100-1-module.nix
-{
-  environment.systemPackages = with pkgs; [
-    emacs
-    gprename
-    mate.engrampa
-    neovim
-    python3
-  ];
-  networking.hostName = "n100-1";
-
-  programs.firefox.enable = true;
-
-  programs.mosh.enable = true;
-
-  system.stateVersion = "23.11";
-}
 #+end_src
 
 ** TODO Modules [16/20]
@@ -687,6 +667,29 @@ services.jellyfin = {
   user = "jellyfin";
 };
 #+end_src
+** DONE N100-1
+#+begin_src nix :noweb-ref none :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/n100-1-module.nix
+{
+  environment.systemPackages = with pkgs; [
+    deadnix
+    emacs
+    gprename
+    mate.engrampa
+    neovim
+    python3
+    statix
+  ];
+  networking.hostName = "n100-1";
+
+  programs.firefox.enable = true;
+
+  programs.mosh.enable = true;
+
+  system.stateVersion = "23.11";
+}
+#+end_src
+
+
 ** DONE Remote access proxy nodes [4/4]
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/hosts/remote-proxy-nodes.nix
 {

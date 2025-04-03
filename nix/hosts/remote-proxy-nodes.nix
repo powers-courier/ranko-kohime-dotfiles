@@ -25,7 +25,7 @@
         services = {
           jellyfin = {
             loadBalancer = {
-              servers = [{ url = "http://mainhost.${vars.tailscale-fqdn}:8096"; }];
+              servers = [{ url = "http://main-host.${vars.tailscale-fqdn}:8096"; }];
             };
           };
         };

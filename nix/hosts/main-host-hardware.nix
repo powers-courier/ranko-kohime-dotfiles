@@ -8,35 +8,13 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sr_mod" ];
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sr_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
     { device = "zroot/root";
-      fsType = "zfs";
-    };
-
-  fileSystems."/boot" =
-    { device = "zroot/boot";
-      fsType = "zfs";
-    };
-
-  fileSystems."/boot/efi0" =
-    { device = "/dev/disk/by-uuid/A0D5-9779";
-      fsType = "vfat";
-      options = [ "fmask=0022" "dmask=0022" ];
-    };
-
-  fileSystems."/boot/efi1" =
-    { device = "/dev/disk/by-uuid/A0D9-CDFF";
-      fsType = "vfat";
-      options = [ "fmask=0022" "dmask=0022" ];
-    };
-
-  fileSystems."/home" =
-    { device = "zroot/home";
       fsType = "zfs";
     };
 
@@ -48,6 +26,17 @@
   fileSystems."/var" =
     { device = "zroot/var";
       fsType = "zfs";
+    };
+
+  fileSystems."/home" =
+    { device = "zroot/home";
+      fsType = "zfs";
+    };
+
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/A0D5-9779";
+      fsType = "vfat";
+      options = [ "fmask=0022" "dmask=0022" ];
     };
 
   swapDevices = [ ];

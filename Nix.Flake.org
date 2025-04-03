@@ -149,10 +149,10 @@ Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
   num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
   name = "jelly-proxy-${num}";
 in {
-  name = name;
+  inherit name;
   value = nixpkgs.lib.nixosSystem {
     system = "x86_64-linux";
-    specialArgs = { vars = vars; };
+    specialArgs = { inherit vars; };
     modules = [
       ({ config, pkgs, vars, ... }: {
         networking.hostName = name;
@@ -171,7 +171,7 @@ in {
 #+begin_src nix
 main-host = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
-  specialArgs = { vars = vars; };
+  specialArgs = { inherit vars; };
   modules = [
     ./hosts/main-host.nix
     ./hosts/main-host-hardware.nix
@@ -438,7 +438,7 @@ content = {
 #+end_src
 *** DONE Network Filesystems [2/2]
 **** DONE Documents et al
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/nfs-share-documents.nix
+#+begin_src nix :shebang "{ vars, ... }:" :tangle nix/modules/nfs-share-documents.nix
 {
   fileSystems = {
     "/Mounts/Disks" = {
@@ -486,7 +486,7 @@ content = {
 #+end_src
 
 **** DONE Jellyfin
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/nfs-share-videos.nix
+#+begin_src nix :shebang "{ vars, ... }:" :tangle nix/modules/nfs-share-videos.nix
 {
   fileSystems = {
     "/Mounts/JellyConfig" = {
@@ -511,7 +511,7 @@ content = {
 [[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
 intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
 
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/packages-multimedia.nix
+#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/packages-multimedia.nix
 {
   boot.kernelParams = [
     "i915.enable_guc=2"
@@ -552,7 +552,7 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 
 *** Packages
 **** TODO Pass (Unix Password Manager)
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/packages-pass.nix
+#+begin_src nix :shebang "{ pkgs, ... }:" :tangle nix/modules/packages-pass.nix
 {
   environment.systemPackages = [
     pkgs.pass

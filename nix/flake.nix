@@ -33,10 +33,10 @@
       num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
       name = "jelly-proxy-${num}";
     in {
-      name = name;
+      inherit name;
       value = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = { vars = vars; };
+        specialArgs = { inherit vars; };
         modules = [
           ({ config, pkgs, vars, ... }: {
             networking.hostName = name;
@@ -53,7 +53,7 @@
       nixosConfigurations = Jelly-Proxy-Configs // {
         main-host = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          specialArgs = { vars = vars; };
+          specialArgs = { inherit vars; };
           modules = [
             ./hosts/main-host.nix
             ./hosts/main-host-hardware.nix

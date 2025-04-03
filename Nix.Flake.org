@@ -203,121 +203,100 @@ n100-1 = nixpkgs.lib.nixosSystem {
 ** TODO Modules [16/20]
 *** DONE Default Modules [9/9]
 **** DONE Default module importer
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-modules.nix
+#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/default-modules.nix
 {
-  imports = [
-    (
-      { config, vars, ... }:
-        {
-          time.timeZone = vars.timeZern;
-        }
-    )
-    ./bootloader-default.nix
-    ./flake-enabler.nix
-    ./locale.nix
-    ./networking.nix
-    ./openssh.nix
-    ./default-packages.nix
-    ./tailscale.nix
-    ./zram.nix
-    ../users/ranko.nix
-  ];
+  time.timeZone = vars.timeZern;
+
+  <<modules-defaults-bootloader>>
+  <<modules-flake-enabler>>
+  <<modules-locale>>
+  <<modules-networking>>
+  <<modules-openssh-config>>
+  <<modules-default-packages>>
+  <<modules-tailscale-config>>
+  <<modules-zram-config>>
+
+  imports = [ ../users/ranko.nix ];
 }
 #+end_src
 **** DONE Default bootloader
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/bootloader-default.nix
-{
-  boot.loader = {
-    systemd-boot.enable = true;
-    efi.canTouchEfiVariables = true;
-  };
-}
+#+begin_src nix :noweb-ref modules-defaults-bootloader
+boot.loader = {
+  systemd-boot.enable = true;
+  efi.canTouchEfiVariables = true;
+};
 #+end_src
 
 **** DONE Flake Enabler
-#+begin_src nix :shebang "{ config, ... }:" :tangle nix/modules/flake-enabler.nix
-{
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-}
+#+begin_src nix :noweb-ref modules-flake-enabler
+nix.settings.experimental-features = [ "nix-command" "flakes" ];
 #+end_src
 
 **** DONE Locale
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/locale.nix
-{
-  i18n = {
-    defaultLocale = vars.loKale;
-    extraLocaleSettings = {
-      LC_ADDRESS = vars.loKale;
-      LC_IDENTIFICATION = vars.loKale;
-      LC_MEASUREMENT = vars.loKale;
-      LC_MONETARY = vars.loKale;
-      LC_NAME = vars.loKale;
-      LC_NUMERIC = vars.loKale;
-      LC_PAPER = vars.loKale;
-      LC_TELEPHONE = vars.loKale;
-      LC_TIME = vars.loKale;
-    };
+#+begin_src nix :noweb-ref modules-locale
+i18n = {
+  defaultLocale = vars.loKale;
+  extraLocaleSettings = {
+    LC_ADDRESS = vars.loKale;
+    LC_IDENTIFICATION = vars.loKale;
+    LC_MEASUREMENT = vars.loKale;
+    LC_MONETARY = vars.loKale;
+    LC_NAME = vars.loKale;
+    LC_NUMERIC = vars.loKale;
+    LC_PAPER = vars.loKale;
+    LC_TELEPHONE = vars.loKale;
+    LC_TIME = vars.loKale;
   };
-}
+};
 #+end_src
 
 **** DONE Networking
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/networking.nix
-{
-  networking.networkmanager.enable = true;
-}
+#+begin_src nix :noweb-ref modules-networking
+networking.networkmanager.enable = true;
 #+end_src
 **** DONE OpenSSH
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/openssh.nix
-{
-  services.openssh = {
-    banner = "Welcome to... wherever you happen to be\n";
-    enable = true;
-    extraConfig ="";
-    openFirewall = true;
-    ports = [ 22 ];
-    settings = {
-      PasswordAuthentication = false;
-      PermitRootLogin = "prohibit-password";
-      PrintMotd = true;
-      StrictModes = true;
-      X11Forwarding = true;
-    };
+#+begin_src nix :noweb-ref modules-openssh-config
+services.openssh = {
+  banner = "Welcome to... wherever you happen to be\n";
+  enable = true;
+  extraConfig ="";
+  openFirewall = true;
+  ports = [ 22 ];
+  settings = {
+    PasswordAuthentication = false;
+    PermitRootLogin = "prohibit-password";
+    PrintMotd = true;
+    StrictModes = true;
+    X11Forwarding = true;
   };
-}
+};
 #+end_src
 **** DONE Packages
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/default-packages.nix
-{
-  environment.systemPackages = with pkgs; [
+#+begin_src nix :noweb-ref modules-default-packages
+environment.systemPackages = with pkgs; [
   byobu
   git
   glances
   lm_sensors
   tmux
-  ];
-}
+];
 #+end_src
 **** DONE Tailscale
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/tailscale.nix
-{
-  services.tailscale = {
-    enable = true;
-    openFirewall = true;
-    port = 0;
-  };
-}
+#+begin_src nix :noweb-ref modules-tailscale-config
+services.tailscale = {
+  enable = true;
+  openFirewall = true;
+  port = 0;
+};
 #+end_src
 **** DONE zramSwap
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/zram.nix
-{
-  zramSwap = {
-    enable = true;
-    priority = 1;
-    memoryPercent = 100;
-    swapDevices = 1;
-  };
-}
+#+begin_src nix :noweb-ref modules-zram-config
+zramSwap = {
+  enable = true;
+  priority = 1;
+  memoryPercent = 100;
+  swapDevices = 1;
+};
 #+end_src
 *** Disko
 **** Dual NVMe ZFS Mirror, no swap

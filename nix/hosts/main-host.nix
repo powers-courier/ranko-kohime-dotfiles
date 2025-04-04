@@ -28,13 +28,44 @@
 
   system.stateVersion = "25.05";
 
+  boot.kernelParams = [
+    "i915.enable_guc=2"
+  ];
+  
+  nixpkgs.config = {
+    allowUnfree = true;
+    packageOverrides = pkgs: {
+      vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+    };
+  };
+  
+  hardware = {
+    enableAllFirmware = true;
+    graphics = {
+      enable = true;
+      extraPackages = with pkgs; [ ];
+    };
+  };
+  
   services.jellyfin = {
     enable = true;
     group = "jellyfin";
     openFirewall = true;
     user = "jellyfin";
   };
-
+  
+  environment.systemPackages = with pkgs; [
+    intel-compute-runtime
+    intel-gpu-tools
+    intel-media-driver
+    jellyfin-ffmpeg
+    libva
+    libva-utils
+    libvdpau-va-gl
+    vaapiIntel
+    vaapiVdpau
+    vpl-gpu-rt
+  ];
   users = {
     groups.jellyfin = {
       gid = 8096;

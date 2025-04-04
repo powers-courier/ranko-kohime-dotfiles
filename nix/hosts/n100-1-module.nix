@@ -3,6 +3,7 @@
   environment.systemPackages = with pkgs; [
     deadnix
     emacs
+    ffmpeg-full
     gprename
     mate.engrampa
     neovim

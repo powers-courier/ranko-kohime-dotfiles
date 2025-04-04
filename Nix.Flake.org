@@ -495,45 +495,16 @@ services = {
   };
 }
 #+end_src
-*** TODO Multimedia
-[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
-intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
-
+*** DONE Multimedia
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/packages-multimedia.nix
 {
-  boot.kernelParams = [
-    "i915.enable_guc=2"
-  ];
-  nixpkgs.config = {
-    allowUnfree = true;
-    packageOverrides = pkgs: {
-      vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
-    };
-  };
-  hardware = {
-    enableAllFirmware = true;
-    graphics = {
-      enable = true;
-      extraPackages = with pkgs; [ ];
-    };
-  };
   environment.systemPackages = with pkgs; [
-    ffmpeg-full
     flac
     handbrake
-    intel-compute-runtime
-    intel-gpu-tools
-    intel-media-driver
-    libva
-    libva-utils
-    libvdpau-va-gl
     mediainfo
     mkvtoolnix
-    vaapiIntel
-    vaapiVdpau
     vorbisgain
     vorbis-tools
-    vpl-gpu-rt
   ];
 }
 #+end_src
@@ -633,13 +604,48 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 #+end_src
 
 *** TODO Jellyfin
-#+begin_src nix :noweb-ref jellyfin-service
+[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
+intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
+
+#+begin_src nix :noweb-ref main-host-jellyfin
+boot.kernelParams = [
+  "i915.enable_guc=2"
+];
+
+nixpkgs.config = {
+  allowUnfree = true;
+  packageOverrides = pkgs: {
+    vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+  };
+};
+
+hardware = {
+  enableAllFirmware = true;
+  graphics = {
+    enable = true;
+    extraPackages = with pkgs; [ ];
+  };
+};
+
 services.jellyfin = {
   enable = true;
   group = "jellyfin";
   openFirewall = true;
   user = "jellyfin";
 };
+
+environment.systemPackages = with pkgs; [
+  intel-compute-runtime
+  intel-gpu-tools
+  intel-media-driver
+  jellyfin-ffmpeg
+  libva
+  libva-utils
+  libvdpau-va-gl
+  vaapiIntel
+  vaapiVdpau
+  vpl-gpu-rt
+];
 #+end_src
 ** DONE N100-1
 #+begin_src nix :noweb-ref none :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/n100-1-module.nix
@@ -647,6 +653,7 @@ services.jellyfin = {
   environment.systemPackages = with pkgs; [
     deadnix
     emacs
+    ffmpeg-full
     gprename
     mate.engrampa
     neovim

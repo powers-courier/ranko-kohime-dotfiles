@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [33/40]
+* TODO Flake [29/37]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -144,7 +144,7 @@ Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynami
 Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
 ***** Code
 #+begin_src nix :noweb-ref proxy-host-generator
-proxyCount = 1;
+proxyCount = 4;
 Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
   num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
   name = "jelly-proxy-${num}";
@@ -200,7 +200,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
 };
 #+end_src
 
-** TODO Modules [16/20]
+** TODO Modules [16/21]
 *** DONE Default Modules [9/9]
 **** DONE Default module importer
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/default-modules.nix

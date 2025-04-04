@@ -195,7 +195,6 @@ n100-1 = nixpkgs.lib.nixosSystem {
     ./modules/packages-pass.nix
     ./modules/packages-terminal.nix
     ./modules/xfce-desktop.nix
-    ./users/jellyfin.nix
   ];
 };
 #+end_src
@@ -215,8 +214,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
   <<modules-default-packages>>
   <<modules-tailscale-config>>
   <<modules-zram-config>>
-
-  imports = [ ../users/ranko.nix ];
+  <<nix-flake-users-ranko>>
 }
 #+end_src
 **** DONE Default bootloader
@@ -583,38 +581,10 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
   };
 }
 #+end_src
-** DONE Users [2/2]
-*** DONE Jellyfin
-#+begin_src nix :shebang "{ config, lib, ... }:" :tangle nix/users/jellyfin.nix
+
 {
-  users = {
-    groups.jellyfin = {
-      gid = 8096;
-      name = "jellyfin";
-    };
-    users.jellyfin = {
-      extraGroups = [ "video" ];
-      group = "jellyfin";
-      isNormalUser = true;
-      isSystemUser = lib.mkForce false;
-      uid = 8096;
-    };
   };
 }
-#+end_src
-
-*** DONE Ranko Kohime
-#+begin_src nix :shebang "{ config, ... }:" :tangle nix/users/ranko.nix
-{
-  users.users.ranko = {
-    isNormalUser = true;
-    description = "Ranko Kohime";
-    extraGroups = [ "networkmanager" "wheel" ];
-  };
-}
-#+end_src
-
-* TODO Hosts [5/7]
 ** TODO Main Host [0/1]
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/main-host.nix
 {
@@ -624,7 +594,6 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
     ../modules/nfs-share-videos.nix
     ../modules/packages-multimedia.nix
     ../modules/xfce-desktop.nix
-    ../users/jellyfin.nix
   ];
 
   boot.supportedFilesystems = [ "zfs" ];
@@ -646,8 +615,8 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
 
   system.stateVersion = "25.05";
 
-  <<jellyfin-service>>
-
+  <<main-host-jellyfin>>
+  <<nix-flake-users-jellyfin>>
 }
 #+end_src
 
@@ -679,6 +648,8 @@ services.jellyfin = {
   programs.mosh.enable = true;
 
   system.stateVersion = "23.11";
+
+  <<nix-flake-users-jellyfin>>
 }
 #+end_src
 
@@ -806,4 +777,31 @@ environment.etc."avahi/services/jellyfin.service".text = ''
 '';
 #+end_src
 
+
+* DONE Users [2/2]
+** DONE Jellyfin
+#+begin_src nix :noweb-ref nix-flake-users-jellyfin
+users = {
+  groups.jellyfin = {
+    gid = 8096;
+    name = "jellyfin";
+  };
+  users.jellyfin = {
+    extraGroups = [ "video" ];
+    group = "jellyfin";
+    isNormalUser = true;
+    isSystemUser = lib.mkForce false;
+    uid = 8096;
+  };
+};
+#+end_src
+
+** DONE Ranko Kohime
+#+begin_src nix :noweb-ref nix-flake-users-ranko
+users.users.ranko = {
+  isNormalUser = true;
+  description = "Ranko Kohime";
+  extraGroups = [ "networkmanager" "wheel" ];
+};
+#+end_src
 

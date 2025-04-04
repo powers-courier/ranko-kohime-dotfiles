@@ -6,7 +6,6 @@
     ../modules/nfs-share-videos.nix
     ../modules/packages-multimedia.nix
     ../modules/xfce-desktop.nix
-    ../users/jellyfin.nix
   ];
 
   boot.supportedFilesystems = [ "zfs" ];
@@ -35,4 +34,17 @@
     user = "jellyfin";
   };
 
+  users = {
+    groups.jellyfin = {
+      gid = 8096;
+      name = "jellyfin";
+    };
+    users.jellyfin = {
+      extraGroups = [ "video" ];
+      group = "jellyfin";
+      isNormalUser = true;
+      isSystemUser = lib.mkForce false;
+      uid = 8096;
+    };
+  };
 }

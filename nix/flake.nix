@@ -28,7 +28,7 @@
       tailscale-fqdn = "manticore-elnath.ts.net";
       truenas-ip = "192.168.0.2";
     };
-    proxyCount = 1;
+    proxyCount = 4;
     Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
       num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
       name = "jelly-proxy-${num}";
@@ -73,7 +73,6 @@
             ./modules/packages-pass.nix
             ./modules/packages-terminal.nix
             ./modules/xfce-desktop.nix
-            ./users/jellyfin.nix
           ];
         };
       };

@@ -54,6 +54,9 @@
     memoryPercent = 100;
     swapDevices = 1;
   };
-
-  imports = [ ../users/ranko.nix ];
+  users.users.ranko = {
+    isNormalUser = true;
+    description = "Ranko Kohime";
+    extraGroups = [ "networkmanager" "wheel" ];
+  };
 }

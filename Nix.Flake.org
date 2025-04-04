@@ -653,30 +653,25 @@ services.jellyfin = {
 }
 #+end_src
 
-** DONE Remote access proxy nodes [4/4]
+** TODO Remote access proxy nodes [3/4]
 1. Jeff & Jackie O'Connell
 2. 
-3. 
+3. Ready to rollout
 4. 
 
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/hosts/remote-proxy-nodes.nix
 {
   <<jellyfin-remote-firewall>>
   <<jellyfin-remote-tailscale>>
-  <<jellyfin-remote-traefik>>
+  <<jellyfin-remote-nginx>>
   <<jellyfin-remote-avahi>>
   <<jellyfin-remote-avahi-conf>>
 
   environment.systemPackages = with pkgs; [
     tailscale
-    traefik
+    nginx
     avahi
   ];
-
-  systemd.services.traefik = {
-    after = [ "tailscale.service" ];
-    wants = [ "tailscale.service" ];
-  };
 }
 #+end_src
 
@@ -700,49 +695,24 @@ services.tailscale = {
   openFirewall = true;
 };
 #+end_src
-*** DONE Traefik
-#+begin_src nix :noweb-ref jellyfin-remote-traefik
-services.traefik = {
+*** TODO Nginx
+#+begin_src nix :noweb-ref jellyfin-remote-nginx
+services.nginx = {
   enable = true;
-  staticConfigOptions = {
-    <<jellyfin-remote-traefik-static-config-options>>
-  };
-  dynamicConfigOptions = {
-    http = {
-      <<jellyfin-remote-traefik-routers>>
-      <<jellyfin-remote-traefik-services>>
-    };
-  };
-};
-#+end_src
-
-**** staticConfigOptions
-#+begin_src nix :noweb-ref jellyfin-remote-traefik-staticconfigoptions
-log.level = "DEBUG";
-api.insecure = true;
-entryPoints = {
-  dashboard.address = ":8081";
-  web.address = ":8096";
-};
-providers.nixos = true;
-#+end_src
-**** Routers
-#+begin_src nix :noweb-ref jellyfin-remote-traefik-routers
-routers = {
-  jellyfin = {
-    rule = "Host(`*`)";
-    entryPoints = [ "web" ];
-    service = "jellyfin";
-  };
-};
-#+end_src
-**** Services
-#+begin_src nix :noweb-ref jellyfin-remote-traefik-services
-services = {
-  jellyfin = {
-    loadBalancer = {
-      servers = [{ url = "http://main-host.${vars.tailscale-fqdn}:8096"; }];
-      passHostHeader = true;
+  virtualHosts."default" = {
+    default = true;
+    listen = [ { addr = "0.0.0.0"; port = 8096; } ];
+    locations."/" = {
+      proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
+      extraConfig = ''
+        proxy_http_version 1.1;
+        proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      '';
     };
   };
 };

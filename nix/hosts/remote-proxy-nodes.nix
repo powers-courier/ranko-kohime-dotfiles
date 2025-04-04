@@ -11,28 +11,22 @@
     enable = true;
     openFirewall = true;
   };
-  services.traefik = {
+  services.nginx = {
     enable = true;
-    staticConfigOptions = {
-      
-    };
-    dynamicConfigOptions = {
-      http = {
-        routers = {
-          jellyfin = {
-            rule = "Host(`*`)";
-            entryPoints = [ "web" ];
-            service = "jellyfin";
-          };
-        };
-        services = {
-          jellyfin = {
-            loadBalancer = {
-              servers = [{ url = "http://main-host.${vars.tailscale-fqdn}:8096"; }];
-              passHostHeader = true;
-            };
-          };
-        };
+    virtualHosts."default" = {
+      default = true;
+      listen = [ { addr = "0.0.0.0"; port = 8096; } ];
+      locations."/" = {
+        proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
+        extraConfig = ''
+          proxy_http_version 1.1;
+          proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+        '';
       };
     };
   };
@@ -60,12 +54,7 @@
 
   environment.systemPackages = with pkgs; [
     tailscale
-    traefik
+    nginx
     avahi
   ];
-
-  systemd.services.traefik = {
-    after = [ "tailscale.service" ];
-    wants = [ "tailscale.service" ];
-  };
 }

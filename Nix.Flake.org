@@ -413,7 +413,18 @@ content = {
   };
 }
 #+end_src
-*** DONE Network Filesystems [2/2]
+*** TODO Network Filesystems [2/3]
+**** TODO NFS Settings
+#+begin_src nix :noweb-ref nix-flake-nfs-client-settings
+networking.firewall.allowedTCPPorts = [ 2049 ];
+services = {
+  nfs.idmapd = {
+    enable = true;
+    domain = "midgard";
+  };
+  rpcbind.enable = true;
+};
+#+end_src
 **** DONE Documents et al
 #+begin_src nix :shebang "{ vars, ... }:" :tangle nix/modules/nfs-share-documents.nix
 {
@@ -600,6 +611,7 @@ intel-compute-runtime is OpenCL filter support (for hardware tonemapping and sub
   boot.zfs.forceImportRoot = false;
 
   networking = {
+    domain = "midgard";
     hostId = "2b7f3c3a";
     hostName = "main-host";
     interfaces = {
@@ -641,7 +653,10 @@ services.jellyfin = {
     python3
     statix
   ];
-  networking.hostName = "n100-1";
+  networking = {
+    domain = "midgard";
+    hostName = "n100-1";
+  };
 
   programs.firefox.enable = true;
 

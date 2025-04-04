@@ -9,7 +9,10 @@
     python3
     statix
   ];
-  networking.hostName = "n100-1";
+  networking = {
+    domain = "midgard";
+    hostName = "n100-1";
+  };
 
   programs.firefox.enable = true;
 

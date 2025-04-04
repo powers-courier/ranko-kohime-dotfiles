@@ -12,6 +12,7 @@
   boot.zfs.forceImportRoot = false;
 
   networking = {
+    domain = "midgard";
     hostId = "2b7f3c3a";
     hostName = "main-host";
     interfaces = {

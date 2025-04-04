@@ -682,8 +682,12 @@ services.jellyfin = {
 }
 #+end_src
 
-
 ** DONE Remote access proxy nodes [4/4]
+1. Jeff & Jackie O'Connell
+2. 
+3. 
+4. 
+
 #+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/hosts/remote-proxy-nodes.nix
 {
   <<jellyfin-remote-firewall>>
@@ -730,21 +734,44 @@ services.tailscale = {
 services.traefik = {
   enable = true;
   staticConfigOptions = {
-    entryPoints.web.address = ":8096";
+    <<jellyfin-remote-traefik-static-config-options>>
+  };
+  dynamicConfigOptions = {
     http = {
-      routers = {
-        jellyfin = {
-          rule = "Host(`*`)"; # Catch-all for any hostname (or leave unspecified)
-          service = "jellyfin";
-        };
-      };
-      services = {
-        jellyfin = {
-          loadBalancer = {
-            servers = [{ url = "http://main-host.${vars.tailscale-fqdn}:8096"; }];
-          };
-        };
-      };
+      <<jellyfin-remote-traefik-routers>>
+      <<jellyfin-remote-traefik-services>>
+    };
+  };
+};
+#+end_src
+
+**** staticConfigOptions
+#+begin_src nix :noweb-ref jellyfin-remote-traefik-staticconfigoptions
+log.level = "DEBUG";
+api.insecure = true;
+entryPoints = {
+  dashboard.address = ":8081";
+  web.address = ":8096";
+};
+providers.nixos = true;
+#+end_src
+**** Routers
+#+begin_src nix :noweb-ref jellyfin-remote-traefik-routers
+routers = {
+  jellyfin = {
+    rule = "Host(`*`)";
+    entryPoints = [ "web" ];
+    service = "jellyfin";
+  };
+};
+#+end_src
+**** Services
+#+begin_src nix :noweb-ref jellyfin-remote-traefik-services
+services = {
+  jellyfin = {
+    loadBalancer = {
+      servers = [{ url = "http://main-host.${vars.tailscale-fqdn}:8096"; }];
+      passHostHeader = true;
     };
   };
 };

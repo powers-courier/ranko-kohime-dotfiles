@@ -14,11 +14,14 @@
   services.traefik = {
     enable = true;
     staticConfigOptions = {
-      entryPoints.web.address = ":8096";
+      
+    };
+    dynamicConfigOptions = {
       http = {
         routers = {
           jellyfin = {
-            rule = "Host(`*`)"; # Catch-all for any hostname (or leave unspecified)
+            rule = "Host(`*`)";
+            entryPoints = [ "web" ];
             service = "jellyfin";
           };
         };
@@ -26,6 +29,7 @@
           jellyfin = {
             loadBalancer = {
               servers = [{ url = "http://main-host.${vars.tailscale-fqdn}:8096"; }];
+              passHostHeader = true;
             };
           };
         };

@@ -194,7 +194,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
     ./modules/packages-multimedia.nix
     ./modules/packages-pass.nix
     ./modules/packages-terminal.nix
-    ./modules/xfce-desktop.nix
+    <<nix-flake-modules-xfce-desktop>>
   ];
 };
 #+end_src
@@ -539,29 +539,27 @@ services = {
 }
 #+end_src
 *** DONE XFCE Desktop
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/xfce-desktop.nix
-{
-  services = {
-    displayManager = {
-      autoLogin = {
-        enable = true;
-        user = "ranko";
-      };
-      defaultSession = "xfce";
-    };
-    xserver = {
-      displayManager = {
-        lightdm.enable = true;
-      };
-      desktopManager.xfce.enable = true;
+#+begin_src nix :noweb-ref nix-flake-modules-xfce-desktop
+services = {
+  displayManager = {
+    autoLogin = {
       enable = true;
-      xkb = {
-        layout = "us";
-        variant = "";
-      };
+      user = "ranko";
+    };
+    defaultSession = "xfce";
+  };
+  xserver = {
+    displayManager = {
+      lightdm.enable = true;
+    };
+    desktopManager.xfce.enable = true;
+    enable = true;
+    xkb = {
+      layout = "us";
+      variant = "";
     };
   };
-}
+};
 #+end_src
 
 {

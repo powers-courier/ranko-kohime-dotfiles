@@ -186,6 +186,9 @@ n100-1 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { vars = vars; };
   modules = [
+      <<nix-flake-nfs-client-settings>>
+      <<nix-flake-nfs-documents>>
+      <<nix-flake-nfs-multimedia>>
     ./hosts/n100-1-hardware.nix
     ./hosts/n100-1-module.nix
     ./modules/default-modules.nix
@@ -414,9 +417,13 @@ content = {
 }
 #+end_src
 *** TODO Network Filesystems [2/3]
-**** TODO NFS Settings
+*** DONE Network Filesystems [3/3]
+**** DONE NFS Settings
 #+begin_src nix :noweb-ref nix-flake-nfs-client-settings
-networking.firewall.allowedTCPPorts = [ 2049 ];
+networking = {
+  domain = "midgard";
+  firewall.allowedTCPPorts = [ 2049 ];
+};
 services = {
   nfs.idmapd = {
     enable = true;
@@ -426,7 +433,7 @@ services = {
 };
 #+end_src
 **** DONE Documents et al
-#+begin_src nix :shebang "{ vars, ... }:" :tangle nix/modules/nfs-share-documents.nix
+#+begin_src nix :noweb-ref nix-flake-nfs-documents
 {
   fileSystems = {
     "/Mounts/Disks" = {
@@ -459,11 +466,6 @@ services = {
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
-    "/Mounts/Music" = {
-      device = "${vars.truenas-ip}:/mnt/Svartalfheim/Music";
-      fsType = "nfs";
-      options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
-    };
     "/Mounts/Workspace" = {
       device = "${vars.truenas-ip}:/mnt/Svartalfheim/Workspace";
       fsType = "nfs";
@@ -473,12 +475,17 @@ services = {
 }
 #+end_src
 
-**** DONE Jellyfin
-#+begin_src nix :shebang "{ vars, ... }:" :tangle nix/modules/nfs-share-videos.nix
+**** DONE Multimedia
+#+begin_src nix :noweb-ref nix-flake-nfs-multimedia
 {
   fileSystems = {
     "/Mounts/JellyConfig" = {
       device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos/JellyConfig";
+      fsType = "nfs";
+      options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+    };
+    "/Mounts/Music" = {
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/Music";
       fsType = "nfs";
       options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
     };
@@ -570,8 +577,6 @@ services = {
 {
   imports = [
     ../modules/default-modules.nix
-    ../modules/nfs-share-documents.nix
-    ../modules/nfs-share-videos.nix
     ../modules/packages-multimedia.nix
     ../modules/xfce-desktop.nix
   ];

@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [34/43]
+* TODO Flake [35/44]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -159,8 +159,12 @@ in {
         system.stateVersion = "25.05";
         <<nix-flake-modules-default>>
       })
+
+      ({ config, pkgs, vars, ... }: {
+        <<nix-flake-module-jellyfin-proxy>>
+      })
+
       ./hosts/${name}-hardware.nix
-      ./hosts/remote-proxy-nodes.nix
     ];
   };
 }) (builtins.genList (i: i) proxyCount));
@@ -206,7 +210,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
 };
 #+end_src
 
-** TODO Modules [23/26]
+** TODO Modules [24/27]
 *** DONE Default Modules [9/9]
 :properties:
 :header-args: :noweb-ref nix-flake-modules-default
@@ -411,21 +415,92 @@ content = {
   };
 }
 #+end_src
-*** TODO Network Filesystems [2/3]
-*** DONE Network Filesystems [3/3]
-**** DONE NFS Settings
-#+begin_src nix :noweb-ref nix-flake-nfs-client-settings
+*** DONE Remote access proxy nodes [5/5]
+:properties:
+:header-args: :noweb-ref nix-flake-module-jellyfin-proxy
+:end:
+**** Host list
+01. Jeff & Jackie O'Connell
+02. 
+03. Ready to rollout
+04. 
+
+**** DONE Networking
+Nginx listens on TCP 8096
+Avahi listens on UDP 5353
+#+begin_src nix
 networking = {
+  firewall = {
     enable = true;
+    allowedTCPPorts = [ 8096 ];
+    allowedUDPPorts = [ 5353 ];
   };
 };
 #+end_src
+**** DONE Tailscale
+Requires manual setup to add to Tailnet
+#+begin_src nix
+services.tailscale = {
+  enable = true;
+  openFirewall = true;
+};
+#+end_src
+**** DONE Nginx
+#+begin_src nix
+services.nginx = {
+  enable = true;
+  virtualHosts."default" = {
+    default = true;
+    listen = [ { addr = "0.0.0.0"; port = 8096; } ];
+    locations."/" = {
+      proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
+      extraConfig = ''
+        proxy_http_version 1.1;
+        proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      '';
     };
   };
+};
+#+end_src
+**** DONE mDNS with Avahi
+nssmdns4 = Enable mDNS for IPv4 name resolution
+
+#+begin_src nix
+services.avahi = {
+  enable = true;
+  nssmdns4 = true;
+  publish = {
+    enable = true;
+    addresses = true;
+    userServices = true;
+  };
+};
 #+end_src
 
-  };
+#+begin_src nix
+environment.etc."avahi/services/jellyfin.service".text = ''
+  <?xml version="1.0" standalone='no'?>
+  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+  <service-group>
+    <name>Jellyfin Proxy</name>
+    <service>
+      <type>_http._tcp</type>
+      <port>8096</port>
+      <txt-record>description=Jellyfin Media Server Proxy</txt-record>
+    </service>
+  </service-group>
+'';
 #+end_src
+**** DONE Packages
+#+begin_src nix
+environment.systemPackages = with pkgs; [ avahi nginx tailscale ];
+#+end_src
+
 *** DONE Multimedia
 #+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/packages-multimedia.nix
 {
@@ -694,101 +769,6 @@ environment.systemPackages = with pkgs; [
   <<nix-flake-users-jellyfin>>
 }
 #+end_src
-
-** TODO Remote access proxy nodes [3/4]
-1. Jeff & Jackie O'Connell
-2. 
-3. Ready to rollout
-4. 
-
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/hosts/remote-proxy-nodes.nix
-{
-  <<jellyfin-remote-firewall>>
-  <<jellyfin-remote-tailscale>>
-  <<jellyfin-remote-nginx>>
-  <<jellyfin-remote-avahi>>
-  <<jellyfin-remote-avahi-conf>>
-
-  environment.systemPackages = with pkgs; [
-    tailscale
-    nginx
-    avahi
-  ];
-}
-#+end_src
-
-*** DONE Networking
-Traefik listens on TCP 8096
-Avahi listens on UDP 5353
-#+begin_src nix :noweb-ref jellyfin-remote-firewall
-networking = {
-  firewall = {
-    enable = true;
-    allowedTCPPorts = [ 8096 ];
-    allowedUDPPorts = [ 5353 ];
-  };
-};
-#+end_src
-*** DONE Tailscale
-Requires manual setup to add to Tailnet
-#+begin_src nix :noweb-ref jellyfin-remote-tailscale
-services.tailscale = {
-  enable = true;
-  openFirewall = true;
-};
-#+end_src
-*** TODO Nginx
-#+begin_src nix :noweb-ref jellyfin-remote-nginx
-services.nginx = {
-  enable = true;
-  virtualHosts."default" = {
-    default = true;
-    listen = [ { addr = "0.0.0.0"; port = 8096; } ];
-    locations."/" = {
-      proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
-      extraConfig = ''
-        proxy_http_version 1.1;
-        proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-      '';
-    };
-  };
-};
-#+end_src
-*** DONE mDNS with Avahi
-nssmdns4 = Enable mDNS for IPv4 name resolution
-
-#+begin_src nix :noweb-ref jellyfin-remote-avahi
-services.avahi = {
-  enable = true;
-  nssmdns4 = true;
-  publish = {
-    enable = true;
-    addresses = true;
-    userServices = true;
-  };
-};
-#+end_src
-
-#+begin_src nix :noweb-ref jellyfin-remote-avahi-conf
-environment.etc."avahi/services/jellyfin.service".text = ''
-  <?xml version="1.0" standalone='no'?>
-  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
-  <service-group>
-    <name>Jellyfin Proxy</name>
-    <service>
-      <type>_http._tcp</type>
-      <port>8096</port>
-      <txt-record>description=Jellyfin Media Server Proxy</txt-record>
-    </service>
-  </service-group>
-'';
-#+end_src
-
 
 * DONE Users [2/2]
 ** DONE Jellyfin

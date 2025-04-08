@@ -28,13 +28,9 @@ Gippity Says:
     }:
 
   let
-    config = nixpkgs.config;
-
     hardwareConfigs = {
       <<nix-flake-hardware-configs>>
     };
-
-    lib = nixpkgs.lib;
 
     <<proxy-host-generator>>
 
@@ -163,6 +159,10 @@ in {
     system = "x86_64-linux";
     specialArgs = { inherit vars; };
     modules = [
+      ({ config, lib, pkgs, vars, ... }: {
+        <<nix-flake-hardware-defaults-intel>>
+      })
+
       hardwareConfigs.${name}
 
       ({ config, pkgs, vars, ... }: {
@@ -186,7 +186,12 @@ main-host = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { inherit vars; };
   modules = [
-    ./hosts/main-host.nix
+    ({ config, lib, pkgs, vars, ... }: {
+      <<nix-flake-hardware-defaults-intel>>
+    })
+
+    hardwareConfigs.main-host
+
     ({ config, lib, pkgs, vars, ... }:
     {
       <<nix-flake-modules-default>>
@@ -205,6 +210,12 @@ n100-1 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { vars = vars; };
   modules = [
+    ({ config, lib, pkgs, vars, ... }: {
+      <<nix-flake-hardware-defaults-intel>>
+    })
+
+    hardwareConfigs.n100-1
+
       <<nix-flake-modules-default>>
       <<nix-flake-nfs-client-settings>>
       <<nix-flake-nfs-documents>>
@@ -243,12 +254,6 @@ jelly-proxy-01 = {
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
-
-  swapDevices = [ ];
-
-  networking.useDHCP = lib.mkDefault true;
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 };
 #+end_src
 *** DONE jelly-proxy-02
@@ -269,14 +274,6 @@ jelly-proxy-02 = {
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
-
-  swapDevices =
-    [ ];
-
-  networking.useDHCP = lib.mkDefault true;
-
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 };
 #+end_src
 *** DONE jelly-proxy-03
@@ -297,13 +294,6 @@ jelly-proxy-03 = {
       fsType = "vfat";
       options = [ "fmask=0022" "dmask=0022" ];
     };
-
-  swapDevices = [ ];
-
-  networking.useDHCP = lib.mkDefault true;
-
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 };
 #+end_src
 *** DONE jelly-proxy-04
@@ -324,16 +314,71 @@ jelly-proxy-04 = {
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
-
-  swapDevices = [ ];
-
-  networking.useDHCP = lib.mkDefault true;
-
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 };
 #+end_src
-** TODO Modules [27/30]
+*** DONE main-host
+#+begin_src nix
+main-host = {
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sr_mod" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-intel" ];
+  boot.extraModulePackages = [ ];
+
+  fileSystems."/" =
+    { device = "zroot/root";
+      fsType = "zfs";
+    };
+
+  fileSystems."/nix" =
+    { device = "zroot/nix";
+      fsType = "zfs";
+    };
+
+  fileSystems."/var" =
+    { device = "zroot/var";
+      fsType = "zfs";
+    };
+
+  fileSystems."/home" =
+    { device = "zroot/home";
+      fsType = "zfs";
+    };
+
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/A0D5-9779";
+      fsType = "vfat";
+      options = [ "fmask=0022" "dmask=0022" ];
+    };
+};
+#+end_src
+*** DONE n100-1
+#+begin_src nix
+n100-1 = {
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-intel" ];
+  boot.extraModulePackages = [ ];
+
+  fileSystems."/" =
+    { device = "/dev/disk/by-uuid/3baf4636-0456-44fc-a48b-72fbb49cea3f";
+      fsType = "ext4";
+    };
+
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/9BBB-EE1C";
+      fsType = "vfat";
+    };
+};
+#+end_src
+
+** TODO Modules [25/27]
+*** DONE Default Hardware
+#+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
+networking.useDHCP = lib.mkDefault true;
+nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+#+end_src
+
 *** DONE Default Modules [9/9]
 :properties:
 :header-args: :noweb-ref nix-flake-modules-default

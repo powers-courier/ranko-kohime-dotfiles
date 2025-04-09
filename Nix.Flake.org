@@ -192,17 +192,44 @@ main-host = nixpkgs.lib.nixosSystem {
 
     hardwareConfigs.main-host
 
-    ({ config, lib, pkgs, vars, ... }:
-    {
+    ({ config, lib, pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
+    })
+
+    ({ config, lib, pkgs, vars, ... }: {
+      boot = {
+        supportedFilesystems = [ "zfs" ];
+        zfs.forceImportRoot = false;
+      };
+
+      networking = {
+        hostId = "2b7f3c3a";
+        hostName = "main-host";
+        interfaces = {
+          enp4s0 = {
+            ipv4.addresses = [{
+              address = "192.168.168.25";
+              prefixLength = 24;
+            }];
+            mtu = 9000;
+          };
+        };
+      };
+
       <<nix-flake-nfs-documents>>
       <<nix-flake-nfs-multimedia>>
+
+      system.stateVersion = "25.05";
+
       environment.systemPackages = with pkgs; [
         <<nix-flake-packages-multimedia>>
       ];
     })
 
-    ./hosts/main-host-hardware.nix
+    ({ config, lib, pkgs, vars, ... }: {
+      <<nix-flake-users-jellyfin>>
+      <<nix-flake-module-jellyfin-server>>
+    })
   ];
 };
 #+end_src
@@ -849,29 +876,6 @@ services = {
 {
   };
 }
-** TODO Main Host [0/1]
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/main-host.nix
-{
-  imports = [
-    ../modules/default-modules.nix
-    ../modules/xfce-desktop.nix
-  ];
-
-  boot.supportedFilesystems = [ "zfs" ];
-  boot.zfs.forceImportRoot = false;
-
-  networking = {
-    domain = "midgard";
-    hostId = "2b7f3c3a";
-    hostName = "main-host";
-    interfaces = {
-      enp4s0 = {
-        ipv4.addresses = [{
-          address = "192.168.168.25";
-          prefixLength = 24;
-        }];
-        mtu = 9000;
-      };
     };
   };
 

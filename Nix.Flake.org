@@ -947,7 +947,7 @@ users = {
     name = "jellyfin";
   };
   users.jellyfin = {
-    extraGroups = [ "video" ];
+    extraGroups = [ "render" "video" ];
     group = "jellyfin";
     isNormalUser = true;
     isSystemUser = lib.mkForce false;

@@ -82,13 +82,29 @@
         fileSystems."/" =
           { device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
             fsType = "ext4";
+            options = [ "ro" ];
           };
       
         fileSystems."/boot" =
           { device = "/dev/disk/by-uuid/5320-4C3E";
             fsType = "vfat";
-            options = [ "fmask=0022" "dmask=0022" ];
+            options = [ "fmask=0022" "dmask=0022" "ro" ];
           };
+        fileSystems."/tmp" = {
+          device = "tmpfs";
+          fsType = "tmpfs";
+          options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
+        };
+        fileSystems."/var/log" = {
+          device = "tmpfs";
+          fsType = "tmpfs";
+          options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
+        };
+        fileSystems."/var/tmp" = {
+          device = "tmpfs";
+          fsType = "tmpfs";
+          options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
+        };
       };
       jelly-proxy-04 = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];

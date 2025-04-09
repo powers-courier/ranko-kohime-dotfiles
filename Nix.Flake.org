@@ -277,10 +277,12 @@ in {
 
       hardwareConfigs.${name}
 
+
       ({ config, pkgs, vars, ... }: {
         networking.hostName = name;
         system.stateVersion = "25.05";
         <<nix-flake-modules-default>>
+        boot.kernelParams = [ "ro" ];
       })
 
       ({ config, pkgs, vars, ... }: {
@@ -350,13 +352,15 @@ jelly-proxy-03 = {
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
       fsType = "ext4";
+      options = [ "ro" ];
     };
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/5320-4C3E";
       fsType = "vfat";
-      options = [ "fmask=0022" "dmask=0022" ];
+      options = [ "fmask=0022" "dmask=0022" "ro" ];
     };
+  <<nix-flake-filesystems-ro-logs>>
 };
 #+end_src
 *** DONE jelly-proxy-04
@@ -946,19 +950,19 @@ statix
 
 *** R/W - R/O Script (PiKVM inspired)
 #+begin_src nix :noweb-ref nix-flake-packages-rw-ro-script
-environment.systemPackages = with pkgs; [
   (writeScriptBin "rw" ''
-    #!/bin/sh
+    #!/usr/bin/env bash
     mount -o remount,rw /
+    mount -o remount,rw /boot
     echo "Filesystem is now read-write"
   '')
   (writeScriptBin "ro" ''
-    #!/bin/sh
+    #!/usr/bin/env bash
     sync
     mount -o remount,ro /
+    mount -o remount,ro /boot
     echo "Filesystem is now read-only"
   '')
-];
 #+end_src
 *** TODO Pass (Unix Password Manager)
 #+begin_src nix :noweb-ref nix-flake-packages-unix-pass

@@ -22,12 +22,125 @@
     }:
 
   let
-    vars = {
-      loKale = "en_US.UTF-8";
-      timeZern = "Etc/UTC";
-      tailscale-fqdn = "manticore-elnath.ts.net";
-      truenas-ip = "192.168.0.2";
+    hardwareConfigs = {
+      jelly-proxy-01 = {
+        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-intel" ];
+        boot.extraModulePackages = [ ];
+      
+        fileSystems."/" =
+          { device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
+            fsType = "ext4";
+          };
+      
+        fileSystems."/boot" =
+          { device = "/dev/disk/by-uuid/7655-7B22";
+            fsType = "vfat";
+            options = [ "fmask=0077" "dmask=0077" ];
+          };
+      };
+      jelly-proxy-02 = {
+        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-intel" ];
+        boot.extraModulePackages = [ ];
+      
+        fileSystems."/" =
+          { device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
+            fsType = "ext4";
+          };
+      
+        fileSystems."/boot" =
+          { device = "/dev/disk/by-uuid/B830-073C";
+            fsType = "vfat";
+            options = [ "fmask=0077" "dmask=0077" ];
+          };
+      };
+      jelly-proxy-03 = {
+        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-intel" ];
+        boot.extraModulePackages = [ ];
+      
+        fileSystems."/" =
+          { device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
+            fsType = "ext4";
+          };
+      
+        fileSystems."/boot" =
+          { device = "/dev/disk/by-uuid/5320-4C3E";
+            fsType = "vfat";
+            options = [ "fmask=0022" "dmask=0022" ];
+          };
+      };
+      jelly-proxy-04 = {
+        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-intel" ];
+        boot.extraModulePackages = [ ];
+      
+        fileSystems."/" =
+          { device = "/dev/disk/by-uuid/8bfa1c39-f4c5-4b66-8a9e-db7b7b7cbb72";
+            fsType = "ext4";
+          };
+      
+        fileSystems."/boot" =
+          { device = "/dev/disk/by-uuid/19A8-4887";
+            fsType = "vfat";
+            options = [ "fmask=0077" "dmask=0077" ];
+          };
+      };
+      main-host = {
+        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sr_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-intel" ];
+        boot.extraModulePackages = [ ];
+      
+        fileSystems."/" =
+          { device = "zroot/root";
+            fsType = "zfs";
+          };
+      
+        fileSystems."/nix" =
+          { device = "zroot/nix";
+            fsType = "zfs";
+          };
+      
+        fileSystems."/var" =
+          { device = "zroot/var";
+            fsType = "zfs";
+          };
+      
+        fileSystems."/home" =
+          { device = "zroot/home";
+            fsType = "zfs";
+          };
+      
+        fileSystems."/boot" =
+          { device = "/dev/disk/by-uuid/A0D5-9779";
+            fsType = "vfat";
+            options = [ "fmask=0022" "dmask=0022" ];
+          };
+      };
+      n100-1 = {
+        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-intel" ];
+        boot.extraModulePackages = [ ];
+      
+        fileSystems."/" =
+          { device = "/dev/disk/by-uuid/3baf4636-0456-44fc-a48b-72fbb49cea3f";
+            fsType = "ext4";
+          };
+      
+        fileSystems."/boot" =
+          { device = "/dev/disk/by-uuid/9BBB-EE1C";
+            fsType = "vfat";
+          };
+      };
     };
+
     proxyCount = 4;
     Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
       num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
@@ -38,16 +151,136 @@
         system = "x86_64-linux";
         specialArgs = { inherit vars; };
         modules = [
+          ({ config, lib, pkgs, vars, ... }: {
+            networking.useDHCP = lib.mkDefault true;
+            nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+            hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+          })
+    
+          hardwareConfigs.${name}
+    
           ({ config, pkgs, vars, ... }: {
             networking.hostName = name;
             system.stateVersion = "25.05";
+            boot.loader = {
+              efi.canTouchEfiVariables = true;
+              systemd-boot.enable = true;
+            };
+            nix.settings.experimental-features = [ "nix-command" "flakes" ];
+            i18n = {
+              defaultLocale = vars.loKale;
+              extraLocaleSettings = {
+                LC_ADDRESS = vars.loKale;
+                LC_IDENTIFICATION = vars.loKale;
+                LC_MEASUREMENT = vars.loKale;
+                LC_MONETARY = vars.loKale;
+                LC_NAME = vars.loKale;
+                LC_NUMERIC = vars.loKale;
+                LC_PAPER = vars.loKale;
+                LC_TELEPHONE = vars.loKale;
+                LC_TIME = vars.loKale;
+              };
+            };
+            networking.networkmanager.enable = true;
+            services.openssh = {
+              banner = "Welcome to... wherever you happen to be\n";
+              enable = true;
+              extraConfig ="";
+              openFirewall = true;
+              ports = [ 22 ];
+              settings = {
+                PasswordAuthentication = false;
+                PermitRootLogin = "prohibit-password";
+                PrintMotd = true;
+                StrictModes = true;
+                X11Forwarding = true;
+              };
+            };
+            environment.systemPackages = with pkgs; [
+              byobu
+              git
+              glances
+              lm_sensors
+              tmux
+            ];
+            services.tailscale = {
+              enable = true;
+              openFirewall = true;
+              port = 0;
+            };
+            time.timeZone = vars.timeZern;
+            zramSwap = {
+              enable = true;
+              priority = 1;
+              memoryPercent = 100;
+              swapDevices = 1;
+            };
           })
-          ./hosts/${name}-hardware.nix
-          ./modules/default-modules.nix
-          ./hosts/remote-proxy-nodes.nix
+    
+          ({ config, pkgs, vars, ... }: {
+            networking = {
+              firewall = {
+                enable = true;
+                allowedTCPPorts = [ 8096 ];
+                allowedUDPPorts = [ 5353 ];
+              };
+            };
+            services.tailscale = {
+              enable = true;
+              openFirewall = true;
+            };
+            services.nginx = {
+              enable = true;
+              virtualHosts."default" = {
+                default = true;
+                listen = [ { addr = "0.0.0.0"; port = 8096; } ];
+                locations."/" = {
+                  proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
+                  extraConfig = ''
+                    proxy_http_version 1.1;
+                    proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection "upgrade";
+                  '';
+                };
+              };
+            };
+            services.avahi = {
+              enable = true;
+              nssmdns4 = true;
+              publish = {
+                enable = true;
+                addresses = true;
+                userServices = true;
+              };
+            };
+            environment.etc."avahi/services/jellyfin.service".text = ''
+              <?xml version="1.0" standalone='no'?>
+              <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+              <service-group>
+                <name>Jellyfin Proxy</name>
+                <service>
+                  <type>_http._tcp</type>
+                  <port>8096</port>
+                  <txt-record>description=Jellyfin Media Server Proxy</txt-record>
+                </service>
+              </service-group>
+            '';
+            environment.systemPackages = with pkgs; [ avahi nginx tailscale ];
+          })
         ];
       };
     }) (builtins.genList (i: i) proxyCount));
+
+    vars = {
+      loKale = "en_US.UTF-8";
+      timeZern = "Etc/UTC";
+      tailscale-fqdn = "manticore-elnath.ts.net";
+      truenas-ip = "192.168.168.2";
+    };
   in
     {
       nixosConfigurations = Jelly-Proxy-Configs // {
@@ -55,24 +288,452 @@
           system = "x86_64-linux";
           specialArgs = { inherit vars; };
           modules = [
-            ./hosts/main-host.nix
-            ./hosts/main-host-hardware.nix
-            ./modules/default-modules.nix
+            ({ config, lib, pkgs, vars, ... }: {
+              networking.useDHCP = lib.mkDefault true;
+              nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+              hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+            })
+        
+            hardwareConfigs.main-host
+        
+            ({ config, lib, pkgs, vars, ... }: {
+              boot.loader = {
+                efi.canTouchEfiVariables = true;
+                systemd-boot.enable = true;
+              };
+              nix.settings.experimental-features = [ "nix-command" "flakes" ];
+              i18n = {
+                defaultLocale = vars.loKale;
+                extraLocaleSettings = {
+                  LC_ADDRESS = vars.loKale;
+                  LC_IDENTIFICATION = vars.loKale;
+                  LC_MEASUREMENT = vars.loKale;
+                  LC_MONETARY = vars.loKale;
+                  LC_NAME = vars.loKale;
+                  LC_NUMERIC = vars.loKale;
+                  LC_PAPER = vars.loKale;
+                  LC_TELEPHONE = vars.loKale;
+                  LC_TIME = vars.loKale;
+                };
+              };
+              networking.networkmanager.enable = true;
+              services.openssh = {
+                banner = "Welcome to... wherever you happen to be\n";
+                enable = true;
+                extraConfig ="";
+                openFirewall = true;
+                ports = [ 22 ];
+                settings = {
+                  PasswordAuthentication = false;
+                  PermitRootLogin = "prohibit-password";
+                  PrintMotd = true;
+                  StrictModes = true;
+                  X11Forwarding = true;
+                };
+              };
+              environment.systemPackages = with pkgs; [
+                byobu
+                git
+                glances
+                lm_sensors
+                tmux
+              ];
+              services.tailscale = {
+                enable = true;
+                openFirewall = true;
+                port = 0;
+              };
+              time.timeZone = vars.timeZern;
+              zramSwap = {
+                enable = true;
+                priority = 1;
+                memoryPercent = 100;
+                swapDevices = 1;
+              };
+            })
+        
+            ({ config, lib, pkgs, vars, ... }: {
+              boot = {
+                supportedFilesystems = [ "zfs" ];
+                zfs.forceImportRoot = false;
+              };
+        
+              networking = {
+                hostId = "2b7f3c3a";
+                hostName = "main-host";
+                interfaces = {
+                  enp4s0 = {
+                    ipv4.addresses = [{
+                      address = "192.168.168.25";
+                      prefixLength = 24;
+                    }];
+                    mtu = 9000;
+                  };
+                };
+              };
+        
+              fileSystems = {
+                "/Mounts/Disks" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Disks";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Documents" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Documents";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Downloads" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Downloads";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/LGC_Actual" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Actual";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/LGC_Lore_Table" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Lore_Table";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Library" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Library";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Workspace" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Workspace";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+              };
+              fileSystems = {
+                "/Mounts/JellyConfig" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos/JellyConfig";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Music" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Music";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Videos" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/youtube-dl" = {
+                  device = "${vars.truenas-ip}:/mnt/youtube-dl/youtube-dl";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/youtube-dl/z.Daily/Finished" = {
+                  device = "${vars.truenas-ip}:/mnt/ytdl-fin/Finished";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+              };
+        
+              system.stateVersion = "25.05";
+        
+              environment.systemPackages = with pkgs; [
+                flac
+                handbrake
+                mediainfo
+                mkvtoolnix
+                vorbisgain
+                vorbis-tools
+              ];
+            })
+        
+            ({ config, lib, pkgs, vars, ... }: {
+              users = {
+                groups.jellyfin = {
+                  gid = 8096;
+                  name = "jellyfin";
+                };
+                users.jellyfin = {
+                  extraGroups = [ "render" "video" ];
+                  group = "jellyfin";
+                  isNormalUser = true;
+                  isSystemUser = lib.mkForce false;
+                  uid = 8096;
+                };
+              };
+              boot.kernelParams = [
+                "i915.enable_guc=2"
+              ];
+              
+              nixpkgs.config.allowUnfree = true;
+              
+              hardware = {
+                enableAllFirmware = true;
+                graphics = {
+                  enable = true;
+                  extraPackages = with pkgs; [
+                    intel-compute-runtime
+                    intel-media-driver
+                    libva
+                  ];
+                };
+              };
+              
+              services.jellyfin = {
+                enable = true;
+                group = "jellyfin";
+                openFirewall = true;
+                user = "jellyfin";
+              };
+              
+              environment = {
+                sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
+                systemPackages = with pkgs; [
+                  intel-gpu-tools
+                  jellyfin-ffmpeg
+                  libva-utils
+                  libvdpau-va-gl
+                  vaapiVdpau
+                  vpl-gpu-rt
+                ];
+              };
+            })
           ];
         };
         n100-1 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { vars = vars; };
           modules = [
-            ./hosts/n100-1-hardware.nix
-            ./hosts/n100-1-module.nix
-            ./modules/default-modules.nix
-            ./modules/nfs-share-documents.nix
-            ./modules/nfs-share-videos.nix
-            ./modules/packages-multimedia.nix
-            ./modules/packages-pass.nix
-            ./modules/packages-terminal.nix
-            ./modules/xfce-desktop.nix
+            ({ config, lib, pkgs, vars, ... }: {
+              networking.useDHCP = lib.mkDefault true;
+              nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+              hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+            })
+        
+            hardwareConfigs.n100-1
+        
+            ({ config, lib, pkgs, vars, ... }: {
+              environment.systemPackages = with pkgs; [
+                flac
+                handbrake
+                mediainfo
+                mkvtoolnix
+                vorbisgain
+                vorbis-tools
+                deadnix
+                statix
+                byobu
+                glances
+                lm_sensors
+                neovim
+                ranger
+                tmux
+                tree
+                emacs
+                ffmpeg-full
+                gprename
+                mate.engrampa
+                neovim
+                python3
+              ];
+              networking = {
+                hostName = "n100-1";
+                interfaces = {
+                  enp2s0 = {
+                    ipv4.addresses = [{
+                      address = "192.168.168.20";
+                      prefixLength = 24;
+                    }];
+                    mtu = 9000;
+                  };
+                };
+              };
+              programs.firefox.enable = true;
+              programs.mosh.enable = true;
+              system.stateVersion = "23.11";
+            })
+        
+            ({ config, lib, pkgs, vars, ... }: {
+              boot.loader = {
+                efi.canTouchEfiVariables = true;
+                systemd-boot.enable = true;
+              };
+              nix.settings.experimental-features = [ "nix-command" "flakes" ];
+              i18n = {
+                defaultLocale = vars.loKale;
+                extraLocaleSettings = {
+                  LC_ADDRESS = vars.loKale;
+                  LC_IDENTIFICATION = vars.loKale;
+                  LC_MEASUREMENT = vars.loKale;
+                  LC_MONETARY = vars.loKale;
+                  LC_NAME = vars.loKale;
+                  LC_NUMERIC = vars.loKale;
+                  LC_PAPER = vars.loKale;
+                  LC_TELEPHONE = vars.loKale;
+                  LC_TIME = vars.loKale;
+                };
+              };
+              networking.networkmanager.enable = true;
+              services.openssh = {
+                banner = "Welcome to... wherever you happen to be\n";
+                enable = true;
+                extraConfig ="";
+                openFirewall = true;
+                ports = [ 22 ];
+                settings = {
+                  PasswordAuthentication = false;
+                  PermitRootLogin = "prohibit-password";
+                  PrintMotd = true;
+                  StrictModes = true;
+                  X11Forwarding = true;
+                };
+              };
+              environment.systemPackages = with pkgs; [
+                byobu
+                git
+                glances
+                lm_sensors
+                tmux
+              ];
+              services.tailscale = {
+                enable = true;
+                openFirewall = true;
+                port = 0;
+              };
+              time.timeZone = vars.timeZern;
+              zramSwap = {
+                enable = true;
+                priority = 1;
+                memoryPercent = 100;
+                swapDevices = 1;
+              };
+              services = {
+                displayManager = {
+                  autoLogin = {
+                    enable = true;
+                    user = "ranko";
+                  };
+                  defaultSession = "xfce";
+                };
+                xserver = {
+                  displayManager = {
+                    lightdm.enable = true;
+                  };
+                  desktopManager.xfce.enable = true;
+                  enable = true;
+                  xkb = {
+                    layout = "us";
+                    variant = "";
+                  };
+                };
+              };
+              users = {
+                groups.jellyfin = {
+                  gid = 8096;
+                  name = "jellyfin";
+                };
+                users.jellyfin = {
+                  extraGroups = [ "render" "video" ];
+                  group = "jellyfin";
+                  isNormalUser = true;
+                  isSystemUser = lib.mkForce false;
+                  uid = 8096;
+                };
+              };
+              networking = {
+                domain = "midgard";
+                firewall.allowedTCPPorts = [ 2049 ];
+              };
+              services = {
+                nfs.idmapd = {
+                  settings = {
+                    General = {
+                      Domain = "midgard";
+                    };
+                  };
+                };
+                rpcbind.enable = true;
+              };
+              fileSystems = {
+                "/Mounts/Disks" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Disks";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Documents" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Documents";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Downloads" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Downloads";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/LGC_Actual" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Actual";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/LGC_Lore_Table" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Lore_Table";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Library" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Library";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Workspace" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Workspace";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+              };
+              fileSystems = {
+                "/Mounts/JellyConfig" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos/JellyConfig";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Music" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Music";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/Videos" = {
+                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/youtube-dl" = {
+                  device = "${vars.truenas-ip}:/mnt/youtube-dl/youtube-dl";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+                "/Mounts/youtube-dl/z.Daily/Finished" = {
+                  device = "${vars.truenas-ip}:/mnt/ytdl-fin/Finished";
+                  fsType = "nfs";
+                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" ];
+                };
+              };
+            })
+        
+            ({ config, lib, pkgs, vars, ... }: {
+              environment.systemPackages = [
+                pkgs.pass
+              ];
+              programs.gnupg.agent = {
+                 enable = true;
+                 pinentryPackage = pkgs.pinentry-curses;
+                 enableSSHSupport = true;
+              };
+              services.pcscd.enable = true;
+            })
+        
           ];
         };
       };

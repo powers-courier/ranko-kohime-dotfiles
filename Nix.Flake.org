@@ -576,7 +576,7 @@ content = {
 };
 #+end_src
 *** TODO Emacs Daemon
-#+begin_src nix :shebang "{ configs, pkgs, ... }:" :tangle nix/modules/emacs-server.nix
+#+begin_src nix :noweb-ref nix-flake-module-emacs-daemon
 {
   services = {
     emacs = {

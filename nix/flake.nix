@@ -32,13 +32,29 @@
         fileSystems."/" =
           { device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
             fsType = "ext4";
+            options = [ "ro" ];
           };
       
         fileSystems."/boot" =
           { device = "/dev/disk/by-uuid/7655-7B22";
             fsType = "vfat";
-            options = [ "fmask=0077" "dmask=0077" ];
+            options = [ "fmask=0077" "dmask=0077" "ro" ];
           };
+        fileSystems."/tmp" = {
+          device = "tmpfs";
+          fsType = "tmpfs";
+          options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
+        };
+        fileSystems."/var/log" = {
+          device = "tmpfs";
+          fsType = "tmpfs";
+          options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
+        };
+        fileSystems."/var/tmp" = {
+          device = "tmpfs";
+          fsType = "tmpfs";
+          options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
+        };
       };
       jelly-proxy-02 = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
@@ -209,6 +225,11 @@
               port = 0;
             };
             time.timeZone = vars.timeZern;
+            users.users.ranko = {
+              isNormalUser = true;
+              description = "Ranko Kohime";
+              extraGroups = [ "networkmanager" "wheel" ];
+            };
             zramSwap = {
               enable = true;
               priority = 1;
@@ -344,6 +365,11 @@
                 port = 0;
               };
               time.timeZone = vars.timeZern;
+              users.users.ranko = {
+                isNormalUser = true;
+                description = "Ranko Kohime";
+                extraGroups = [ "networkmanager" "wheel" ];
+              };
               zramSwap = {
                 enable = true;
                 priority = 1;
@@ -603,6 +629,11 @@
                 port = 0;
               };
               time.timeZone = vars.timeZern;
+              users.users.ranko = {
+                isNormalUser = true;
+                description = "Ranko Kohime";
+                extraGroups = [ "networkmanager" "wheel" ];
+              };
               zramSwap = {
                 enable = true;
                 priority = 1;

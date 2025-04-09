@@ -113,7 +113,7 @@ timeZern = "Etc/UTC";
 *** DONE Host IPs and FQDN
 #+begin_src nix
 tailscale-fqdn = "manticore-elnath.ts.net";
-truenas-ip = "192.168.0.2";
+truenas-ip = "192.168.168.2";
 #+end_src
 
 *** TODO Import the NixOS Library

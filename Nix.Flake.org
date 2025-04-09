@@ -433,7 +433,7 @@ n100-1 = {
 };
 #+end_src
 
-** TODO Modules [25/27]
+** TODO Modules [26/29]
 *** DONE Default Hardware
 #+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
 networking.useDHCP = lib.mkDefault true;
@@ -774,7 +774,7 @@ environment = {
   ];
 };
 #+end_src
-*** DONE Network Filesystems [3/3]
+*** DONE Network Filesystems [4/4]
 **** DONE NFS Settings
 #+begin_src nix :noweb-ref nix-flake-nfs-client-settings
 networking = {
@@ -792,7 +792,7 @@ services = {
   rpcbind.enable = true;
 };
 #+end_src
-**** Common NFS Mount Options
+**** DONE Common NFS Mount Options
 #+begin_src nix :noweb-ref nix-flake-nfs-common-mount
 "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576"
 #+end_src

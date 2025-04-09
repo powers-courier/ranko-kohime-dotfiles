@@ -891,7 +891,13 @@ services = {
 };
 #+end_src
 
+*** TODO ZFS
+#+begin_src nix :noweb-ref nix-flake-module-zfs
 {
+  services.zfs = {
+    autoScrub = {
+      enable = true;
+      pools = [];
     };
   };
 }

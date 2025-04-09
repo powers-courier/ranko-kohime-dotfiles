@@ -679,10 +679,49 @@ environment.systemPackages = with pkgs; [ avahi nginx tailscale ];
     mkvtoolnix
     vorbisgain
     vorbis-tools
-  ];
-}
-#+end_src
+*** TODO Jellyfin Server
+[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
+intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
 
+Jellyfin must be set to VAAPI for transcoding on modern Intel platforms as of 2025
+#+begin_src nix :noweb-ref nix-flake-module-jellyfin-server
+boot.kernelParams = [
+  "i915.enable_guc=2"
+];
+
+nixpkgs.config.allowUnfree = true;
+
+hardware = {
+  enableAllFirmware = true;
+  graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-compute-runtime
+      intel-media-driver
+      libva
+    ];
+  };
+};
+
+services.jellyfin = {
+  enable = true;
+  group = "jellyfin";
+  openFirewall = true;
+  user = "jellyfin";
+};
+
+environment = {
+  sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
+  systemPackages = with pkgs; [
+    intel-gpu-tools
+    jellyfin-ffmpeg
+    libva-utils
+    libvdpau-va-gl
+    vaapiVdpau
+    vpl-gpu-rt
+  ];
+};
+#+end_src
 *** DONE Network Filesystems [3/3]
 **** DONE NFS Settings
 #+begin_src nix :noweb-ref nix-flake-nfs-client-settings
@@ -865,49 +904,6 @@ services = {
 }
 #+end_src
 
-*** TODO Jellyfin
-[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
-intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
-
-#+begin_src nix :noweb-ref main-host-jellyfin
-boot.kernelParams = [
-  "i915.enable_guc=2"
-];
-
-nixpkgs.config = {
-  allowUnfree = true;
-  packageOverrides = pkgs: {
-    vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
-  };
-};
-
-hardware = {
-  enableAllFirmware = true;
-  graphics = {
-    enable = true;
-    extraPackages = with pkgs; [ ];
-  };
-};
-
-services.jellyfin = {
-  enable = true;
-  group = "jellyfin";
-  openFirewall = true;
-  user = "jellyfin";
-};
-
-environment.systemPackages = with pkgs; [
-  intel-compute-runtime
-  intel-gpu-tools
-  intel-media-driver
-  jellyfin-ffmpeg
-  libva
-  libva-utils
-  libvdpau-va-gl
-  vaapiIntel
-  vaapiVdpau
-  vpl-gpu-rt
-];
 #+end_src
 ** DONE N100-1
 #+begin_src nix :noweb-ref none :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/n100-1-module.nix

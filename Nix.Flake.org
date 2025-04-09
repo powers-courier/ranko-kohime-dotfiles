@@ -860,30 +860,15 @@ fileSystems = {
     fsType = "nfs";
     options = [ <<nix-flake-nfs-common-mount>> ];
   };
-};
-#+end_src
-*** Packages
-**** TODO Pass (Unix Password Manager)
-#+begin_src nix :shebang "{ pkgs, ... }:" :tangle nix/modules/packages-pass.nix
-{
-  environment.systemPackages = [
-    pkgs.pass
-  ];
-  programs.gnupg.agent = {
-     enable = true;
-     pinentryPackage = pkgs.pinentry-curses;
-     enableSSHSupport = true;
   "/Mounts/youtube-dl/z.Daily/Finished" = {
     device = "${vars.truenas-ip}:/mnt/ytdl-fin/Finished";
     fsType = "nfs";
     options = [ <<nix-flake-nfs-common-mount>> ];
   };
-  services.pcscd.enable = true;
-}
-#+end_src
+};
 #+end_src
 *** DONE XFCE Desktop
-#+begin_src nix :noweb-ref nix-flake-modules-xfce-desktop
+#+begin_src nix :noweb-ref nix-flake-module-xfce-desktop
 services = {
   displayManager = {
     autoLogin = {
@@ -923,8 +908,24 @@ vorbisgain
 vorbis-tools
 #+end_src
 
+*** TODO Nix Tools
+#+begin_src nix :noweb-ref nix-flake-packages-nix-tools
+deadnix
+statix
 #+end_src
 
+*** TODO Pass (Unix Password Manager)
+#+begin_src nix :noweb-ref nix-flake-packages-unix-pass
+environment.systemPackages = [
+  pkgs.pass
+];
+programs.gnupg.agent = {
+   enable = true;
+   pinentryPackage = pkgs.pinentry-curses;
+   enableSSHSupport = true;
+};
+services.pcscd.enable = true;
+#+end_src
 *** TODO Terminal Packages
 #+begin_src nix :noweb-ref nix-flake-packages-terminal
 byobu

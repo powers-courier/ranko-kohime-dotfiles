@@ -309,13 +309,15 @@ jelly-proxy-01 = {
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
       fsType = "ext4";
+      options = [ "ro" ];
     };
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/7655-7B22";
       fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
+      options = [ "fmask=0077" "dmask=0077" "ro" ];
     };
+  <<nix-flake-filesystems-ro-logs>>
 };
 #+end_src
 *** DONE jelly-proxy-02
@@ -433,7 +435,7 @@ n100-1 = {
 };
 #+end_src
 
-** TODO Modules [26/29]
+** TODO Modules [27/30]
 *** DONE Default Hardware
 #+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
 networking.useDHCP = lib.mkDefault true;
@@ -441,7 +443,7 @@ nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 #+end_src
 
-*** DONE Default Modules [9/9]
+*** DONE Default Modules [10/10]
 :properties:
 :header-args: :noweb-ref nix-flake-modules-default
 :end:
@@ -519,6 +521,10 @@ services.tailscale = {
 #+begin_src nix
 time.timeZone = vars.timeZern;
 #+end_src
+***** DONE User (ranko)
+#+begin_src nix
+<<nix-flake-users-ranko>>
+#+end_src
 ***** DONE zramSwap
 #+begin_src nix
 zramSwap = {
@@ -528,8 +534,9 @@ zramSwap = {
   swapDevices = 1;
 };
 #+end_src
-*** Disko
-**** DONE Dual NVMe ZFS Mirror, no swap [2/2]
+*** Disks
+**** Disko
+***** DONE Dual NVMe ZFS Mirror, no swap [2/2]
 Run command:
 #+begin_example
 sudo nix run --experimental-features 'nix-command flakes' github:nix-community/disko -- --mode zap_create_mount ./disko-config.nix
@@ -614,7 +621,7 @@ sudo nix run --experimental-features 'nix-command flakes' github:nix-community/d
   };
 }
 #+end_src
-***** DONE ESP
+****** DONE ESP
 #+begin_src nix :noweb-ref disko-dual-nvme-esp
 name = "ESP";
 start = "1MiB";
@@ -625,7 +632,7 @@ content = {
   format = "vfat";
 };
 #+end_src
-***** DONE ZFS Partition
+****** DONE ZFS Partition
 #+begin_src nix :noweb-ref disko-dual-nvme-zpart
 name = "zfs";
 start = "1GiB";
@@ -633,6 +640,24 @@ end = "100%";
 content = {
   type = "zfs";
   pool = "zroot";
+};
+#+end_src
+**** Read-Only Filesystems
+#+begin_src nix :noweb-ref nix-flake-filesystems-ro-logs
+fileSystems."/tmp" = {
+  device = "tmpfs";
+  fsType = "tmpfs";
+  options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
+};
+fileSystems."/var/log" = {
+  device = "tmpfs";
+  fsType = "tmpfs";
+  options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
+};
+fileSystems."/var/tmp" = {
+  device = "tmpfs";
+  fsType = "tmpfs";
+  options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
 };
 #+end_src
 *** TODO Emacs Daemon
@@ -920,6 +945,22 @@ deadnix
 statix
 #+end_src
 
+*** R/W - R/O Script (PiKVM inspired)
+#+begin_src nix :noweb-ref nix-flake-packages-rw-ro-script
+environment.systemPackages = with pkgs; [
+  (writeScriptBin "rw" ''
+    #!/bin/sh
+    mount -o remount,rw /
+    echo "Filesystem is now read-write"
+  '')
+  (writeScriptBin "ro" ''
+    #!/bin/sh
+    sync
+    mount -o remount,ro /
+    echo "Filesystem is now read-only"
+  '')
+];
+#+end_src
 *** TODO Pass (Unix Password Manager)
 #+begin_src nix :noweb-ref nix-flake-packages-unix-pass
 environment.systemPackages = [

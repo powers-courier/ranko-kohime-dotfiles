@@ -197,6 +197,9 @@ main-host = nixpkgs.lib.nixosSystem {
       <<nix-flake-modules-default>>
       <<nix-flake-nfs-documents>>
       <<nix-flake-nfs-multimedia>>
+      environment.systemPackages = with pkgs; [
+        <<nix-flake-packages-multimedia>>
+      ];
     })
 
     ./hosts/main-host-hardware.nix
@@ -216,15 +219,14 @@ n100-1 = nixpkgs.lib.nixosSystem {
 
     hardwareConfigs.n100-1
 
+        <<nix-flake-packages-multimedia>>
+        <<nix-flake-packages-terminal>>
       <<nix-flake-modules-default>>
       <<nix-flake-nfs-client-settings>>
       <<nix-flake-nfs-documents>>
       <<nix-flake-nfs-multimedia>>
     ./hosts/n100-1-hardware.nix
     ./hosts/n100-1-module.nix
-    ./modules/packages-multimedia.nix
-    ./modules/packages-pass.nix
-    ./modules/packages-terminal.nix
     <<nix-flake-modules-xfce-desktop>>
   ];
 };
@@ -669,16 +671,6 @@ environment.etc."avahi/services/jellyfin.service".text = ''
 environment.systemPackages = with pkgs; [ avahi nginx tailscale ];
 #+end_src
 
-*** DONE Multimedia
-#+begin_src nix :shebang "{ config, pkgs, ... }:" :tangle nix/modules/packages-multimedia.nix
-{
-  environment.systemPackages = with pkgs; [
-    flac
-    handbrake
-    mediainfo
-    mkvtoolnix
-    vorbisgain
-    vorbis-tools
 *** TODO Jellyfin Server
 [[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
 intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
@@ -829,19 +821,6 @@ fileSystems = {
   services.pcscd.enable = true;
 }
 #+end_src
-**** TODO Terminal Packages
-#+begin_src nix :shebang "{ config, pkgs, vars, ... }:" :tangle nix/modules/packages-terminal.nix
-{
-  environment.systemPackages = with pkgs; [
-    byobu
-    glances
-    lm_sensors
-    neovim
-    ranger
-    tmux
-    tree
-  ];
-}
 #+end_src
 *** DONE XFCE Desktop
 #+begin_src nix :noweb-ref nix-flake-modules-xfce-desktop
@@ -875,7 +854,6 @@ services = {
 {
   imports = [
     ../modules/default-modules.nix
-    ../modules/packages-multimedia.nix
     ../modules/xfce-desktop.nix
   ];
 
@@ -904,6 +882,15 @@ services = {
 }
 #+end_src
 
+** TODO Packages
+*** DONE Multimedia
+#+begin_src nix :noweb-ref nix-flake-packages-multimedia
+flac
+handbrake
+mediainfo
+mkvtoolnix
+vorbisgain
+vorbis-tools
 #+end_src
 ** DONE N100-1
 #+begin_src nix :noweb-ref none :shebang "{ config, pkgs, ... }:" :tangle nix/hosts/n100-1-module.nix
@@ -942,6 +929,16 @@ services = {
 }
 #+end_src
 
+*** TODO Terminal Packages
+#+begin_src nix :noweb-ref nix-flake-packages-terminal
+byobu
+glances
+lm_sensors
+neovim
+ranger
+tmux
+tree
+#+end_src
 ** DONE Users [2/2]
 *** DONE Jellyfin
 #+begin_src nix :noweb-ref nix-flake-users-jellyfin

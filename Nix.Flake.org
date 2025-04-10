@@ -277,7 +277,6 @@ in {
 
       hardwareConfigs.${name}
 
-
       ({ config, pkgs, vars, ... }: {
         networking.hostName = name;
         system.stateVersion = "25.05";
@@ -288,6 +287,13 @@ in {
       ({ config, pkgs, vars, ... }: {
         <<nix-flake-module-jellyfin-proxy>>
       })
+
+      ({ config, pkgs, vars, ... }: {
+        environment.systemPackages = with pkgs; [
+          <<nix-flake-packages-rw-ro-script>>
+        ];
+      })
+
     ];
   };
 }) (builtins.genList (i: i) proxyCount));

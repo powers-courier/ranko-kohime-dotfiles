@@ -694,7 +694,7 @@ systemd.services.limit-cpu-max-perf = {
   serviceConfig = {
     Type = "oneshot";
     ExecStart = ''
-      /usr/bin/env bash -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
+      /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
     '';
     RemainAfterExit = true;
   };

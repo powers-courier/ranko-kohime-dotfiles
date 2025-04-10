@@ -40,6 +40,13 @@
             fsType = "vfat";
             options = [ "fmask=0077" "dmask=0077" "ro" ];
           };
+        boot.kernelParams = [ "ro" ];
+        
+        services.journald.extraConfig = ''
+          Storage=volatile
+          RuntimeMaxUse=50M
+        '';
+        
         fileSystems."/tmp" = {
           device = "tmpfs";
           fsType = "tmpfs";
@@ -82,14 +89,21 @@
         fileSystems."/" =
           { device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
             fsType = "ext4";
-            options = [ "ro" ];
+            options = [ "defaults" ];
           };
       
         fileSystems."/boot" =
           { device = "/dev/disk/by-uuid/5320-4C3E";
             fsType = "vfat";
-            options = [ "fmask=0022" "dmask=0022" "ro" ];
+            options = [ "fmask=0022" "dmask=0022" ];
           };
+        boot.kernelParams = [ "ro" ];
+        
+        services.journald.extraConfig = ''
+          Storage=volatile
+          RuntimeMaxUse=50M
+        '';
+        
         fileSystems."/tmp" = {
           device = "tmpfs";
           fsType = "tmpfs";
@@ -193,7 +207,7 @@
               serviceConfig = {
                 Type = "oneshot";
                 ExecStart = ''
-                  /usr/bin/env sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
+                  /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
                 '';
                 RemainAfterExit = true;
               };
@@ -263,7 +277,6 @@
               memoryPercent = 100;
               swapDevices = 1;
             };
-            boot.kernelParams = [ "ro" ];
           })
     
           ({ config, pkgs, vars, ... }: {
@@ -517,6 +530,7 @@
                 handbrake
                 mediainfo
                 mkvtoolnix
+                quodlibet
                 vorbisgain
                 vorbis-tools
               ];
@@ -593,6 +607,7 @@
                 handbrake
                 mediainfo
                 mkvtoolnix
+                quodlibet
                 vorbisgain
                 vorbis-tools
                 deadnix

@@ -273,6 +273,7 @@ in {
     modules = [
       ({ config, lib, pkgs, vars, ... }: {
         <<nix-flake-hardware-defaults-intel>>
+        <<nix-flake-module-intel-limiter>>
       })
 
       hardwareConfigs.${name}
@@ -444,7 +445,7 @@ n100-1 = {
 };
 #+end_src
 
-** TODO Modules [27/30]
+** TODO Modules [28/31]
 *** DONE Default Hardware
 #+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
 networking.useDHCP = lib.mkDefault true;
@@ -678,6 +679,20 @@ fileSystems."/var/tmp" = {
     };
   };
 }
+#+end_src
+*** DONE Intel CPU Limiter
+#+begin_src nix :noweb-ref nix-flake-module-intel-limiter
+systemd.services.limit-cpu-max-perf = {
+  description = "Limit CPU max performance percentage using intel_pstate";
+  wantedBy = [ "multi-user.target" ];
+  serviceConfig = {
+    Type = "oneshot";
+    ExecStart = ''
+      /usr/bin/env sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
+    '';
+    RemainAfterExit = true;
+  };
+};
 #+end_src
 *** DONE Jellyfin Remote access proxy nodes [5/5]
 :properties:
@@ -954,7 +969,7 @@ deadnix
 statix
 #+end_src
 
-*** R/W - R/O Script (PiKVM inspired)
+*** DONE R/W - R/O Script (PiKVM inspired)
 #+begin_src nix :noweb-ref nix-flake-packages-rw-ro-script
   (writeScriptBin "rw" ''
     #!/usr/bin/env bash

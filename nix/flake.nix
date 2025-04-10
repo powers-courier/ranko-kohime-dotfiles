@@ -187,6 +187,17 @@
             networking.useDHCP = lib.mkDefault true;
             nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
             hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+            systemd.services.limit-cpu-max-perf = {
+              description = "Limit CPU max performance percentage using intel_pstate";
+              wantedBy = [ "multi-user.target" ];
+              serviceConfig = {
+                Type = "oneshot";
+                ExecStart = ''
+                  /usr/bin/env sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
+                '';
+                RemainAfterExit = true;
+              };
+            };
           })
     
           hardwareConfigs.${name}

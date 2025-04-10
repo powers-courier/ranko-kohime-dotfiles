@@ -252,6 +252,7 @@
               memoryPercent = 100;
               swapDevices = 1;
             };
+            boot.kernelParams = [ "ro" ];
           })
     
           ({ config, pkgs, vars, ... }: {
@@ -308,6 +309,25 @@
             '';
             environment.systemPackages = with pkgs; [ avahi nginx tailscale ];
           })
+    
+          ({ config, pkgs, vars, ... }: {
+            environment.systemPackages = with pkgs; [
+              (writeScriptBin "rw" ''
+                #!/usr/bin/env bash
+                mount -o remount,rw /
+                mount -o remount,rw /boot
+                echo "Filesystem is now read-write"
+              '')
+              (writeScriptBin "ro" ''
+                #!/usr/bin/env bash
+                sync
+                mount -o remount,ro /
+                mount -o remount,ro /boot
+                echo "Filesystem is now read-only"
+              '')
+            ];
+          })
+    
         ];
       };
     }) (builtins.genList (i: i) proxyCount));

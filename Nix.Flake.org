@@ -172,7 +172,7 @@ main-host = nixpkgs.lib.nixosSystem {
       system.stateVersion = "25.05";
 
       environment.systemPackages = with pkgs; [
-        <<nix-flake-packages-multimedia>>
+        <<nix-flake-packages-multimedia-production>>
       ];
     })
 
@@ -198,7 +198,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
 
     ({ config, lib, pkgs, vars, ... }: {
       environment.systemPackages = with pkgs; [
-        <<nix-flake-packages-multimedia>>
+        <<nix-flake-packages-multimedia-production>>
         <<nix-flake-packages-nix-tools>>
         <<nix-flake-packages-terminal>>
         emacs
@@ -445,7 +445,7 @@ n100-1 = {
 };
 #+end_src
 
-** TODO Modules [28/31]
+** TODO Modules [29/32]
 *** DONE Default Hardware
 #+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
 networking.useDHCP = lib.mkDefault true;
@@ -688,13 +688,13 @@ systemd.services.limit-cpu-max-perf = {
   serviceConfig = {
     Type = "oneshot";
     ExecStart = ''
-      /usr/bin/env sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
+      /usr/bin/env bash -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
     '';
     RemainAfterExit = true;
   };
 };
 #+end_src
-*** DONE Jellyfin Remote access proxy nodes [5/5]
+*** DONE Jellyfin Remote access proxy nodes [6/6]
 :properties:
 :header-args: :noweb-ref nix-flake-module-jellyfin-proxy
 :end:
@@ -953,12 +953,14 @@ services = {
 #+end_src
 
 ** TODO Packages
-*** DONE Multimedia
-#+begin_src nix :noweb-ref nix-flake-packages-multimedia
+*** DONE Multimedia Production
+Quod Libet brings in Ex Falso
+#+begin_src nix :noweb-ref nix-flake-packages-multimedia-production
 flac
 handbrake
 mediainfo
 mkvtoolnix
+quodlibet
 vorbisgain
 vorbis-tools
 #+end_src

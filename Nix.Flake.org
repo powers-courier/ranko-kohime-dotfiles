@@ -282,7 +282,6 @@ in {
         networking.hostName = name;
         system.stateVersion = "25.05";
         <<nix-flake-modules-default>>
-        boot.kernelParams = [ "ro" ];
       })
 
       ({ config, pkgs, vars, ... }: {
@@ -359,13 +358,13 @@ jelly-proxy-03 = {
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
       fsType = "ext4";
-      options = [ "ro" ];
+      options = [ "defaults" ];
     };
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/5320-4C3E";
       fsType = "vfat";
-      options = [ "fmask=0022" "dmask=0022" "ro" ];
+      options = [ "fmask=0022" "dmask=0022" ];
     };
   <<nix-flake-filesystems-ro-logs>>
 };
@@ -654,6 +653,13 @@ content = {
 #+end_src
 **** Read-Only Filesystems
 #+begin_src nix :noweb-ref nix-flake-filesystems-ro-logs
+boot.kernelParams = [ "ro" ];
+
+services.journald.extraConfig = ''
+  Storage=volatile
+  RuntimeMaxUse=50M
+'';
+
 fileSystems."/tmp" = {
   device = "tmpfs";
   fsType = "tmpfs";
@@ -716,6 +722,16 @@ networking = {
   };
 };
 #+end_src
+
+**** DONE resolv.conf tmpfs
+#+begin_src nix :noweb-ref no
+fileSystems."/etc/resolv.conf" = {
+  device = "tmpfs";
+  fsType = "tmpfs";
+  options = [ "mode=0644" "size=1m" ];
+};
+#+end_src
+
 **** DONE Tailscale
 Requires manual setup to add to Tailnet
 #+begin_src nix

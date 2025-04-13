@@ -282,6 +282,7 @@ in {
         networking.hostName = name;
         system.stateVersion = "25.05";
         <<nix-flake-modules-default>>
+        <<nix-flake-module-glances-server>>
       })
 
       ({ pkgs, vars, ... }: {
@@ -290,6 +291,7 @@ in {
 
       ({ pkgs, ... }: {
         environment.systemPackages = with pkgs; [
+          glances
           <<nix-flake-packages-rw-ro-script>>
         ];
       })
@@ -681,6 +683,20 @@ fileSystems."/var/tmp" = {
 services = {
   emacs = {
     enable = true;
+  };
+};
+#+end_src
+*** DONE Glances Server
+#+begin_src nix :noweb-ref nix-flake-module-glances-server
+systemd.services.glances-server = {
+  description = "Glances server";
+  wantedBy = [ "multi-user.target" ];
+  after = [ "network.target" ];
+  serviceConfig = {
+    Type = "simple";
+    ExecStart = "${pkgs.glances}/bin/glances -s";
+    RemainAfterExit = false;
+    Restart = "always";
   };
 };
 #+end_src

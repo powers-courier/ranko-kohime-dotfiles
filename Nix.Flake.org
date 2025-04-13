@@ -136,17 +136,17 @@ main-host = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { inherit vars; };
   modules = [
-    ({ config, lib, pkgs, vars, ... }: {
+    ({ config, lib, ... }: {
       <<nix-flake-hardware-defaults-intel>>
     })
 
     hardwareConfigs.main-host
 
-    ({ config, lib, pkgs, vars, ... }: {
+    ({ pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
     })
 
-    ({ config, lib, pkgs, vars, ... }: {
+    ({ pkgs, vars, ... }: {
       boot = {
         supportedFilesystems = [ "zfs" ];
         zfs.forceImportRoot = false;
@@ -176,7 +176,7 @@ main-host = nixpkgs.lib.nixosSystem {
       ];
     })
 
-    ({ config, lib, pkgs, vars, ... }: {
+    ({ config, lib, pkgs, ... }: {
       <<nix-flake-users-jellyfin>>
       <<nix-flake-module-jellyfin-server>>
     })
@@ -188,15 +188,15 @@ main-host = nixpkgs.lib.nixosSystem {
 #+begin_src nix
 n100-1 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
-  specialArgs = { vars = vars; };
+  specialArgs = { inherit vars; };
   modules = [
-    ({ config, lib, pkgs, vars, ... }: {
+    ({ config, lib, ... }: {
       <<nix-flake-hardware-defaults-intel>>
     })
 
     hardwareConfigs.n100-1
 
-    ({ config, lib, pkgs, vars, ... }: {
+    ({ pkgs, ... }: {
       environment.systemPackages = with pkgs; [
         <<nix-flake-packages-multimedia-production>>
         <<nix-flake-packages-nix-tools>>
@@ -225,7 +225,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
       system.stateVersion = "23.11";
     })
 
-    ({ config, lib, pkgs, vars, ... }: {
+    ({ lib, pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
       <<nix-flake-module-xfce-desktop>>
       <<nix-flake-users-jellyfin>>
@@ -234,7 +234,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
       <<nix-flake-nfs-multimedia>>
     })
 
-    ({ config, lib, pkgs, vars, ... }: {
+    ({ pkgs, ... }: {
       <<nix-flake-packages-unix-pass>>
     })
 
@@ -271,24 +271,24 @@ in {
     system = "x86_64-linux";
     specialArgs = { inherit vars; };
     modules = [
-      ({ config, lib, pkgs, vars, ... }: {
+      ({ config, lib, ... }: {
         <<nix-flake-hardware-defaults-intel>>
         <<nix-flake-module-intel-limiter>>
       })
 
       hardwareConfigs.${name}
 
-      ({ config, pkgs, vars, ... }: {
+      ({ pkgs, vars, ... }: {
         networking.hostName = name;
         system.stateVersion = "25.05";
         <<nix-flake-modules-default>>
       })
 
-      ({ config, pkgs, vars, ... }: {
+      ({ pkgs, vars, ... }: {
         <<nix-flake-module-jellyfin-proxy>>
       })
 
-      ({ config, pkgs, vars, ... }: {
+      ({ pkgs, ... }: {
         environment.systemPackages = with pkgs; [
           <<nix-flake-packages-rw-ro-script>>
         ];
@@ -444,7 +444,7 @@ n100-1 = {
 };
 #+end_src
 
-** TODO Modules [29/32]
+** TODO Modules [30/33]
 *** DONE Default Hardware
 #+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
 networking.useDHCP = lib.mkDefault true;
@@ -678,13 +678,11 @@ fileSystems."/var/tmp" = {
 #+end_src
 *** TODO Emacs Daemon
 #+begin_src nix :noweb-ref nix-flake-module-emacs-daemon
-{
-  services = {
-    emacs = {
-      enable = true;
-    };
+services = {
+  emacs = {
+    enable = true;
   };
-}
+};
 #+end_src
 *** DONE Intel CPU Limiter
 #+begin_src nix :noweb-ref nix-flake-module-intel-limiter
@@ -968,7 +966,7 @@ services = {
 }
 #+end_src
 
-** TODO Packages
+** TODO Packages [3/5]
 *** DONE Multimedia Production
 Quod Libet brings in Ex Falso
 #+begin_src nix :noweb-ref nix-flake-packages-multimedia-production
@@ -981,7 +979,7 @@ vorbisgain
 vorbis-tools
 #+end_src
 
-*** TODO Nix Tools
+*** DONE Nix Tools
 #+begin_src nix :noweb-ref nix-flake-packages-nix-tools
 deadnix
 statix

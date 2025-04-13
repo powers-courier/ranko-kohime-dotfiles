@@ -197,7 +197,7 @@
         system = "x86_64-linux";
         specialArgs = { inherit vars; };
         modules = [
-          ({ config, lib, pkgs, vars, ... }: {
+          ({ config, lib, ... }: {
             networking.useDHCP = lib.mkDefault true;
             nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
             hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
@@ -216,7 +216,7 @@
     
           hardwareConfigs.${name}
     
-          ({ config, pkgs, vars, ... }: {
+          ({ pkgs, vars, ... }: {
             networking.hostName = name;
             system.stateVersion = "25.05";
             boot.loader = {
@@ -277,14 +277,40 @@
               memoryPercent = 100;
               swapDevices = 1;
             };
+            systemd.services.glances-server = {
+              description = "Glances server";
+              wantedBy = [ "multi-user.target" ];
+              after = [ "network.target" ];
+              serviceConfig = {
+                Type = "simple";
+                ExecStart = "${pkgs.glances}/bin/glances -s";
+                RemainAfterExit = false;
+                Restart = "always";
+              };
+            };
           })
     
-          ({ config, pkgs, vars, ... }: {
+          ({ pkgs, vars, ... }: {
             networking = {
               firewall = {
                 enable = true;
                 allowedTCPPorts = [ 8096 ];
                 allowedUDPPorts = [ 5353 ];
+              };
+            };
+            boot.kernel.sysctl = {
+              "net.ipv4.ip_forward" = 1;
+              "net.ipv6.conf.all.forwarding" = 1;
+            };
+            services.networkd-dispatcher = {
+              enable = true;
+              rules."50-tailscale" = {
+                onState = [ "routable" ];
+                script = ''
+                  #!/usr/bin/env bash
+            #      NETDEV=$(ip -o route get 8.8.8.8 | cut -f 5 -d " ")
+                  ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
+                '';
               };
             };
             services.tailscale = {
@@ -331,11 +357,12 @@
                 </service>
               </service-group>
             '';
-            environment.systemPackages = with pkgs; [ avahi nginx tailscale ];
+            environment.systemPackages = with pkgs; [ avahi ethtool nginx tailscale ];
           })
     
-          ({ config, pkgs, vars, ... }: {
+          ({ pkgs, ... }: {
             environment.systemPackages = with pkgs; [
+              glances
               (writeScriptBin "rw" ''
                 #!/usr/bin/env bash
                 mount -o remount,rw /
@@ -369,7 +396,7 @@
           system = "x86_64-linux";
           specialArgs = { inherit vars; };
           modules = [
-            ({ config, lib, pkgs, vars, ... }: {
+            ({ config, lib, ... }: {
               networking.useDHCP = lib.mkDefault true;
               nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
               hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
@@ -377,7 +404,7 @@
         
             hardwareConfigs.main-host
         
-            ({ config, lib, pkgs, vars, ... }: {
+            ({ pkgs, vars, ... }: {
               boot.loader = {
                 efi.canTouchEfiVariables = true;
                 systemd-boot.enable = true;
@@ -438,7 +465,7 @@
               };
             })
         
-            ({ config, lib, pkgs, vars, ... }: {
+            ({ pkgs, vars, ... }: {
               boot = {
                 supportedFilesystems = [ "zfs" ];
                 zfs.forceImportRoot = false;
@@ -536,7 +563,7 @@
               ];
             })
         
-            ({ config, lib, pkgs, vars, ... }: {
+            ({ config, lib, pkgs, ... }: {
               users = {
                 groups.jellyfin = {
                   gid = 8096;
@@ -591,9 +618,9 @@
         };
         n100-1 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          specialArgs = { vars = vars; };
+          specialArgs = { inherit vars; };
           modules = [
-            ({ config, lib, pkgs, vars, ... }: {
+            ({ config, lib, ... }: {
               networking.useDHCP = lib.mkDefault true;
               nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
               hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
@@ -601,7 +628,7 @@
         
             hardwareConfigs.n100-1
         
-            ({ config, lib, pkgs, vars, ... }: {
+            ({ pkgs, ... }: {
               environment.systemPackages = with pkgs; [
                 flac
                 handbrake
@@ -643,7 +670,7 @@
               system.stateVersion = "23.11";
             })
         
-            ({ config, lib, pkgs, vars, ... }: {
+            ({ lib, pkgs, vars, ... }: {
               boot.loader = {
                 efi.canTouchEfiVariables = true;
                 systemd-boot.enable = true;
@@ -815,7 +842,7 @@
               };
             })
         
-            ({ config, lib, pkgs, vars, ... }: {
+            ({ pkgs, ... }: {
               environment.systemPackages = [
                 pkgs.pass
               ];

@@ -721,7 +721,7 @@ systemd.services.limit-cpu-max-perf = {
 **** Host list
 01. Jeff & Jackie O'Connell
 02. 
-03. Ready to rollout
+03. John & Darlene Powers
 04. 
 
 **** DONE Networking
@@ -807,7 +807,12 @@ environment.etc."avahi/services/jellyfin.service".text = ''
 #+end_src
 **** DONE Packages
 #+begin_src nix
-environment.systemPackages = with pkgs; [ avahi nginx tailscale ];
+environment.systemPackages = with pkgs; [
+  avahi
+  ethtool
+  nginx
+  tailscale
+];
 #+end_src
 
 *** TODO Jellyfin Server

@@ -357,7 +357,12 @@
                 </service>
               </service-group>
             '';
-            environment.systemPackages = with pkgs; [ avahi ethtool nginx tailscale ];
+            environment.systemPackages = with pkgs; [
+              avahi
+              ethtool
+              nginx
+              tailscale
+            ];
           })
     
           ({ pkgs, ... }: {

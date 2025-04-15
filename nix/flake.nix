@@ -40,28 +40,6 @@
             fsType = "vfat";
             options = [ "fmask=0077" "dmask=0077" "ro" ];
           };
-        boot.kernelParams = [ "ro" ];
-        
-        services.journald.extraConfig = ''
-          Storage=volatile
-          RuntimeMaxUse=50M
-        '';
-        
-        fileSystems."/tmp" = {
-          device = "tmpfs";
-          fsType = "tmpfs";
-          options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
-        };
-        fileSystems."/var/log" = {
-          device = "tmpfs";
-          fsType = "tmpfs";
-          options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
-        };
-        fileSystems."/var/tmp" = {
-          device = "tmpfs";
-          fsType = "tmpfs";
-          options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
-        };
       };
       jelly-proxy-02 = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
@@ -97,28 +75,6 @@
             fsType = "vfat";
             options = [ "fmask=0022" "dmask=0022" ];
           };
-        boot.kernelParams = [ "ro" ];
-        
-        services.journald.extraConfig = ''
-          Storage=volatile
-          RuntimeMaxUse=50M
-        '';
-        
-        fileSystems."/tmp" = {
-          device = "tmpfs";
-          fsType = "tmpfs";
-          options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
-        };
-        fileSystems."/var/log" = {
-          device = "tmpfs";
-          fsType = "tmpfs";
-          options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
-        };
-        fileSystems."/var/tmp" = {
-          device = "tmpfs";
-          fsType = "tmpfs";
-          options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
-        };
       };
       jelly-proxy-04 = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];
@@ -308,7 +264,6 @@
                 onState = [ "routable" ];
                 script = ''
                   #!/usr/bin/env bash
-            #      NETDEV=$(ip -o route get 8.8.8.8 | cut -f 5 -d " ")
                   ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
                 '';
               };
@@ -363,6 +318,28 @@
               nginx
               tailscale
             ];
+            boot.kernelParams = [ "ro" ];
+            
+            services.journald.extraConfig = ''
+              Storage=volatile
+              RuntimeMaxUse=50M
+            '';
+            
+            fileSystems."/tmp" = {
+              device = "tmpfs";
+              fsType = "tmpfs";
+              options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
+            };
+            fileSystems."/var/log" = {
+              device = "tmpfs";
+              fsType = "tmpfs";
+              options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
+            };
+            fileSystems."/var/tmp" = {
+              device = "tmpfs";
+              fsType = "tmpfs";
+              options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
+            };
           })
     
           ({ pkgs, ... }: {

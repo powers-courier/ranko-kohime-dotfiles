@@ -287,6 +287,7 @@ in {
 
       ({ pkgs, vars, ... }: {
         <<nix-flake-module-jellyfin-proxy>>
+        <<nix-flake-filesystems-ro-logs>>
       })
 
       ({ pkgs, ... }: {
@@ -301,9 +302,8 @@ in {
 }) (builtins.genList (i: i) proxyCount));
 #+end_src
 
-
 * Items
-** DONE Hardware Configs [6/6]
+** TODO Hardware Configs [6/9]
 :properties:
 :header-args+: :noweb-ref nix-flake-hardware-configs
 :end:
@@ -326,7 +326,6 @@ jelly-proxy-01 = {
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" "ro" ];
     };
-  <<nix-flake-filesystems-ro-logs>>
 };
 #+end_src
 *** DONE jelly-proxy-02
@@ -368,7 +367,6 @@ jelly-proxy-03 = {
       fsType = "vfat";
       options = [ "fmask=0022" "dmask=0022" ];
     };
-  <<nix-flake-filesystems-ro-logs>>
 };
 #+end_src
 *** DONE jelly-proxy-04
@@ -446,7 +444,7 @@ n100-1 = {
 };
 #+end_src
 
-** TODO Modules [30/33]
+** TODO Modules [28/33]
 *** DONE Default Hardware
 #+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
 networking.useDHCP = lib.mkDefault true;
@@ -714,7 +712,7 @@ systemd.services.limit-cpu-max-perf = {
   };
 };
 #+end_src
-*** DONE Jellyfin Remote access proxy nodes [6/6]
+*** TODO Jellyfin Remote access proxy nodes [5/6]
 :properties:
 :header-args: :noweb-ref nix-flake-module-jellyfin-proxy
 :end:
@@ -1038,19 +1036,19 @@ statix
 
 *** DONE R/W - R/O Script (PiKVM inspired)
 #+begin_src nix :noweb-ref nix-flake-packages-rw-ro-script
-  (writeScriptBin "rw" ''
-    #!/usr/bin/env bash
-    mount -o remount,rw /
-    mount -o remount,rw /boot
-    echo "Filesystem is now read-write"
-  '')
-  (writeScriptBin "ro" ''
-    #!/usr/bin/env bash
-    sync
-    mount -o remount,ro /
-    mount -o remount,ro /boot
-    echo "Filesystem is now read-only"
-  '')
+(writeScriptBin "rw" ''
+  #!/usr/bin/env bash
+  mount -o remount,rw /
+  mount -o remount,rw /boot
+  echo "Filesystem is now read-write"
+'')
+(writeScriptBin "ro" ''
+  #!/usr/bin/env bash
+  sync
+  mount -o remount,ro /
+  mount -o remount,ro /boot
+  echo "Filesystem is now read-only"
+'')
 #+end_src
 *** TODO Pass (Unix Password Manager)
 #+begin_src nix :noweb-ref nix-flake-packages-unix-pass

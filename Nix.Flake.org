@@ -1101,7 +1101,7 @@ users = {
 users.users.ranko = {
   isNormalUser = true;
   description = "Ranko Kohime";
-  extraGroups = [ "networkmanager" "wheel" ];
+  extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
 };
 #+end_src
 

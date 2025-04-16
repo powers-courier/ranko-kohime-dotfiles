@@ -526,6 +526,7 @@ environment.systemPackages = with pkgs; [
   glances
   lm_sensors
   tmux
+  unison
 ];
 #+end_src
 ***** DONE Tailscale

@@ -247,6 +247,7 @@
               glances
               lm_sensors
               tmux
+              unison
             ];
             services.tailscale = {
               enable = true;
@@ -459,6 +460,7 @@
                 glances
                 lm_sensors
                 tmux
+                unison
               ];
               services.tailscale = {
                 enable = true;
@@ -725,6 +727,7 @@
                 glances
                 lm_sensors
                 tmux
+                unison
               ];
               services.tailscale = {
                 enable = true;

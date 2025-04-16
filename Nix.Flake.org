@@ -368,6 +368,17 @@ jelly-proxy-03 = {
       options = [ "fmask=0022" "dmask=0022" ];
     };
 
+  fileSystems."/Mounts/Music" = {
+    device = "192.168.1.22:/mnt/tank2/Snapshotted/Music";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  fileSystems."/Mounts/Videos" = {
+    device = "192.168.1.22:/mnt/tank2/Snapshotted/Videos";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+
   environment.etc."opt/shell.nix" = {
     text = ''
       <<nix-flake-module-ytdl-env>>

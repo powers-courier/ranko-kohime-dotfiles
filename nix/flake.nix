@@ -76,6 +76,17 @@
             options = [ "fmask=0022" "dmask=0022" ];
           };
       
+        fileSystems."/Mounts/Music" = {
+          device = "192.168.1.22:/mnt/tank2/Snapshotted/Music";
+          fsType = "nfs";
+          options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
+        };
+        fileSystems."/Mounts/Videos" = {
+          device = "192.168.1.22:/mnt/tank2/Snapshotted/Videos";
+          fsType = "nfs";
+          options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
+        };
+      
         environment.etc."opt/shell.nix" = {
           text = ''
             { pkgs ? import <nixpkgs> {} }:

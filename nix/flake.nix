@@ -32,13 +32,13 @@
         fileSystems."/" =
           { device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
             fsType = "ext4";
-            options = [ "ro" ];
+            options = [ "defaults" ];
           };
       
         fileSystems."/boot" =
           { device = "/dev/disk/by-uuid/7655-7B22";
             fsType = "vfat";
-            options = [ "fmask=0077" "dmask=0077" "ro" ];
+            options = [ "fmask=0077" "dmask=0077" ];
           };
       };
       jelly-proxy-02 = {
@@ -74,6 +74,38 @@
           { device = "/dev/disk/by-uuid/5320-4C3E";
             fsType = "vfat";
             options = [ "fmask=0022" "dmask=0022" ];
+          };
+      
+        environment.etc."opt/shell.nix" = {
+          text = ''
+            { pkgs ? import <nixpkgs> {} }:
+            pkgs.mkShell {
+              buildInputs = with pkgs; [
+                ffmpeg-full
+                python3
+                sshfs
+              ];
+              shellHook = '''
+                mkdir -p ~/mnt
+            
+                sshfs ranko@192.168.0.2:/mnt/youtube-dl/youtube-dl ~/mnt \
+                  -o reconnect \
+                  -o ServerAliveInterval=15 \
+                  -o ServerAliveCountMax=20 \
+                  -o workaround=nonodelay || echo "Mount failed"
+            
+                sshfs ranko@192.168.1.22:/mnt/tank2/Snapless/Workspace/ytdl-temp ~/mnt/z.DownloadTemp || echo "Mount failed"
+            
+                bash
+            
+                fusermount -u ~/mnt/z.DownloadTemp
+                fusermount -u ~/mnt
+            
+                exit
+              ''';
+            }
+          '';
+          mode = "0444";
           };
       };
       jelly-proxy-04 = {
@@ -225,7 +257,7 @@
             users.users.ranko = {
               isNormalUser = true;
               description = "Ranko Kohime";
-              extraGroups = [ "networkmanager" "wheel" ];
+              extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
             };
             zramSwap = {
               enable = true;
@@ -318,28 +350,28 @@
               nginx
               tailscale
             ];
-            boot.kernelParams = [ "ro" ];
-            
-            services.journald.extraConfig = ''
-              Storage=volatile
-              RuntimeMaxUse=50M
-            '';
-            
-            fileSystems."/tmp" = {
-              device = "tmpfs";
-              fsType = "tmpfs";
-              options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
-            };
-            fileSystems."/var/log" = {
-              device = "tmpfs";
-              fsType = "tmpfs";
-              options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
-            };
-            fileSystems."/var/tmp" = {
-              device = "tmpfs";
-              fsType = "tmpfs";
-              options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
-            };
+    #        boot.kernelParams = [ "ro" ];
+    #        
+    #        services.journald.extraConfig = ''
+    #          Storage=volatile
+    #          RuntimeMaxUse=50M
+    #        '';
+    #        
+    #        fileSystems."/tmp" = {
+    #          device = "tmpfs";
+    #          fsType = "tmpfs";
+    #          options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
+    #        };
+    #        fileSystems."/var/log" = {
+    #          device = "tmpfs";
+    #          fsType = "tmpfs";
+    #          options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
+    #        };
+    #        fileSystems."/var/tmp" = {
+    #          device = "tmpfs";
+    #          fsType = "tmpfs";
+    #          options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
+    #        };
           })
     
           ({ pkgs, ... }: {
@@ -437,7 +469,7 @@
               users.users.ranko = {
                 isNormalUser = true;
                 description = "Ranko Kohime";
-                extraGroups = [ "networkmanager" "wheel" ];
+                extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
               };
               zramSwap = {
                 enable = true;
@@ -703,7 +735,7 @@
               users.users.ranko = {
                 isNormalUser = true;
                 description = "Ranko Kohime";
-                extraGroups = [ "networkmanager" "wheel" ];
+                extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
               };
               zramSwap = {
                 enable = true;

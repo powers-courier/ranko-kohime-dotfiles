@@ -11,7 +11,7 @@ Outputs:
 Gippity Says:
 "The use of eachDefaultSystem here abstracts away some of the complexities associated with managing configurations across different system architectures. Instead of defining each possible system configuration manually, you define a single function that describes how to build the system configuration for any given system type. flake-utils then handles applying this function to the set of default systems that Nix supports."
 
-** DONE Flake
+** DONE Contents
 #+begin_src nix :tangle ~/Dotfiles/nix/flake.nix
 {
   description = "Ranko Kohime's Flake, now with 100% more ZFS!";
@@ -287,7 +287,7 @@ in {
 
       ({ pkgs, vars, ... }: {
         <<nix-flake-module-jellyfin-proxy>>
-        <<nix-flake-filesystems-ro-logs>>
+#        <<nix-flake-filesystems-ro-logs>>
       })
 
       ({ pkgs, ... }: {
@@ -318,13 +318,13 @@ jelly-proxy-01 = {
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
       fsType = "ext4";
-      options = [ "ro" ];
+      options = [ "defaults" ];
     };
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/7655-7B22";
       fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" "ro" ];
+      options = [ "fmask=0077" "dmask=0077" ];
     };
 };
 #+end_src
@@ -389,6 +389,9 @@ jelly-proxy-04 = {
     };
 };
 #+end_src
+*** TODO jelly-proxy-05
+*** TODO jelly-proxy-06
+*** TODO jelly-proxy-07
 *** DONE main-host
 #+begin_src nix
 main-host = {
@@ -444,7 +447,7 @@ n100-1 = {
 };
 #+end_src
 
-** TODO Modules [28/33]
+** TODO Modules [28/34]
 *** DONE Default Hardware
 #+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
 networking.useDHCP = lib.mkDefault true;
@@ -721,6 +724,9 @@ systemd.services.limit-cpu-max-perf = {
 02. 
 03. John & Darlene Powers
 04. 
+05. 
+06. 
+07. 
 
 **** DONE Networking
 Nginx listens on TCP 8096
@@ -735,7 +741,7 @@ networking = {
 };
 #+end_src
 
-**** DONE resolv.conf tmpfs
+**** WAIT resolv.conf tmpfs
 #+begin_src nix :noweb-ref no
 fileSystems."/etc/resolv.conf" = {
   device = "tmpfs";

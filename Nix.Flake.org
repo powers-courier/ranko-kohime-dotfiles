@@ -1019,8 +1019,7 @@ pkgs.mkShell {
     sshfs ranko@192.168.0.2:/mnt/youtube-dl/youtube-dl ~/mnt \
       -o reconnect \
       -o ServerAliveInterval=15 \
-      -o ServerAliveCountMax=20 \
-      -o workaround=nonodelay || echo "Mount failed"
+      -o ServerAliveCountMax=20 || echo "Mount failed"
 
     sshfs ranko@192.168.1.22:/mnt/tank2/Snapless/Workspace/ytdl-temp ~/mnt/z.DownloadTemp || echo "Mount failed"
 

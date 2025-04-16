@@ -367,6 +367,13 @@ jelly-proxy-03 = {
       fsType = "vfat";
       options = [ "fmask=0022" "dmask=0022" ];
     };
+
+  environment.etc."opt/shell.nix" = {
+    text = ''
+      <<nix-flake-module-ytdl-env>>
+    '';
+    mode = "0444";
+    };
 };
 #+end_src
 *** DONE jelly-proxy-04
@@ -979,8 +986,7 @@ services = {
 };
 #+end_src
 
-*** youtube-dl Environment
-**** shell.nix
+*** TODO youtube-dl Environment
 #+begin_src nix :noweb-ref nix-flake-module-ytdl-env
 { pkgs ? import <nixpkgs> {} }:
 pkgs.mkShell {
@@ -989,26 +995,27 @@ pkgs.mkShell {
     python3
     sshfs
   ];
+  shellHook = '''
+    mkdir -p ~/mnt
+
+    sshfs ranko@192.168.0.2:/mnt/youtube-dl/youtube-dl ~/mnt \
+      -o reconnect \
+      -o ServerAliveInterval=15 \
+      -o ServerAliveCountMax=20 \
+      -o workaround=nonodelay || echo "Mount failed"
+
+    sshfs ranko@192.168.1.22:/mnt/tank2/Snapless/Workspace/ytdl-temp ~/mnt/z.DownloadTemp || echo "Mount failed"
+
+    bash
+
+    fusermount -u ~/mnt/z.DownloadTemp
+    fusermount -u ~/mnt
+
+    exit
+  ''';
 }
 #+end_src
 
-**** shell.sh
-#+begin_src nix :noweb-ref nix-flake-module-ytdl-script
-#!/usr/bin/env bash
-mkdir -p ~/mnt
-
-sshfs 192.168.0.2:/mnt/youtube-dl/youtube-dl ~/mnt \
-  -o reconnect \
-  -o ServerAliveInterval=15 \
-  -o ServerAliveCountMax=20 \
-  -o workaround=nonodelay || echo "Mount failed"
-sshfs 192.168.1.22:/mnt/tank2/Snapless/Workspace/ytdl-temp ~/mnt/z.DownloadTemp || echo "Mount failed"
-
-nix-shell shell.nix
-
-fusermount -u ~/mnt/z.DownloadTemp
-fusermount -u ~/mnt
-#+end_src
 *** TODO ZFS
 #+begin_src nix :noweb-ref nix-flake-module-zfs
 {

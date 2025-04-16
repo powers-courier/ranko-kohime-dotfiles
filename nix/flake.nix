@@ -104,11 +104,8 @@
                   -o ServerAliveInterval=15 \
                   -o ServerAliveCountMax=20 || echo "Mount failed"
             
-                sshfs ranko@192.168.1.22:/mnt/tank2/Snapless/Workspace/ytdl-temp ~/mnt/z.DownloadTemp || echo "Mount failed"
-            
                 PS1="ytdl> " bash --login --noprofile
             
-                fusermount -u ~/mnt/z.DownloadTemp
                 fusermount -u ~/mnt
             
                 exit

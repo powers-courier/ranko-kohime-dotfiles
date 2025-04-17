@@ -18,6 +18,7 @@
                 type = "filesystem";
                 format = "vfat";
                 mountpoint = "/boot";
+                mountOptions = [ "umask=0077" ];
               };
             }
             {
@@ -35,11 +36,13 @@
     };
     zpool = {
       zroot = {
-        type = "zpool";
-        rootFsOptions = {
-          compression = "zstd";
+        options = {
           ashift = "12";
           autotrim = "on";
+        };
+        type = "zpool";
+        rootFsOptions = {
+          compression = "zstd-19";
           checksum = "edonr";
           "com.sun:auto-snapshot" = "true";
         };

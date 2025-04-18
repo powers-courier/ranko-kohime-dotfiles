@@ -129,6 +129,46 @@ pkgs = import nixpkgs {
 :properties:
 :header-args+: :noweb-ref nix-flake-host-configurations
 :end:
+*** Desktops
+**** Framework 7840U
+#+begin_src nix
+main-host = nixpkgs.lib.nixosSystem {
+  system = "x86_64-linux";
+  specialArgs = { inherit vars; };
+  modules = [
+    hardwareConfigs.framework-7840u
+
+    ({ pkgs, vars, ... }: {
+      <<nix-flake-modules-default>>
+      <<nix-flake-module-xfce-desktop>>
+    })
+
+    ({ pkgs, ... }: {
+      <<nix-flake-packages-unix-pass>>
+    })
+
+    ({ pkgs, vars, ... }: {
+      boot = {
+        supportedFilesystems = [ "zfs" ];
+        zfs.forceImportRoot = false;
+      };
+
+      environment.systemPackages = with pkgs; [
+        <<nix-flake-packages-multimedia-production>>
+        <<nix-flake-packages-nix-tools>>
+        <<nix-flake-packages-terminal>>
+      ];
+
+      networking = {
+        hostId = "af2f1b7f";
+        hostName = "framework-7840u";
+        networkmanager.enable = true;
+      };
+    })
+  ];
+};
+#+end_src
+
 *** TODO Servers [2/3]
 **** TODO Main Host
 #+begin_src nix
@@ -219,8 +259,6 @@ n100-1 = nixpkgs.lib.nixosSystem {
           };
         };
       };
-      programs.firefox.enable = true;
-      programs.mosh.enable = true;
       system.stateVersion = "23.11";
     })
 
@@ -301,10 +339,50 @@ in {
 #+end_src
 
 * Items
-** TODO Hardware Configs [6/9]
+** TODO Hardware Configs [7/10]
 :properties:
 :header-args+: :noweb-ref nix-flake-hardware-configs
 :end:
+*** DONE framework-7840u
+#+begin_src nix
+framework-7840u = {
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usb_storage" "sd_mod" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-amd" ];
+  boot.extraModulePackages = [ ];
+
+  fileSystems."/" =
+    { device = "zroot/root";
+      fsType = "zfs";
+    };
+
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/F83E-8932";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
+
+  fileSystems."/home" =
+    { device = "zroot/home";
+      fsType = "zfs";
+    };
+
+  fileSystems."/nix" =
+    { device = "zroot/nix";
+      fsType = "zfs";
+    };
+
+  fileSystems."/var" =
+    { device = "zroot/var";
+      fsType = "zfs";
+    };
+
+  swapDevices = [ ];
+
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+};
+#+end_src
 *** DONE jelly-proxy-01
 #+begin_src nix
 jelly-proxy-01 = {

@@ -23,6 +23,43 @@
 
   let
     hardwareConfigs = {
+      framework-7840u = {
+        boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usb_storage" "sd_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-amd" ];
+        boot.extraModulePackages = [ ];
+      
+        fileSystems."/" =
+          { device = "zroot/root";
+            fsType = "zfs";
+          };
+      
+        fileSystems."/boot" =
+          { device = "/dev/disk/by-uuid/F83E-8932";
+            fsType = "vfat";
+            options = [ "fmask=0077" "dmask=0077" ];
+          };
+      
+        fileSystems."/home" =
+          { device = "zroot/home";
+            fsType = "zfs";
+          };
+      
+        fileSystems."/nix" =
+          { device = "zroot/nix";
+            fsType = "zfs";
+          };
+      
+        fileSystems."/var" =
+          { device = "zroot/var";
+            fsType = "zfs";
+          };
+      
+        swapDevices = [ ];
+      
+        nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+        hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+      };
       jelly-proxy-01 = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
         boot.initrd.kernelModules = [ ];
@@ -441,6 +478,164 @@
           system = "x86_64-linux";
           specialArgs = { inherit vars; };
           modules = [
+            hardwareConfigs.framework-7840u
+        
+            ({ pkgs, vars, ... }: {
+              boot.loader = {
+                efi.canTouchEfiVariables = true;
+                systemd-boot.enable = true;
+              };
+              nix.settings.experimental-features = [ "nix-command" "flakes" ];
+              i18n = {
+                defaultLocale = vars.loKale;
+                extraLocaleSettings = {
+                  LC_ADDRESS = vars.loKale;
+                  LC_IDENTIFICATION = vars.loKale;
+                  LC_MEASUREMENT = vars.loKale;
+                  LC_MONETARY = vars.loKale;
+                  LC_NAME = vars.loKale;
+                  LC_NUMERIC = vars.loKale;
+                  LC_PAPER = vars.loKale;
+                  LC_TELEPHONE = vars.loKale;
+                  LC_TIME = vars.loKale;
+                };
+              };
+              networking.networkmanager.enable = true;
+              services.openssh = {
+                banner = "Welcome to... wherever you happen to be\n";
+                enable = true;
+                extraConfig ="";
+                openFirewall = true;
+                ports = [ 22 ];
+                settings = {
+                  PasswordAuthentication = false;
+                  PermitRootLogin = "prohibit-password";
+                  PrintMotd = true;
+                  StrictModes = true;
+                  X11Forwarding = true;
+                };
+              };
+              programs.mosh.enable = true;
+              programs.nano.nanorc = ''
+                set autoindent
+                set boldtext
+                set const
+                set nowrap
+                set smarthome
+                set tabsize 2
+                set tabstospaces
+              ''
+              environment.systemPackages = with pkgs; [
+                byobu
+                git
+                glances
+                lm_sensors
+                tmux
+                unison
+              ];
+              services.tailscale = {
+                enable = true;
+                openFirewall = true;
+                port = 0;
+              };
+              time.timeZone = vars.timeZern;
+              users = {
+                groups.jellyfin = {
+                  gid = 8096;
+                  name = "jellyfin";
+                };
+                users.jellyfin = {
+                  extraGroups = [ "render" "video" ];
+                  group = "jellyfin";
+                  isNormalUser = true;
+                  isSystemUser = lib.mkForce false;
+                  uid = 8096;
+                };
+              };
+              users.users.ranko = {
+                isNormalUser = true;
+                description = "Ranko Kohime";
+                extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
+              };
+              zramSwap = {
+                enable = true;
+                priority = 1;
+                memoryPercent = 100;
+                swapDevices = 1;
+              };
+              services = {
+                displayManager = {
+                  autoLogin = {
+                    enable = true;
+                    user = "ranko";
+                  };
+                  defaultSession = "xfce";
+                };
+                xserver = {
+                  displayManager = {
+                    lightdm.enable = true;
+                  };
+                  desktopManager.xfce.enable = true;
+                  enable = true;
+                  xkb = {
+                    layout = "us";
+                    variant = "";
+                  };
+                };
+              };
+              programs.firefox.enable = true;
+            })
+        
+            ({ pkgs, ... }: {
+              environment.systemPackages = [
+                pkgs.pass
+              ];
+              programs.gnupg.agent = {
+                 enable = true;
+                 pinentryPackage = pkgs.pinentry-curses;
+                 enableSSHSupport = true;
+              };
+              services.pcscd.enable = true;
+            })
+        
+            ({ pkgs, vars, ... }: {
+              boot = {
+                supportedFilesystems = [ "zfs" ];
+                zfs.forceImportRoot = false;
+              };
+        
+              environment.systemPackages = with pkgs; [
+                flac
+                handbrake
+                mediainfo
+                mkvtoolnix
+                python312Packages.musicbrainzngs
+                quodlibet
+                vorbisgain
+                vorbis-tools
+                deadnix
+                statix
+                byobu
+                glances
+                lm_sensors
+                neovim
+                ranger
+                tmux
+                tree
+              ];
+        
+              networking = {
+                hostId = "af2f1b7f";
+                hostName = "framework-7840u";
+                networkmanager.enable = true;
+              };
+            })
+          ];
+        };
+        main-host = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit vars; };
+          modules = [
             ({ config, lib, ... }: {
               networking.useDHCP = lib.mkDefault true;
               nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
@@ -723,7 +918,6 @@
                   };
                 };
               };
-              programs.firefox.enable = true;
               system.stateVersion = "23.11";
             })
         
@@ -830,6 +1024,7 @@
                   };
                 };
               };
+              programs.firefox.enable = true;
               networking = {
                 domain = "midgard";
                 firewall.allowedTCPPorts = [ 2049 ];

@@ -1172,12 +1172,14 @@ pkgs.mkShell {
 
 ** TODO Packages [3/5]
 *** DONE Multimedia Production
+python3.12-musicbrainzngs is a dependency of Ex Falso
 Quod Libet brings in Ex Falso
 #+begin_src nix :noweb-ref nix-flake-packages-multimedia-production
 flac
 handbrake
 mediainfo
 mkvtoolnix
+python312Packages.musicbrainzngs
 quodlibet
 vorbisgain
 vorbis-tools

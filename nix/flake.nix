@@ -580,6 +580,7 @@
                 handbrake
                 mediainfo
                 mkvtoolnix
+                python312Packages.musicbrainzngs
                 quodlibet
                 vorbisgain
                 vorbis-tools
@@ -657,6 +658,7 @@
                 handbrake
                 mediainfo
                 mkvtoolnix
+                python312Packages.musicbrainzngs
                 quodlibet
                 vorbisgain
                 vorbis-tools

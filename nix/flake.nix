@@ -248,6 +248,7 @@
                 X11Forwarding = true;
               };
             };
+            programs.mosh.enable = true;
             programs.nano.nanorc = ''
               set autoindent
               set boldtext
@@ -271,6 +272,19 @@
               port = 0;
             };
             time.timeZone = vars.timeZern;
+            users = {
+              groups.jellyfin = {
+                gid = 8096;
+                name = "jellyfin";
+              };
+              users.jellyfin = {
+                extraGroups = [ "render" "video" ];
+                group = "jellyfin";
+                isNormalUser = true;
+                isSystemUser = lib.mkForce false;
+                uid = 8096;
+              };
+            };
             users.users.ranko = {
               isNormalUser = true;
               description = "Ranko Kohime";
@@ -470,6 +484,7 @@
                   X11Forwarding = true;
                 };
               };
+              programs.mosh.enable = true;
               programs.nano.nanorc = ''
                 set autoindent
                 set boldtext
@@ -493,6 +508,19 @@
                 port = 0;
               };
               time.timeZone = vars.timeZern;
+              users = {
+                groups.jellyfin = {
+                  gid = 8096;
+                  name = "jellyfin";
+                };
+                users.jellyfin = {
+                  extraGroups = [ "render" "video" ];
+                  group = "jellyfin";
+                  isNormalUser = true;
+                  isSystemUser = lib.mkForce false;
+                  uid = 8096;
+                };
+              };
               users.users.ranko = {
                 isNormalUser = true;
                 description = "Ranko Kohime";
@@ -606,19 +634,6 @@
             })
         
             ({ config, lib, pkgs, ... }: {
-              users = {
-                groups.jellyfin = {
-                  gid = 8096;
-                  name = "jellyfin";
-                };
-                users.jellyfin = {
-                  extraGroups = [ "render" "video" ];
-                  group = "jellyfin";
-                  isNormalUser = true;
-                  isSystemUser = lib.mkForce false;
-                  uid = 8096;
-                };
-              };
               boot.kernelParams = [
                 "i915.enable_guc=2"
               ];
@@ -709,7 +724,6 @@
                 };
               };
               programs.firefox.enable = true;
-              programs.mosh.enable = true;
               system.stateVersion = "23.11";
             })
         
@@ -748,6 +762,7 @@
                   X11Forwarding = true;
                 };
               };
+              programs.mosh.enable = true;
               programs.nano.nanorc = ''
                 set autoindent
                 set boldtext
@@ -771,6 +786,19 @@
                 port = 0;
               };
               time.timeZone = vars.timeZern;
+              users = {
+                groups.jellyfin = {
+                  gid = 8096;
+                  name = "jellyfin";
+                };
+                users.jellyfin = {
+                  extraGroups = [ "render" "video" ];
+                  group = "jellyfin";
+                  isNormalUser = true;
+                  isSystemUser = lib.mkForce false;
+                  uid = 8096;
+                };
+              };
               users.users.ranko = {
                 isNormalUser = true;
                 description = "Ranko Kohime";
@@ -800,19 +828,6 @@
                     layout = "us";
                     variant = "";
                   };
-                };
-              };
-              users = {
-                groups.jellyfin = {
-                  gid = 8096;
-                  name = "jellyfin";
-                };
-                users.jellyfin = {
-                  extraGroups = [ "render" "video" ];
-                  group = "jellyfin";
-                  isNormalUser = true;
-                  isSystemUser = lib.mkForce false;
-                  uid = 8096;
                 };
               };
               networking = {

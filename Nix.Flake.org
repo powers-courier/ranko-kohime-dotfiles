@@ -616,7 +616,7 @@ programs.nano.nanorc = ''
   set smarthome
   set tabsize 2
   set tabstospaces
-''
+'';
 #+end_src
 ***** DONE Packages
 #+begin_src nix
@@ -658,7 +658,7 @@ zramSwap = {
 #+end_src
 *** Disks
 **** Disko
-***** Single NVMe ZFS, no swap
+***** DONE Single NVMe ZFS, no swap [8/8]
 #+begin_src nix :tangle nix/disko/single-nvme-zfs-noswap.nix
 {
   disko.devices = {
@@ -684,7 +684,7 @@ zramSwap = {
         type = "zpool";
         rootFsOptions = {
           compression = "zstd-19";
-          checksum = "edonr";
+          checksum = "sha256";
           "com.sun:auto-snapshot" = "true";
         };
         datasets = {

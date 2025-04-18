@@ -43,7 +43,7 @@
         type = "zpool";
         rootFsOptions = {
           compression = "zstd-19";
-          checksum = "edonr";
+          checksum = "sha256";
           "com.sun:auto-snapshot" = "true";
         };
         datasets = {

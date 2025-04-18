@@ -465,7 +465,7 @@ n100-1 = {
 };
 #+end_src
 
-** TODO Modules [36/42]
+** TODO Modules [37/43]
 *** DONE Default Hardware
 #+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
 networking.useDHCP = lib.mkDefault true;
@@ -528,6 +528,18 @@ services.openssh = {
     X11Forwarding = true;
   };
 };
+#+end_src
+***** Nano Configuration
+#+begin_src nix
+programs.nano.nanorc = ''
+  set autoindent
+  set boldtext
+  set const
+  set nowrap
+  set smarthome
+  set tabsize 2
+  set tabstospaces
+''
 #+end_src
 ***** DONE Packages
 #+begin_src nix

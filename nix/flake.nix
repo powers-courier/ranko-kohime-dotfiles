@@ -248,6 +248,15 @@
                 X11Forwarding = true;
               };
             };
+            programs.nano.nanorc = ''
+              set autoindent
+              set boldtext
+              set const
+              set nowrap
+              set smarthome
+              set tabsize 2
+              set tabstospaces
+            ''
             environment.systemPackages = with pkgs; [
               byobu
               git
@@ -461,6 +470,15 @@
                   X11Forwarding = true;
                 };
               };
+              programs.nano.nanorc = ''
+                set autoindent
+                set boldtext
+                set const
+                set nowrap
+                set smarthome
+                set tabsize 2
+                set tabstospaces
+              ''
               environment.systemPackages = with pkgs; [
                 byobu
                 git
@@ -730,6 +748,15 @@
                   X11Forwarding = true;
                 };
               };
+              programs.nano.nanorc = ''
+                set autoindent
+                set boldtext
+                set const
+                set nowrap
+                set smarthome
+                set tabsize 2
+                set tabstospaces
+              ''
               environment.systemPackages = with pkgs; [
                 byobu
                 git

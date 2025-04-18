@@ -132,7 +132,7 @@ pkgs = import nixpkgs {
 *** Desktops
 **** Framework 7840U
 #+begin_src nix
-main-host = nixpkgs.lib.nixosSystem {
+framework-7840u = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { inherit vars; };
   modules = [

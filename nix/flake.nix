@@ -294,7 +294,7 @@
               set smarthome
               set tabsize 2
               set tabstospaces
-            ''
+            '';
             environment.systemPackages = with pkgs; [
               byobu
               git
@@ -474,7 +474,7 @@
   in
     {
       nixosConfigurations = Jelly-Proxy-Configs // {
-        main-host = nixpkgs.lib.nixosSystem {
+        framework-7840u = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit vars; };
           modules = [
@@ -524,7 +524,7 @@
                 set smarthome
                 set tabsize 2
                 set tabstospaces
-              ''
+              '';
               environment.systemPackages = with pkgs; [
                 byobu
                 git
@@ -688,7 +688,7 @@
                 set smarthome
                 set tabsize 2
                 set tabstospaces
-              ''
+              '';
               environment.systemPackages = with pkgs; [
                 byobu
                 git
@@ -965,7 +965,7 @@
                 set smarthome
                 set tabsize 2
                 set tabstospaces
-              ''
+              '';
               environment.systemPackages = with pkgs; [
                 byobu
                 git

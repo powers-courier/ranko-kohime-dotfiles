@@ -623,7 +623,7 @@ programs.mosh.enable = true;
 programs.nano.nanorc = ''
   set autoindent
   set boldtext
-  set const
+  set constantshow
   set nowrap
   set smarthome
   set tabsize 2

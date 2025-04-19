@@ -359,32 +359,29 @@ framework-7840u = {
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/" =
-    { device = "zroot/root";
+  fileSystems = {
+    "/" = {
+      device = "zroot/root";
       fsType = "zfs";
     };
-
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/F83E-8932";
+    "/boot" = {
+      device = "/dev/disk/by-uuid/F83E-8932";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
-
-  fileSystems."/home" =
-    { device = "zroot/home";
+    "/home" = {
+      device = "zroot/home";
       fsType = "zfs";
     };
-
-  fileSystems."/nix" =
-    { device = "zroot/nix";
+    "/nix" = {
+      device = "zroot/nix";
       fsType = "zfs";
     };
-
-  fileSystems."/var" =
-    { device = "zroot/var";
+    "/var" = {
+      device = "zroot/var";
       fsType = "zfs";
     };
-
+  };
   swapDevices = [ ];
 };
 #+end_src
@@ -396,17 +393,18 @@ jelly-proxy-01 = {
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/" =
-    { device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
       fsType = "ext4";
       options = [ "defaults" ];
     };
-
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/7655-7B22";
+    "/boot" = {
+      device = "/dev/disk/by-uuid/7655-7B22";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
+  };
 };
 #+end_src
 *** DONE jelly-proxy-02
@@ -437,27 +435,27 @@ jelly-proxy-03 = {
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/" =
-    { device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
       fsType = "ext4";
       options = [ "defaults" ];
     };
-
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/5320-4C3E";
+    "/boot" = {
+      device = "/dev/disk/by-uuid/5320-4C3E";
       fsType = "vfat";
       options = [ "fmask=0022" "dmask=0022" ];
     };
-
-  fileSystems."/Mounts/Music" = {
-    device = "192.168.1.22:/mnt/tank2/Snapshotted/Music";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  fileSystems."/Mounts/Videos" = {
-    device = "192.168.1.22:/mnt/tank2/Snapshotted/Videos";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
+    "/Mounts/Music" = {
+      device = "192.168.1.22:/mnt/tank2/Snapshotted/Music";
+      fsType = "nfs";
+      options = [ <<nix-flake-nfs-common-mount>> ];
+    };
+    "/Mounts/Videos" = {
+      device = "192.168.1.22:/mnt/tank2/Snapshotted/Videos";
+      fsType = "nfs";
+      options = [ <<nix-flake-nfs-common-mount>> ];
+    };
   };
 
   environment.etc."opt/shell.nix" = {

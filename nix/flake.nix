@@ -29,32 +29,29 @@
         boot.kernelModules = [ "kvm-amd" ];
         boot.extraModulePackages = [ ];
       
-        fileSystems."/" =
-          { device = "zroot/root";
+        fileSystems = {
+          "/" = {
+            device = "zroot/root";
             fsType = "zfs";
           };
-      
-        fileSystems."/boot" =
-          { device = "/dev/disk/by-uuid/F83E-8932";
+          "/boot" = {
+            device = "/dev/disk/by-uuid/F83E-8932";
             fsType = "vfat";
             options = [ "fmask=0077" "dmask=0077" ];
           };
-      
-        fileSystems."/home" =
-          { device = "zroot/home";
+          "/home" = {
+            device = "zroot/home";
             fsType = "zfs";
           };
-      
-        fileSystems."/nix" =
-          { device = "zroot/nix";
+          "/nix" = {
+            device = "zroot/nix";
             fsType = "zfs";
           };
-      
-        fileSystems."/var" =
-          { device = "zroot/var";
+          "/var" = {
+            device = "zroot/var";
             fsType = "zfs";
           };
-      
+        };
         swapDevices = [ ];
       };
       jelly-proxy-01 = {
@@ -63,17 +60,18 @@
         boot.kernelModules = [ "kvm-intel" ];
         boot.extraModulePackages = [ ];
       
-        fileSystems."/" =
-          { device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
+        fileSystems = {
+          "/" = {
+            device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
             fsType = "ext4";
             options = [ "defaults" ];
           };
-      
-        fileSystems."/boot" =
-          { device = "/dev/disk/by-uuid/7655-7B22";
+          "/boot" = {
+            device = "/dev/disk/by-uuid/7655-7B22";
             fsType = "vfat";
             options = [ "fmask=0077" "dmask=0077" ];
           };
+        };
       };
       jelly-proxy-02 = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
@@ -98,27 +96,37 @@
         boot.kernelModules = [ "kvm-intel" ];
         boot.extraModulePackages = [ ];
       
-        fileSystems."/" =
-          { device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
+        fileSystems = {
+          "/" = {
+            device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
             fsType = "ext4";
             options = [ "defaults" ];
           };
-      
-        fileSystems."/boot" =
-          { device = "/dev/disk/by-uuid/5320-4C3E";
+          "/boot" = {
+            device = "/dev/disk/by-uuid/5320-4C3E";
             fsType = "vfat";
             options = [ "fmask=0022" "dmask=0022" ];
           };
-      
-        fileSystems."/Mounts/Music" = {
-          device = "192.168.1.22:/mnt/tank2/Snapshotted/Music";
-          fsType = "nfs";
-          options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-        };
-        fileSystems."/Mounts/Videos" = {
-          device = "192.168.1.22:/mnt/tank2/Snapshotted/Videos";
-          fsType = "nfs";
-          options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
+          "/Mounts/Music" = {
+            device = "192.168.1.22:/mnt/tank2/Snapshotted/Music";
+            fsType = "nfs";
+            options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
+          };
+          "/Mounts/Videos" = {
+            device = "192.168.1.22:/mnt/tank2/Snapshotted/Videos";
+            fsType = "nfs";
+            options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
+          };
+          "/Mounts/youtube-dl" = {
+            device = "192.168.0.2:/mnt/youtube-dl/youtube-dl";
+            fsType = "nfs";
+            options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
+          };
+          "/Mounts/youtube-dl/z.DownloadTemp" = {
+            device = "192.168.1.22:/mnt/tank2/Snapless/Workspace/ytdl-temp";
+            fsType = "nfs";
+            options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
+          };
         };
       
         environment.etc."opt/shell.nix" = {

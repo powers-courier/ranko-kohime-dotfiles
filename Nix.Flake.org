@@ -456,6 +456,16 @@ jelly-proxy-03 = {
       fsType = "nfs";
       options = [ <<nix-flake-nfs-common-mount>> ];
     };
+    "/Mounts/youtube-dl" = {
+      device = "192.168.0.2:/mnt/youtube-dl/youtube-dl";
+      fsType = "nfs";
+      options = [ <<nix-flake-nfs-common-mount>> ];
+    };
+    "/Mounts/youtube-dl/z.DownloadTemp" = {
+      device = "192.168.1.22:/mnt/tank2/Snapless/Workspace/ytdl-temp";
+      fsType = "nfs";
+      options = [ <<nix-flake-nfs-common-mount>> ];
+    };
   };
 
   environment.etc."opt/shell.nix" = {

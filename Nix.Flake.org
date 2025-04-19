@@ -136,9 +136,13 @@ framework-7840u = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { inherit vars; };
   modules = [
+    ({ config, lib, ... }: {
+      <<nix-flake-hardware-defaults-amd>>
+    })
+
     hardwareConfigs.framework-7840u
 
-    ({ pkgs, vars, ... }: {
+    ({ lib, pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
       <<nix-flake-module-xfce-desktop>>
     })
@@ -153,6 +157,8 @@ framework-7840u = nixpkgs.lib.nixosSystem {
         zfs.forceImportRoot = false;
       };
 
+      <<nix-flake-module-zfs>>
+
       environment.systemPackages = with pkgs; [
         <<nix-flake-packages-multimedia-production>>
         <<nix-flake-packages-nix-tools>>
@@ -162,8 +168,9 @@ framework-7840u = nixpkgs.lib.nixosSystem {
       networking = {
         hostId = "af2f1b7f";
         hostName = "framework-7840u";
-        networkmanager.enable = true;
       };
+
+      system.stateVersion = "25.05";
     })
   ];
 };
@@ -182,7 +189,7 @@ main-host = nixpkgs.lib.nixosSystem {
 
     hardwareConfigs.main-host
 
-    ({ pkgs, vars, ... }: {
+    ({ lib, pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
     })
 
@@ -191,6 +198,8 @@ main-host = nixpkgs.lib.nixosSystem {
         supportedFilesystems = [ "zfs" ];
         zfs.forceImportRoot = false;
       };
+
+      <<nix-flake-module-zfs>>
 
       networking = {
         hostId = "2b7f3c3a";
@@ -223,7 +232,7 @@ main-host = nixpkgs.lib.nixosSystem {
 };
 #+end_src
 
-**** DONE N100-1 [1/1]
+**** DONE N100-1
 #+begin_src nix
 n100-1 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
@@ -314,7 +323,7 @@ in {
 
       hardwareConfigs.${name}
 
-      ({ pkgs, vars, ... }: {
+      ({ lib, pkgs, vars, ... }: {
         networking.hostName = name;
         system.stateVersion = "25.05";
         <<nix-flake-modules-default>>
@@ -378,9 +387,6 @@ framework-7840u = {
     };
 
   swapDevices = [ ];
-
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 };
 #+end_src
 *** DONE jelly-proxy-01
@@ -543,6 +549,12 @@ n100-1 = {
 
 ** TODO Modules [38/44]
 *** DONE Default Hardware
+#+begin_src nix :noweb-ref nix-flake-hardware-defaults-amd
+networking.useDHCP = lib.mkDefault true;
+nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+#+end_src
+
 #+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
 networking.useDHCP = lib.mkDefault true;
 nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
@@ -1252,14 +1264,24 @@ pkgs.mkShell {
 
 *** TODO ZFS
 #+begin_src nix :noweb-ref nix-flake-module-zfs
-{
-  services.zfs = {
+boot.kernelParams = [ "zfs.zfs_arc_max=12884901888" ];
+
+services = {
+  sanoid = {
+    enable = true;
+  };
+  syncoid = {
+    enable = true;
+  };
+  zfs = {
     autoScrub = {
       enable = true;
-      pools = [];
+      interval = "monthly";
+      pools = [ "zroot" ];
+    trim.enable = true;
     };
   };
-}
+};
 #+end_src
 
 ** TODO Packages [3/5]

@@ -56,9 +56,6 @@
           };
       
         swapDevices = [ ];
-      
-        nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-        hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
       };
       jelly-proxy-01 = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
@@ -248,7 +245,7 @@
     
           hardwareConfigs.${name}
     
-          ({ pkgs, vars, ... }: {
+          ({ lib, pkgs, vars, ... }: {
             networking.hostName = name;
             system.stateVersion = "25.05";
             boot.loader = {
@@ -289,7 +286,7 @@
             programs.nano.nanorc = ''
               set autoindent
               set boldtext
-              set const
+              set constantshow
               set nowrap
               set smarthome
               set tabsize 2
@@ -478,9 +475,15 @@
           system = "x86_64-linux";
           specialArgs = { inherit vars; };
           modules = [
+            ({ config, lib, ... }: {
+              networking.useDHCP = lib.mkDefault true;
+              nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+              hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+            })
+        
             hardwareConfigs.framework-7840u
         
-            ({ pkgs, vars, ... }: {
+            ({ lib, pkgs, vars, ... }: {
               boot.loader = {
                 efi.canTouchEfiVariables = true;
                 systemd-boot.enable = true;
@@ -519,7 +522,7 @@
               programs.nano.nanorc = ''
                 set autoindent
                 set boldtext
-                set const
+                set constantshow
                 set nowrap
                 set smarthome
                 set tabsize 2
@@ -627,8 +630,9 @@
               networking = {
                 hostId = "af2f1b7f";
                 hostName = "framework-7840u";
-                networkmanager.enable = true;
               };
+        
+              system.stateVersion = "25.05";
             })
           ];
         };
@@ -644,7 +648,7 @@
         
             hardwareConfigs.main-host
         
-            ({ pkgs, vars, ... }: {
+            ({ lib, pkgs, vars, ... }: {
               boot.loader = {
                 efi.canTouchEfiVariables = true;
                 systemd-boot.enable = true;
@@ -683,7 +687,7 @@
               programs.nano.nanorc = ''
                 set autoindent
                 set boldtext
-                set const
+                set constantshow
                 set nowrap
                 set smarthome
                 set tabsize 2
@@ -960,7 +964,7 @@
               programs.nano.nanorc = ''
                 set autoindent
                 set boldtext
-                set const
+                set constantshow
                 set nowrap
                 set smarthome
                 set tabsize 2

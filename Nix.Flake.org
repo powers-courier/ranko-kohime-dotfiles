@@ -160,6 +160,7 @@ framework-7840u = nixpkgs.lib.nixosSystem {
       <<nix-flake-module-zfs>>
 
       environment.systemPackages = with pkgs; [
+        <<nix-flake-packages-file-management>>
         <<nix-flake-packages-multimedia-production>>
         <<nix-flake-packages-nix-tools>>
         <<nix-flake-packages-terminal>>
@@ -246,14 +247,12 @@ n100-1 = nixpkgs.lib.nixosSystem {
 
     ({ pkgs, ... }: {
       environment.systemPackages = with pkgs; [
+        <<nix-flake-packages-file-management>>
         <<nix-flake-packages-multimedia-production>>
         <<nix-flake-packages-nix-tools>>
         <<nix-flake-packages-terminal>>
         emacs
         ffmpeg-full
-        gprename
-        mate.engrampa
-        neovim
         python3
       ];
       networking = {
@@ -1285,11 +1284,19 @@ services = {
 #+end_src
 
 ** TODO Packages [3/5]
+*** File Management
+#+begin_src nix :noweb-ref nix-flake-packages-file-management
+gprename
+mate.engrampa
+#+end_src
+
 *** DONE Multimedia Production
+gimp3-with-plugins is missing for some reason as of 2025/04/19?
 python3.12-musicbrainzngs is a dependency of Ex Falso
 Quod Libet brings in Ex Falso
 #+begin_src nix :noweb-ref nix-flake-packages-multimedia-production
 flac
+#gimp3-with-plugins
 handbrake
 mediainfo
 mkvtoolnix

@@ -216,6 +216,7 @@ main-host = nixpkgs.lib.nixosSystem {
         };
       };
 
+      <<nix-flake-nfs-client-settings>>
       <<nix-flake-nfs-documents>>
       <<nix-flake-nfs-multimedia>>
 

@@ -761,6 +761,20 @@
                 };
               };
         
+              networking = {
+                domain = "midgard";
+                firewall.allowedTCPPorts = [ 2049 ];
+              };
+              services = {
+                nfs.idmapd = {
+                  settings = {
+                    General = {
+                      Domain = "midgard";
+                    };
+                  };
+                };
+                rpcbind.enable = true;
+              };
               fileSystems = {
                 "/Mounts/Disks" = {
                   device = "${vars.truenas-ip}:/mnt/Svartalfheim/Disks";

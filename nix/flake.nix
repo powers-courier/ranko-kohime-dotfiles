@@ -72,16 +72,17 @@
         boot.kernelModules = [ "kvm-intel" ];
         boot.extraModulePackages = [ ];
       
-        fileSystems."/" =
-          { device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
+        fileSystems = {
+          "/" = {
+            device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
             fsType = "ext4";
           };
-      
-        fileSystems."/boot" =
-          { device = "/dev/disk/by-uuid/B830-073C";
+          "/boot" = {
+            device = "/dev/disk/by-uuid/B830-073C";
             fsType = "vfat";
             options = [ "fmask=0077" "dmask=0077" ];
           };
+        };
       };
       jelly-proxy-03 = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];
@@ -142,16 +143,17 @@
         boot.kernelModules = [ "kvm-intel" ];
         boot.extraModulePackages = [ ];
       
-        fileSystems."/" =
-          { device = "/dev/disk/by-uuid/8bfa1c39-f4c5-4b66-8a9e-db7b7b7cbb72";
+        fileSystems = {
+          "/" = {
+            device = "/dev/disk/by-uuid/8bfa1c39-f4c5-4b66-8a9e-db7b7b7cbb72";
             fsType = "ext4";
           };
-      
-        fileSystems."/boot" =
-          { device = "/dev/disk/by-uuid/19A8-4887";
+          "/boot" = {
+            device = "/dev/disk/by-uuid/19A8-4887";
             fsType = "vfat";
             options = [ "fmask=0077" "dmask=0077" ];
           };
+        };
       };
       main-host = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sr_mod" ];
@@ -159,31 +161,29 @@
         boot.kernelModules = [ "kvm-intel" ];
         boot.extraModulePackages = [ ];
       
-        fileSystems."/" =
+        fileSystems = {
+          "/" =
           { device = "zroot/root";
             fsType = "zfs";
           };
-      
-        fileSystems."/nix" =
-          { device = "zroot/nix";
+          "/nix" = {
+            device = "zroot/nix";
             fsType = "zfs";
           };
-      
-        fileSystems."/var" =
-          { device = "zroot/var";
+          "/var" = {
+            device = "zroot/var";
             fsType = "zfs";
           };
-      
-        fileSystems."/home" =
-          { device = "zroot/home";
+          "/home" = {
+            device = "zroot/home";
             fsType = "zfs";
           };
-      
-        fileSystems."/boot" =
-          { device = "/dev/disk/by-uuid/A0D5-9779";
+          "/boot" = {
+            device = "/dev/disk/by-uuid/A0D5-9779";
             fsType = "vfat";
             options = [ "fmask=0022" "dmask=0022" ];
           };
+        };
       };
       n100-1 = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
@@ -191,15 +191,17 @@
         boot.kernelModules = [ "kvm-intel" ];
         boot.extraModulePackages = [ ];
       
-        fileSystems."/" =
-          { device = "/dev/disk/by-uuid/3baf4636-0456-44fc-a48b-72fbb49cea3f";
+        fileSystems = {
+          "/" = {
+            device = "/dev/disk/by-uuid/3baf4636-0456-44fc-a48b-72fbb49cea3f";
             fsType = "ext4";
           };
-      
-        fileSystems."/boot" =
-          { device = "/dev/disk/by-uuid/9BBB-EE1C";
+          "/boot" = {
+            device = "/dev/disk/by-uuid/9BBB-EE1C";
             fsType = "vfat";
+            options = [ "fmask=0077" "dmask=0077" ];
           };
+        };
       };
     };
 

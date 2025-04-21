@@ -21,11 +21,7 @@ Gippity Says:
   };
 
   outputs =
-    {
-      self,
-      <<nix-flake-output-header>>
-      ...
-    }:
+    { self, nixpkgs, hardware, home-manager, ... }@inputs:
 
   let
     hardwareConfigs = {
@@ -39,6 +35,10 @@ Gippity Says:
     };
   in
     {
+      homeConfigurations = {
+        <<nix-flake-home-configurations>>
+      };
+
       nixosConfigurations = Jelly-Proxy-Configs // {
         <<nix-flake-host-configurations>>
       };
@@ -55,26 +55,15 @@ Gippity Says:
 nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 #+end_src
 
-#+begin_src nix :noweb-ref nix-flake-output-header
-nixpkgs,
-#+end_src
-
 *** DONE Hardware
 #+begin_src nix
 hardware.url = "github:nixos/nixos-hardware";
 #+end_src
 
-#+begin_src nix :noweb-ref nix-flake-output-header
-hardware,
-#+end_src
-
 *** DONE Disko
 #+begin_src nix
 disko.url = "github:nix-community/disko";
-#+end_src
-
-#+begin_src nix :noweb-ref nix-flake-output-header
-disko,
+disko.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
 *** DONE Home Manager
@@ -83,17 +72,11 @@ home-manager.url = "github:nix-community/home-manager";
 home-manager.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-#+begin_src nix :noweb-ref nix-flake-output-header
-home-manager,
-#+end_src
-
 *** DONE Flake Utils
 #+begin_src nix
 flake-utils.url = "github:numtide/flake-utils";
 #+end_src
 
-#+begin_src nix :noweb-ref nix-flake-output-header
-flake-utils,
 #+end_src
 
 ** TODO Variables [3/4]
@@ -144,6 +127,9 @@ framework-7840u = nixpkgs.lib.nixosSystem {
 
     ({ lib, pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
+    })
+
+    ({ pkgs, ... }: {
       <<nix-flake-module-xfce-desktop>>
     })
 
@@ -151,7 +137,7 @@ framework-7840u = nixpkgs.lib.nixosSystem {
       <<nix-flake-packages-unix-pass>>
     })
 
-    ({ pkgs, vars, ... }: {
+    ({ pkgs, ... }: {
       boot = {
         supportedFilesystems = [ "zfs" ];
         zfs.forceImportRoot = false;
@@ -227,7 +213,7 @@ main-host = nixpkgs.lib.nixosSystem {
       ];
     })
 
-    ({ config, lib, pkgs, ... }: {
+    ({ config, pkgs, ... }: {
       <<nix-flake-module-jellyfin-server>>
     })
   ];
@@ -273,10 +259,13 @@ n100-1 = nixpkgs.lib.nixosSystem {
 
     ({ lib, pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
-      <<nix-flake-module-xfce-desktop>>
       <<nix-flake-nfs-client-settings>>
       <<nix-flake-nfs-documents>>
       <<nix-flake-nfs-multimedia>>
+    })
+
+    ({ pkgs, ... }: {
+      <<nix-flake-module-xfce-desktop>>
     })
 
     ({ pkgs, ... }: {

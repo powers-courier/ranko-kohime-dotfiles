@@ -150,6 +150,7 @@ framework-7840u = nixpkgs.lib.nixosSystem {
         <<nix-flake-packages-multimedia-production>>
         <<nix-flake-packages-nix-tools>>
         <<nix-flake-packages-terminal>>
+        ryzenadj
       ];
 
       networking = {

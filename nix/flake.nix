@@ -619,6 +619,7 @@
                 ranger
                 tmux
                 tree
+                ryzenadj
               ];
         
               networking = {

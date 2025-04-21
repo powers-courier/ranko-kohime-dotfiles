@@ -138,20 +138,6 @@
                 python3
                 sshfs
               ];
-              shellHook = '''
-                mkdir -p ~/mnt
-            
-                sshfs ranko@192.168.0.2:/mnt/youtube-dl/youtube-dl ~/mnt \
-                  -o reconnect \
-                  -o ServerAliveInterval=15 \
-                  -o ServerAliveCountMax=20 || echo "Mount failed"
-            
-                PS1="ytdl> " bash --login --noprofile
-            
-                fusermount -u ~/mnt
-            
-                exit
-              ''';
             }
           '';
           mode = "0444";

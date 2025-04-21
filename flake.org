@@ -1221,6 +1221,11 @@ fileSystems = {
 #+end_src
 *** DONE XFCE Desktop
 #+begin_src nix :noweb-ref nix-flake-module-xfce-desktop
+environment.systemPackages = with pkgs; [
+  ulauncher
+];
+
+programs.firefox.enable = true;
 services = {
   displayManager = {
     autoLogin = {
@@ -1241,7 +1246,6 @@ services = {
     };
   };
 };
-programs.firefox.enable = true;
 #+end_src
 
 *** TODO youtube-dl Environment
@@ -1272,8 +1276,8 @@ services = {
       enable = true;
       interval = "monthly";
       pools = [ "zroot" ];
-    trim.enable = true;
     };
+    trim.enable = true;
   };
 };
 #+end_src

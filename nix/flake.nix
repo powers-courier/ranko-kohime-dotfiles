@@ -560,6 +560,14 @@
                 memoryPercent = 100;
                 swapDevices = 1;
               };
+            })
+        
+            ({ pkgs, ... }: {
+              environment.systemPackages = with pkgs; [
+                ulauncher
+              ];
+              
+              programs.firefox.enable = true;
               services = {
                 displayManager = {
                   autoLogin = {
@@ -580,7 +588,6 @@
                   };
                 };
               };
-              programs.firefox.enable = true;
             })
         
             ({ pkgs, ... }: {
@@ -595,7 +602,7 @@
               services.pcscd.enable = true;
             })
         
-            ({ pkgs, vars, ... }: {
+            ({ pkgs, ... }: {
               boot = {
                 supportedFilesystems = [ "zfs" ];
                 zfs.forceImportRoot = false;

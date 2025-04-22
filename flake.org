@@ -4,7 +4,7 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* TODO Flake [12/17]
+* TODO Flake [12/19]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -46,7 +46,7 @@ Gippity Says:
 }
 #+end_src
 
-** DONE Inputs [5/5]
+** TODO Inputs [6/7]
 :properties:
 :header-args: :noweb-ref nix-flake-inputs
 :end:
@@ -77,6 +77,10 @@ home-manager.inputs.nixpkgs.follows = "nixpkgs";
 flake-utils.url = "github:numtide/flake-utils";
 #+end_src
 
+*** DONE Catppuccin Theme
+#+begin_src nix
+catppuccin.url = "github:catppuccin/nix";
+catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
 ** TODO Variables [3/4]

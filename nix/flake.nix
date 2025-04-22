@@ -605,8 +605,30 @@
                 zfs.forceImportRoot = false;
               };
         
+              boot.kernelParams = [ "zfs.zfs_arc_max=12884901888" ];
+              
+              services = {
+                sanoid = {
+                  enable = true;
+                };
+                syncoid = {
+                  enable = true;
+                };
+                zfs = {
+                  autoScrub = {
+                    enable = true;
+                    interval = "monthly";
+                    pools = [ "zroot" ];
+                  };
+                  trim.enable = true;
+                };
+              };
+        
               environment.systemPackages = with pkgs; [
+                gprename
+                mate.engrampa
                 flac
+                #gimp3-with-plugins
                 handbrake
                 mediainfo
                 mkvtoolnix
@@ -736,6 +758,25 @@
               boot = {
                 supportedFilesystems = [ "zfs" ];
                 zfs.forceImportRoot = false;
+              };
+        
+              boot.kernelParams = [ "zfs.zfs_arc_max=12884901888" ];
+              
+              services = {
+                sanoid = {
+                  enable = true;
+                };
+                syncoid = {
+                  enable = true;
+                };
+                zfs = {
+                  autoScrub = {
+                    enable = true;
+                    interval = "monthly";
+                    pools = [ "zroot" ];
+                  };
+                  trim.enable = true;
+                };
               };
         
               networking = {

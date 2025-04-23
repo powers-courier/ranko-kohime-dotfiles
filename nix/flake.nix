@@ -588,8 +588,9 @@
             })
         
             ({ pkgs, ... }: {
-              environment.systemPackages = [
-                pkgs.pass
+              environment.systemPackages = with pkgs; [
+                pass
+                pinentry-curses
               ];
               programs.gnupg.agent = {
                  enable = true;
@@ -1180,6 +1181,10 @@
             ({ pkgs, ... }: {
               environment.systemPackages = [
                 pkgs.pass
+            ({ pkgs, ... }: {
+              environment.systemPackages = with pkgs; [
+                pass
+                pinentry-curses
               ];
               programs.gnupg.agent = {
                  enable = true;

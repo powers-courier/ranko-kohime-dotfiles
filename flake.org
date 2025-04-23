@@ -1366,8 +1366,9 @@ statix
 #+end_src
 *** TODO Pass (Unix Password Manager)
 #+begin_src nix :noweb-ref nix-flake-packages-unix-pass
-environment.systemPackages = [
-  pkgs.pass
+environment.systemPackages = with pkgs; [
+  pass
+  pinentry-curses
 ];
 programs.gnupg.agent = {
    enable = true;

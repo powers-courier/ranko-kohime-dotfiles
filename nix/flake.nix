@@ -645,7 +645,6 @@
                 ranger
                 tmux
                 tree
-                ryzenadj
               ];
         
               networking = {
@@ -655,6 +654,15 @@
         
               system.stateVersion = "25.05";
             })
+        
+            ({ pkgs, ... }: {
+            environment.systemPackages = with pkgs; [
+              ryzenadj
+              ryzen-monitor-ng
+            ];
+            hardware.cpu.amd.ryzen-smu.enable = true;
+            })
+        
           ];
         };
         main-host = nixpkgs.lib.nixosSystem {

@@ -154,7 +154,6 @@ framework-7840u = nixpkgs.lib.nixosSystem {
         <<nix-flake-packages-multimedia-production>>
         <<nix-flake-packages-nix-tools>>
         <<nix-flake-packages-terminal>>
-        ryzenadj
       ];
 
       networking = {
@@ -164,6 +163,11 @@ framework-7840u = nixpkgs.lib.nixosSystem {
 
       system.stateVersion = "25.05";
     })
+
+    ({ pkgs, ... }: {
+    <<nix-flake-module-amd-utilities>>
+    })
+
   ];
 };
 #+end_src
@@ -945,6 +949,24 @@ systemd.services.glances-server = {
 };
 #+end_src
 *** DONE Intel CPU Limiter
+*** Hardware-specific
+**** TODO AMD
+[[https://github.com/plasmin/ryzen_monitor_ng?tab=readme-ov-file#usage][Ryzen Monitor NG Usage Instructions]]
+#+begin_src nix :noweb-ref nix-flake-module-amd-utilities
+environment.systemPackages = with pkgs; [
+  ryzenadj
+  ryzen-monitor-ng
+];
+hardware.cpu.amd.ryzen-smu.enable = true;
+#+end_src
+**** TODO Intel
+#+begin_src nix :noweb-ref nix-flake-module-intel-utilities
+environment.systemPackages = with pkgs; [
+  intel-gpu-tools
+];
+hardware.intel-gpu-tools.enable = true;
+#+end_src
+**** DONE Intel CPU Limiter
 #+begin_src nix :noweb-ref nix-flake-module-intel-limiter
 systemd.services.limit-cpu-max-perf = {
   description = "Limit CPU max performance percentage using intel_pstate";

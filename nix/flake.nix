@@ -629,7 +629,7 @@
                 gprename
                 mate.engrampa
                 flac
-                #gimp3-with-plugins
+                gimp3-with-plugins
                 handbrake
                 mediainfo
                 mkvtoolnix
@@ -891,6 +891,7 @@
         
               environment.systemPackages = with pkgs; [
                 flac
+                gimp3-with-plugins
                 handbrake
                 mediainfo
                 mkvtoolnix
@@ -955,7 +956,10 @@
         
             ({ pkgs, ... }: {
               environment.systemPackages = with pkgs; [
+                gprename
+                mate.engrampa
                 flac
+                gimp3-with-plugins
                 handbrake
                 mediainfo
                 mkvtoolnix
@@ -974,9 +978,6 @@
                 tree
                 emacs
                 ffmpeg-full
-                gprename
-                mate.engrampa
-                neovim
                 python3
               ];
               networking = {

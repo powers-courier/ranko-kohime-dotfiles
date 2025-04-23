@@ -559,7 +559,7 @@ n100-1 = {
 };
 #+end_src
 
-** Home Manager Configs
+** Home Manager Modules
 *** Git
 #+begin_src nix
 programs.git = {
@@ -568,8 +568,32 @@ programs.git = {
   userEmail = "ranko.kohime@runbox.com";
 }
 #+end_src
+*** TODO GTK Settings
+#+begin_src nix :noweb-ref nix-flake-module-gtk-settings
+gtk = {
+  enable = true;
+  iconTheme = {
+    name = "elementary-Xfce-dark";
+    package = pkgs.elementary-xfce-icon-theme;
+  };
+  theme = {
+    name = "zukitre-dark";
+    package = pkgs.zuki-themes;
+  };
+  gtk3.extraConfig = {
+    Settings = ''
+      gtk-application-prefer-dark-theme=1
+    '';
+  };
+  gtk4.extraConfig = {
+    Settings = ''
+      gtk-application-prefer-dark-theme=1
+    '';
+  };
+};
+#+end_src
 
-** TODO Modules [38/48]
+** TODO System Modules [38/48]
 *** TODO Bluetooth
 #+begin_src nix :noweb-ref nix-flake-module-bluetooth
 environment.systemPackages = with pkgs; [ blueman ];
@@ -1332,7 +1356,7 @@ python3.12-musicbrainzngs is a dependency of Ex Falso
 Quod Libet brings in Ex Falso
 #+begin_src nix :noweb-ref nix-flake-packages-multimedia-production
 flac
-#gimp3-with-plugins
+gimp3-with-plugins
 handbrake
 mediainfo
 mkvtoolnix

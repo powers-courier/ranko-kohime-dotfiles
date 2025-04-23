@@ -168,6 +168,10 @@ framework-7840u = nixpkgs.lib.nixosSystem {
     <<nix-flake-module-amd-utilities>>
     })
 
+    ({ pkgs, ... }: {
+    <<nix-flake-module-bluetooth>>
+    })
+
   ];
 };
 #+end_src
@@ -556,6 +560,13 @@ n100-1 = {
 #+end_src
 
 ** TODO Modules [38/44]
+** TODO Modules [38/48]
+*** TODO Bluetooth
+#+begin_src nix :noweb-ref nix-flake-module-bluetooth
+environment.systemPackages = with pkgs; [ blueman ];
+hardware.bluetooth.enable = true;
+services.blueman.enable = true;
+#+end_src
 *** DONE Default Hardware
 #+begin_src nix :noweb-ref nix-flake-hardware-defaults-amd
 networking.useDHCP = lib.mkDefault true;
@@ -948,7 +959,6 @@ systemd.services.glances-server = {
   };
 };
 #+end_src
-*** DONE Intel CPU Limiter
 *** Hardware-specific
 **** TODO AMD
 [[https://github.com/plasmin/ryzen_monitor_ng?tab=readme-ov-file#usage][Ryzen Monitor NG Usage Instructions]]
@@ -1300,8 +1310,8 @@ services = {
 };
 #+end_src
 
-** TODO Packages [3/5]
-*** File Management
+** TODO Packages [3/6]
+*** TODO File Management
 #+begin_src nix :noweb-ref nix-flake-packages-file-management
 gprename
 mate.engrampa

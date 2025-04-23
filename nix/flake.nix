@@ -663,6 +663,12 @@
             hardware.cpu.amd.ryzen-smu.enable = true;
             })
         
+            ({ pkgs, ... }: {
+            environment.systemPackages = with pkgs; [ blueman ];
+            hardware.bluetooth.enable = true;
+            services.blueman.enable = true;
+            })
+        
           ];
         };
         main-host = nixpkgs.lib.nixosSystem {

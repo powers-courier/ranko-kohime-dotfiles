@@ -559,7 +559,16 @@ n100-1 = {
 };
 #+end_src
 
-** TODO Modules [38/44]
+** Home Manager Configs
+*** Git
+#+begin_src nix
+programs.git = {
+  enable = true;
+  userName = "Ranko Kohime";
+  userEmail = "ranko.kohime@runbox.com";
+}
+#+end_src
+
 ** TODO Modules [38/48]
 *** TODO Bluetooth
 #+begin_src nix :noweb-ref nix-flake-module-bluetooth

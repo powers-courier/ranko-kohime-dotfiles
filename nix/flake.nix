@@ -1078,27 +1078,6 @@
                 memoryPercent = 100;
                 swapDevices = 1;
               };
-              services = {
-                displayManager = {
-                  autoLogin = {
-                    enable = true;
-                    user = "ranko";
-                  };
-                  defaultSession = "xfce";
-                };
-                xserver = {
-                  displayManager = {
-                    lightdm.enable = true;
-                  };
-                  desktopManager.xfce.enable = true;
-                  enable = true;
-                  xkb = {
-                    layout = "us";
-                    variant = "";
-                  };
-                };
-              };
-              programs.firefox.enable = true;
               networking = {
                 domain = "midgard";
                 firewall.allowedTCPPorts = [ 2049 ];
@@ -1180,8 +1159,33 @@
             })
         
             ({ pkgs, ... }: {
-              environment.systemPackages = [
-                pkgs.pass
+              environment.systemPackages = with pkgs; [
+                ulauncher
+              ];
+              
+              programs.firefox.enable = true;
+              services = {
+                displayManager = {
+                  autoLogin = {
+                    enable = true;
+                    user = "ranko";
+                  };
+                  defaultSession = "xfce";
+                };
+                xserver = {
+                  displayManager = {
+                    lightdm.enable = true;
+                  };
+                  desktopManager.xfce.enable = true;
+                  enable = true;
+                  xkb = {
+                    layout = "us";
+                    variant = "";
+                  };
+                };
+              };
+            })
+        
             ({ pkgs, ... }: {
               environment.systemPackages = with pkgs; [
                 pass

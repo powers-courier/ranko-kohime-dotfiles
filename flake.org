@@ -227,7 +227,10 @@ main-host = nixpkgs.lib.nixosSystem {
     })
 
     ({ config, pkgs, ... }: {
-      <<nix-flake-module-jellyfin-server>>
+      <<nix-flake-service-jellyfin-server>>
+    })
+
+    ({ config, pkgs, ... }: {
     })
   ];
 };
@@ -1144,49 +1147,6 @@ environment.systemPackages = with pkgs; [
 ];
 #+end_src
 
-*** TODO Jellyfin Server
-[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
-intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
-
-Jellyfin must be set to VAAPI for transcoding on modern Intel platforms as of 2025
-#+begin_src nix :noweb-ref nix-flake-module-jellyfin-server
-boot.kernelParams = [
-  "i915.enable_guc=2"
-];
-
-nixpkgs.config.allowUnfree = true;
-
-hardware = {
-  enableAllFirmware = true;
-  graphics = {
-    enable = true;
-    extraPackages = with pkgs; [
-      intel-compute-runtime
-      intel-media-driver
-      libva
-    ];
-  };
-};
-
-services.jellyfin = {
-  enable = true;
-  group = "jellyfin";
-  openFirewall = true;
-  user = "jellyfin";
-};
-
-environment = {
-  sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
-  systemPackages = with pkgs; [
-    intel-gpu-tools
-    jellyfin-ffmpeg
-    libva-utils
-    libvdpau-va-gl
-    vaapiVdpau
-    vpl-gpu-rt
-  ];
-};
-#+end_src
 *** DONE Network Filesystems [4/4]
 **** DONE NFS Settings
 #+begin_src nix :noweb-ref nix-flake-nfs-client-settings
@@ -1351,9 +1311,8 @@ mate.engrampa
 #+end_src
 
 *** DONE Multimedia Production
-gimp3-with-plugins is missing for some reason as of 2025/04/19?
-python3.12-musicbrainzngs is a dependency of Ex Falso
-Quod Libet brings in Ex Falso
++ python3.12-musicbrainzngs is a dependency of Ex Falso
++ Quod Libet brings in Ex Falso
 #+begin_src nix :noweb-ref nix-flake-packages-multimedia-production
 flac
 gimp3-with-plugins
@@ -1411,6 +1370,50 @@ ranger
 tmux
 tree
 #+end_src
+*** DONE Jellyfin Server
+[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
+intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
+
+Jellyfin must be set to VAAPI for transcoding on modern Intel platforms as of 2025
+#+begin_src nix :noweb-ref nix-flake-service-jellyfin-server
+boot.kernelParams = [
+  "i915.enable_guc=2"
+];
+
+nixpkgs.config.allowUnfree = true;
+
+hardware = {
+  enableAllFirmware = true;
+  graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-compute-runtime
+      intel-media-driver
+      libva
+    ];
+  };
+};
+
+services.jellyfin = {
+  enable = true;
+  group = "jellyfin";
+  openFirewall = true;
+  user = "jellyfin";
+};
+
+environment = {
+  sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
+  systemPackages = with pkgs; [
+    intel-gpu-tools
+    jellyfin-ffmpeg
+    libva-utils
+    libvdpau-va-gl
+    vaapiVdpau
+    vpl-gpu-rt
+  ];
+};
+#+end_src
+
 ** DONE Users [2/2]
 *** DONE Jellyfin
 #+begin_src nix :noweb-ref nix-flake-users-jellyfin

@@ -902,7 +902,7 @@
               ];
             })
         
-            ({ config, lib, pkgs, ... }: {
+            ({ config, pkgs, ... }: {
               boot.kernelParams = [
                 "i915.enable_guc=2"
               ];
@@ -937,6 +937,29 @@
                   libvdpau-va-gl
                   vaapiVdpau
                   vpl-gpu-rt
+                ];
+              };
+            })
+        
+            ({ config, pkgs, ... }: {
+              services.homepage-dashboard = {
+                allowedHosts = "main-host.manticore-elnath.ts.net:80,localhost:80,127.0.0.1:80";
+                enable = true;
+                listenPort = 80;
+                openFirewall = true;
+                widgets = [
+                  {
+                    resources = {
+                      cpu = true;
+                      memory = true;
+                    };
+                  }
+                  {
+                    search = {
+                      provider = "";
+                      target = "_blank";
+                    };
+                  }
                 ];
               };
             })

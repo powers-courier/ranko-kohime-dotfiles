@@ -4,6 +4,9 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
+* To-Do Items
+Add [[https://github.com/DeterminateSystems/flake-checker][nix-flake-checker]]
+
 * TODO Flake [12/19]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
@@ -231,6 +234,7 @@ main-host = nixpkgs.lib.nixosSystem {
     })
 
     ({ config, pkgs, ... }: {
+      <<nix-flake-service-homepage-dashboard>>
     })
   ];
 };
@@ -562,8 +566,8 @@ n100-1 = {
 };
 #+end_src
 
-** Home Manager Modules
-*** Git
+** TODO Home Manager Modules [0/2]
+*** TODO Git
 #+begin_src nix
 programs.git = {
   enable = true;
@@ -1370,6 +1374,31 @@ ranger
 tmux
 tree
 #+end_src
+** TODO Services [1/2]
+*** TODO Homepage Dashboard
+#+begin_src nix :noweb-ref nix-flake-service-homepage-dashboard
+services.homepage-dashboard = {
+  allowedHosts = "main-host.manticore-elnath.ts.net:80,localhost:80,127.0.0.1:80";
+  enable = true;
+  listenPort = 80;
+  openFirewall = true;
+  widgets = [
+    {
+      resources = {
+        cpu = true;
+        memory = true;
+      };
+    }
+    {
+      search = {
+        provider = "";
+        target = "_blank";
+      };
+    }
+  ];
+};
+#+end_src
+
 *** DONE Jellyfin Server
 [[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
 intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)

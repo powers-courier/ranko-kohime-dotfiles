@@ -942,10 +942,12 @@
             })
         
             ({ config, pkgs, ... }: {
+              networking.firewall.allowedTCPPorts = [ 8080 ];
               services.homepage-dashboard = {
-                allowedHosts = "main-host.manticore-elnath.ts.net:80,localhost:80,127.0.0.1:80";
+                allowedHosts = "*";
+              #  allowedHosts = "main-host.manticore-elnath.ts.net:8080,localhost:8080,127.0.0.1:8080";
                 enable = true;
-                listenPort = 80;
+                listenPort = 8080;
                 openFirewall = true;
                 widgets = [
                   {

@@ -1374,13 +1374,15 @@ ranger
 tmux
 tree
 #+end_src
-** TODO Services [1/2]
+** TODO Services [1/4]
 *** TODO Homepage Dashboard
 #+begin_src nix :noweb-ref nix-flake-service-homepage-dashboard
+networking.firewall.allowedTCPPorts = [ 8080 ];
 services.homepage-dashboard = {
-  allowedHosts = "main-host.manticore-elnath.ts.net:80,localhost:80,127.0.0.1:80";
+  allowedHosts = "*";
+#  allowedHosts = "main-host.manticore-elnath.ts.net:8080,localhost:8080,127.0.0.1:8080";
   enable = true;
-  listenPort = 80;
+  listenPort = 8080;
   openFirewall = true;
   widgets = [
     {

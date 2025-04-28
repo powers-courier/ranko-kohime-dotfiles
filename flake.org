@@ -237,6 +237,7 @@ main-host = nixpkgs.lib.nixosSystem {
 
     ({ config, pkgs, ... }: {
       <<nix-flake-service-homepage-dashboard>>
+      <<nix-flake-service-netdata>>
     })
   ];
 };
@@ -289,6 +290,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
       <<nix-flake-nfs-client-settings>>
       <<nix-flake-nfs-documents>>
       <<nix-flake-nfs-multimedia>>
+      <<nix-flake-service-netdata>>
     })
 
     ({ pkgs, ... }: {
@@ -1458,6 +1460,14 @@ environment = {
 };
 #+end_src
 
+*** TODO Netdata
+#+begin_src nix :noweb-ref nix-flake-service-netdata
+services.netdata = {
+#  config = {
+#};
+  enable = true;
+};
+#+end_src
 ** DONE Users [2/2]
 *** DONE Jellyfin
 #+begin_src nix :noweb-ref nix-flake-users-jellyfin

@@ -977,6 +977,10 @@
                   }
                 ];
               };
+              services.netdata = {
+              #  config = {
+              #};
+                enable = true;
             })
           ];
         };
@@ -1197,6 +1201,11 @@
                   fsType = "nfs";
                   options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
                 };
+              };
+              services.netdata = {
+              #  config = {
+              #};
+                enable = true;
               };
             })
         

@@ -243,6 +243,7 @@ main-host = nixpkgs.lib.nixosSystem {
 #+end_src
 
 **** DONE N100-1
+Firewall TCP port 5120 is used for Unison daemon
 #+begin_src nix
 n100-1 = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
@@ -265,6 +266,10 @@ n100-1 = nixpkgs.lib.nixosSystem {
         python3
       ];
       networking = {
+        firewall = {
+          enable = true;
+          allowedTCPPorts = [ 5120 ];
+        };
         hostName = "n100-1";
         interfaces = {
           enp2s0 = {

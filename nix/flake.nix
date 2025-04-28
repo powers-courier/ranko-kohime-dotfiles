@@ -1019,6 +1019,10 @@
                 python3
               ];
               networking = {
+                firewall = {
+                  enable = true;
+                  allowedTCPPorts = [ 5120 ];
+                };
                 hostName = "n100-1";
                 interfaces = {
                   enp2s0 = {

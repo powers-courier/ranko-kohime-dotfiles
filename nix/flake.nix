@@ -628,6 +628,8 @@
               environment.systemPackages = with pkgs; [
                 gprename
                 mate.engrampa
+                mpv
+                mpvc
                 flac
                 gimp3-with-plugins
                 handbrake

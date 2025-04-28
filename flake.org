@@ -7,7 +7,7 @@
 * To-Do Items
 Add [[https://github.com/DeterminateSystems/flake-checker][nix-flake-checker]]
 
-* TODO Flake [12/19]
+* TODO Flake [12/20]
 Outputs:
 "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 "nixpkgs" references the inputs above
@@ -49,7 +49,7 @@ Gippity Says:
 }
 #+end_src
 
-** TODO Inputs [6/7]
+** TODO Inputs [6/8]
 :properties:
 :header-args: :noweb-ref nix-flake-inputs
 :end:
@@ -154,6 +154,7 @@ framework-7840u = nixpkgs.lib.nixosSystem {
 
       environment.systemPackages = with pkgs; [
         <<nix-flake-packages-file-management>>
+        <<nix-flake-packages-multimedia-consumption>>
         <<nix-flake-packages-multimedia-production>>
         <<nix-flake-packages-nix-tools>>
         <<nix-flake-packages-terminal>>
@@ -1307,11 +1308,17 @@ services = {
 };
 #+end_src
 
-** TODO Packages [3/6]
+** TODO Packages [3/7]
 *** TODO File Management
 #+begin_src nix :noweb-ref nix-flake-packages-file-management
 gprename
 mate.engrampa
+#+end_src
+
+*** TODO Multimedia Consumption
+#+begin_src nix :noweb-ref nix-flake-packages-multimedia-consumption
+mpv
+mpvc
 #+end_src
 
 *** DONE Multimedia Production

@@ -195,6 +195,7 @@ main-host = nixpkgs.lib.nixosSystem {
 
     ({ lib, pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
+      <<nix-flake-module-glances-server>>
     })
 
     ({ pkgs, vars, ... }: {

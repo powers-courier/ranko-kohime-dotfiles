@@ -769,6 +769,17 @@
                 memoryPercent = 100;
                 swapDevices = 1;
               };
+              systemd.services.glances-server = {
+                description = "Glances server";
+                wantedBy = [ "multi-user.target" ];
+                after = [ "network.target" ];
+                serviceConfig = {
+                  Type = "simple";
+                  ExecStart = "${pkgs.glances}/bin/glances -s";
+                  RemainAfterExit = false;
+                  Restart = "always";
+                };
+              };
             })
         
             ({ pkgs, vars, ... }: {

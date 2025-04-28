@@ -1041,7 +1041,7 @@ systemd.services.limit-cpu-max-perf = {
 #+end_src
 *** TODO Jellyfin Remote access proxy nodes [5/6]
 :properties:
-:header-args: :noweb-ref nix-flake-module-jellyfin-proxy
+:header-args+: :noweb-ref nix-flake-module-jellyfin-proxy
 :end:
 **** Host list
 01. Jeff & Jackie O'Connell

@@ -244,6 +244,17 @@
               systemd-boot.enable = true;
             };
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
+            systemd.services.glances-server = {
+              description = "Glances server";
+              wantedBy = [ "multi-user.target" ];
+              after = [ "network.target" ];
+              serviceConfig = {
+                Type = "simple";
+                ExecStart = "${pkgs.glances}/bin/glances -w";
+                RemainAfterExit = false;
+                Restart = "always";
+              };
+            };
             i18n = {
               defaultLocale = vars.loKale;
               extraLocaleSettings = {
@@ -322,17 +333,6 @@
               priority = 1;
               memoryPercent = 100;
               swapDevices = 1;
-            };
-            systemd.services.glances-server = {
-              description = "Glances server";
-              wantedBy = [ "multi-user.target" ];
-              after = [ "network.target" ];
-              serviceConfig = {
-                Type = "simple";
-                ExecStart = "${pkgs.glances}/bin/glances -s";
-                RemainAfterExit = false;
-                Restart = "always";
-              };
             };
           })
     
@@ -482,6 +482,17 @@
                 systemd-boot.enable = true;
               };
               nix.settings.experimental-features = [ "nix-command" "flakes" ];
+              systemd.services.glances-server = {
+                description = "Glances server";
+                wantedBy = [ "multi-user.target" ];
+                after = [ "network.target" ];
+                serviceConfig = {
+                  Type = "simple";
+                  ExecStart = "${pkgs.glances}/bin/glances -w";
+                  RemainAfterExit = false;
+                  Restart = "always";
+                };
+              };
               i18n = {
                 defaultLocale = vars.loKale;
                 extraLocaleSettings = {
@@ -523,9 +534,11 @@
               '';
               environment.systemPackages = with pkgs; [
                 byobu
+                dmidecode
                 git
                 glances
                 lm_sensors
+                sshfs
                 tmux
                 unison
               ];
@@ -694,6 +707,17 @@
                 systemd-boot.enable = true;
               };
               nix.settings.experimental-features = [ "nix-command" "flakes" ];
+              systemd.services.glances-server = {
+                description = "Glances server";
+                wantedBy = [ "multi-user.target" ];
+                after = [ "network.target" ];
+                serviceConfig = {
+                  Type = "simple";
+                  ExecStart = "${pkgs.glances}/bin/glances -w";
+                  RemainAfterExit = false;
+                  Restart = "always";
+                };
+              };
               i18n = {
                 defaultLocale = vars.loKale;
                 extraLocaleSettings = {
@@ -735,9 +759,11 @@
               '';
               environment.systemPackages = with pkgs; [
                 byobu
+                dmidecode
                 git
                 glances
                 lm_sensors
+                sshfs
                 tmux
                 unison
               ];
@@ -770,17 +796,6 @@
                 priority = 1;
                 memoryPercent = 100;
                 swapDevices = 1;
-              };
-              systemd.services.glances-server = {
-                description = "Glances server";
-                wantedBy = [ "multi-user.target" ];
-                after = [ "network.target" ];
-                serviceConfig = {
-                  Type = "simple";
-                  ExecStart = "${pkgs.glances}/bin/glances -s";
-                  RemainAfterExit = false;
-                  Restart = "always";
-                };
               };
             })
         
@@ -1049,6 +1064,17 @@
                 systemd-boot.enable = true;
               };
               nix.settings.experimental-features = [ "nix-command" "flakes" ];
+              systemd.services.glances-server = {
+                description = "Glances server";
+                wantedBy = [ "multi-user.target" ];
+                after = [ "network.target" ];
+                serviceConfig = {
+                  Type = "simple";
+                  ExecStart = "${pkgs.glances}/bin/glances -w";
+                  RemainAfterExit = false;
+                  Restart = "always";
+                };
+              };
               i18n = {
                 defaultLocale = vars.loKale;
                 extraLocaleSettings = {
@@ -1090,9 +1116,11 @@
               '';
               environment.systemPackages = with pkgs; [
                 byobu
+                dmidecode
                 git
                 glances
                 lm_sensors
+                sshfs
                 tmux
                 unison
               ];

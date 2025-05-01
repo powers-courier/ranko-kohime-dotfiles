@@ -244,6 +244,14 @@
               systemd-boot.enable = true;
             };
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
+            services.fwupd = {
+              daemonSettings = {
+                IgnorePower = true;
+              };
+              enable = true;
+            #  extraRemotes = [];
+            #  uefiCapsuleSettings = {};
+            };
             systemd.services.glances-server = {
               description = "Glances server";
               wantedBy = [ "multi-user.target" ];
@@ -482,6 +490,14 @@
                 systemd-boot.enable = true;
               };
               nix.settings.experimental-features = [ "nix-command" "flakes" ];
+              services.fwupd = {
+                daemonSettings = {
+                  IgnorePower = true;
+                };
+                enable = true;
+              #  extraRemotes = [];
+              #  uefiCapsuleSettings = {};
+              };
               systemd.services.glances-server = {
                 description = "Glances server";
                 wantedBy = [ "multi-user.target" ];
@@ -707,6 +723,14 @@
                 systemd-boot.enable = true;
               };
               nix.settings.experimental-features = [ "nix-command" "flakes" ];
+              services.fwupd = {
+                daemonSettings = {
+                  IgnorePower = true;
+                };
+                enable = true;
+              #  extraRemotes = [];
+              #  uefiCapsuleSettings = {};
+              };
               systemd.services.glances-server = {
                 description = "Glances server";
                 wantedBy = [ "multi-user.target" ];
@@ -998,6 +1022,7 @@
               #  config = {
               #};
                 enable = true;
+              };
             })
           ];
         };
@@ -1064,6 +1089,14 @@
                 systemd-boot.enable = true;
               };
               nix.settings.experimental-features = [ "nix-command" "flakes" ];
+              services.fwupd = {
+                daemonSettings = {
+                  IgnorePower = true;
+                };
+                enable = true;
+              #  extraRemotes = [];
+              #  uefiCapsuleSettings = {};
+              };
               systemd.services.glances-server = {
                 description = "Glances server";
                 wantedBy = [ "multi-user.target" ];

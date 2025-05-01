@@ -195,7 +195,6 @@ main-host = nixpkgs.lib.nixosSystem {
 
     ({ lib, pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
-      <<nix-flake-module-glances-server>>
     })
 
     ({ pkgs, vars, ... }: {
@@ -345,7 +344,6 @@ in {
         networking.hostName = name;
         system.stateVersion = "25.05";
         <<nix-flake-modules-default>>
-        <<nix-flake-module-glances-server>>
       })
 
       ({ pkgs, vars, ... }: {
@@ -645,7 +643,31 @@ boot.loader = {
 #+begin_src nix
 nix.settings.experimental-features = [ "nix-command" "flakes" ];
 #+end_src
-
+***** Firmware Update Daemon
+#+begin_src nix
+services.fwupd = {
+  daemonSettings = {
+    IgnorePower = true;
+  };
+  enable = true;
+#  extraRemotes = [];
+#  uefiCapsuleSettings = {};
+};
+#+end_src
+***** DONE Glances Server
+#+begin_src nix
+systemd.services.glances-server = {
+  description = "Glances server";
+  wantedBy = [ "multi-user.target" ];
+  after = [ "network.target" ];
+  serviceConfig = {
+    Type = "simple";
+    ExecStart = "${pkgs.glances}/bin/glances -w";
+    RemainAfterExit = false;
+    Restart = "always";
+  };
+};
+#+end_src
 ***** DONE Locale
 #+begin_src nix
 i18n = {
@@ -993,20 +1015,6 @@ fileSystems."/var/tmp" = {
 services = {
   emacs = {
     enable = true;
-  };
-};
-#+end_src
-*** DONE Glances Server
-#+begin_src nix :noweb-ref nix-flake-module-glances-server
-systemd.services.glances-server = {
-  description = "Glances server";
-  wantedBy = [ "multi-user.target" ];
-  after = [ "network.target" ];
-  serviceConfig = {
-    Type = "simple";
-    ExecStart = "${pkgs.glances}/bin/glances -s";
-    RemainAfterExit = false;
-    Restart = "always";
   };
 };
 #+end_src

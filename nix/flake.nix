@@ -285,9 +285,11 @@
             '';
             environment.systemPackages = with pkgs; [
               byobu
+              dmidecode
               git
               glances
               lm_sensors
+              sshfs
               tmux
               unison
             ];

@@ -1,6 +1,5 @@
 {
   description = "Ranko Kohime's Flake, now with 100% more ZFS!";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     hardware.url = "github:nixos/nixos-hardware";
@@ -12,11 +11,10 @@
     catppuccin.url = "github:catppuccin/nix";
     catppuccin.inputs.nixpkgs.follows = "nixpkgs";
   };
-
   outputs =
     { self, nixpkgs, hardware, home-manager, ... }@inputs:
-
   let
+    lib = nixpkgs.lib;
     hardwareConfigs = {
       framework-7840u = {
         boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usb_storage" "sd_mod" ];
@@ -206,7 +204,6 @@
         };
       };
     };
-
     proxyCount = 4;
     Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
       num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
@@ -233,9 +230,7 @@
               };
             };
           })
-    
           hardwareConfigs.${name}
-    
           ({ lib, pkgs, vars, ... }: {
             networking.hostName = name;
             system.stateVersion = "25.05";
@@ -277,6 +272,15 @@
                 LC_TIME = vars.loKale;
               };
             };
+            programs.nano.nanorc = ''
+              set autoindent
+              set boldtext
+              set constantshow
+              set nowrap
+              set smarthome
+              set tabsize 2
+              set tabstospaces
+            '';
             networking.networkmanager.enable = true;
             services.openssh = {
               banner = "Welcome to... wherever you happen to be\n";
@@ -293,15 +297,6 @@
               };
             };
             programs.mosh.enable = true;
-            programs.nano.nanorc = ''
-              set autoindent
-              set boldtext
-              set constantshow
-              set nowrap
-              set smarthome
-              set tabsize 2
-              set tabstospaces
-            '';
             environment.systemPackages = with pkgs; [
               byobu
               dmidecode
@@ -343,7 +338,6 @@
               swapDevices = 1;
             };
           })
-    
           ({ pkgs, vars, ... }: {
             networking = {
               firewall = {
@@ -439,7 +433,6 @@
     #          options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
     #        };
           })
-    
           ({ pkgs, ... }: {
             environment.systemPackages = with pkgs; [
               glances
@@ -458,11 +451,9 @@
               '')
             ];
           })
-    
         ];
       };
     }) (builtins.genList (i: i) proxyCount));
-
     vars = {
       loKale = "en_US.UTF-8";
       timeZern = "Etc/UTC";
@@ -470,7 +461,7 @@
       truenas-ip = "192.168.168.2";
     };
   in
-    {
+    rec {
       nixosConfigurations = Jelly-Proxy-Configs // {
         framework-7840u = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
@@ -523,6 +514,15 @@
                   LC_TIME = vars.loKale;
                 };
               };
+              programs.nano.nanorc = ''
+                set autoindent
+                set boldtext
+                set constantshow
+                set nowrap
+                set smarthome
+                set tabsize 2
+                set tabstospaces
+              '';
               networking.networkmanager.enable = true;
               services.openssh = {
                 banner = "Welcome to... wherever you happen to be\n";
@@ -539,15 +539,6 @@
                 };
               };
               programs.mosh.enable = true;
-              programs.nano.nanorc = ''
-                set autoindent
-                set boldtext
-                set constantshow
-                set nowrap
-                set smarthome
-                set tabsize 2
-                set tabstospaces
-              '';
               environment.systemPackages = with pkgs; [
                 byobu
                 dmidecode
@@ -756,6 +747,15 @@
                   LC_TIME = vars.loKale;
                 };
               };
+              programs.nano.nanorc = ''
+                set autoindent
+                set boldtext
+                set constantshow
+                set nowrap
+                set smarthome
+                set tabsize 2
+                set tabstospaces
+              '';
               networking.networkmanager.enable = true;
               services.openssh = {
                 banner = "Welcome to... wherever you happen to be\n";
@@ -772,15 +772,6 @@
                 };
               };
               programs.mosh.enable = true;
-              programs.nano.nanorc = ''
-                set autoindent
-                set boldtext
-                set constantshow
-                set nowrap
-                set smarthome
-                set tabsize 2
-                set tabstospaces
-              '';
               environment.systemPackages = with pkgs; [
                 byobu
                 dmidecode
@@ -822,13 +813,11 @@
                 swapDevices = 1;
               };
             })
-        
             ({ pkgs, vars, ... }: {
               boot = {
                 supportedFilesystems = [ "zfs" ];
                 zfs.forceImportRoot = false;
               };
-        
               boot.kernelParams = [ "zfs.zfs_arc_max=12884901888" ];
               
               services = {
@@ -847,7 +836,6 @@
                   trim.enable = true;
                 };
               };
-        
               networking = {
                 hostId = "2b7f3c3a";
                 hostName = "main-host";
@@ -861,7 +849,6 @@
                   };
                 };
               };
-        
               networking = {
                 domain = "midgard";
                 firewall.allowedTCPPorts = [ 2049 ];
@@ -940,9 +927,7 @@
                   options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
                 };
               };
-        
               system.stateVersion = "25.05";
-        
               environment.systemPackages = with pkgs; [
                 flac
                 gimp3-with-plugins
@@ -955,7 +940,6 @@
                 vorbis-tools
               ];
             })
-        
             ({ config, pkgs, ... }: {
               boot.kernelParams = [
                 "i915.enable_guc=2"
@@ -1035,7 +1019,6 @@
               nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
               hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
             })
-        
             hardwareConfigs.n100-1
         
             ({ pkgs, ... }: {
@@ -1082,7 +1065,6 @@
               };
               system.stateVersion = "24.11";
             })
-        
             ({ lib, pkgs, vars, ... }: {
               boot.loader = {
                 efi.canTouchEfiVariables = true;
@@ -1122,6 +1104,15 @@
                   LC_TIME = vars.loKale;
                 };
               };
+              programs.nano.nanorc = ''
+                set autoindent
+                set boldtext
+                set constantshow
+                set nowrap
+                set smarthome
+                set tabsize 2
+                set tabstospaces
+              '';
               networking.networkmanager.enable = true;
               services.openssh = {
                 banner = "Welcome to... wherever you happen to be\n";
@@ -1138,15 +1129,6 @@
                 };
               };
               programs.mosh.enable = true;
-              programs.nano.nanorc = ''
-                set autoindent
-                set boldtext
-                set constantshow
-                set nowrap
-                set smarthome
-                set tabsize 2
-                set tabstospaces
-              '';
               environment.systemPackages = with pkgs; [
                 byobu
                 dmidecode
@@ -1271,7 +1253,6 @@
                 enable = true;
               };
             })
-        
             ({ pkgs, ... }: {
               environment.systemPackages = with pkgs; [
                 ulauncher
@@ -1299,7 +1280,6 @@
                 };
               };
             })
-        
             ({ pkgs, ... }: {
               environment.systemPackages = with pkgs; [
                 pass
@@ -1312,7 +1292,6 @@
               };
               services.pcscd.enable = true;
             })
-        
           ];
         };
       };

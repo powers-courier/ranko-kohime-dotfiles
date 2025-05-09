@@ -155,6 +155,41 @@
           };
         };
       };
+      jelly-proxy-05 = {
+        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-intel" ];
+        boot.extraModulePackages = [ ];
+      
+        fileSystems = {
+          "/" = {
+            device = "/dev/disk/by-uuid/f97df9e0-b2ac-4e29-84ba-12f27bd54b07";
+            fsType = "ext4";
+          };
+          "/boot" = {
+            device = "/dev/disk/by-uuid/0283-E117";
+            fsType = "vfat";
+            options = [ "fmask=0077" "dmask=0077" ];
+          };
+        };
+      };
+      jelly-proxy-06 = {
+        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-intel" ];
+        boot.extraModulePackages = [ ];
+        fileSystems = {
+          "/" = {
+            device = "/dev/disk/by-uuid/5395506b-3569-4992-8d36-bcbeee416cbd";
+            fsType = "ext4";
+          };
+          "/boot" = {
+            device = "/dev/disk/by-uuid/2069-81C4";
+            fsType = "vfat";
+            options = [ "fmask=0077" "dmask=0077" ];
+          };
+        };
+      };
       main-host = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sr_mod" ];
         boot.initrd.kernelModules = [ ];
@@ -204,7 +239,7 @@
         };
       };
     };
-    proxyCount = 4;
+    proxyCount = 6;
     Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
       num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
       name = "jelly-proxy-${num}";

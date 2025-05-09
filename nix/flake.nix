@@ -247,6 +247,11 @@
             #  extraRemotes = [];
             #  uefiCapsuleSettings = {};
             };
+            nix.gc = {
+              automatic = true;
+              dates = "monthly";
+              options = "--delete-older-than 365d";
+            };
             systemd.services.glances-server = {
               description = "Glances server";
               wantedBy = [ "multi-user.target" ];
@@ -489,6 +494,11 @@
               #  extraRemotes = [];
               #  uefiCapsuleSettings = {};
               };
+              nix.gc = {
+                automatic = true;
+                dates = "monthly";
+                options = "--delete-older-than 365d";
+              };
               systemd.services.glances-server = {
                 description = "Glances server";
                 wantedBy = [ "multi-user.target" ];
@@ -721,6 +731,11 @@
                 enable = true;
               #  extraRemotes = [];
               #  uefiCapsuleSettings = {};
+              };
+              nix.gc = {
+                automatic = true;
+                dates = "monthly";
+                options = "--delete-older-than 365d";
               };
               systemd.services.glances-server = {
                 description = "Glances server";
@@ -1078,6 +1093,11 @@
                 enable = true;
               #  extraRemotes = [];
               #  uefiCapsuleSettings = {};
+              };
+              nix.gc = {
+                automatic = true;
+                dates = "monthly";
+                options = "--delete-older-than 365d";
               };
               systemd.services.glances-server = {
                 description = "Glances server";

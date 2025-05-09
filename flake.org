@@ -186,21 +186,16 @@ main-host = nixpkgs.lib.nixosSystem {
     ({ config, lib, ... }: {
       <<nix-flake-hardware-defaults-intel>>
     })
-
     hardwareConfigs.main-host
-
     ({ lib, pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
     })
-
     ({ pkgs, vars, ... }: {
       boot = {
         supportedFilesystems = [ "zfs" ];
         zfs.forceImportRoot = false;
       };
-
       <<nix-flake-module-zfs>>
-
       networking = {
         hostId = "2b7f3c3a";
         hostName = "main-host";
@@ -214,22 +209,17 @@ main-host = nixpkgs.lib.nixosSystem {
           };
         };
       };
-
       <<nix-flake-nfs-client-settings>>
       <<nix-flake-nfs-documents>>
       <<nix-flake-nfs-multimedia>>
-
       system.stateVersion = "25.05";
-
       environment.systemPackages = with pkgs; [
         <<nix-flake-packages-multimedia-production>>
       ];
     })
-
     ({ config, pkgs, ... }: {
       <<nix-flake-service-jellyfin-server>>
     })
-
     ({ config, pkgs, ... }: {
       <<nix-flake-service-homepage-dashboard>>
       <<nix-flake-service-netdata>>
@@ -239,6 +229,7 @@ main-host = nixpkgs.lib.nixosSystem {
 #+end_src
 
 **** DONE N100-1
+Firewall TCP port 5000 is used for LubeLogger
 Firewall TCP port 5120 is used for Unison daemon
 #+begin_src nix
 n100-1 = nixpkgs.lib.nixosSystem {
@@ -248,7 +239,6 @@ n100-1 = nixpkgs.lib.nixosSystem {
     ({ config, lib, ... }: {
       <<nix-flake-hardware-defaults-intel>>
     })
-
     hardwareConfigs.n100-1
 
     ({ pkgs, ... }: {
@@ -279,7 +269,6 @@ n100-1 = nixpkgs.lib.nixosSystem {
       };
       system.stateVersion = "24.11";
     })
-
     ({ lib, pkgs, vars, ... }: {
       <<nix-flake-modules-default>>
       <<nix-flake-nfs-client-settings>>
@@ -287,15 +276,12 @@ n100-1 = nixpkgs.lib.nixosSystem {
       <<nix-flake-nfs-multimedia>>
       <<nix-flake-service-netdata>>
     })
-
     ({ pkgs, ... }: {
       <<nix-flake-module-xfce-desktop>>
     })
-
     ({ pkgs, ... }: {
       <<nix-flake-packages-unix-pass>>
     })
-
   ];
 };
 #+end_src
@@ -333,27 +319,22 @@ in {
         <<nix-flake-hardware-defaults-intel>>
         <<nix-flake-module-intel-limiter>>
       })
-
       hardwareConfigs.${name}
-
       ({ lib, pkgs, vars, ... }: {
         networking.hostName = name;
         system.stateVersion = "25.05";
         <<nix-flake-modules-default>>
       })
-
       ({ pkgs, vars, ... }: {
         <<nix-flake-module-jellyfin-proxy>>
 #        <<nix-flake-filesystems-ro-logs>>
       })
-
       ({ pkgs, ... }: {
         environment.systemPackages = with pkgs; [
           glances
           <<nix-flake-packages-rw-ro-script>>
         ];
       })
-
     ];
   };
 }) (builtins.genList (i: i) proxyCount));
@@ -603,7 +584,7 @@ gtk = {
 };
 #+end_src
 
-** TODO System Modules [38/48]
+** TODO System Modules [41/49]
 *** TODO Bluetooth
 #+begin_src nix :noweb-ref nix-flake-module-bluetooth
 environment.systemPackages = with pkgs; [ blueman ];
@@ -652,6 +633,15 @@ services.fwupd = {
 #+end_src
 ***** DONE Glances Server
 #+begin_src nix
+**** DONE Garbage Collection
+Automatically remove store items not used more than 1 year
+#+begin_src nix :noweb-ref nix-flake-modules-default-garbage
+nix.gc = {
+  automatic = true;
+  dates = "monthly";
+  options = "--delete-older-than 365d";
+};
+#+end_src
 systemd.services.glances-server = {
   description = "Glances server";
   wantedBy = [ "multi-user.target" ];
@@ -1322,7 +1312,7 @@ services = {
 };
 #+end_src
 
-** TODO Packages [3/7]
+** TODO Packages [3/8]
 *** TODO File Management
 #+begin_src nix :noweb-ref nix-flake-packages-file-management
 gprename

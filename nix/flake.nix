@@ -48,11 +48,6 @@
         swapDevices = [ ];
       };
       jelly-proxy-01 = {
-        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
-        boot.initrd.kernelModules = [ ];
-        boot.kernelModules = [ "kvm-intel" ];
-        boot.extraModulePackages = [ ];
-      
         fileSystems = {
           "/" = {
             device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
@@ -67,11 +62,6 @@
         };
       };
       jelly-proxy-02 = {
-        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
-        boot.initrd.kernelModules = [ ];
-        boot.kernelModules = [ "kvm-intel" ];
-        boot.extraModulePackages = [ ];
-      
         fileSystems = {
           "/" = {
             device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
@@ -85,11 +75,6 @@
         };
       };
       jelly-proxy-03 = {
-        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];
-        boot.initrd.kernelModules = [ ];
-        boot.kernelModules = [ "kvm-intel" ];
-        boot.extraModulePackages = [ ];
-      
         fileSystems = {
           "/" = {
             device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
@@ -138,11 +123,6 @@
           };
       };
       jelly-proxy-04 = {
-        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];
-        boot.initrd.kernelModules = [ ];
-        boot.kernelModules = [ "kvm-intel" ];
-        boot.extraModulePackages = [ ];
-      
         fileSystems = {
           "/" = {
             device = "/dev/disk/by-uuid/8bfa1c39-f4c5-4b66-8a9e-db7b7b7cbb72";
@@ -156,11 +136,6 @@
         };
       };
       jelly-proxy-05 = {
-        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
-        boot.initrd.kernelModules = [ ];
-        boot.kernelModules = [ "kvm-intel" ];
-        boot.extraModulePackages = [ ];
-      
         fileSystems = {
           "/" = {
             device = "/dev/disk/by-uuid/f97df9e0-b2ac-4e29-84ba-12f27bd54b07";
@@ -174,10 +149,6 @@
         };
       };
       jelly-proxy-06 = {
-        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
-        boot.initrd.kernelModules = [ ];
-        boot.kernelModules = [ "kvm-intel" ];
-        boot.extraModulePackages = [ ];
         fileSystems = {
           "/" = {
             device = "/dev/disk/by-uuid/5395506b-3569-4992-8d36-bcbeee416cbd";
@@ -191,11 +162,6 @@
         };
       };
       jelly-proxy-07 = {
-        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
-        boot.initrd.kernelModules = [ ];
-        boot.kernelModules = [ "kvm-intel" ];
-        boot.extraModulePackages = [ ];
-      
         fileSystems = {
           "/" = {
             device = "/dev/disk/by-uuid/18687194-1d96-47af-b2ed-3bab9f7bf253";
@@ -282,6 +248,15 @@
                 RemainAfterExit = true;
               };
             };
+          })
+          ({ config, lib, ... }: {
+            boot = {
+              initrd = {
+                availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
+                kernelModules = [ ];
+              };
+              kernelModules = [ "kvm-intel" ];
+              extraModulePackages = [ ];
           })
           hardwareConfigs.${name}
           ({ lib, pkgs, vars, ... }: {

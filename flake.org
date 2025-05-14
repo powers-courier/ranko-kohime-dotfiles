@@ -220,6 +220,9 @@ main-host = nixpkgs.lib.nixosSystem {
     ({ config, pkgs, ... }: {
       <<nix-flake-service-jellyfin-server>>
     })
+    ({ pkgs, ... }: {
+      <<nix-flake-module-xfce-desktop>>
+    })
     ({ config, pkgs, ... }: {
       <<nix-flake-service-homepage-dashboard>>
       <<nix-flake-service-netdata>>

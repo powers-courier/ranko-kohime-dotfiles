@@ -190,6 +190,24 @@
           };
         };
       };
+      jelly-proxy-07 = {
+        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-intel" ];
+        boot.extraModulePackages = [ ];
+      
+        fileSystems = {
+          "/" = {
+            device = "/dev/disk/by-uuid/18687194-1d96-47af-b2ed-3bab9f7bf253";
+            fsType = "ext4";
+          };
+          "/boot" = {
+            device = "/dev/disk/by-uuid/DFE8-3B70";
+            fsType = "vfat";
+            options = [ "fmask=0077" "dmask=0077" ];
+          };
+        };
+      };
       main-host = {
         boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sr_mod" ];
         boot.initrd.kernelModules = [ ];
@@ -239,7 +257,7 @@
         };
       };
     };
-    proxyCount = 6;
+    proxyCount = 7;
     Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
       num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
       name = "jelly-proxy-${num}";

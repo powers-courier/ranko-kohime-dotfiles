@@ -5,8 +5,8 @@
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
 * To-Do Items
-Add [[https://github.com/DeterminateSystems/flake-checker][nix-flake-checker]]
-Use Determinate Systems installer for Steam Deck
++ Add [[https://github.com/DeterminateSystems/flake-checker][nix-flake-checker]]
++ Use Determinate Systems installer for Steam Deck
 
 * TODO Flake [12/21]
 Outputs:

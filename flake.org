@@ -32,6 +32,9 @@ Gippity Says:
     hardwareConfigs = {
       <<nix-flake-hardware-configs>>
     };
+    modules = {
+      <<nix-flake-modules>>
+      <<nix-flake-users-module>>
     };
   in
     rec {
@@ -111,248 +114,6 @@ pkgs = import nixpkgs {
 };
 #+end_src
 
-** TODO Host Configurations[2/4]
-:properties:
-:header-args+: :noweb-ref nix-flake-host-configurations
-:end:
-*** Desktops
-**** Framework 7840U
-#+begin_src nix
-framework-7840u = nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
-  specialArgs = { inherit vars; };
-  modules = [
-    ({ config, lib, ... }: {
-      <<nix-flake-hardware-defaults-amd>>
-    })
-
-    hardwareConfigs.framework-7840u
-
-    ({ lib, pkgs, vars, ... }: {
-      <<nix-flake-modules-default>>
-    })
-
-    ({ pkgs, ... }: {
-      <<nix-flake-module-xfce-desktop>>
-    })
-
-    ({ pkgs, ... }: {
-      <<nix-flake-packages-unix-pass>>
-    })
-
-    ({ pkgs, ... }: {
-      boot = {
-        supportedFilesystems = [ "zfs" ];
-        zfs.forceImportRoot = false;
-      };
-
-      <<nix-flake-module-zfs>>
-
-      environment.systemPackages = with pkgs; [
-        <<nix-flake-packages-file-management>>
-        <<nix-flake-packages-multimedia-consumption>>
-        <<nix-flake-packages-multimedia-production>>
-        <<nix-flake-packages-nix-tools>>
-        <<nix-flake-packages-terminal>>
-      ];
-
-      networking = {
-        hostId = "af2f1b7f";
-        hostName = "framework-7840u";
-      };
-
-      system.stateVersion = "25.05";
-    })
-
-    ({ pkgs, ... }: {
-    <<nix-flake-module-amd-utilities>>
-    })
-
-    ({ pkgs, ... }: {
-    <<nix-flake-module-bluetooth>>
-    })
-
-  ];
-};
-#+end_src
-
-*** TODO Servers [2/3]
-**** TODO Main Host
-#+begin_src nix
-main-host = nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
-  specialArgs = { inherit vars; };
-  modules = [
-    ({ config, lib, ... }: {
-      <<nix-flake-hardware-defaults-intel>>
-    })
-    hardwareConfigs.main-host
-    ({ lib, pkgs, vars, ... }: {
-      <<nix-flake-modules-default>>
-    })
-    ({ pkgs, vars, ... }: {
-      boot = {
-        supportedFilesystems = [ "zfs" ];
-        zfs.forceImportRoot = false;
-      };
-      <<nix-flake-module-zfs>>
-      networking = {
-        hostId = "2b7f3c3a";
-        hostName = "main-host";
-        interfaces = {
-          enp4s0 = {
-            ipv4.addresses = [{
-              address = "192.168.168.25";
-              prefixLength = 24;
-            }];
-            mtu = 9000;
-          };
-        };
-      };
-      <<nix-flake-nfs-client-settings>>
-      <<nix-flake-nfs-documents>>
-      <<nix-flake-nfs-multimedia>>
-      system.stateVersion = "25.05";
-      environment.systemPackages = with pkgs; [
-        <<nix-flake-packages-multimedia-production>>
-      ];
-    })
-    ({ config, pkgs, ... }: {
-      <<nix-flake-service-jellyfin-server>>
-    })
-    ({ pkgs, ... }: {
-      <<nix-flake-module-xfce-desktop>>
-    })
-    ({ config, pkgs, ... }: {
-      <<nix-flake-service-homepage-dashboard>>
-      <<nix-flake-service-netdata>>
-    })
-  ];
-};
-#+end_src
-
-**** DONE N100-1
-Firewall TCP port 5000 is used for LubeLogger
-Firewall TCP port 5120 is used for Unison daemon
-#+begin_src nix
-n100-1 = nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
-  specialArgs = { inherit vars; };
-  modules = [
-    ({ config, lib, ... }: {
-      <<nix-flake-hardware-defaults-intel>>
-    })
-    hardwareConfigs.n100-1
-
-    ({ pkgs, ... }: {
-      environment.systemPackages = with pkgs; [
-        <<nix-flake-packages-file-management>>
-        <<nix-flake-packages-multimedia-production>>
-        <<nix-flake-packages-nix-tools>>
-        <<nix-flake-packages-terminal>>
-        emacs
-        ffmpeg-full
-        python3
-      ];
-      networking = {
-        firewall = {
-          enable = true;
-          allowedTCPPorts = [ 5120 ];
-        };
-        hostName = "n100-1";
-        interfaces = {
-          enp2s0 = {
-            ipv4.addresses = [{
-              address = "192.168.168.20";
-              prefixLength = 24;
-            }];
-            mtu = 9000;
-          };
-        };
-      };
-      system.stateVersion = "24.11";
-    })
-    ({ lib, pkgs, vars, ... }: {
-      <<nix-flake-modules-default>>
-      <<nix-flake-nfs-client-settings>>
-      <<nix-flake-nfs-documents>>
-      <<nix-flake-nfs-multimedia>>
-      <<nix-flake-service-netdata>>
-    })
-    ({ pkgs, ... }: {
-      <<nix-flake-module-xfce-desktop>>
-    })
-    ({ pkgs, ... }: {
-      <<nix-flake-packages-unix-pass>>
-    })
-  ];
-};
-#+end_src
-
-**** DONE Proxy Hosts Generator
-***** Explanation
-****** proxyCount:
-Set to 3—generates jelly-proxy-01, jelly-proxy-02, jelly-proxy-03.
-Change to 5 for jelly-proxy-05, etc.
-****** builtins.genList:
-builtins.genList (i: i) 3 → [0 1 2]—a list of indices.
-i + 1 shifts it to 1, 2, 3 for numbering.
-****** map:
-Loops over [0 1 2], creating a list of { name = ...; value = ...; } pairs.
-num: Pads with 0 for 01-09 (e.g., if i < 9 then "0${toString (i + 1)}"), then plain numbers (10, 11, ...).
-****** builtins.listToAttrs:
-Turns the list into an attrset:
-****** networking.hostName = name:
-Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynamically—no repetition.
-****** // Operator:
-Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
-***** Code
-#+begin_src nix :noweb-ref proxy-host-generator
-proxyCount = 7;
-Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
-  num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
-  name = "jelly-proxy-${num}";
-in {
-  inherit name;
-  value = nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
-    specialArgs = { inherit vars; };
-    modules = [
-      ({ config, lib, ... }: {
-        <<nix-flake-hardware-defaults-intel>>
-        <<nix-flake-module-intel-limiter>>
-      })
-      ({ config, lib, ... }: {
-        boot = {
-          initrd = {
-            availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
-            kernelModules = [ ];
-          };
-          kernelModules = [ "kvm-intel" ];
-          extraModulePackages = [ ];
-      })
-      hardwareConfigs.${name}
-      ({ lib, pkgs, vars, ... }: {
-        networking.hostName = name;
-        system.stateVersion = "25.05";
-        <<nix-flake-modules-default>>
-      })
-      ({ pkgs, vars, ... }: {
-        <<nix-flake-module-jellyfin-proxy>>
-#        <<nix-flake-filesystems-ro-logs>>
-      })
-      ({ pkgs, ... }: {
-        environment.systemPackages = with pkgs; [
-          glances
-          <<nix-flake-packages-rw-ro-script>>
-        ];
-      })
-    ];
-  };
-}) (builtins.genList (i: i) proxyCount));
-#+end_src
-
-* Items
 ** DONE Hardware Configs [10/10]
 :properties:
 :header-args+: :noweb-ref nix-flake-hardware-configs
@@ -360,11 +121,6 @@ in {
 *** DONE framework-7840u
 #+begin_src nix
 framework-7840u = {
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
-  boot.extraModulePackages = [ ];
-
   fileSystems = {
     "/" = {
       device = "zroot/root";
@@ -465,7 +221,7 @@ jelly-proxy-03 = {
       <<nix-flake-module-ytdl-env>>
     '';
     mode = "0444";
-    };
+  };
 };
 #+end_src
 *** DONE jelly-proxy-04
@@ -586,70 +342,25 @@ n100-1 = {
   };
 };
 #+end_src
-
-** TODO Home Manager Modules [0/2]
-*** TODO Git
-#+begin_src nix
-programs.git = {
-  enable = true;
-  userName = "Ranko Kohime";
-  userEmail = "ranko.kohime@runbox.com";
-}
-#+end_src
-*** TODO GTK Settings
-#+begin_src nix :noweb-ref nix-flake-module-gtk-settings
-gtk = {
-  enable = true;
-  iconTheme = {
-    name = "elementary-Xfce-dark";
-    package = pkgs.elementary-xfce-icon-theme;
-  };
-  theme = {
-    name = "zukitre-dark";
-    package = pkgs.zuki-themes;
-  };
-  gtk3.extraConfig = {
-    Settings = ''
-      gtk-application-prefer-dark-theme=1
-    '';
-  };
-  gtk4.extraConfig = {
-    Settings = ''
-      gtk-application-prefer-dark-theme=1
-    '';
-  };
-};
-#+end_src
-
-** TODO System Modules [41/49]
-*** TODO Bluetooth
-#+begin_src nix :noweb-ref nix-flake-module-bluetooth
-environment.systemPackages = with pkgs; [ blueman ];
-hardware.bluetooth.enable = true;
-services.blueman.enable = true;
-#+end_src
-*** DONE Default Hardware
-#+begin_src nix :noweb-ref nix-flake-hardware-defaults-amd
-networking.useDHCP = lib.mkDefault true;
-nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-#+end_src
-
-#+begin_src nix :noweb-ref nix-flake-hardware-defaults-intel
-networking.useDHCP = lib.mkDefault true;
-nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-#+end_src
-
-*** DONE Default Modules [11/11]
+** DONE Modules [8/8]
 :properties:
-:header-args+: :noweb-ref nix-flake-modules-default
+:header-args+: :noweb-ref nix-flake-modules
 :end:
-***** DONE Default bootloader
+*** DONE Base Packages
 #+begin_src nix
-boot.loader = {
-  efi.canTouchEfiVariables = true;
-  systemd-boot.enable = true;
+basePackages = { config, lib, pkgs, ... }: {
+  options.basePackages.enable = lib.mkEnableOption "Install standard packages" // { default = true; };
+  config = lib.mkIf config.basePackages.enable {
+    environment.systemPackages = with pkgs; [
+      byobu
+      git
+      glances
+      sshfs
+      tmux
+      tree
+      unison
+    ];
+  };
 };
 #+end_src
 

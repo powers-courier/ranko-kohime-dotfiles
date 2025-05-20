@@ -364,384 +364,342 @@ basePackages = { config, lib, pkgs, ... }: {
 };
 #+end_src
 
-***** DONE Flake Enabler
+*** DONE Firmware Update Daemon
 #+begin_src nix
-nix.settings.experimental-features = [ "nix-command" "flakes" ];
-#+end_src
-***** Firmware Update Daemon
-#+begin_src nix
-services.fwupd = {
-  daemonSettings = {
-    IgnorePower = true;
+fwupd = { config, lib, pkgs, ... }: {
+  options.fwupd.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
+  config = lib.mkIf config.fwupd.enable {
+    services.fwupd = {
+      daemonSettings = {
+        IgnorePower = true;
+      };
+      enable = true;
+#      extraRemotes = [];
+#      uefiCapsuleSettings = {};
+    };
   };
-  enable = true;
-#  extraRemotes = [];
-#  uefiCapsuleSettings = {};
 };
 #+end_src
-***** DONE Glances Server
-#+begin_src nix
-**** DONE Garbage Collection
+*** DONE Garbage Collection
 Automatically remove store items not used more than 1 year
-#+begin_src nix :noweb-ref nix-flake-modules-default-garbage
-nix.gc = {
-  automatic = true;
-  dates = "monthly";
-  options = "--delete-older-than 365d";
-};
-#+end_src
-systemd.services.glances-server = {
-  description = "Glances server";
-  wantedBy = [ "multi-user.target" ];
-  after = [ "network.target" ];
-  serviceConfig = {
-    Type = "simple";
-    ExecStart = "${pkgs.glances}/bin/glances -w";
-    RemainAfterExit = false;
-    Restart = "always";
+#+begin_src nix
+garbageCollection = { config, lib, pkgs, ... }: {
+  options.garbageCollection.enable = lib.mkEnableOption "Enable garbage collection in the Nix store, set to a conservative default" // { default = true; };
+  config = lib.mkIf config.garbageCollection.enable {
+    nix.gc = {
+      automatic = true;
+      dates = "monthly";
+      options = "--delete-older-than 365d";
+    };
   };
 };
 #+end_src
-***** DONE Locale
-#+begin_src nix
-i18n = {
-  defaultLocale = vars.loKale;
-  extraLocaleSettings = {
-    LC_ADDRESS = vars.loKale;
-    LC_IDENTIFICATION = vars.loKale;
-    LC_MEASUREMENT = vars.loKale;
-    LC_MONETARY = vars.loKale;
-    LC_NAME = vars.loKale;
-    LC_NUMERIC = vars.loKale;
-    LC_PAPER = vars.loKale;
-    LC_TELEPHONE = vars.loKale;
-    LC_TIME = vars.loKale;
+*** DONE Glances Server
+#+begin_src nix :noweb-ref nix-flake-modules-default-glances-server
+glancesServer = { config, lib, pkgs, ... }: {
+  options.glancesServer.enable = lib.mkEnableOption "Enable Glances service" // { default = true; };
+  config = lib.mkIf config.glancesServer.enable {
+    systemd.services.glances-server = {
+      description = "Glances server";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" ];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.glances}/bin/glances -w";
+        RemainAfterExit = false;
+        Restart = "always";
+      };
+    };
   };
 };
 #+end_src
 
-***** DONE Networking
+*** DONE Locale
 #+begin_src nix
-networking.networkmanager.enable = true;
-#+end_src
-***** DONE OpenSSH
-#+begin_src nix
-services.openssh = {
-  banner = "Welcome to... wherever you happen to be\n";
-  enable = true;
-  extraConfig ="";
-  openFirewall = true;
-  ports = [ 22 ];
-  settings = {
-    PasswordAuthentication = false;
-    PermitRootLogin = "prohibit-password";
-    PrintMotd = true;
-    StrictModes = true;
-    X11Forwarding = true;
-  };
-};
-programs.mosh.enable = true;
-#+end_src
-***** DONE Nano Configuration
-#+begin_src nix
-programs.nano.nanorc = ''
-  set autoindent
-  set boldtext
-  set constantshow
-  set nowrap
-  set smarthome
-  set tabsize 2
-  set tabstospaces
-'';
-#+end_src
-***** DONE Packages
-#+begin_src nix
-environment.systemPackages = with pkgs; [
-  byobu
-  dmidecode
-  git
-  glances
-  lm_sensors
-  sshfs
-  tmux
-  unison
-];
-#+end_src
-***** DONE Tailscale
-#+begin_src nix
-services.tailscale = {
-  enable = true;
-  openFirewall = true;
-  port = 0;
-};
-#+end_src
-***** DONE Time Zone
-#+begin_src nix
-time.timeZone = vars.timeZern;
-#+end_src
-***** DONE Users
-User ranko is default, but has dependency on Jellyfin group
-#+begin_src nix
-<<nix-flake-users-jellyfin>>
-<<nix-flake-users-ranko>>
-#+end_src
-***** DONE zramSwap
-#+begin_src nix
-zramSwap = {
-  enable = true;
-  priority = 1;
-  memoryPercent = 100;
-  swapDevices = 1;
-};
-#+end_src
-*** Disks
-**** Disko
-***** DONE Single NVMe ZFS, no swap [8/8]
-#+begin_src nix :tangle nix/disko/single-nvme-zfs-noswap.nix
-{
-  disko.devices = {
-    disk = {
-      nvme0n1 = {
-        device = "/dev/nvme0n1";
-        type = "disk";
-        content = {
-          type = "table";
-          format = "gpt";
-          partitions = [
-            <<disko-single-nvme-zfs-partitions>>
-          ];
-        };
-      };
-    };
-    zpool = {
-      zroot = {
-        options = {
-          ashift = "12";
-          autotrim = "on";
-        };
-        type = "zpool";
-        rootFsOptions = {
-          compression = "zstd-19";
-          checksum = "sha256";
-          "com.sun:auto-snapshot" = "true";
-        };
-        datasets = {
-          <<disko-single-nvme-zfs-datasets>>
-        };
+lokale = { config, lib, pkgs, ... }: {
+  options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
+  config = lib.mkIf config.lokale.enable {
+    i18n = {
+      defaultLocale = vars.loKale;
+      extraLocaleSettings = {
+        LC_ADDRESS = vars.loKale;
+        LC_IDENTIFICATION = vars.loKale;
+        LC_MEASUREMENT = vars.loKale;
+        LC_MONETARY = vars.loKale;
+        LC_NAME = vars.loKale;
+        LC_NUMERIC = vars.loKale;
+        LC_PAPER = vars.loKale;
+        LC_TELEPHONE = vars.loKale;
+        LC_TIME = vars.loKale;
       };
     };
   };
-}
+};
 #+end_src
-****** DONE Partitions [2/2]
+
+*** DONE Nano Configuration
+#+begin_src nix
+nanorc = { config, lib, pkgs, ... }: {
+  options.nanorc.enable = lib.mkEnableOption "Enable system-wide nanorc configuration" // { default = true; };
+  config = lib.mkIf config.nanorc.enable {
+    programs.nano.nanorc = ''
+      set autoindent
+      set boldtext
+      set constantshow
+      set linenumbers
+      set nowrap
+      set smarthome
+      set tabsize 2
+      set tabstospaces
+    '';
+  };
+};
+#+end_src
+*** DONE OpenSSH
+#+begin_src nix
+openssh = { config, lib, pkgs, ... }: {
+  options.openssh.enable = lib.mkEnableOption "Enable OpenSSH server, and Mosh" // { default = true; };
+  config = lib.mkIf config.openssh.enable {
+    services.openssh = {
+      banner = "Welcome to... wherever you happen to be\n";
+      enable = true;
+      extraConfig ="";
+      openFirewall = true;
+      ports = [ 22 ];
+      settings = {
+        PasswordAuthentication = false;
+        PermitRootLogin = "prohibit-password";
+        PrintMotd = true;
+        StrictModes = true;
+        X11Forwarding = true;
+      };
+    };
+    programs.mosh.enable = true;
+  };
+};
+#+end_src
+*** TODO systemBlocks
+[[https://github.com/plasmin/ryzen_monitor_ng?tab=readme-ov-file#usage][Ryzen Monitor NG Usage Instructions]]
+#+begin_src nix
+systemBlocks = { config, lib, pkgs, system, ... }: {
+  config = {
+    boot = lib.mkIf (system == "x86_64-linux") {
+      extraModulePackages = [ ];
+      initrd = {
+        availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "ahci" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
+        kernelModules = [ ];
+      };
+      kernelModules = [
+        "kvm-amd"
+        "kvm-intel"
+      ];
+      loader = {
+        efi.canTouchEfiVariables = true;
+        systemd-boot.enable = true;
+      };
+    };
+    environment.systemPackages = lib.mkIf (system == "x86_64-linux") (with pkgs; [
+      dmidecode
+      lm_sensors
+      ryzenadj
+      ryzen-monitor-ng
+    ]) ++ lib.mkIf (system == "aarch64-linux") (with pkgs; [
+      rpi-tools
+    ])
+    hardware = lib.mkIf (system == "x86_64-linux") {
+      cpu = {
+        amd = {
+          ryzen-smu.enable = true;
+          updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+        };
+        intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+      };
+      intel-gpu-tools.enable = true;
+    };
+  };
+};
+#+end_src
+*** DONE Tailscale
+#+begin_src nix
+tailscale = { config, lib, pkgs, ... }: {
+  options.tailscale.enable = lib.mkEnableOption "Enable Tailscale VPN" // { default = true; };
+  config = lib.mkIf config.tailscale.enable {
+    services.tailscale = {
+      enable = true;
+      openFirewall = true;
+      port = 0;
+    };
+  };
+};
+#+end_src
+*** DONE zramSwap
+#+begin_src nix
+zramswap = { config, lib, pkgs, ... }: {
+  options.zramswap.enable = lib.mkEnableOption "Enable zram compressed swap" // { default = true; };
+  config = lib.mkIf config.zramswap.enable {
+    zramSwap = {
+      enable = true;
+      priority = 1;
+      memoryPercent = 100;
+      swapDevices = 1;
+    };
+  };
+};
+#+end_src
+** DONE Users [2/2]
+#+begin_src nix :noweb-ref nix-flake-users-module
+user = { config, lib, pkgs, ... }: {
+  options.user = {
+    ranko.enable = lib.mkEnableOption "Enable ranko user" // { default = true; };
+    jellyfin.enable = lib.mkEnableOption "Enable jellyfin user";
+  };
+  config = {
+    users = {
+      groups = {
+        docker = lib.mkIf config.virtualisation.docker.enable {};
+        <<nix-flake-users-jellyfin-group>>
+        users.gid = 100;
+      };
+      <<nix-flake-users-jellyfin>>
+      <<nix-flake-users-ranko>>
+    };
+  };
+};
+#+end_src
+*** DONE Jellyfin
+**** Group
+#+begin_src nix :noweb-ref nix-flake-users-jellyfin-group
+jellyfin = lib.mkIf config.user.jellyfin.enable {
+  gid = 8096;
+  name = "jellyfin";
+};
+#+end_src
+**** User
+#+begin_src nix :noweb-ref nix-flake-users-jellyfin
+users.jellyfin = lib mkIf config.user.jellyfin.enable {
+  extraGroups = [ "render" "video" ];
+  group = "jellyfin";
+  isNormalUser = true;
+  isSystemUser = lib.mkForce false;
+  uid = 8096;
+  gid = 8096;
+};
+#+end_src
+*** DONE Ranko Kohime
+#+begin_src nix :noweb-ref nix-flake-users-ranko
+users.ranko = lib mkIf config.user.ranko.enable {
+  isNormalUser = true;
+  description = "Ranko Kohime";
+  uid = 1000;
+  group = "users";
+  extraGroups = [ "networkmanager" "wheel" ]
+    ++ lib.optionals config.user.jellyfin.enable [ "jellyfin" ]
+    ++ lib.optionals (lib.attrByPath [ "virtualisation" "docker" "enable" ] false config) [ "docker" ];
+};
+#+end_src
+** TODO baseConfig
+#+begin_src nix :noweb-ref nix-flake-baseConfig
+baseConfig = { config, pkgs, system, ... }: {
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs.hostPlatform = lib.mkDefault system;
+  time.timeZone = vars.timeZern;
+  modules = [
+    modules.basePackages
+    modules.fwupd
+    modules.garbageCollection
+    modules.glancesServer
+    modules.lokale
+    modules.nanorc
+    modules.openssh
+    modules.systemBlocks
+    modules.tailscale
+    modules.user
+    modules.zramswap
+  ];
+};
+#+end_src
+** TODO mkSystem
+Helper function to create a NixOS system
+#+begin_src nix nix-flake-mksystem
+mkSystem = hostname: extraModules: nixpkgs.lib.nixosSystem {
+  inherit system
+  modules = [
+    baseConfig
+  ] ++ extraModules;
+};
+#+end_src
+** TODO Home Configurations [0/0]
 :properties:
-:header-args+: :noweb-ref disko-single-nvme-zfs-partitions
+:header-args+: :noweb-ref nix-flake-home-configurations
 :end:
-******* DONE ESP
-#+begin_src nix
-{
-  name = "ESP";
-  start = "1MiB";
-  end = "1GiB";
-  fs-type = "fat32";
-  bootable = true;
-  content = {
-    type = "filesystem";
-    format = "vfat";
-    mountpoint = "/boot";
-    mountOptions = [ "umask=0077" ];
-  };
-}
-#+end_src
-******* DONE Zpool
-#+begin_src nix
-{
-  name = "zfs";
-  start = "1GiB";
-  end = "100%";
-  content = {
-    type = "zfs";
-    pool = "zroot";
-  };
-}
-#+end_src
-****** DONE Datasets [4/4]
+*** 
+
+** TODO Host Configurations[2/4]
 :properties:
-:header-args+: :noweb-ref disko-single-nvme-zfs-datasets
+:header-args+: :noweb-ref nix-flake-host-configurations
 :end:
-******* DONE /
+*** Desktops
+**** Framework 7840U
 #+begin_src nix
-"root" = {
-  type = "zfs_fs";
-  mountpoint = "/";
-  options = {
-    mountpoint = "/";
-    canmount = "on";
-  };
+framework-7840u = nixpkgs.lib.nixosSystem {
+  system = "x86_64-linux";
+  specialArgs = { inherit vars; };
+  modules = [
+    ({ config, lib, ... }: {
+      <<nix-flake-hardware-defaults-amd>>
+    })
+    hardwareConfigs.framework-7840u
+    ({ lib, pkgs, vars, ... }: {
+      <<nix-flake-modules-default>>
+    })
+    ({ pkgs, ... }: {
+      <<nix-flake-module-xfce-desktop>>
+    })
+    ({ pkgs, ... }: {
+      <<nix-flake-packages-unix-pass>>
+    })
+    ({ pkgs, ... }: {
+      boot = {
+        supportedFilesystems = [ "zfs" ];
+        zfs.forceImportRoot = false;
+      };
+      <<nix-flake-module-zfs>>
+      environment.systemPackages = with pkgs; [
+        <<nix-flake-packages-terminal>>
+      ];
+      networking = {
+        hostId = "af2f1b7f";
+        hostName = "framework-7840u";
+      };
+      system.stateVersion = "25.05";
+    })
+    ({ pkgs, ... }: {
+    <<nix-flake-module-amd-utilities>>
+    })
+    ({ pkgs, ... }: {
+    <<nix-flake-module-bluetooth>>
+    })
+  ];
 };
 #+end_src
-******* DONE /home
 #+begin_src nix
-"home" = {
-  type = "zfs_fs";
-  mountpoint = "/home";
-  options = {
-    mountpoint = "/home";
-    canmount = "on";
-  };
 };
 #+end_src
-******* DONE /nix
-#+begin_src nix
-"nix" = {
-  type = "zfs_fs";
-  mountpoint = "/nix";
-  options = {
-    mountpoint = "/nix";
-    canmount = "on";
-  };
-};
-#+end_src
-******* DONE /var
-#+begin_src nix
-"var" = {
-  type = "zfs_fs";
-  mountpoint = "/var";
-  options = {
-    mountpoint = "/var";
-    canmount = "on";
-  };
-};
-#+end_src
-***** DONE Dual NVMe ZFS Mirror, no swap [2/2]
-Run command:
-#+begin_example
-sudo nix run --experimental-features 'nix-command flakes' github:nix-community/disko -- --mode zap_create_mount ./disko-config.nix
-#+end_example
 
-#+begin_src nix :tangle nix/disko/dual-nvme-zfs-mirror-noswap.nix
-{
-  disko.devices = {
-    disk = {
-      nvme0 = {
-        device = "/dev/nvme0n1";
-        type = "disk";
-        content = {
-          type = "table";
-          format = "gpt";
-          partitions = [
-            {
-                <<disko-dual-nvme-esp>>
-                content.mountpoint = "/boot/efi0";
-            }
-            {
-              <<disko-dual-nvme-zpart>>
-            }
-          ];
-        };
-      };
-      nvme1 = {
-        device = "/dev/nvme1n1";
-        type = "disk";
-        content = {
-          type = "table";
-          format = "gpt";
-          partitions = [
-            {
-                <<disko-dual-nvme-esp>>
-                content.mountpoint = "/boot/efi1";
-            }
-            {
-              <<disko-dual-nvme-zpart>>
-            }
-          ];
-        };
-      };
-    };
-    zpool = {
-      zroot = {
-        type = "zpool";
-        mode = "mirror";
-        rootFsOptions = {
-          compression = "zstd";
-          "com.sun:auto-snapshot" = "false";
-        };
-        datasets = {
-          "root" = {
-            type = "zfs_fs";
-            mountpoint = "/";
-            options.mountpoint = "legacy";
-          };
-          "boot" = {
-            type = "zfs_fs";
-            mountpoint = "/boot";
-            options.mountpoint = "legacy";
-          };
-          "nix" = {
-            type = "zfs_fs";
-            mountpoint = "/nix";
-            options.mountpoint = "legacy";
-          };
-          "home" = {
-            type = "zfs_fs";
-            mountpoint = "/home";
-            options.mountpoint = "legacy";
-          };
-          "var" = {
-            type = "zfs_fs";
-            mountpoint = "/var";
-            options.mountpoint = "legacy";
-          };
-        };
-      };
-    };
-  };
-}
 #+end_src
-****** DONE ESP
-#+begin_src nix :noweb-ref disko-dual-nvme-esp
-name = "ESP";
-start = "1MiB";
-end = "1GiB";
-bootable = true;
-content = {
-  type = "filesystem";
-  format = "vfat";
-};
-#+end_src
-****** DONE ZFS Partition
-#+begin_src nix :noweb-ref disko-dual-nvme-zpart
-name = "zfs";
-start = "1GiB";
-end = "100%";
-content = {
-  type = "zfs";
-  pool = "zroot";
-};
-#+end_src
-**** Read-Only Filesystems
-#+begin_src nix :noweb-ref nix-flake-filesystems-ro-logs
-boot.kernelParams = [ "ro" ];
 
-services.journald.extraConfig = ''
-  Storage=volatile
-  RuntimeMaxUse=50M
+};
+#+end_src
+
+  };
+};
+};
+#+end_src
+
 '';
 
-fileSystems."/tmp" = {
-  device = "tmpfs";
-  fsType = "tmpfs";
-  options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
 };
-fileSystems."/var/log" = {
-  device = "tmpfs";
-  fsType = "tmpfs";
-  options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
 };
-fileSystems."/var/tmp" = {
-  device = "tmpfs";
-  fsType = "tmpfs";
-  options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
 };
 #+end_src
 *** TODO Emacs Daemon

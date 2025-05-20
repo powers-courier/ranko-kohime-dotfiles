@@ -8,12 +8,12 @@
 + Add [[https://github.com/DeterminateSystems/flake-checker][nix-flake-checker]]
 + Use Determinate Systems installer for Steam Deck
 
-* TODO Flake [12/21]
+* TODO Flake [32/46]
 Outputs:
-"self" references the directory of the flake file, in this case ~/Dotfiles/nix/
-"nixpkgs" references the inputs above
++ "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
++ "nixpkgs" references the inputs above
 Gippity Says:
-"The use of eachDefaultSystem here abstracts away some of the complexities associated with managing configurations across different system architectures. Instead of defining each possible system configuration manually, you define a single function that describes how to build the system configuration for any given system type. flake-utils then handles applying this function to the set of default systems that Nix supports."
++ "The use of eachDefaultSystem here abstracts away some of the complexities associated with managing configurations across different system architectures. Instead of defining each possible system configuration manually, you define a single function that describes how to build the system configuration for any given system type. flake-utils then handles applying this function to the set of default systems that Nix supports."
 
 ** DONE Contents
 #+begin_src nix :tangle ~/Dotfiles/nix/flake.nix
@@ -25,13 +25,13 @@ Gippity Says:
   outputs =
     { self, nixpkgs, hardware, home-manager, ... }@inputs:
   let
+    vars = {
+      <<nix-flake-variables>>
+    };
     lib = nixpkgs.lib;
     hardwareConfigs = {
       <<nix-flake-hardware-configs>>
     };
-    <<proxy-host-generator>>
-    vars = {
-      <<nix-flake-variables>>
     };
   in
     rec {

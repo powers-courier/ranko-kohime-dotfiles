@@ -14,6 +14,12 @@
   outputs =
     { self, nixpkgs, hardware, home-manager, ... }@inputs:
   let
+    vars = {
+      loKale = "en_US.UTF-8";
+      timeZern = "Etc/UTC";
+      tailscale-fqdn = "manticore-elnath.ts.net";
+      truenas-ip = "192.168.168.2";
+    };
     lib = nixpkgs.lib;
     hardwareConfigs = {
       framework-7840u = {
@@ -120,7 +126,7 @@
             }
           '';
           mode = "0444";
-          };
+        };
       };
       jelly-proxy-04 = {
         fileSystems = {

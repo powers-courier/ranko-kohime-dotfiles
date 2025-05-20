@@ -36,6 +36,10 @@ Gippity Says:
       <<nix-flake-modules>>
       <<nix-flake-users-module>>
     };
+    <<nix-flake-baseConfig>>
+    <<nix-flake-mksystem>>
+    <<proxy-host-generator>>
+    <<homepage-dashboard-services-glances-generator>>
   in
     rec {
       homeConfigurations = {
@@ -700,7 +704,166 @@ framework-7840u = nixpkgs.lib.nixosSystem {
 
 };
 };
+*** TODO Servers [2/3]
+**** TODO Main Host
+#+begin_src nix
+main-host = nixpkgs.lib.nixosSystem {
+  system = "x86_64-linux";
+  specialArgs = { inherit vars; };
+  modules = [
+    hardwareConfigs.main-host
+    ({ lib, pkgs, vars, ... }: {
+      <<nix-flake-modules-default>>
+    })
+    ({ pkgs, vars, ... }: {
+      boot = {
+        supportedFilesystems = [ "zfs" ];
+        zfs.forceImportRoot = false;
+      };
+      <<nix-flake-module-zfs>>
+      networking = {
+        hostId = "2b7f3c3a";
+        hostName = "main-host";
+        interfaces = {
+          enp4s0 = {
+            ipv4.addresses = [{
+              address = "192.168.168.25";
+              prefixLength = 24;
+            }];
+            mtu = 9000;
+          };
+        };
+      };
+      <<nix-flake-nfs-client-settings>>
+      <<nix-flake-nfs-documents>>
+      <<nix-flake-nfs-multimedia>>
+      system.stateVersion = "25.05";
+      environment.systemPackages = with pkgs; [
+        <<nix-flake-packages-multimedia-production>>
+      ];
+    })
+    ({ config, pkgs, ... }: {
+      <<nix-flake-service-jellyfin-server>>
+    })
+    ({ pkgs, ... }: {
+      <<nix-flake-module-xfce-desktop>>
+    })
+    ({ config, pkgs, ... }: {
+      <<nix-flake-service-homepage-dashboard>>
+      <<nix-flake-service-netdata>>
+    })
+    ({ config, ... }: {
 };
+#+end_src
+**** DONE N100-1
+boot.binfmt.emulatedSystems enables compiling a Raspberry Pi image
+Firewall TCP port 5000 is used for LubeLogger
+Firewall TCP port 5120 is used for Unison daemon
+#+begin_src nix
+n100-1 = nixpkgs.lib.nixosSystem {
+  system = "x86_64-linux";
+  specialArgs = { inherit vars; };
+  modules = [
+    ({ config, lib, ... }: {
+      boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+    })
+    hardwareConfigs.n100-1
+
+    ({ pkgs, ... }: {
+      environment.systemPackages = with pkgs; [
+        <<nix-flake-packages-terminal>>
+        emacs
+        ffmpeg-full
+        lubelogger
+        python3
+        qemu
+      ];
+      networking = {
+        firewall = {
+          enable = true;
+          allowedTCPPorts = [ 5000 5120 ];
+        };
+        hostName = "n100-1";
+        interfaces = {
+          enp2s0 = {
+            ipv4.addresses = [{
+              address = "192.168.168.20";
+              prefixLength = 24;
+            }];
+            mtu = 9000;
+          };
+        };
+      };
+      system.stateVersion = "25.05";
+    })
+    ({ lib, pkgs, vars, ... }: {
+      <<nix-flake-modules-default>>
+      <<nix-flake-nfs-client-settings>>
+      <<nix-flake-nfs-documents>>
+      <<nix-flake-nfs-multimedia>>
+      <<nix-flake-service-netdata>>
+    })
+    ({ pkgs, ... }: {
+      <<nix-flake-module-xfce-desktop>>
+    })
+    ({ pkgs, ... }: {
+      <<nix-flake-packages-unix-pass>>
+    })
+  ];
+};
+#+end_src
+
+**** DONE Proxy Hosts Generator
+***** Explanation
+****** proxyCount:
+Set to 3—generates jelly-proxy-01, jelly-proxy-02, jelly-proxy-03.
+Change to 5 for jelly-proxy-05, etc.
+****** builtins.genList:
+builtins.genList (i: i) 3 → [0 1 2]—a list of indices.
+i + 1 shifts it to 1, 2, 3 for numbering.
+****** map:
+Loops over [0 1 2], creating a list of { name = ...; value = ...; } pairs.
+num: Pads with 0 for 01-09 (e.g., if i < 9 then "0${toString (i + 1)}"), then plain numbers (10, 11, ...).
+****** builtins.listToAttrs:
+Turns the list into an attrset:
+****** networking.hostName = name:
+Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynamically—no repetition.
+****** // Operator:
+Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
+***** Code
+#+begin_src nix :noweb-ref proxy-host-generator
+proxyCount = 7;
+Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
+  num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
+  name = "jelly-proxy-${num}";
+in {
+  inherit name;
+  value = nixpkgs.lib.nixosSystem {
+    system = "x86_64-linux";
+    specialArgs = { inherit vars; };
+    modules = [
+      ({ config, lib, ... }: {
+        <<nix-flake-module-intel-limiter>>
+      })
+      hardwareConfigs.${name}
+      ({ lib, pkgs, vars, ... }: {
+        networking.hostName = name;
+        system.stateVersion = "25.05";
+        <<nix-flake-modules-default>>
+      })
+      ({ pkgs, vars, ... }: {
+        <<nix-flake-module-jellyfin-proxy>>
+#        <<nix-flake-filesystems-ro-logs>>
+      })
+      ({ pkgs, ... }: {
+        environment.systemPackages = with pkgs; [
+          glances
+          <<nix-flake-packages-rw-ro-script>>
+        ];
+      })
+    ];
+  };
+}) (builtins.genList (i: i) proxyCount));
 #+end_src
 *** TODO Emacs Daemon
 #+begin_src nix :noweb-ref nix-flake-module-emacs-daemon
@@ -1101,6 +1264,7 @@ tmux
 tree
 #+end_src
 *** TODO Homepage Dashboard
+*** TODO Homepage Dashboard [9/18]
 #+begin_src nix :noweb-ref nix-flake-service-homepage-dashboard
 networking.firewall.allowedTCPPorts = [ 8080 ];
 services.homepage-dashboard = {
@@ -1109,21 +1273,159 @@ services.homepage-dashboard = {
   enable = true;
   listenPort = 8080;
   openFirewall = true;
+  settings = {
+    <<homepage-dashboard-settings>>
+  };
+  services = [
+    <<homepage-dashboard-services>>
+  ];
   widgets = [
-    {
-      resources = {
-        cpu = true;
-        memory = true;
-      };
-    }
-    {
-      search = {
-        provider = "";
-        target = "_blank";
-      };
-    }
+    <<homepage-dashboard-widgets>>
   ];
 };
+#+end_src
+**** DONE Settings
+#+begin_src nix :noweb-ref homepage-dashboard-settings
+title = "Dashboard";
+description = "The Atomic Ass's Amazing Dashboard";
+background = {
+  image = "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop";
+  opacity = 50;
+};
+cardBlur = "sm";
+headerStyle = "boxedWidgets";
+theme = "dark";
+color = "neutral";
+layout = {
+  <<homepage-dashboard-layout>>
+};
+#+end_src
+
+**** TODO Layout
+#+begin_src nix :noweb-ref homepage-dashboard-layout
+"Monitoring" = {
+  disableCollapse = true;
+  header = false;
+};
+"Multimedia" = {
+  disableCollapse = true;
+  header = false;
+#  style = ;
+};
+"Servers" = {
+  disableCollapse = true;
+  header = false;
+};
+#+end_src
+
+**** TODO Services [7/11]
+***** DONE Groups
+#+begin_src nix :noweb-ref homepage-dashboard-services
+{
+  "Monitoring" = [
+    <<homepage-dashboard-services-monitoring>>
+  ];
+}
+{
+  "Multimedia" = [
+    <<homepage-dashboard-services-multimedia>>
+  ];
+}
+{
+  "Servers" = [
+    (mkGlancesService "main-host")
+    (mkGlancesService "n100-1")
+  ] ++ proxyServices;
+}
+#+end_src
+***** TODO Calibre-web
+#+begin_src nix :noweb-ref no
+{
+  "Calibre-web" = {
+    href = "";
+    description = "";
+    icon = "si-calibre-web-#45B29D";
+    widget:
+      type: calibreweb
+      url: http://your.calibreweb.host:port
+      username: username
+      password: password
+  };
+}
+#+end_src
+***** TODO Glances Generator
+#+begin_src nix :noweb-ref homepage-dashboard-services-glances-generator
+mkGlancesService = hostname: {
+  "Glances ${hostname}" = {
+    href = "http://${hostname}.${vars.tailscale-fqdn}:61208/";
+    description = "Glances";
+    icon = "si-iterm2";
+    widget = {
+      type = "glances";
+      url = "http://${hostname}.${vars.tailscale-fqdn}:61208/";
+      version = 4;
+      metric = "info";
+      refreshInterval = 5000;
+    };
+  };
+};
+proxyHosts = map (i: "jelly-proxy-${lib.fixedWidthNumber 2 i}") (lib.range 1 proxyCount);
+proxyServices = map (host: mkGlancesService host) proxyHosts;
+#+end_src
+***** TODO Lubelog
+***** TODO Nextcloud
+#+begin_src nix :noweb-ref no
+{
+  "Nextcloud" = {
+    href = "";
+    description = "";
+    icon = "si-nextcloud-#0082C9";
+    widgets = {
+
+    };
+  };
+}
+#+end_src
+
+**** TODO Widgets [1/3]
+:properties:
+:header-args+: :noweb-ref homepage-dashboard-widgets
+:end:
+***** TODO Clock
+#+begin_src nix
+{
+  datetime = {
+    text_size = "x1";
+    format = {
+      dateStyle = "short";
+      timeStyle = "short";
+      hourCycle = "h23";
+    };
+  };
+}
+#+end_src
+***** WAIT Resources
+#+begin_src nix :noweb-ref no
+{
+  resources = {
+    cpu = true;
+    cputemp = true;
+    memory = true;
+    network = true;
+  };
+}
+#+end_src
+
+***** DONE Search
+#+begin_src nix
+{
+  "search" = {
+    provider = "custom";
+    focus = true;
+    url = "https://www.startpage.com/sp/search?query=";
+    target = "_blank";
+  };
+}
 #+end_src
 
 *** DONE Jellyfin Server
@@ -1178,30 +1480,260 @@ services.netdata = {
   enable = true;
 };
 #+end_src
-** DONE Users [2/2]
-*** DONE Jellyfin
-#+begin_src nix :noweb-ref nix-flake-users-jellyfin
-users = {
-  groups.jellyfin = {
-    gid = 8096;
-    name = "jellyfin";
-  };
-  users.jellyfin = {
-    extraGroups = [ "render" "video" ];
-    group = "jellyfin";
-    isNormalUser = true;
-    isSystemUser = lib.mkForce false;
-    uid = 8096;
-  };
+*** TODO Nextcloud
+#+begin_src nix :noweb-ref nix-flake-service-nextcloud
+services.nextcloud = {
+  enable = true;
 };
 #+end_src
 
-*** DONE Ranko Kohime
-#+begin_src nix :noweb-ref nix-flake-users-ranko
-users.users.ranko = {
-  isNormalUser = true;
-  description = "Ranko Kohime";
-  extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
+* Disks
+** Disko
+*** DONE Single NVMe ZFS, no swap [8/8]
+#+begin_src nix :tangle nix/disko/single-nvme-zfs-noswap.nix
+{
+  disko.devices = {
+    disk = {
+      nvme0n1 = {
+        device = "/dev/nvme0n1";
+        type = "disk";
+        content = {
+          type = "table";
+          format = "gpt";
+          partitions = [
+            <<disko-single-nvme-zfs-partitions>>
+          ];
+        };
+      };
+    };
+    zpool = {
+      zroot = {
+        options = {
+          ashift = "12";
+          autotrim = "on";
+        };
+        type = "zpool";
+        rootFsOptions = {
+          compression = "zstd-19";
+          checksum = "sha256";
+          "com.sun:auto-snapshot" = "true";
+        };
+        datasets = {
+          <<disko-single-nvme-zfs-datasets>>
+        };
+      };
+    };
+  };
+}
+#+end_src
+**** DONE Partitions [2/2]
+:properties:
+:header-args+: :noweb-ref disko-single-nvme-zfs-partitions
+:end:
+***** DONE ESP
+#+begin_src nix
+{
+  name = "ESP";
+  start = "1MiB";
+  end = "1GiB";
+  fs-type = "fat32";
+  bootable = true;
+  content = {
+    type = "filesystem";
+    format = "vfat";
+    mountpoint = "/boot";
+    mountOptions = [ "umask=0077" ];
+  };
+}
+#+end_src
+***** DONE Zpool
+#+begin_src nix
+{
+  name = "zfs";
+  start = "1GiB";
+  end = "100%";
+  content = {
+    type = "zfs";
+    pool = "zroot";
+  };
+}
+#+end_src
+**** DONE Datasets [4/4]
+:properties:
+:header-args+: :noweb-ref disko-single-nvme-zfs-datasets
+:end:
+***** DONE /
+#+begin_src nix
+"root" = {
+  type = "zfs_fs";
+  mountpoint = "/";
+  options = {
+    mountpoint = "/";
+    canmount = "on";
+  };
 };
 #+end_src
+***** DONE /home
+#+begin_src nix
+"home" = {
+  type = "zfs_fs";
+  mountpoint = "/home";
+  options = {
+    mountpoint = "/home";
+    canmount = "on";
+  };
+};
+#+end_src
+***** DONE /nix
+#+begin_src nix
+"nix" = {
+  type = "zfs_fs";
+  mountpoint = "/nix";
+  options = {
+    mountpoint = "/nix";
+    canmount = "on";
+  };
+};
+#+end_src
+***** DONE /var
+#+begin_src nix
+"var" = {
+  type = "zfs_fs";
+  mountpoint = "/var";
+  options = {
+    mountpoint = "/var";
+    canmount = "on";
+  };
+};
+#+end_src
+*** DONE Dual NVMe ZFS Mirror, no swap [2/2]
+Run command:
+#+begin_example
+sudo nix run --experimental-features 'nix-command flakes' github:nix-community/disko -- --mode zap_create_mount ./disko-config.nix
+#+end_example
 
+#+begin_src nix :tangle nix/disko/dual-nvme-zfs-mirror-noswap.nix
+{
+  disko.devices = {
+    disk = {
+      nvme0 = {
+        device = "/dev/nvme0n1";
+        type = "disk";
+        content = {
+          type = "table";
+          format = "gpt";
+          partitions = [
+            {
+                <<disko-dual-nvme-esp>>
+                content.mountpoint = "/boot/efi0";
+            }
+            {
+              <<disko-dual-nvme-zpart>>
+            }
+          ];
+        };
+      };
+      nvme1 = {
+        device = "/dev/nvme1n1";
+        type = "disk";
+        content = {
+          type = "table";
+          format = "gpt";
+          partitions = [
+            {
+                <<disko-dual-nvme-esp>>
+                content.mountpoint = "/boot/efi1";
+            }
+            {
+              <<disko-dual-nvme-zpart>>
+            }
+          ];
+        };
+      };
+    };
+    zpool = {
+      zroot = {
+        type = "zpool";
+        mode = "mirror";
+        rootFsOptions = {
+          compression = "zstd";
+          "com.sun:auto-snapshot" = "false";
+        };
+        datasets = {
+          "root" = {
+            type = "zfs_fs";
+            mountpoint = "/";
+            options.mountpoint = "legacy";
+          };
+          "boot" = {
+            type = "zfs_fs";
+            mountpoint = "/boot";
+            options.mountpoint = "legacy";
+          };
+          "nix" = {
+            type = "zfs_fs";
+            mountpoint = "/nix";
+            options.mountpoint = "legacy";
+          };
+          "home" = {
+            type = "zfs_fs";
+            mountpoint = "/home";
+            options.mountpoint = "legacy";
+          };
+          "var" = {
+            type = "zfs_fs";
+            mountpoint = "/var";
+            options.mountpoint = "legacy";
+          };
+        };
+      };
+    };
+  };
+}
+#+end_src
+**** DONE ESP
+#+begin_src nix :noweb-ref disko-dual-nvme-esp
+name = "ESP";
+start = "1MiB";
+end = "1GiB";
+bootable = true;
+content = {
+  type = "filesystem";
+  format = "vfat";
+};
+#+end_src
+**** DONE ZFS Partition
+#+begin_src nix :noweb-ref disko-dual-nvme-zpart
+name = "zfs";
+start = "1GiB";
+end = "100%";
+content = {
+  type = "zfs";
+  pool = "zroot";
+};
+#+end_src
+*** Read-Only Filesystems
+#+begin_src nix :noweb-ref nix-flake-filesystems-ro-logs
+boot.kernelParams = [ "ro" ];
+
+services.journald.extraConfig = ''
+  Storage=volatile
+  RuntimeMaxUse=50M
+'';
+
+fileSystems."/tmp" = {
+  device = "tmpfs";
+  fsType = "tmpfs";
+  options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
+};
+fileSystems."/var/log" = {
+  device = "tmpfs";
+  fsType = "tmpfs";
+  options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
+};
+fileSystems."/var/tmp" = {
+  device = "tmpfs";
+  fsType = "tmpfs";
+  options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
+};
+#+end_src

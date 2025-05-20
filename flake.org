@@ -752,24 +752,7 @@ services = {
   };
 };
 #+end_src
-*** Hardware-specific
-**** TODO AMD
-[[https://github.com/plasmin/ryzen_monitor_ng?tab=readme-ov-file#usage][Ryzen Monitor NG Usage Instructions]]
-#+begin_src nix :noweb-ref nix-flake-module-amd-utilities
-environment.systemPackages = with pkgs; [
-  ryzenadj
-  ryzen-monitor-ng
-];
-hardware.cpu.amd.ryzen-smu.enable = true;
-#+end_src
-**** TODO Intel
-#+begin_src nix :noweb-ref nix-flake-module-intel-utilities
-environment.systemPackages = with pkgs; [
-  intel-gpu-tools
-];
-hardware.intel-gpu-tools.enable = true;
-#+end_src
-**** DONE Intel CPU Limiter
+*** DONE Intel CPU Limiter
 #+begin_src nix :noweb-ref nix-flake-module-intel-limiter
 systemd.services.limit-cpu-max-perf = {
   description = "Limit CPU max performance percentage using intel_pstate";
@@ -792,9 +775,9 @@ systemd.services.limit-cpu-max-perf = {
 02. 
 03. John & Darlene Powers
 04. 
-05. 
-06. 
-07. 
+05. Ken & Stacy O'Connell ?
+06. Joeseph O'Connell ?
+07. Don & Gabby, Danny O'Connell
 
 **** DONE Networking
 Nginx listens on TCP 8096
@@ -1026,7 +1009,7 @@ services = {
 };
 #+end_src
 
-*** TODO youtube-dl Environment
+*** DONE youtube-dl Environment
 #+begin_src nix :noweb-ref nix-flake-module-ytdl-env
 { pkgs ? import <nixpkgs> {} }:
 pkgs.mkShell {
@@ -1060,26 +1043,54 @@ services = {
 };
 #+end_src
 
-** TODO Packages [3/8]
-*** TODO File Management
+** TODO Packages [3/10]
+*** TODO Meta Packages [1/6]
+**** TODO Desktop [1/5]
+#+begin_src nix
+desktop-packages = { lib, pkgs, ... }: {
+  options.desktop-packages.enable = lib.mkEnableOption "Enable desktop package collection";
+  config = lib.mkIf config.desktop-packages.enable {
+    environment.systemPackages = with pkgs; [
+      blueman
+      <<nix-flake-packages-coding>>
+      <<nix-flake-packages-file-management>>
+      <<nix-flake-packages-multimedia-consumption>>
+      <<nix-flake-packages-multimedia-production>>
+      <<nix-flake-packages-office>>
+    ];
+    hardware.bluetooth.enable = true;
+    services.blueman.enable = true;
+  };
+};
+#+end_src
+***** TODO Coding
+#+begin_src nix :noweb-ref nix-flake-packages-coding
+deadnix
+emacs
+statix
+vscodium
+#+end_src
+***** TODO File Management
 #+begin_src nix :noweb-ref nix-flake-packages-file-management
 gprename
 mate.engrampa
 #+end_src
-
-*** TODO Multimedia Consumption
+***** TODO Multimedia Consumption
 #+begin_src nix :noweb-ref nix-flake-packages-multimedia-consumption
 mpv
 mpvc
+strawberry
+vlc
 #+end_src
-
-*** DONE Multimedia Production
+***** DONE Multimedia Production
++ libmediainfo is a dependency of Tiny Media Manager
 + python3.12-musicbrainzngs is a dependency of Ex Falso
 + Quod Libet brings in Ex Falso
 #+begin_src nix :noweb-ref nix-flake-packages-multimedia-production
 flac
 gimp3-with-plugins
 handbrake
+libmediainfo
 mediainfo
 mkvtoolnix
 python312Packages.musicbrainzngs
@@ -1087,11 +1098,11 @@ quodlibet
 vorbisgain
 vorbis-tools
 #+end_src
-
-*** DONE Nix Tools
-#+begin_src nix :noweb-ref nix-flake-packages-nix-tools
-deadnix
-statix
+***** TODO Office
+#+begin_src nix :noweb-ref nix-flake-packages-office
+gnucash
+libreoffice-fresh
+xreader
 #+end_src
 
 *** DONE R/W - R/O Script (PiKVM inspired)
@@ -1123,17 +1134,14 @@ programs.gnupg.agent = {
 };
 services.pcscd.enable = true;
 #+end_src
-*** TODO Terminal Packages
+*** DONE Terminal Packages
 #+begin_src nix :noweb-ref nix-flake-packages-terminal
-byobu
-glances
 lm_sensors
 neovim
 ranger
 tmux
 tree
 #+end_src
-** TODO Services [1/4]
 *** TODO Homepage Dashboard
 #+begin_src nix :noweb-ref nix-flake-service-homepage-dashboard
 networking.firewall.allowedTCPPorts = [ 8080 ];

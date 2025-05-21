@@ -120,7 +120,6 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
     };
   };
 }
-
 #+end_src
 
 Ready to import into Nix HM config
@@ -275,7 +274,7 @@ This is not automatically loaded at startup.
 
 *** TODO Enable ChatGPT integration
 [[https://github.com/rksm/org-ai][org-ai GitHub]]
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref no
 (use-package org-ai
   :ensure t
   :commands (org-ai-mode
@@ -289,6 +288,12 @@ This is not automatically loaded at startup.
   )
 #+end_src
 
+#+begin_src emacs-lisp
+(setq gptel-model 'grok-3-latest
+      gptel-backend (gptel-make-xai "xAI"
+                                    :key ""
+                                    :stream t))
+#+end_src
 *** DONE Install unicode-emoticons
 #+begin_src emacs-lisp
   (use-package unicode-emoticons

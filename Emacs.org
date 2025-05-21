@@ -975,6 +975,20 @@ Current Mode Line
 (setq-default electric-indent-mode nil)
 #+end_src
 
+*** TODO Electric pair mode for <> {} [] () et al with Org-Mode tweak
+#+name: electric-pair-mode
+#+begin_src emacs-lisp
+(defun my/org-electric-pair-inhibit (char)
+  "Inhibit electric pairing for '<' when in Org mode and at the start of a line."
+  (or (not (eq char ?<))
+      (not (eq major-mode 'org-mode))
+      (not (looking-back "^\\s-*" (line-beginning-position)))))
+
+(setq electric-pair-inhibit-predicate 'my/org-electric-pair-inhibit)
+
+(setq-default electric-pair-mode 1)
+#+end_src
+
 ** TODO Collaborative Editing
 [[https://code.librehq.com/qhong/crdt.el/][crdt.el Git Repo]]
 

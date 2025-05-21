@@ -37,7 +37,7 @@ Gippity Says:
       <<nix-flake-users-module>>
     };
     <<nix-flake-baseConfig>>
-    <<nix-flake-mksystem>>
+    <<nix-flake-mkSystem>>
     <<proxy-host-generator>>
     <<homepage-dashboard-services-glances-generator>>
   in
@@ -639,7 +639,7 @@ baseConfig = { config, pkgs, system, ... }: {
 #+end_src
 ** TODO mkSystem
 Helper function to create a NixOS system
-#+begin_src nix nix-flake-mksystem
+#+begin_src nix :noweb-ref nix-flake-mkSystem
 mkSystem = hostname: extraModules: nixpkgs.lib.nixosSystem {
   inherit system
   modules = [

@@ -727,9 +727,6 @@ main-host = nixpkgs.lib.nixosSystem {
   specialArgs = { inherit vars; };
   modules = [
     hardwareConfigs.main-host
-    ({ lib, pkgs, vars, ... }: {
-      <<nix-flake-modules-default>>
-    })
     ({ pkgs, vars, ... }: {
       boot = {
         supportedFilesystems = [ "zfs" ];
@@ -783,7 +780,6 @@ n100-1 = nixpkgs.lib.nixosSystem {
       boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
     })
     hardwareConfigs.n100-1
-
     ({ pkgs, ... }: {
       environment.systemPackages = with pkgs; [
         <<nix-flake-packages-terminal>>

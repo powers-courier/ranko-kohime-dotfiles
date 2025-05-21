@@ -803,8 +803,6 @@
           specialArgs = { inherit vars; };
           modules = [
             hardwareConfigs.main-host
-            ({ lib, pkgs, vars, ... }: {
-            })
             ({ pkgs, vars, ... }: {
               boot = {
                 supportedFilesystems = [ "zfs" ];
@@ -1033,29 +1031,10 @@
           specialArgs = { inherit vars; };
           modules = [
             ({ config, lib, ... }: {
-              networking.useDHCP = lib.mkDefault true;
-              nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-              hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
             })
             hardwareConfigs.n100-1
-        
             ({ pkgs, ... }: {
               environment.systemPackages = with pkgs; [
-                gprename
-                mate.engrampa
-                flac
-                gimp3-with-plugins
-                handbrake
-                mediainfo
-                mkvtoolnix
-                python312Packages.musicbrainzngs
-                quodlibet
-                vorbisgain
-                vorbis-tools
-                deadnix
-                statix
-                byobu
-                glances
                 lm_sensors
                 neovim
                 ranger
@@ -1081,117 +1060,9 @@
                   };
                 };
               };
-              system.stateVersion = "24.11";
+              system.stateVersion = "25.05";
             })
             ({ lib, pkgs, vars, ... }: {
-              boot.loader = {
-                efi.canTouchEfiVariables = true;
-                systemd-boot.enable = true;
-              };
-              nix.settings.experimental-features = [ "nix-command" "flakes" ];
-              services.fwupd = {
-                daemonSettings = {
-                  IgnorePower = true;
-                };
-                enable = true;
-              #  extraRemotes = [];
-              #  uefiCapsuleSettings = {};
-              };
-              nix.gc = {
-                automatic = true;
-                dates = "monthly";
-                options = "--delete-older-than 365d";
-              };
-              systemd.services.glances-server = {
-                description = "Glances server";
-                wantedBy = [ "multi-user.target" ];
-                after = [ "network.target" ];
-                serviceConfig = {
-                  Type = "simple";
-                  ExecStart = "${pkgs.glances}/bin/glances -w";
-                  RemainAfterExit = false;
-                  Restart = "always";
-                };
-              };
-              i18n = {
-                defaultLocale = vars.loKale;
-                extraLocaleSettings = {
-                  LC_ADDRESS = vars.loKale;
-                  LC_IDENTIFICATION = vars.loKale;
-                  LC_MEASUREMENT = vars.loKale;
-                  LC_MONETARY = vars.loKale;
-                  LC_NAME = vars.loKale;
-                  LC_NUMERIC = vars.loKale;
-                  LC_PAPER = vars.loKale;
-                  LC_TELEPHONE = vars.loKale;
-                  LC_TIME = vars.loKale;
-                };
-              };
-              programs.nano.nanorc = ''
-                set autoindent
-                set boldtext
-                set constantshow
-                set nowrap
-                set smarthome
-                set tabsize 2
-                set tabstospaces
-              '';
-              networking.networkmanager.enable = true;
-              services.openssh = {
-                banner = "Welcome to... wherever you happen to be\n";
-                enable = true;
-                extraConfig ="";
-                openFirewall = true;
-                ports = [ 22 ];
-                settings = {
-                  PasswordAuthentication = false;
-                  PermitRootLogin = "prohibit-password";
-                  PrintMotd = true;
-                  StrictModes = true;
-                  X11Forwarding = true;
-                };
-              };
-              programs.mosh.enable = true;
-              environment.systemPackages = with pkgs; [
-                byobu
-                dmidecode
-                git
-                glances
-                lm_sensors
-                sshfs
-                tmux
-                unison
-              ];
-              services.tailscale = {
-                enable = true;
-                openFirewall = true;
-                port = 0;
-              };
-              time.timeZone = vars.timeZern;
-              users = {
-                groups.jellyfin = {
-                  gid = 8096;
-                  name = "jellyfin";
-                };
-                users.jellyfin = {
-                  extraGroups = [ "render" "video" ];
-                  group = "jellyfin";
-                  isNormalUser = true;
-                  isSystemUser = lib.mkForce false;
-                  uid = 8096;
-                };
-              };
-              users.users.ranko = {
-                isNormalUser = true;
-                description = "Ranko Kohime";
-                extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
-              };
-              zramSwap = {
-                enable = true;
-                priority = 1;
-                memoryPercent = 100;
-                swapDevices = 1;
-              };
               networking = {
                 domain = "midgard";
                 firewall.allowedTCPPorts = [ 2049 ];

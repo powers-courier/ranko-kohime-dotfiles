@@ -8,7 +8,7 @@
 + Add [[https://github.com/DeterminateSystems/flake-checker][nix-flake-checker]]
 + Use Determinate Systems installer for Steam Deck
 
-* TODO Flake [32/46]
+* TODO Flake [35/49]
 Outputs:
 + "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 + "nixpkgs" references the inputs above
@@ -346,10 +346,24 @@ n100-1 = {
   };
 };
 #+end_src
-** DONE Modules [8/8]
+** TODO Modules [9/11]
 :properties:
 :header-args+: :noweb-ref nix-flake-modules
 :end:
+*** TODO autoUpgrade
+#+begin_src nix
+autoUpgrade = { config, lib, pkgs, ... }: {
+  options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // {default = false; };
+  config = lib.mkIf config.autoUpgrade.enable {
+    system.autoUpgrade = {
+      enable = true;
+      flake = "git+https://github.com/your/repo?ref=main";
+      dates = "weekly";
+      allowReboot = false; # Optional: avoid reboots
+    };
+  };
+};
+#+end_src
 *** DONE Base Packages
 #+begin_src nix
 basePackages = { config, lib, pkgs, ... }: {
@@ -608,6 +622,7 @@ baseConfig = { config, pkgs, system, ... }: {
   nixpkgs.hostPlatform = lib.mkDefault system;
   time.timeZone = vars.timeZern;
   modules = [
+    modules.autoUpgrade
     modules.basePackages
     modules.fwupd
     modules.garbageCollection

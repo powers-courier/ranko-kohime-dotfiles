@@ -229,6 +229,19 @@
         };
       };
     };
+    modules = {
+      autoUpgrade = { config, lib, pkgs, ... }: {
+        options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // {default = false; };
+        config = lib.mkIf config.autoUpgrade.enable {
+          system.autoUpgrade = {
+            enable = true;
+            flake = "git+https://github.com/your/repo?ref=main";
+            dates = "weekly";
+            allowReboot = false; # Optional: avoid reboots
+          };
+        };
+      };
+    };
     proxyCount = 7;
     Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
       num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);

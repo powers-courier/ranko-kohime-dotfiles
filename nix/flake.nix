@@ -440,10 +440,11 @@
         modules.zramswap
       ];
     };
-    mkSystem = hostname: extraModules: nixpkgs.lib.nixosSystem {
+    mkSystem = hostname: system: extraModules: nixpkgs.lib.nixosSystem {
       inherit system
       modules = [
         baseConfig
+        { networking.hostName = hostname; }
       ] ++ extraModules;
     };
     proxyCount = 7;

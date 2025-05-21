@@ -640,10 +640,11 @@ baseConfig = { config, pkgs, system, ... }: {
 ** TODO mkSystem
 Helper function to create a NixOS system
 #+begin_src nix :noweb-ref nix-flake-mkSystem
-mkSystem = hostname: extraModules: nixpkgs.lib.nixosSystem {
+mkSystem = hostname: system: extraModules: nixpkgs.lib.nixosSystem {
   inherit system
   modules = [
     baseConfig
+    { networking.hostName = hostname; }
   ] ++ extraModules;
 };
 #+end_src
@@ -822,8 +823,7 @@ n100-1 = nixpkgs.lib.nixosSystem {
     })
   ];
 };
-#+end_src
-
+#+end_example
 **** DONE Proxy Hosts Generator
 ***** Explanation
 ****** proxyCount:

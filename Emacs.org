@@ -101,7 +101,7 @@ https://ashok-khanna.medium.com/formatting-lisp-5e28020b8bac
 #+end_src
 
 * TODO Emacs.nix [0/0]
-#+begin_src nix :shebang "{ nixpkgs }:" :tangle ~/Dotfiles/nix/modules/emacs.nix
+#+begin_src nix :shebang "{ nixpkgs, ... }:" :tangle ~/Dotfiles/nix/modules/emacs.nix :tangle no
 {
   emacsPackage = nixpkgs.emacs.override {
     # Add any desired customization here, such as enabling additional Emacs packages

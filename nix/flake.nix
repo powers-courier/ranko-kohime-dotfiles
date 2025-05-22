@@ -205,12 +205,7 @@
           };
         };
       };
-      n100-1 = {
-        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
-        boot.initrd.kernelModules = [ ];
-        boot.kernelModules = [ "kvm-intel" ];
-        boot.extraModulePackages = [ ];
-      
+      n100 = {
         fileSystems = {
           "/" = {
             device = "/dev/disk/by-uuid/3baf4636-0456-44fc-a48b-72fbb49cea3f";
@@ -225,17 +220,6 @@
       };
     };
     modules = {
-      autoUpgrade = { config, lib, pkgs, ... }: {
-        options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // {default = false; };
-        config = lib.mkIf config.autoUpgrade.enable {
-          system.autoUpgrade = {
-            enable = true;
-            flake = "git+https://github.com/your/repo?ref=main";
-            dates = "weekly";
-            allowReboot = false; # Optional: avoid reboots
-          };
-        };
-      };
       basePackages = { config, lib, pkgs, ... }: {
         options.basePackages.enable = lib.mkEnableOption "Install standard packages" // { default = true; };
         config = lib.mkIf config.basePackages.enable {
@@ -422,10 +406,16 @@
       };
     };
     baseConfig = { config, pkgs, system, ... }: {
+      networking.networkmanager.enable = true;
       nix.settings.experimental-features = [ "nix-command" "flakes" ];
       nixpkgs.hostPlatform = lib.mkDefault system;
       time.timeZone = vars.timeZern;
+    };
+    mkSystem = hostname: system: extraModules: nixpkgs.lib.nixosSystem {
+      inherit system
+      specialArgs = { inherit vars; };
       modules = [
+        baseConfig
         modules.autoUpgrade
         modules.basePackages
         modules.fwupd
@@ -438,13 +428,8 @@
         modules.tailscale
         modules.user
         modules.zramswap
-      ];
-    };
-    mkSystem = hostname: system: extraModules: nixpkgs.lib.nixosSystem {
-      inherit system
-      modules = [
-        baseConfig
         { networking.hostName = hostname; }
+        (lib.optional (builtins.hasAttr hostname hardwareConfigs) hardwareConfigs.${hostname})
       ] ++ extraModules;
     };
     proxyCount = 7;

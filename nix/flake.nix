@@ -176,11 +176,6 @@
         };
       };
       main-host = {
-        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sr_mod" ];
-        boot.initrd.kernelModules = [ ];
-        boot.kernelModules = [ "kvm-intel" ];
-        boot.extraModulePackages = [ ];
-      
         fileSystems = {
           "/" =
           { device = "zroot/root";
@@ -220,6 +215,17 @@
       };
     };
     modules = {
+      autoUpgrade = { config, lib, pkgs, ... }: {
+        options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // {default = false; };
+        config = lib.mkIf config.autoUpgrade.enable {
+          system.autoUpgrade = {
+            enable = true;
+            flake = "git+https://github.com/your/repo?ref=main";
+            dates = "weekly";
+            allowReboot = false; # Optional: avoid reboots
+          };
+        };
+      };
       basePackages = { config, lib, pkgs, ... }: {
         options.basePackages.enable = lib.mkEnableOption "Install standard packages" // { default = true; };
         config = lib.mkIf config.basePackages.enable {
@@ -254,6 +260,22 @@
             automatic = true;
             dates = "monthly";
             options = "--delete-older-than 365d";
+          };
+        };
+      };
+      glancesServer = { config, lib, pkgs, ... }: {
+        options.glancesServer.enable = lib.mkEnableOption "Enable Glances service" // { default = true; };
+        config = lib.mkIf config.glancesServer.enable {
+          systemd.services.glances-server = {
+            description = "Glances server";
+            wantedBy = [ "multi-user.target" ];
+            after = [ "network.target" ];
+            serviceConfig = {
+              Type = "simple";
+              ExecStart = "${pkgs.glances}/bin/glances -w";
+              RemainAfterExit = false;
+              Restart = "always";
+            };
           };
         };
       };
@@ -384,7 +406,7 @@
               };
               users.gid = 100;
             };
-            users.jellyfin = lib mkIf config.user.jellyfin.enable {
+            users.jellyfin = lib.mkIf config.user.jellyfin.enable {
               extraGroups = [ "render" "video" ];
               group = "jellyfin";
               isNormalUser = true;
@@ -392,7 +414,7 @@
               uid = 8096;
               gid = 8096;
             };
-            users.ranko = lib mkIf config.user.ranko.enable {
+            users.ranko = lib.mkIf config.user.ranko.enable {
               isNormalUser = true;
               description = "Ranko Kohime";
               uid = 1000;
@@ -412,7 +434,7 @@
       time.timeZone = vars.timeZern;
     };
     mkSystem = hostname: system: extraModules: nixpkgs.lib.nixosSystem {
-      inherit system
+      inherit system;
       specialArgs = { inherit vars; };
       modules = [
         baseConfig
@@ -429,7 +451,7 @@
         modules.user
         modules.zramswap
         { networking.hostName = hostname; }
-        (lib.optional (builtins.hasAttr hostname hardwareConfigs) hardwareConfigs.${hostname})
+        hardwareConfigs.${hostname}
       ] ++ extraModules;
     };
     proxyCount = 7;
@@ -438,352 +460,127 @@
       name = "jelly-proxy-${num}";
     in {
       inherit name;
-      value = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit vars; };
-        modules = [
-          ({ config, lib, ... }: {
-            systemd.services.limit-cpu-max-perf = {
-              description = "Limit CPU max performance percentage using intel_pstate";
-              wantedBy = [ "multi-user.target" ];
-              serviceConfig = {
-                Type = "oneshot";
-                ExecStart = ''
-                  /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
-                '';
-                RemainAfterExit = true;
+      value = mkSystem name "x86_64-linux" [
+        {
+          system = "x86_64-linux";
+          specialArgs = { inherit vars; };
+           modules = [
+            ({ config, lib, ... }: {
+              systemd.services.limit-cpu-max-perf = {
+                description = "Limit CPU max performance percentage using intel_pstate";
+                wantedBy = [ "multi-user.target" ];
+                serviceConfig = {
+                  Type = "oneshot";
+                  ExecStart = ''
+                    /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
+                  '';
+                  RemainAfterExit = true;
+                };
               };
-            };
-          })
-          hardwareConfigs.${name}
-          ({ lib, pkgs, vars, ... }: {
-            networking.hostName = name;
-            system.stateVersion = "25.05";
-          })
-          ({ pkgs, vars, ... }: {
-            networking = {
-              firewall = {
+            })
+            ({ pkgs, vars, ... }: {
+              networking = {
+                firewall = {
+                  enable = true;
+                  allowedTCPPorts = [ 8096 ];
+                  allowedUDPPorts = [ 5353 ];
+                };
+              };
+              boot.kernel.sysctl = {
+                "net.ipv4.ip_forward" = 1;
+                "net.ipv6.conf.all.forwarding" = 1;
+              };
+              services.networkd-dispatcher = {
                 enable = true;
-                allowedTCPPorts = [ 8096 ];
-                allowedUDPPorts = [ 5353 ];
-              };
-            };
-            boot.kernel.sysctl = {
-              "net.ipv4.ip_forward" = 1;
-              "net.ipv6.conf.all.forwarding" = 1;
-            };
-            services.networkd-dispatcher = {
-              enable = true;
-              rules."50-tailscale" = {
-                onState = [ "routable" ];
-                script = ''
-                  #!/usr/bin/env bash
-                  ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
-                '';
-              };
-            };
-            services.tailscale = {
-              enable = true;
-              openFirewall = true;
-            };
-            services.nginx = {
-              enable = true;
-              virtualHosts."default" = {
-                default = true;
-                listen = [ { addr = "0.0.0.0"; port = 8096; } ];
-                locations."/" = {
-                  proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
-                  extraConfig = ''
-                    proxy_http_version 1.1;
-                    proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                    proxy_set_header Upgrade $http_upgrade;
-                    proxy_set_header Connection "upgrade";
+                rules."50-tailscale" = {
+                  onState = [ "routable" ];
+                  script = ''
+                    #!/usr/bin/env bash
+                    ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
                   '';
                 };
               };
-            };
-            services.avahi = {
-              enable = true;
-              nssmdns4 = true;
-              publish = {
-                enable = true;
-                addresses = true;
-                userServices = true;
-              };
-            };
-            environment.etc."avahi/services/jellyfin.service".text = ''
-              <?xml version="1.0" standalone='no'?>
-              <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
-              <service-group>
-                <name>Jellyfin Proxy</name>
-                <service>
-                  <type>_http._tcp</type>
-                  <port>8096</port>
-                  <txt-record>description=Jellyfin Media Server Proxy</txt-record>
-                </service>
-              </service-group>
-            '';
-            environment.systemPackages = with pkgs; [
-              avahi
-              ethtool
-              nginx
-              tailscale
-            ];
-    #        boot.kernelParams = [ "ro" ];
-    #        
-    #        services.journald.extraConfig = ''
-    #          Storage=volatile
-    #          RuntimeMaxUse=50M
-    #        '';
-    #        
-    #        fileSystems."/tmp" = {
-    #          device = "tmpfs";
-    #          fsType = "tmpfs";
-    #          options = [ "defaults" "noatime" "mode=1777" "size=8g" ];
-    #        };
-    #        fileSystems."/var/log" = {
-    #          device = "tmpfs";
-    #          fsType = "tmpfs";
-    #          options = [ "defaults" "noatime" "mode=0755" "size=1g" ];
-    #        };
-    #        fileSystems."/var/tmp" = {
-    #          device = "tmpfs";
-    #          fsType = "tmpfs";
-    #          options = [ "defaults" "noatime" "mode=1777" "size=1g" ];
-    #        };
-          })
-          ({ pkgs, ... }: {
-            environment.systemPackages = with pkgs; [
-              glances
-              (writeScriptBin "rw" ''
-                #!/usr/bin/env bash
-                mount -o remount,rw /
-                mount -o remount,rw /boot
-                echo "Filesystem is now read-write"
-              '')
-              (writeScriptBin "ro" ''
-                #!/usr/bin/env bash
-                sync
-                mount -o remount,ro /
-                mount -o remount,ro /boot
-                echo "Filesystem is now read-only"
-              '')
-            ];
-          })
-        ];
-      };
-    }) (builtins.genList (i: i) proxyCount));
-    };
-  in
-    rec {
-      nixosConfigurations = Jelly-Proxy-Configs // {
-        framework-7840u = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { inherit vars; };
-          modules = [
-            ({ config, lib, ... }: {
-              networking.useDHCP = lib.mkDefault true;
-              nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-              hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-            })
-        
-            hardwareConfigs.framework-7840u
-        
-            ({ lib, pkgs, vars, ... }: {
-              boot.loader = {
-                efi.canTouchEfiVariables = true;
-                systemd-boot.enable = true;
-              };
-              nix.settings.experimental-features = [ "nix-command" "flakes" ];
-              services.fwupd = {
-                daemonSettings = {
-                  IgnorePower = true;
-                };
-                enable = true;
-              #  extraRemotes = [];
-              #  uefiCapsuleSettings = {};
-              };
-              nix.gc = {
-                automatic = true;
-                dates = "monthly";
-                options = "--delete-older-than 365d";
-              };
-              systemd.services.glances-server = {
-                description = "Glances server";
-                wantedBy = [ "multi-user.target" ];
-                after = [ "network.target" ];
-                serviceConfig = {
-                  Type = "simple";
-                  ExecStart = "${pkgs.glances}/bin/glances -w";
-                  RemainAfterExit = false;
-                  Restart = "always";
-                };
-              };
-              i18n = {
-                defaultLocale = vars.loKale;
-                extraLocaleSettings = {
-                  LC_ADDRESS = vars.loKale;
-                  LC_IDENTIFICATION = vars.loKale;
-                  LC_MEASUREMENT = vars.loKale;
-                  LC_MONETARY = vars.loKale;
-                  LC_NAME = vars.loKale;
-                  LC_NUMERIC = vars.loKale;
-                  LC_PAPER = vars.loKale;
-                  LC_TELEPHONE = vars.loKale;
-                  LC_TIME = vars.loKale;
-                };
-              };
-              programs.nano.nanorc = ''
-                set autoindent
-                set boldtext
-                set constantshow
-                set nowrap
-                set smarthome
-                set tabsize 2
-                set tabstospaces
-              '';
-              networking.networkmanager.enable = true;
-              services.openssh = {
-                banner = "Welcome to... wherever you happen to be\n";
-                enable = true;
-                extraConfig ="";
-                openFirewall = true;
-                ports = [ 22 ];
-                settings = {
-                  PasswordAuthentication = false;
-                  PermitRootLogin = "prohibit-password";
-                  PrintMotd = true;
-                  StrictModes = true;
-                  X11Forwarding = true;
-                };
-              };
-              programs.mosh.enable = true;
-              environment.systemPackages = with pkgs; [
-                byobu
-                dmidecode
-                git
-                glances
-                lm_sensors
-                sshfs
-                tmux
-                unison
-              ];
               services.tailscale = {
                 enable = true;
                 openFirewall = true;
-                port = 0;
               };
-              time.timeZone = vars.timeZern;
-              users = {
-                groups.jellyfin = {
-                  gid = 8096;
-                  name = "jellyfin";
-                };
-                users.jellyfin = {
-                  extraGroups = [ "render" "video" ];
-                  group = "jellyfin";
-                  isNormalUser = true;
-                  isSystemUser = lib.mkForce false;
-                  uid = 8096;
-                };
-              };
-              users.users.ranko = {
-                isNormalUser = true;
-                description = "Ranko Kohime";
-                extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
-              };
-              zramSwap = {
+              services.nginx = {
                 enable = true;
-                priority = 1;
-                memoryPercent = 100;
-                swapDevices = 1;
+                virtualHosts."default" = {
+                  default = true;
+                  listen = [ { addr = "0.0.0.0"; port = 8096; } ];
+                  locations."/" = {
+                    proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
+                    extraConfig = ''
+                      proxy_http_version 1.1;
+                      proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $scheme;
+                      proxy_set_header Upgrade $http_upgrade;
+                      proxy_set_header Connection "upgrade";
+                    '';
+                  };
+                };
               };
+              services.avahi = {
+                enable = true;
+                nssmdns4 = true;
+                publish = {
+                  enable = true;
+                  addresses = true;
+                  userServices = true;
+                };
+              };
+              environment.etc."avahi/services/jellyfin.service".text = ''
+                <?xml version="1.0" standalone='no'?>
+                <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+                <service-group>
+                  <name>Jellyfin Proxy</name>
+                  <service>
+                    <type>_http._tcp</type>
+                    <port>8096</port>
+                    <txt-record>description=Jellyfin Media Server Proxy</txt-record>
+                  </service>
+                </service-group>
+              '';
+              environment.systemPackages = with pkgs; [
+                avahi
+                ethtool
+                nginx
+                tailscale
+              ];
             })
-        
             ({ pkgs, ... }: {
               environment.systemPackages = with pkgs; [
-                ulauncher
               ];
-              
-              programs.firefox.enable = true;
-              services = {
-                displayManager = {
-                  autoLogin = {
-                    enable = true;
-                    user = "ranko";
-                  };
-                  defaultSession = "xfce";
-                };
-                xserver = {
-                  displayManager = {
-                    lightdm.enable = true;
-                  };
-                  desktopManager.xfce.enable = true;
-                  enable = true;
-                  xkb = {
-                    layout = "us";
-                    variant = "";
-                  };
-                };
-              };
-            })
-            ({ pkgs, ... }: {
-              environment.systemPackages = with pkgs; [
-                pass
-                pinentry-curses
-              ];
-              programs.gnupg.agent = {
-                 enable = true;
-                 pinentryPackage = pkgs.pinentry-curses;
-                 enableSSHSupport = true;
-              };
-              services.pcscd.enable = true;
-            })
-            ({ pkgs, ... }: {
-              boot = {
-                supportedFilesystems = [ "zfs" ];
-                zfs.forceImportRoot = false;
-              };
-              boot.kernelParams = [ "zfs.zfs_arc_max=12884901888" ];
-              
-              services = {
-                sanoid = {
-                  enable = true;
-                };
-                syncoid = {
-                  enable = true;
-                };
-                zfs = {
-                  autoScrub = {
-                    enable = true;
-                    interval = "monthly";
-                    pools = [ "zroot" ];
-                  };
-                  trim.enable = true;
-                };
-              };
-              environment.systemPackages = with pkgs; [
-                lm_sensors
-                neovim
-                ranger
-                tmux
-                tree
-              ];
-              networking = {
-                hostId = "af2f1b7f";
-                hostName = "framework-7840u";
-              };
-              system.stateVersion = "25.05";
-            })
-            ({ pkgs, ... }: {
-            })
-            ({ pkgs, ... }: {
             })
           ];
+        }
+      ];
+    }) (builtins.genList (i: i) proxyCount));
+    mkGlancesService = hostname: {
+      "Glances ${hostname}" = {
+        href = "http://${hostname}.${vars.tailscale-fqdn}:61208/";
+        description = "Glances";
+        icon = "si-iterm2";
+        widget = {
+          type = "glances";
+          url = "http://${hostname}.${vars.tailscale-fqdn}:61208/";
+          version = 4;
+          metric = "info";
+          refreshInterval = 5000;
         };
+      };
+    };
+    proxyHosts = map (i: "jelly-proxy-${lib.fixedWidthNumber 2 i}") (lib.range 1 proxyCount);
+    proxyServices = map (host: mkGlancesService host) proxyHosts;
+  in
+    rec {
+      homeConfigurations = {
+        
+      };
+      nixosConfigurations = Jelly-Proxy-Configs // {
         main-host = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit vars; };
@@ -908,6 +705,7 @@
                 flac
                 gimp3-with-plugins
                 handbrake
+                libmediainfo
                 mediainfo
                 mkvtoolnix
                 python312Packages.musicbrainzngs
@@ -1023,9 +821,11 @@
               { boot.binfmt.emulatedSystems = [ "aarch64-linux" ]; }
               { virtualisation.docker.enable = true; }
             ];
-          };
+          }
         ];
       };
+      images = {
+        rpi3bplus = nixosConfigurations.rpi3bplus.config.system.build.sdImage;
       };
     };
 }

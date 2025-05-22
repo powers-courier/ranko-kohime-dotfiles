@@ -295,11 +295,6 @@ jelly-proxy-07 = {
 *** DONE main-host
 #+begin_src nix
 main-host = {
-  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sr_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [ ];
-
   fileSystems = {
     "/" =
     { device = "zroot/root";
@@ -408,7 +403,7 @@ garbageCollection = { config, lib, pkgs, ... }: {
 };
 #+end_src
 *** DONE Glances Server
-#+begin_src nix :noweb-ref nix-flake-modules-default-glances-server
+#+begin_src nix
 glancesServer = { config, lib, pkgs, ... }: {
   options.glancesServer.enable = lib.mkEnableOption "Enable Glances service" // { default = true; };
   config = lib.mkIf config.glancesServer.enable {
@@ -589,7 +584,7 @@ jellyfin = lib.mkIf config.user.jellyfin.enable {
 #+end_src
 **** User
 #+begin_src nix :noweb-ref nix-flake-users-jellyfin
-users.jellyfin = lib mkIf config.user.jellyfin.enable {
+users.jellyfin = lib.mkIf config.user.jellyfin.enable {
   extraGroups = [ "render" "video" ];
   group = "jellyfin";
   isNormalUser = true;
@@ -600,7 +595,7 @@ users.jellyfin = lib mkIf config.user.jellyfin.enable {
 #+end_src
 *** DONE Ranko Kohime
 #+begin_src nix :noweb-ref nix-flake-users-ranko
-users.ranko = lib mkIf config.user.ranko.enable {
+users.ranko = lib.mkIf config.user.ranko.enable {
   isNormalUser = true;
   description = "Ranko Kohime";
   uid = 1000;
@@ -623,7 +618,7 @@ baseConfig = { config, pkgs, system, ... }: {
 Helper function to create a NixOS system
 #+begin_src nix :noweb-ref nix-flake-mkSystem
 mkSystem = hostname: system: extraModules: nixpkgs.lib.nixosSystem {
-  inherit system
+  inherit system;
   specialArgs = { inherit vars; };
   modules = [
     baseConfig
@@ -640,7 +635,7 @@ mkSystem = hostname: system: extraModules: nixpkgs.lib.nixosSystem {
     modules.user
     modules.zramswap
     { networking.hostName = hostname; }
-    (lib.optional (builtins.hasAttr hostname hardwareConfigs) hardwareConfigs.${hostname})
+    hardwareConfigs.${hostname}
   ] ++ extraModules;
 };
 #+end_src
@@ -648,8 +643,7 @@ mkSystem = hostname: system: extraModules: nixpkgs.lib.nixosSystem {
 :properties:
 :header-args+: :noweb-ref nix-flake-home-configurations
 :end:
-*** 
-
+*** Test
 ** TODO Host Configurations[2/4]
 :properties:
 :header-args+: :noweb-ref nix-flake-host-configurations
@@ -777,7 +771,7 @@ n100 = mkSystem "n100" "x86_64-linux" [
       { boot.binfmt.emulatedSystems = [ "aarch64-linux" ]; }
       { virtualisation.docker.enable = true; }
     ];
-  };
+  }
 ];
 #+end_src
 
@@ -852,31 +846,25 @@ Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
   name = "jelly-proxy-${num}";
 in {
   inherit name;
-  value = nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
-    specialArgs = { inherit vars; };
-    modules = [
-      ({ config, lib, ... }: {
-        <<nix-flake-module-intel-limiter>>
-      })
-      hardwareConfigs.${name}
-      ({ lib, pkgs, vars, ... }: {
-        networking.hostName = name;
-        system.stateVersion = "25.05";
-        <<nix-flake-modules-default>>
-      })
-      ({ pkgs, vars, ... }: {
-        <<nix-flake-module-jellyfin-proxy>>
-#        <<nix-flake-filesystems-ro-logs>>
-      })
-      ({ pkgs, ... }: {
-        environment.systemPackages = with pkgs; [
-          glances
-          <<nix-flake-packages-rw-ro-script>>
-        ];
-      })
-    ];
-  };
+  value = mkSystem name "x86_64-linux" [
+    {
+      system = "x86_64-linux";
+      specialArgs = { inherit vars; };
+       modules = [
+        ({ config, lib, ... }: {
+          <<nix-flake-module-intel-limiter>>
+        })
+        ({ pkgs, vars, ... }: {
+          <<nix-flake-module-jellyfin-proxy>>
+        })
+        ({ pkgs, ... }: {
+          environment.systemPackages = with pkgs; [
+            <<nix-flake-packages-rw-ro-script>>
+          ];
+        })
+      ];
+    }
+  ];
 }) (builtins.genList (i: i) proxyCount));
 #+end_src
 *** TODO Emacs Daemon

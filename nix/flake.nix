@@ -335,7 +335,7 @@
             ryzen-monitor-ng
           ]) ++ lib.mkIf (system == "aarch64-linux") (with pkgs; [
             rpi-tools
-          ])
+          ]);
           hardware = lib.mkIf (system == "x86_64-linux") {
             cpu = {
               amd = {

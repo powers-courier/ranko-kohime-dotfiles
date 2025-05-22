@@ -462,7 +462,6 @@
       inherit name;
       value = mkSystem name "x86_64-linux" [
         {
-          system = "x86_64-linux";
           specialArgs = { inherit vars; };
            modules = [
             ({ config, lib, ... }: {

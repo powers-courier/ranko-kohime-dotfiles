@@ -1010,170 +1010,22 @@
                 enable = true;
               };
             })
-          ];
-        };
-        n100-1 = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { inherit vars; };
-          modules = [
-            ({ config, lib, ... }: {
-            })
-            hardwareConfigs.n100-1
-            ({ pkgs, ... }: {
-              environment.systemPackages = with pkgs; [
-                lm_sensors
-                neovim
-                ranger
-                tmux
-                tree
-                emacs
-                ffmpeg-full
-                python3
-              ];
-              networking = {
-                firewall = {
-                  enable = true;
-                  allowedTCPPorts = [ 5120 ];
-                };
-                hostName = "n100-1";
-                interfaces = {
-                  enp2s0 = {
-                    ipv4.addresses = [{
-                      address = "192.168.168.20";
-                      prefixLength = 24;
-                    }];
-                    mtu = 9000;
-                  };
-                };
-              };
-              system.stateVersion = "25.05";
-            })
-            ({ lib, pkgs, vars, ... }: {
-              networking = {
-                domain = "midgard";
-                firewall.allowedTCPPorts = [ 2049 ];
-              };
-              services = {
-                nfs.idmapd = {
-                  settings = {
-                    General = {
-                      Domain = "midgard";
-                    };
-                  };
-                };
-                rpcbind.enable = true;
-              };
-              fileSystems = {
-                "/Mounts/Disks" = {
-                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Disks";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-                "/Mounts/Documents" = {
-                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Documents";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-                "/Mounts/Downloads" = {
-                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Downloads";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-                "/Mounts/LGC_Actual" = {
-                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Actual";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-                "/Mounts/LGC_Lore_Table" = {
-                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Lore_Table";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-                "/Mounts/Library" = {
-                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Library";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-                "/Mounts/Workspace" = {
-                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Workspace";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-              };
-              fileSystems = {
-                "/Mounts/JellyConfig" = {
-                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos/JellyConfig";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-                "/Mounts/Music" = {
-                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Music";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-                "/Mounts/Videos" = {
-                  device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-                "/Mounts/youtube-dl" = {
-                  device = "${vars.truenas-ip}:/mnt/youtube-dl/youtube-dl";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-                "/Mounts/youtube-dl/z.Daily/Finished" = {
-                  device = "${vars.truenas-ip}:/mnt/ytdl-fin/Finished";
-                  fsType = "nfs";
-                  options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-                };
-              };
-              services.netdata = {
-              #  config = {
-              #};
                 enable = true;
               };
             })
-            ({ pkgs, ... }: {
-              environment.systemPackages = with pkgs; [
-                ulauncher
-              ];
-              
-              programs.firefox.enable = true;
-              services = {
-                displayManager = {
-                  autoLogin = {
-                    enable = true;
-                    user = "ranko";
-                  };
-                  defaultSession = "xfce";
-                };
-                xserver = {
-                  displayManager = {
-                    lightdm.enable = true;
-                  };
-                  desktopManager.xfce.enable = true;
-                  enable = true;
-                  xkb = {
-                    layout = "us";
-                    variant = "";
-                  };
-                };
-              };
-            })
-            ({ pkgs, ... }: {
-              environment.systemPackages = with pkgs; [
-                pass
-                pinentry-curses
-              ];
-              programs.gnupg.agent = {
-                 enable = true;
-                 pinentryPackage = pkgs.pinentry-curses;
-                 enableSSHSupport = true;
-              };
-              services.pcscd.enable = true;
-            })
           ];
         };
+        n100 = mkSystem "n100" "x86_64-linux" [
+          {
+            system = "x86_64-linux";
+            specialArgs = { inherit vars; };
+            modules = [
+              { boot.binfmt.emulatedSystems = [ "aarch64-linux" ]; }
+              { virtualisation.docker.enable = true; }
+            ];
+          };
+        ];
+      };
       };
     };
 }

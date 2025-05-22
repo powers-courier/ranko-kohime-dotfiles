@@ -342,7 +342,7 @@ n100 = {
 :end:
 *** TODO autoUpgrade
 #+begin_src nix
-autoUpgrade = { config, lib, pkgs, ... }: {
+autoUpgrade = { config, lib, ... }: {
   options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // {default = false; };
   config = lib.mkIf config.autoUpgrade.enable {
     system.autoUpgrade = {
@@ -374,7 +374,7 @@ basePackages = { config, lib, pkgs, ... }: {
 
 *** DONE Firmware Update Daemon
 #+begin_src nix
-fwupd = { config, lib, pkgs, ... }: {
+fwupd = { config, lib, ... }: {
   options.fwupd.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
   config = lib.mkIf config.fwupd.enable {
     services.fwupd = {
@@ -391,7 +391,7 @@ fwupd = { config, lib, pkgs, ... }: {
 *** DONE Garbage Collection
 Automatically remove store items not used more than 1 year
 #+begin_src nix
-garbageCollection = { config, lib, pkgs, ... }: {
+garbageCollection = { config, lib, ... }: {
   options.garbageCollection.enable = lib.mkEnableOption "Enable garbage collection in the Nix store, set to a conservative default" // { default = true; };
   config = lib.mkIf config.garbageCollection.enable {
     nix.gc = {
@@ -424,7 +424,7 @@ glancesServer = { config, lib, pkgs, ... }: {
 
 *** DONE Locale
 #+begin_src nix
-lokale = { config, lib, pkgs, ... }: {
+lokale = { config, lib, ... }: {
   options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
   config = lib.mkIf config.lokale.enable {
     i18n = {
@@ -447,7 +447,7 @@ lokale = { config, lib, pkgs, ... }: {
 
 *** DONE Nano Configuration
 #+begin_src nix
-nanorc = { config, lib, pkgs, ... }: {
+nanorc = { config, lib, ... }: {
   options.nanorc.enable = lib.mkEnableOption "Enable system-wide nanorc configuration" // { default = true; };
   config = lib.mkIf config.nanorc.enable {
     programs.nano.nanorc = ''
@@ -465,7 +465,7 @@ nanorc = { config, lib, pkgs, ... }: {
 #+end_src
 *** DONE OpenSSH
 #+begin_src nix
-openssh = { config, lib, pkgs, ... }: {
+openssh = { config, lib, ... }: {
   options.openssh.enable = lib.mkEnableOption "Enable OpenSSH server, and Mosh" // { default = true; };
   config = lib.mkIf config.openssh.enable {
     services.openssh = {
@@ -529,7 +529,7 @@ systemBlocks = { config, lib, pkgs, system, ... }: {
 #+end_src
 *** DONE Tailscale
 #+begin_src nix
-tailscale = { config, lib, pkgs, ... }: {
+tailscale = { config, lib, ... }: {
   options.tailscale.enable = lib.mkEnableOption "Enable Tailscale VPN" // { default = true; };
   config = lib.mkIf config.tailscale.enable {
     services.tailscale = {
@@ -542,7 +542,7 @@ tailscale = { config, lib, pkgs, ... }: {
 #+end_src
 *** DONE zramSwap
 #+begin_src nix
-zramswap = { config, lib, pkgs, ... }: {
+zramswap = { config, lib, ... }: {
   options.zramswap.enable = lib.mkEnableOption "Enable zram compressed swap" // { default = true; };
   config = lib.mkIf config.zramswap.enable {
     zramSwap = {
@@ -556,7 +556,7 @@ zramswap = { config, lib, pkgs, ... }: {
 #+end_src
 ** DONE Users [2/2]
 #+begin_src nix :noweb-ref nix-flake-users-module
-user = { config, lib, pkgs, ... }: {
+user = { config, lib, ... }: {
   options.user = {
     ranko.enable = lib.mkEnableOption "Enable ranko user" // { default = true; };
     jellyfin.enable = lib.mkEnableOption "Enable jellyfin user";
@@ -607,7 +607,7 @@ users.ranko = lib.mkIf config.user.ranko.enable {
 #+end_src
 ** TODO baseConfig
 #+begin_src nix :noweb-ref nix-flake-baseConfig
-baseConfig = { config, pkgs, system, ... }: {
+baseConfig = { system, ... }: {
   networking.networkmanager.enable = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.hostPlatform = lib.mkDefault system;

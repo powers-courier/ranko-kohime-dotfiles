@@ -215,7 +215,7 @@
       };
     };
     modules = {
-      autoUpgrade = { config, lib, pkgs, ... }: {
+      autoUpgrade = { config, lib, ... }: {
         options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // {default = false; };
         config = lib.mkIf config.autoUpgrade.enable {
           system.autoUpgrade = {
@@ -240,7 +240,7 @@
           ];
         };
       };
-      fwupd = { config, lib, pkgs, ... }: {
+      fwupd = { config, lib, ... }: {
         options.fwupd.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
         config = lib.mkIf config.fwupd.enable {
           services.fwupd = {
@@ -253,7 +253,7 @@
           };
         };
       };
-      garbageCollection = { config, lib, pkgs, ... }: {
+      garbageCollection = { config, lib, ... }: {
         options.garbageCollection.enable = lib.mkEnableOption "Enable garbage collection in the Nix store, set to a conservative default" // { default = true; };
         config = lib.mkIf config.garbageCollection.enable {
           nix.gc = {
@@ -279,7 +279,7 @@
           };
         };
       };
-      lokale = { config, lib, pkgs, ... }: {
+      lokale = { config, lib, ... }: {
         options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
         config = lib.mkIf config.lokale.enable {
           i18n = {
@@ -298,7 +298,7 @@
           };
         };
       };
-      nanorc = { config, lib, pkgs, ... }: {
+      nanorc = { config, lib, ... }: {
         options.nanorc.enable = lib.mkEnableOption "Enable system-wide nanorc configuration" // { default = true; };
         config = lib.mkIf config.nanorc.enable {
           programs.nano.nanorc = ''
@@ -313,7 +313,7 @@
           '';
         };
       };
-      openssh = { config, lib, pkgs, ... }: {
+      openssh = { config, lib, ... }: {
         options.openssh.enable = lib.mkEnableOption "Enable OpenSSH server, and Mosh" // { default = true; };
         config = lib.mkIf config.openssh.enable {
           services.openssh = {
@@ -370,7 +370,7 @@
           };
         };
       };
-      tailscale = { config, lib, pkgs, ... }: {
+      tailscale = { config, lib, ... }: {
         options.tailscale.enable = lib.mkEnableOption "Enable Tailscale VPN" // { default = true; };
         config = lib.mkIf config.tailscale.enable {
           services.tailscale = {
@@ -380,7 +380,7 @@
           };
         };
       };
-      zramswap = { config, lib, pkgs, ... }: {
+      zramswap = { config, lib, ... }: {
         options.zramswap.enable = lib.mkEnableOption "Enable zram compressed swap" // { default = true; };
         config = lib.mkIf config.zramswap.enable {
           zramSwap = {
@@ -391,7 +391,7 @@
           };
         };
       };
-      user = { config, lib, pkgs, ... }: {
+      user = { config, lib, ... }: {
         options.user = {
           ranko.enable = lib.mkEnableOption "Enable ranko user" // { default = true; };
           jellyfin.enable = lib.mkEnableOption "Enable jellyfin user";
@@ -427,7 +427,7 @@
         };
       };
     };
-    baseConfig = { config, pkgs, system, ... }: {
+    baseConfig = { system, ... }: {
       networking.networkmanager.enable = true;
       nix.settings.experimental-features = [ "nix-command" "flakes" ];
       nixpkgs.hostPlatform = lib.mkDefault system;

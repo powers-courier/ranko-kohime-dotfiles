@@ -1,0 +1,230 @@
+#+title: Disko Configurations
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
+
+* Disko
+** DONE Single NVMe ZFS, no swap [8/8]
+#+begin_src nix :tangle nix/disko/single-nvme-zfs-noswap.nix
+{
+  disko.devices = {
+    disk = {
+      nvme0n1 = {
+        device = "/dev/nvme0n1";
+        type = "disk";
+        content = {
+          type = "table";
+          format = "gpt";
+          partitions = [
+            <<disko-single-nvme-zfs-partitions>>
+          ];
+        };
+      };
+    };
+    zpool = {
+      zroot = {
+        options = {
+          ashift = "12";
+          autotrim = "on";
+        };
+        type = "zpool";
+        rootFsOptions = {
+          compression = "zstd-19";
+          checksum = "sha256";
+          "com.sun:auto-snapshot" = "true";
+        };
+        datasets = {
+          <<disko-single-nvme-zfs-datasets>>
+        };
+      };
+    };
+  };
+}
+#+end_src
+*** DONE Partitions [2/2]
+:properties:
+:header-args+: :noweb-ref disko-single-nvme-zfs-partitions
+:end:
+**** DONE ESP
+#+begin_src nix
+{
+  name = "ESP";
+  start = "1MiB";
+  end = "1GiB";
+  fs-type = "fat32";
+  bootable = true;
+  content = {
+    type = "filesystem";
+    format = "vfat";
+    mountpoint = "/boot";
+    mountOptions = [ "umask=0077" ];
+  };
+}
+#+end_src
+**** DONE Zpool
+#+begin_src nix
+{
+  name = "zfs";
+  start = "1GiB";
+  end = "100%";
+  content = {
+    type = "zfs";
+    pool = "zroot";
+  };
+}
+#+end_src
+*** DONE Datasets [4/4]
+:properties:
+:header-args+: :noweb-ref disko-single-nvme-zfs-datasets
+:end:
+**** DONE /
+#+begin_src nix
+"root" = {
+  type = "zfs_fs";
+  mountpoint = "/";
+  options = {
+    mountpoint = "/";
+    canmount = "on";
+  };
+};
+#+end_src
+**** DONE /home
+#+begin_src nix
+"home" = {
+  type = "zfs_fs";
+  mountpoint = "/home";
+  options = {
+    mountpoint = "/home";
+    canmount = "on";
+  };
+};
+#+end_src
+**** DONE /nix
+#+begin_src nix
+"nix" = {
+  type = "zfs_fs";
+  mountpoint = "/nix";
+  options = {
+    mountpoint = "/nix";
+    canmount = "on";
+  };
+};
+#+end_src
+**** DONE /var
+#+begin_src nix
+"var" = {
+  type = "zfs_fs";
+  mountpoint = "/var";
+  options = {
+    mountpoint = "/var";
+    canmount = "on";
+  };
+};
+#+end_src
+** DONE Dual NVMe ZFS Mirror, no swap [2/2]
+Run command:
+#+begin_example
+sudo nix run --experimental-features 'nix-command flakes' github:nix-community/disko -- --mode zap_create_mount ./disko-config.nix
+#+end_example
+
+#+begin_src nix :tangle nix/disko/dual-nvme-zfs-mirror-noswap.nix
+{
+  disko.devices = {
+    disk = {
+      nvme0 = {
+        device = "/dev/nvme0n1";
+        type = "disk";
+        content = {
+          type = "table";
+          format = "gpt";
+          partitions = [
+            {
+                <<disko-dual-nvme-esp>>
+                content.mountpoint = "/boot/efi0";
+            }
+            {
+              <<disko-dual-nvme-zpart>>
+            }
+          ];
+        };
+      };
+      nvme1 = {
+        device = "/dev/nvme1n1";
+        type = "disk";
+        content = {
+          type = "table";
+          format = "gpt";
+          partitions = [
+            {
+                <<disko-dual-nvme-esp>>
+                content.mountpoint = "/boot/efi1";
+            }
+            {
+              <<disko-dual-nvme-zpart>>
+            }
+          ];
+        };
+      };
+    };
+    zpool = {
+      zroot = {
+        type = "zpool";
+        mode = "mirror";
+        rootFsOptions = {
+          compression = "zstd";
+          "com.sun:auto-snapshot" = "false";
+        };
+        datasets = {
+          "root" = {
+            type = "zfs_fs";
+            mountpoint = "/";
+            options.mountpoint = "legacy";
+          };
+          "boot" = {
+            type = "zfs_fs";
+            mountpoint = "/boot";
+            options.mountpoint = "legacy";
+          };
+          "nix" = {
+            type = "zfs_fs";
+            mountpoint = "/nix";
+            options.mountpoint = "legacy";
+          };
+          "home" = {
+            type = "zfs_fs";
+            mountpoint = "/home";
+            options.mountpoint = "legacy";
+          };
+          "var" = {
+            type = "zfs_fs";
+            mountpoint = "/var";
+            options.mountpoint = "legacy";
+          };
+        };
+      };
+    };
+  };
+}
+#+end_src
+*** DONE ESP
+#+begin_src nix :noweb-ref disko-dual-nvme-esp
+name = "ESP";
+start = "1MiB";
+end = "1GiB";
+bootable = true;
+content = {
+  type = "filesystem";
+  format = "vfat";
+};
+#+end_src
+*** DONE ZFS Partition
+#+begin_src nix :noweb-ref disko-dual-nvme-zpart
+name = "zfs";
+start = "1GiB";
+end = "100%";
+content = {
+  type = "zfs";
+  pool = "zroot";
+};
+#+end_src

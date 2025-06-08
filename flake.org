@@ -879,6 +879,8 @@ in {
   ];
 }) (builtins.genList (i: i) proxyCount));
 #+end_src
+* Cruft to incorporate
+** TODO System Modules [13/19]
 *** TODO Emacs Daemon
 #+begin_src nix :noweb-ref nix-flake-module-emacs-daemon
 services = {
@@ -909,7 +911,7 @@ systemd.services.limit-cpu-max-perf = {
 01. Jeff & Jackie O'Connell
 02. 
 03. John & Darlene Powers
-04. 
+04. Max & Alyssa O'Connell
 05. Ken & Stacy O'Connell ?
 06. Joeseph O'Connell ?
 07. Don & Gabby, Danny O'Connell
@@ -1277,7 +1279,55 @@ ranger
 tmux
 tree
 #+end_src
-*** TODO Homepage Dashboard
+* Modules to-do
+** TODO Home Manager Modules [0/2]
+*** TODO Git
+#+begin_src nix
+programs.git = {
+  enable = true;
+  userName = "Ranko Kohime";
+  userEmail = "ranko.kohime@runbox.com";
+}
+#+end_src
+*** TODO GTK Settings
+#+begin_src nix :noweb-ref nix-flake-module-gtk-settings
+gtk = {
+  enable = true;
+  iconTheme = {
+    name = "elementary-Xfce-dark";
+    package = pkgs.elementary-xfce-icon-theme;
+  };
+  theme = {
+    name = "zukitre-dark";
+    package = pkgs.zuki-themes;
+  };
+  gtk3.extraConfig = {
+    Settings = ''
+      gtk-application-prefer-dark-theme=1
+    '';
+  };
+  gtk4.extraConfig = {
+    Settings = ''
+      gtk-application-prefer-dark-theme=1
+    '';
+  };
+};
+#+end_src
+
+** TODO Services [9/25]
+*** TODO Docker
+#+begin_src nix :noweb-ref nix-flake-service-docker
+virtualisation.docker.enable = true;
+#+end_src
+*** TODO Gitlab
+#+begin_src nix :noweb-ref nix-flake-service-gitlab
+networking.firewall.allowedTCPPorts = [];
+services.gitlab = {
+  enable = true;
+  port = 8050;
+};
+#+end_src
+*** TODO Home Assistant
 *** TODO Homepage Dashboard [9/18]
 #+begin_src nix :noweb-ref nix-flake-service-homepage-dashboard
 networking.firewall.allowedTCPPorts = [ 8080 ];

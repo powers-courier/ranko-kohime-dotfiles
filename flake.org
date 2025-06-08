@@ -341,7 +341,7 @@ n100 = {
   };
 };
 #+end_src
-** TODO Modules [9/11]
+** TODO Modules [9/14]
 :properties:
 :header-args+: :noweb-ref nix-flake-modules
 :end:
@@ -559,7 +559,7 @@ zramswap = { config, lib, ... }: {
   };
 };
 #+end_src
-** DONE Users [2/2]
+** TODO Users [2/3]
 #+begin_src nix :noweb-ref nix-flake-users-module
 user = { config, lib, ... }: {
   options.user = {
@@ -575,6 +575,7 @@ user = { config, lib, ... }: {
       };
       <<nix-flake-users-jellyfin>>
       <<nix-flake-users-ranko>>
+      <<nix-flake-users-root>>
     };
   };
 };
@@ -608,6 +609,13 @@ users.ranko = lib.mkIf config.user.ranko.enable {
   extraGroups = [ "networkmanager" "wheel" ]
     ++ lib.optionals config.user.jellyfin.enable [ "jellyfin" ]
     ++ lib.optionals (lib.attrByPath [ "virtualisation" "docker" "enable" ] false config) [ "docker" ];
+};
+#+end_src
+*** TODO root
+#+begin_src nix :noweb-ref no
+nix-flake-users-root
+users.root = {
+  openssh.authorizedKeys.keys = let
 };
 #+end_src
 ** TODO baseConfig
@@ -649,7 +657,7 @@ mkSystem = hostname: system: extraModules: nixpkgs.lib.nixosSystem {
 :header-args+: :noweb-ref nix-flake-home-configurations
 :end:
 *** Test
-** TODO Host Configurations[2/4]
+** TODO Host Configurations[2/7]
 :properties:
 :header-args+: :noweb-ref nix-flake-host-configurations
 :end:

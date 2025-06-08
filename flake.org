@@ -1417,6 +1417,70 @@ layout = {
   };
 }
 #+end_src
+***** DONE Monitoring [3/3]
+:properties:
+:header-args+: :noweb-ref homepage-dashboard-services-monitoring
+:end:
+****** DONE pfSense (Heimdall)
+#+begin_src nix
+{
+  "pfSense" = {
+    href = "https://heimdall.${vars.tailscale-fqdn}/";
+    description = "pfSense Router (Heimdall)";
+    icon = "si-pfsense-#212121";
+    widget = {
+      type = "pfsense";
+      url = "https://heimdall.${vars.tailscale-fqdn}/";
+      headers.X-API-Key = "";
+      version = 2;
+      wan = "ix3";
+      fields = [ "load" "temp" "wanIP" "wanStatus" ];
+    };
+  };
+}
+#+end_src
+****** DONE Svartalfheim (TrueNAS Core)
+#+begin_src nix
+{
+  "TrueNAS (Svartalfheim)" = {
+    href = "http://192.168.0.2";
+    description = "TrueNAS Server (Svartalfheim)";
+    icon = "si-truenas-#0095D5";
+    widget = {
+      type = "truenas";
+      url = "http://192.168.0.2";
+      key = "";
+      enablePools = true;
+      nasType = "core";
+    };
+  };
+}
+#+end_src
+
+***** DONE Multimedia [1/1]
+:properties:
+:header-args+: :noweb-ref homepage-dashboard-services-multimedia
+:end:
+****** DONE Jellyfin
+#+begin_src nix
+{
+  "Jellyfin" = {
+    href = "http://main-host.${vars.tailscale-fqdn}:8096/";
+    description = "Multimedia Streamer";
+    icon = "si-jellyfin-#00A4DC";
+    widget = {
+      type = "jellyfin";
+      url = "http://main-host.${vars.tailscale-fqdn}:8096/";
+      key = "";
+      enableBlocks =  true;
+      enableNowPlaying = true;
+      enableUser = true;
+      showEpisodeNumber = true;
+      expandOneStreamToTwoRows = false;
+    };
+  };
+}
+#+end_src
 ***** TODO Glances Generator
 #+begin_src nix :noweb-ref homepage-dashboard-services-glances-generator
 mkGlancesService = hostname: {

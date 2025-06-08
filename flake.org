@@ -52,7 +52,7 @@ Gippity Says:
 }
 #+end_src
 
-** TODO Inputs [6/8]
+** TODO Inputs [7/8]
 :properties:
 :header-args: :noweb-ref nix-flake-inputs
 :end:
@@ -66,6 +66,11 @@ nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 hardware.url = "github:nixos/nixos-hardware";
 #+end_src
 
+*** DONE sops-nix (Secrets)
+#+begin_src nix
+sops-nix.url = "github:Mic92/sops-nix";
+sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+#+end_src
 *** DONE Disko
 #+begin_src nix
 disko.url = "github:nix-community/disko";

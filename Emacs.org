@@ -76,6 +76,10 @@ Enable org-num-mode (Set org-startup-numerated to t)
 
 ** Liberally borrow from DistroTube's [[https://gitlab.com/dwt1/dotfiles/-/blob/master/.config/emacs/config.org][config]]
 ** Try tmr package?
+** Safe local variables
+#+begin_src emacs-lisp :noweb-ref no
+(add-to-list 'safe-local-variable-values '(eval . (electric-pair-mode -1)))
+#+end_src
 * Notes
 ** [[https://nhigham.com/2017/11/02/org-mode-syntax-cheat-sheet/][Org Mode Syntax Cheat Sheet]]
 ** Formatting Lisp

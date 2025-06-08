@@ -2733,8 +2733,18 @@ services.nextcloud = {
 };
 #+end_src
 
+* Minimal configuration.nix
+#+begin_src nix :tangle no
+{ config, pkgs, ... }:
 {
+  services.openssh = {
+    enable = true;
+    settings.PasswordAuthentication = false;
   };
+  users.users.root.openssh.authorizedKeys.keys = [
+    "<BUILD_HOST_SSH_PUBLIC_KEY>"
+  ];
+  system.stateVersion = "25.05";
 }
 #+end_src
 

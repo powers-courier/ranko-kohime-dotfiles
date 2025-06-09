@@ -805,16 +805,111 @@
                 enable = true;
                 listenPort = 8080;
                 openFirewall = true;
+                settings = {
+                  title = "Dashboard";
+                  description = "The Atomic Ass's Amazing Dashboard";
+                  background = {
+                    image = "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop";
+                    opacity = 50;
+                  };
+                  cardBlur = "sm";
+                  headerStyle = "boxedWidgets";
+                  theme = "dark";
+                  color = "neutral";
+                  layout = {
+                    "Monitoring" = {
+                      disableCollapse = true;
+                      header = false;
+                    };
+                    "Multimedia" = {
+                      disableCollapse = true;
+                      header = false;
+                    #  style = ;
+                    };
+                    "Servers" = {
+                      disableCollapse = true;
+                      header = false;
+                    };
+                  };
+                };
+                services = [
+                  {
+                    "Monitoring" = [
+                      {
+                        "pfSense" = {
+                          href = "https://heimdall.${vars.tailscale-fqdn}/";
+                          description = "pfSense Router (Heimdall)";
+                          icon = "si-pfsense-#212121";
+                          widget = {
+                            type = "pfsense";
+                            url = "https://heimdall.${vars.tailscale-fqdn}/";
+                            headers.X-API-Key = "";
+                            version = 2;
+                            wan = "ix3";
+                            fields = [ "load" "temp" "wanIP" "wanStatus" ];
+                          };
+                        };
+                      }
+                      {
+                        "TrueNAS (Svartalfheim)" = {
+                          href = "http://192.168.0.2";
+                          description = "TrueNAS Server (Svartalfheim)";
+                          icon = "si-truenas-#0095D5";
+                          widget = {
+                            type = "truenas";
+                            url = "http://192.168.0.2";
+                            key = "";
+                            enablePools = true;
+                            nasType = "core";
+                          };
+                        };
+                      }
+                    ];
+                  }
+                  {
+                    "Multimedia" = [
+                      {
+                        "Jellyfin" = {
+                          href = "http://main-host.${vars.tailscale-fqdn}:8096/";
+                          description = "Multimedia Streamer";
+                          icon = "si-jellyfin-#00A4DC";
+                          widget = {
+                            type = "jellyfin";
+                            url = "http://main-host.${vars.tailscale-fqdn}:8096/";
+                            key = "";
+                            enableBlocks =  true;
+                            enableNowPlaying = true;
+                            enableUser = true;
+                            showEpisodeNumber = true;
+                            expandOneStreamToTwoRows = false;
+                          };
+                        };
+                      }
+                    ];
+                  }
+                  {
+                    "Servers" = [
+                      (mkGlancesService "main-host")
+                      (mkGlancesService "n100-1")
+                    ] ++ proxyServices;
+                  }
+                ];
                 widgets = [
                   {
-                    resources = {
-                      cpu = true;
-                      memory = true;
+                    datetime = {
+                      text_size = "x1";
+                      format = {
+                        dateStyle = "short";
+                        timeStyle = "short";
+                        hourCycle = "h23";
+                      };
                     };
                   }
                   {
-                    search = {
-                      provider = "";
+                    "search" = {
+                      provider = "custom";
+                      focus = true;
+                      url = "https://www.startpage.com/sp/search?query=";
                       target = "_blank";
                     };
                   }

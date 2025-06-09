@@ -467,114 +467,109 @@
     in {
       inherit name;
       value = mkSystem name "x86_64-linux" [
-        {
-          specialArgs = { inherit vars; };
-           modules = [
-            ({ config, lib, ... }: {
-              systemd.services.limit-cpu-max-perf = {
-                description = "Limit CPU max performance percentage using intel_pstate";
-                wantedBy = [ "multi-user.target" ];
-                serviceConfig = {
-                  Type = "oneshot";
-                  ExecStart = ''
-                    /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
-                  '';
-                  RemainAfterExit = true;
-                };
-              };
-            })
-            ({ pkgs, vars, ... }: {
-              networking = {
-                firewall = {
-                  enable = true;
-                  allowedTCPPorts = [ 8096 ];
-                  allowedUDPPorts = [ 5353 ];
-                };
-              };
-              boot.kernel.sysctl = {
-                "net.ipv4.ip_forward" = 1;
-                "net.ipv6.conf.all.forwarding" = 1;
-              };
-              services.networkd-dispatcher = {
-                enable = true;
-                rules."50-tailscale" = {
-                  onState = [ "routable" ];
-                  script = ''
-                    #!/usr/bin/env bash
-                    ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
-                  '';
-                };
-              };
-              services.tailscale = {
-                enable = true;
-                openFirewall = true;
-              };
-              services.nginx = {
-                enable = true;
-                virtualHosts."default" = {
-                  default = true;
-                  listen = [ { addr = "0.0.0.0"; port = 8096; } ];
-                  locations."/" = {
-                    proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
-                    extraConfig = ''
-                      proxy_http_version 1.1;
-                      proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
-                      proxy_set_header X-Real-IP $remote_addr;
-                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                      proxy_set_header X-Forwarded-Proto $scheme;
-                      proxy_set_header Upgrade $http_upgrade;
-                      proxy_set_header Connection "upgrade";
-                    '';
-                  };
-                };
-              };
-              services.avahi = {
-                enable = true;
-                nssmdns4 = true;
-                publish = {
-                  enable = true;
-                  addresses = true;
-                  userServices = true;
-                };
-              };
-              environment.etc."avahi/services/jellyfin.service".text = ''
-                <?xml version="1.0" standalone='no'?>
-                <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
-                <service-group>
-                  <name>Jellyfin Proxy</name>
-                  <service>
-                    <type>_http._tcp</type>
-                    <port>8096</port>
-                    <txt-record>description=Jellyfin Media Server Proxy</txt-record>
-                  </service>
-                </service-group>
+        ({ config, lib, ... }: {
+          systemd.services.limit-cpu-max-perf = {
+            description = "Limit CPU max performance percentage using intel_pstate";
+            wantedBy = [ "multi-user.target" ];
+            serviceConfig = {
+              Type = "oneshot";
+              ExecStart = ''
+                /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
               '';
-              environment.systemPackages = with pkgs; [
-                avahi
-                ethtool
-                nginx
-                tailscale
-              ];
-            })
-            ({ pkgs, ... }: {
-              environment.systemPackages = with pkgs; [
-                (writeScriptBin "rw" ''
-                  #!/usr/bin/env bash
-                  mount -o remount,rw /
-                  mount -o remount,rw /boot
-                  echo "Filesystem is now read-write"
-                '')
-                (writeScriptBin "ro" ''
-                  #!/usr/bin/env bash
-                  sync
-                  mount -o remount,ro /
-                  mount -o remount,ro /boot
-                  echo "Filesystem is now read-only"
-                '')
-              ];
-            })
+              RemainAfterExit = true;
+            };
+          };
+        })
+        ({ pkgs, vars, ... }: {
+          networking = {
+            firewall = {
+              enable = true;
+              allowedTCPPorts = [ 8096 ];
+              allowedUDPPorts = [ 5353 ];
+            };
+          };
+          boot.kernel.sysctl = {
+            "net.ipv4.ip_forward" = 1;
+            "net.ipv6.conf.all.forwarding" = 1;
+          };
+          services.networkd-dispatcher = {
+            enable = true;
+            rules."50-tailscale" = {
+              onState = [ "routable" ];
+              script = ''
+                #!/usr/bin/env bash
+                ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
+              '';
+            };
+          };
+          services.tailscale = {
+            enable = true;
+            openFirewall = true;
+          };
+          services.nginx = {
+            enable = true;
+            virtualHosts."default" = {
+              default = true;
+              listen = [ { addr = "0.0.0.0"; port = 8096; } ];
+              locations."/" = {
+                proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
+                extraConfig = ''
+                  proxy_http_version 1.1;
+                  proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection "upgrade";
+                '';
+              };
+            };
+          };
+          services.avahi = {
+            enable = true;
+            nssmdns4 = true;
+            publish = {
+              enable = true;
+              addresses = true;
+              userServices = true;
+            };
+          };
+          environment.etc."avahi/services/jellyfin.service".text = ''
+            <?xml version="1.0" standalone='no'?>
+            <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+            <service-group>
+              <name>Jellyfin Proxy</name>
+              <service>
+                <type>_http._tcp</type>
+                <port>8096</port>
+                <txt-record>description=Jellyfin Media Server Proxy</txt-record>
+              </service>
+            </service-group>
+          '';
+          environment.systemPackages = with pkgs; [
+            avahi
+            ethtool
+            nginx
+            tailscale
           ];
-        }
+        })
+        ({ pkgs, ... }: {
+          environment.systemPackages = with pkgs; [
+            (writeScriptBin "rw" ''
+              #!/usr/bin/env bash
+              mount -o remount,rw /
+              mount -o remount,rw /boot
+              echo "Filesystem is now read-write"
+            '')
+            (writeScriptBin "ro" ''
+              #!/usr/bin/env bash
+              sync
+              mount -o remount,ro /
+              mount -o remount,ro /boot
+              echo "Filesystem is now read-only"
+            '')
+          ];
+        })
       ];
     }) (builtins.genList (i: i) proxyCount));
     mkGlancesService = hostname: {

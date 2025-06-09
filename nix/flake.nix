@@ -18,6 +18,10 @@
   let
     vars = {
       loKale = "en_US.UTF-8";
+      vaultKeyFragments = [
+        ""
+        ""
+      ];
       timeZern = "Etc/UTC";
       tailscale-fqdn = "manticore-elnath.ts.net";
       truenas-ip = "192.168.168.2";

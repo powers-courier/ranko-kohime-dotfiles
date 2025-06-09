@@ -558,6 +558,19 @@
             })
             ({ pkgs, ... }: {
               environment.systemPackages = with pkgs; [
+                (writeScriptBin "rw" ''
+                  #!/usr/bin/env bash
+                  mount -o remount,rw /
+                  mount -o remount,rw /boot
+                  echo "Filesystem is now read-write"
+                '')
+                (writeScriptBin "ro" ''
+                  #!/usr/bin/env bash
+                  sync
+                  mount -o remount,ro /
+                  mount -o remount,ro /boot
+                  echo "Filesystem is now read-only"
+                '')
               ];
             })
           ];

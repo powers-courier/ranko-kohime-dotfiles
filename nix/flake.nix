@@ -467,8 +467,9 @@
       name = "jelly-proxy-${num}";
     in {
       inherit name;
+      system = "x86_64-linux";
       value = mkSystem name "x86_64-linux" [
-        ({ config, lib, ... }: {
+        ({ pkgs, vars, ... }: {
           systemd.services.limit-cpu-max-perf = {
             description = "Limit CPU max performance percentage using intel_pstate";
             wantedBy = [ "multi-user.target" ];
@@ -480,8 +481,6 @@
               RemainAfterExit = true;
             };
           };
-        })
-        ({ pkgs, vars, ... }: {
           networking = {
             firewall = {
               enable = true;
@@ -594,7 +593,8 @@
       homeConfigurations = {
         
       };
-      nixosConfigurations = Jelly-Proxy-Configs // {
+      nixosConfigurations =  {
+#Jelly-Proxy-Configs //
         main-host = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit vars; };

@@ -406,8 +406,8 @@ Automatically remove store items not used more than 1 year
 };
 #+end_src
 *** DONE Glances Server
-#+begin_src nix
-glancesServer = { config, lib, pkgs, ... }: {
+#+begin_src nix :tangle modules/glancesServer.nix
+{ config, lib, pkgs, ... }: {
   options.glancesServer.enable = lib.mkEnableOption "Enable Glances service" // { default = true; };
   config = lib.mkIf config.glancesServer.enable {
     systemd.services.glances-server = {

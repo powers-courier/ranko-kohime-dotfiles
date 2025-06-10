@@ -544,8 +544,8 @@ tailscale = { config, lib, ... }: {
 };
 #+end_src
 *** DONE zramSwap
-#+begin_src nix
-zramswap = { config, lib, ... }: {
+#+begin_src nix :tangle modules/zramSwap.nix
+{ config, lib, ... }: {
   options.zramswap.enable = lib.mkEnableOption "Enable zram compressed swap" // { default = true; };
   config = lib.mkIf config.zramswap.enable {
     zramSwap = {

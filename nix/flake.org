@@ -342,12 +342,9 @@ n100 = {
 };
 #+end_src
 ** TODO Modules [9/14]
-:properties:
-:header-args+: :noweb-ref nix-flake-modules
-:end:
 *** TODO autoUpgrade
-#+begin_src nix
-autoUpgrade = { config, lib, ... }: {
+#+begin_src nix :tangle modules/autoUpgrade.nix
+{ config, lib, ... }: {
   options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // {default = false; };
   config = lib.mkIf config.autoUpgrade.enable {
     system.autoUpgrade = {

@@ -426,7 +426,7 @@ Automatically remove store items not used more than 1 year
 #+end_src
 
 *** DONE Locale
-#+begin_src nix
+#+begin_src nix :tangle modules/loKale.nix
 lokale = { config, lib, ... }: {
   options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
   config = lib.mkIf config.lokale.enable {

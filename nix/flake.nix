@@ -258,16 +258,6 @@
           };
         };
       };
-      tailscale = { config, lib, ... }: {
-        options.tailscale.enable = lib.mkEnableOption "Enable Tailscale VPN" // { default = true; };
-        config = lib.mkIf config.tailscale.enable {
-          services.tailscale = {
-            enable = true;
-            openFirewall = true;
-            port = 0;
-          };
-        };
-      };
       user = { config, lib, ... }: {
         options.user = {
           ranko.enable = lib.mkEnableOption "Enable ranko user" // { default = true; };
@@ -476,7 +466,6 @@
                 zfs.forceImportRoot = false;
               };
               boot.kernelParams = [ "zfs.zfs_arc_max=12884901888" ];
-              
               services = {
                 sanoid = {
                   enable = true;

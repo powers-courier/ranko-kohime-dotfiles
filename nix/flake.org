@@ -467,8 +467,8 @@ Automatically remove store items not used more than 1 year
 };
 #+end_src
 *** DONE OpenSSH
-#+begin_src nix
-openssh = { config, lib, ... }: {
+#+begin_src nix :tangle modules/openssh.nix
+{ config, lib, ... }: {
   options.openssh.enable = lib.mkEnableOption "Enable OpenSSH server, and Mosh" // { default = true; };
   config = lib.mkIf config.openssh.enable {
     services.openssh = {

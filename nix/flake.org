@@ -393,8 +393,8 @@ n100 = {
 #+end_src
 *** DONE Garbage Collection
 Automatically remove store items not used more than 1 year
-#+begin_src nix
-garbageCollection = { config, lib, ... }: {
+#+begin_src nix :tangle modules/garbageCollection.nix
+{ config, lib, ... }: {
   options.garbageCollection.enable = lib.mkEnableOption "Enable garbage collection in the Nix store, set to a conservative default" // { default = true; };
   config = lib.mkIf config.garbageCollection.enable {
     nix.gc = {

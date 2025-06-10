@@ -221,19 +221,6 @@
       };
     };
     modules = {
-      fwupd = { config, lib, ... }: {
-        options.fwupd.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
-        config = lib.mkIf config.fwupd.enable {
-          services.fwupd = {
-            daemonSettings = {
-              IgnorePower = true;
-            };
-            enable = true;
-      #      extraRemotes = [];
-      #      uefiCapsuleSettings = {};
-          };
-        };
-      };
       garbageCollection = { config, lib, ... }: {
         options.garbageCollection.enable = lib.mkEnableOption "Enable garbage collection in the Nix store, set to a conservative default" // { default = true; };
         config = lib.mkIf config.garbageCollection.enable {

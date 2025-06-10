@@ -376,8 +376,8 @@ n100 = {
 #+end_src
 
 *** DONE Firmware Update Daemon
-#+begin_src nix
-fwupd = { config, lib, ... }: {
+#+begin_src nix :tangle modules/fwupd.nix
+{ config, lib, ... }: {
   options.fwupd.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
   config = lib.mkIf config.fwupd.enable {
     services.fwupd = {

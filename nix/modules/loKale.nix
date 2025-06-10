@@ -1,4 +1,4 @@
-lokale = { config, lib, ... }: {
+{ config, lib, ... }: {
   options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
   config = lib.mkIf config.lokale.enable {
     i18n = {

@@ -427,7 +427,7 @@ Automatically remove store items not used more than 1 year
 
 *** DONE Locale
 #+begin_src nix :tangle modules/loKale.nix
-lokale = { config, lib, ... }: {
+{ config, lib, ... }: {
   options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
   config = lib.mkIf config.lokale.enable {
     i18n = {
@@ -449,8 +449,8 @@ lokale = { config, lib, ... }: {
 #+end_src
 
 *** DONE Nano Configuration
-#+begin_src nix
-nanorc = { config, lib, ... }: {
+#+begin_src nix :tangle modules/nanorc.nix
+{ config, lib, ... }: {
   options.nanorc.enable = lib.mkEnableOption "Enable system-wide nanorc configuration" // { default = true; };
   config = lib.mkIf config.nanorc.enable {
     programs.nano.nanorc = ''

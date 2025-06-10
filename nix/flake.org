@@ -357,12 +357,13 @@ n100 = {
 };
 #+end_src
 *** DONE Base Packages
-#+begin_src nix
-basePackages = { config, lib, pkgs, ... }: {
+#+begin_src nix :tangle modules/basePackages.nix
+{ config, lib, pkgs, ... }: {
   options.basePackages.enable = lib.mkEnableOption "Install standard packages" // { default = true; };
   config = lib.mkIf config.basePackages.enable {
     environment.systemPackages = with pkgs; [
       byobu
+      dar
       git
       glances
       sshfs

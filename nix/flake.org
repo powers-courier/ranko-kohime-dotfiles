@@ -341,7 +341,7 @@ n100 = {
   };
 };
 #+end_src
-** TODO Modules [9/14]
+** TODO Modules [9/15]
 *** TODO autoUpgrade
 #+begin_src nix :tangle modules/autoUpgrade.nix
 { config, lib, ... }: {
@@ -356,6 +356,23 @@ n100 = {
   };
 };
 #+end_src
+*** TODO Backup Packages
+These packages are for file/disk backups, and disk archiving
+https://github.com/animetosho/par2cmdline-turbo
+
+#+begin_src nix :tangle modules/backupPackages.nix
+{ config, lib, pkgs, ... }: {
+  options.backupPackages.enable = lib.mkEnableOption "Install backup packages";
+  config = lib.mkIf config.backupPackages.enable {
+    environment.systemPackages = with pkgs; [
+      dar
+      ddrescue
+      par2cmdline
+      unison
+    ];
+  };
+};
+#+end_src
 *** DONE Base Packages
 #+begin_src nix :tangle modules/basePackages.nix
 { config, lib, pkgs, ... }: {
@@ -363,18 +380,15 @@ n100 = {
   config = lib.mkIf config.basePackages.enable {
     environment.systemPackages = with pkgs; [
       byobu
-      dar
       git
       glances
       sshfs
       tmux
       tree
-      unison
     ];
   };
 };
 #+end_src
-
 *** DONE Firmware Update Daemon
 #+begin_src nix :tangle modules/fwupd.nix
 { config, lib, ... }: {

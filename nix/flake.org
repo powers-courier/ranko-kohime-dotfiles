@@ -1173,7 +1173,6 @@ pkgs.mkShell {
 *** TODO ZFS
 #+begin_src nix :noweb-ref nix-flake-module-zfs
 boot.kernelParams = [ "zfs.zfs_arc_max=12884901888" ];
-
 services = {
   sanoid = {
     enable = true;

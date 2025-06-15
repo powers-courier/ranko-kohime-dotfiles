@@ -3,6 +3,7 @@
   config = lib.mkIf config.backupPackages.enable {
     environment.systemPackages = with pkgs; [
       dar
+      ddrescue
       par2cmdline
       unison
     ];

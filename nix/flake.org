@@ -8,7 +8,7 @@
 + Add [[https://github.com/DeterminateSystems/flake-checker][nix-flake-checker]]
 + Use Determinate Systems installer for Steam Deck
 
-* TODO Flake [35/58]
+* TODO Flake [36/59]
 ** DONE Contents
 Outputs:
 + "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
@@ -349,7 +349,21 @@ n100 = {
   };
 };
 #+end_src
-** TODO Modules [9/15]
+** TODO Modules [10/16]
+*** DONE All teh Modules, Imported!
+#+begin_src nix :tangle modules/modules.nix
+{ lib, ... }:
+let
+  dir = builtins.dirOf (builtins.toString ./.);
+  files = lib.filterAttrs
+    (name: type: type == "regular" && lib.hasSuffix ".nix" name && name != "modules.nix")
+    (builtins.readDir dir);
+  imports = lib.mapAttrsToList 
+    (name: _: import (dir + "/${name}"))
+    files;
+in
+{ inherit imports; }
+#+end_src
 *** TODO autoUpgrade
 #+begin_src nix :tangle modules/autoUpgrade.nix
 { config, lib, ... }: {

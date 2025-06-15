@@ -97,11 +97,20 @@ catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 :properties:
 :header-args+: :noweb-ref nix-flake-variables
 :end:
-*** DONE Set the locale
+*** DONE Locale
 #+begin_src nix
 loKale = "en_US.UTF-8";
 #+end_src
 
+*** TODO SSH Keys
+#+begin_src nix
+sshKeyDir = ./keys/ssh
+sshKeyFiles = let
+  dirContents = builtins.readDir sshKeyDir;
+  pubFiles = builtins.filter (name: builtins.match ".*\\.pub$" name != null) (builtins.attrNames dirContents);
+in map (name: sshKeyDir + "/${name}") pubFiles;
+vaultKeyFragments = builtins.map (file: builtins.readFile file) sshKeyFiles;
+#+end_src
 *** DONE Timezone
 #+begin_src nix
 timeZern = "Etc/UTC";
@@ -626,7 +635,7 @@ users.ranko = lib.mkIf config.user.ranko.enable {
 #+begin_src nix :noweb-ref no
 nix-flake-users-root
 users.root = {
-  openssh.authorizedKeys.keys = let
+  openssh.authorizedKeys.keys = vaultKeyFragments;
 };
 #+end_src
 ** TODO baseConfig
@@ -2783,7 +2792,7 @@ fileSystems."/var/tmp" = {
 };
 #+end_src
 * sops-nix mini-flake
-#+begin_src nix :tangle nix/sops-nix-dev-shell-flake.nix
+#+begin_src nix :tangle sops-nix-dev-shell-flake.nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

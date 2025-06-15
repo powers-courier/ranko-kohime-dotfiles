@@ -18,10 +18,12 @@
   let
     vars = {
       loKale = "en_US.UTF-8";
-      vaultKeyFragments = [
-        ""
-        ""
-      ];
+      sshKeyDir = ./keys/ssh
+      sshKeyFiles = let
+        dirContents = builtins.readDir sshKeyDir;
+        pubFiles = builtins.filter (name: builtins.match ".*\\.pub$" name != null) (builtins.attrNames dirContents);
+      in map (name: sshKeyDir + "/${name}") pubFiles;
+      vaultKeyFragments = builtins.map (file: builtins.readFile file) sshKeyFiles;
       timeZern = "Etc/UTC";
       tailscale-fqdn = "manticore-elnath.ts.net";
       truenas-ip = "192.168.168.2";

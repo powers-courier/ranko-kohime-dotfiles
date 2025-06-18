@@ -104,7 +104,7 @@ loKale = "en_US.UTF-8";
 
 *** TODO SSH Keys
 #+begin_src nix
-sshKeyDir = ./keys/ssh
+sshKeyDir = ./keys/ssh;
 sshKeyFiles = let
   dirContents = builtins.readDir sshKeyDir;
   pubFiles = builtins.filter (name: builtins.match ".*\\.pub$" name != null) (builtins.attrNames dirContents);

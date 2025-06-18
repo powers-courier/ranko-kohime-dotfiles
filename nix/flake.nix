@@ -18,7 +18,7 @@
   let
     vars = {
       loKale = "en_US.UTF-8";
-      sshKeyDir = ./keys/ssh
+      sshKeyDir = ./keys/ssh;
       sshKeyFiles = let
         dirContents = builtins.readDir sshKeyDir;
         pubFiles = builtins.filter (name: builtins.match ".*\\.pub$" name != null) (builtins.attrNames dirContents);
@@ -291,6 +291,9 @@
               extraGroups = [ "networkmanager" "wheel" ]
                 ++ lib.optionals config.user.jellyfin.enable [ "jellyfin" ]
                 ++ lib.optionals (lib.attrByPath [ "virtualisation" "docker" "enable" ] false config) [ "docker" ];
+            };
+            users.root = {
+              openssh.authorizedKeys.keys = vaultKeyFragments;
             };
           };
         };

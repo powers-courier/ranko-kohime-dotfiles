@@ -427,6 +427,229 @@ https://github.com/animetosho/par2cmdline-turbo
   };
 };
 #+end_src
+*** Gaming
+#+begin_src nix :tangle modules/gaming.nix
+{ config, lib, pkgs, ... }:
+with lib;
+let
+  cfg = config.gaming;
+in {
+  options.gaming = {
+    enable = mkEnableOption "Gaming configuration for laptops";
+    <<nix-flake-modules-gaming-graphics-nvidia-optimus-prime>>
+    <<nix-flake-modules-gaming-steam-conf>>
+    <<nix-flake-modules-gaming-lutris-options>>
+    extraPackages = mkOption {
+      type = types.listOf types.package;
+      default = [];
+      description = "Additional gaming-related packages to install";
+    };
+  };
+  config = mkIf cfg.enable {
+    <<nix-flake-modules-gaming-boot>>
+    <<nix-flake-modules-gaming-hardware>>
+    <<nix-flake-modules-gaming-packages>>
+    <<nix-flake-modules-gaming-steam-conf>>
+    <<nix-flake-modules-gaming-sound>>
+    powerManagement.cpuFreqGovernor = "performance";
+    <<nix-flake-modules-gaming-gamemode>>
+    <<nix-flake-modules-gaming-networking>>
+  };
+}
+#+end_src
+**** Boot options
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-boot
+boot = {
+  kernelParams = [
+    "quiet"
+    "udev.log_priority=3"
+  ] ++ (optionals (!cfg.graphics.nvidia.enable) [
+    # AMD/Intel specific kernel parameters
+    "amdgpu.ppfeaturemask=0xffffffff" # Enable all amdgpu features
+  ]) ++ (optionals cfg.graphics.nvidia.enable [
+    # NVIDIA specific kernel parameters
+    "nvidia-drm.modeset=1"
+  ]);
+  <<nix-flake-modules-gaming-graphics-kernel-mod>>
+};
+#+end_src
+**** Game Mode
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-gamemode
+programs.gamemode = {
+  enable = true;
+  settings = {
+    general = {
+      renice = 10;
+      softrealtime = "auto";
+      inhibit_screensaver = 1;
+    };
+    gpu = {
+      apply_gpu_optimisations = "accept-responsibility";
+      gpu_device = 0;
+      amd_performance_level = "high";
+    };
+    custom = {
+      start = "${pkgs.libnotify}/bin/notify-send 'GameMode started'";
+      end = "${pkgs.libnotify}/bin/notify-send 'GameMode ended'";
+    };
+  };
+};
+#+end_src
+**** Graphics
+***** Nvidia
+****** Settings
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-graphics-nvidia-settings
+nvidia = mkIf cfg.graphics.nvidia.enable {
+  modesetting.enable = true;
+  powerManagement.enable = true;
+  open = false;
+  nvidiaSettings = true;
+  package = config.boot.kernelPackages.nvidiaPackages.stable;
+  prime = mkIf cfg.graphics.nvidia.prime.enable {
+    offload.enable = true;
+    intelBusId = cfg.graphics.nvidia.prime.intelBusId;
+    nvidiaBusId = cfg.graphics.nvidia.prime.nvidiaBusId;
+  };
+};
+#+end_src
+****** Prime
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-graphics-nvidia-optimus-prime
+graphics = {
+  nvidia = {
+    enable = mkEnableOption "NVIDIA proprietary drivers";
+    prime = {
+      enable = mkEnableOption "NVIDIA PRIME for hybrid graphics";
+      intelBusId = mkOption {
+        type = types.str;
+        default = "PCI:0:2:0";
+        description = "PCI bus ID of the Intel GPU";
+      };
+      nvidiaBusId = mkOption {
+        type = types.str;
+        default = "PCI:1:0:0";
+        description = "PCI bus ID of the NVIDIA GPU";
+      };
+    };
+  };
+};
+#+end_src
+**** Hardware
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-hardware
+hardware = {
+  opengl = {
+    enable = true;
+    driSupport = true;
+    driSupport32Bit = true;
+    extraPackages = with pkgs; [
+      vaapiVdpau
+      libvdpau-va-gl
+    ] ++ (optionals (!cfg.graphics.nvidia.enable) [
+      # AMD/Intel specific packages
+      amdvlk
+      rocm-opencl-icd
+      rocm-opencl-runtime
+    ]);
+  };
+  <<nix-flake-modules-gaming-graphics-nvidia-settings>>
+};
+#+end_src
+**** Load appropriate kernel modules
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-graphics-kernel-mod
+kernelModules = [
+  "amd_pstate"  # For AMD CPUs
+] ++ (optionals (!cfg.graphics.nvidia.enable) [
+  "amdgpu"
+]) ++ (optionals cfg.graphics.nvidia.enable [
+  "nvidia"
+  "nvidia_modeset"
+  "nvidia_uvm"
+  "nvidia_drm"
+]);
+#+end_src
+**** Networking
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-networking
+networking = {
+  firewall = {
+    allowedTCPPorts = [ 27036 27037 ]; # Steam
+    allowedUDPPorts = [ 27031 27036 ]; # Steam
+  };
+  networkmanager.wifi.powersave = false;
+};
+#+end_src
+**** Packages
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-packages
+environment.systemPackages = with pkgs; [
+  gamemode
+  mangohud
+  vulkan-tools
+  vulkan-loader
+  vulkan-validation-layers
+  libstrangle
+  gamescope
+  htop
+  s-tui
+  antimicrox
+] ++ (optionals cfg.steam.enable [
+  steam
+  steam-run
+  protontricks
+] ++ (optionals cfg.steam.protonGE [
+  protonup-qt
+])) ++ (optionals cfg.lutris.enable ([
+  lutris
+  wine
+  winetricks
+  wineWowPackages.stable
+] ++ cfg.lutris.extraPackages)) ++ cfg.extraPackages;
+#+end_src
+**** Platforms
+***** Lutris
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-lutris-options
+lutris = {
+  enable = mkEnableOption "Lutris game manager";
+  extraPackages = mkOption {
+    type = types.listOf types.package;
+    default = [];
+    description = "Additional packages to install for Lutris";
+  };
+};
+#+end_src
+***** Steam
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-steam-options
+steam = {
+  enable = mkEnableOption "Steam and Steam-related tools";
+  protonGE = mkEnableOption "ProtonGE custom Proton builds";
+};
+#+end_src
+
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-steam-conf
+programs.steam = mkIf cfg.steam.enable {
+  enable = true;
+  remotePlay.openFirewall = true;
+  dedicatedServer.openFirewall = true;
+};
+#+end_src
+**** Sound
+#+begin_src nix :noweb-ref nix-flake-modules-gaming-sound
+sound.enable = true;
+hardware.pulseaudio.support32Bit = true;
+services.pipewire = {
+  enable = true;
+  alsa.enable = true;
+  alsa.support32Bit = true;
+  pulse.enable = true;
+  jack.enable = true;
+  # Low latency settings
+  config.pipewire = {
+    "context.properties" = {
+      "default.clock.rate" = 48000;
+      "default.clock.quantum" = 32;
+      "default.clock.min-quantum" = 32;
+      "default.clock.max-quantum" = 32;
+    };
+  };
+};
+#+end_src
 *** DONE Garbage Collection
 Automatically remove store items not used more than 1 year
 #+begin_src nix :tangle modules/garbageCollection.nix

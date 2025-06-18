@@ -93,7 +93,7 @@ catppuccin.url = "github:catppuccin/nix";
 catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-** TODO Variables [3/4]
+** TODO Variables [3/5]
 :properties:
 :header-args+: :noweb-ref nix-flake-variables
 :end:

@@ -154,11 +154,6 @@
               fsType = "vfat";
               options = [ "fmask=0077" "dmask=0077" ];
             };
-            "/Mounts/share" = {
-              device = "main-host.manticore-elnath.ts.net:/Mounts/youtube-dl/z.Ripping/0.Downloaded";
-              fsType = "nfs";
-              options = [ "rw" "soft" "timeo=300" ]; # Soft timeout for reliability
-            };
           };
         };
         jelly-proxy-07 = {

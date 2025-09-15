@@ -578,6 +578,37 @@ nix.settings.experimental-features = [ "nix-command" "flakes" ];
 nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 time.timeZone = vars.timeZern;
 #+end_src
+*** DONE Garbage Collection
+#+begin_src nix :tangle modules/garbageCollection.nix
+{ config, lib, ... }:
+with lib;
+{
+  options = {
+    services.nixGarbageCollection = {
+      enable = mkEnableOption "automatic Nix garbage collection" // {
+        default = true;
+      };
+      dates = mkOption {
+        type = types.str;
+        default = "monthly";
+        description = "How often to run garbage collection";
+      };
+      options = mkOption {
+        type = types.str;
+        default = "--delete-older-than 365d";
+        description = "Options to pass to nix-collect-garbage";
+      };
+    };
+  };
+  config = mkIf config.services.nixGarbageCollection.enable {
+    nix.gc = {
+      automatic = true;
+      dates = config.services.nixGarbageCollection.dates;
+      options = config.services.nixGarbageCollection.options;
+    };
+  };
+}
+#+end_src
 *** DONE Network Filesystems [4/4]
 **** DONE NFS Settings
 #+begin_src nix :noweb-ref nix-flake-nfs-client-settings

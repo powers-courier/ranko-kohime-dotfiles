@@ -364,7 +364,7 @@
     ],
     "K42": [
       "FN",
-      "ROLL_OVER",
+      "LAYER_ACCESS_3",
       "ROLL_OVER",
       "ROLL_OVER"
     ],
@@ -400,7 +400,7 @@
     ],
     "K48": [
       "FN",
-      "ROLL_OVER",
+      "LAYER_ACCESS_3",
       "ROLL_OVER",
       "ROLL_OVER"
     ],

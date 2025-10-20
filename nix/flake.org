@@ -609,6 +609,32 @@ with lib;
   };
 }
 #+end_src
+
+*** DONE Keyboards [4/4]
+**** DONE Preamble
+#+begin_src nix :tangle modules/keyboards.nix
+{ config, lib, ... }:
+{
+#+end_src
+**** DONE System 76 Launch
+#+begin_src nix :tangle modules/keyboards.nix
+{
+  environment.systemPackages = with pkgs; [
+    system76-keyboard-configurator
+  ];
+}
+#+end_src
+
+**** DONE ZSA
+#+begin_src nix :tangle modules/keyboards.nix
+hardware.keyboard.zsa.enable = true;
+#+end_src
+
+**** DONE Epiloge
+#+begin_src nix :tangle modules/keyboards.nix
+}
+#+end_src
+
 *** DONE Network Filesystems [4/4]
 **** DONE NFS Settings
 #+begin_src nix :noweb-ref nix-flake-nfs-client-settings

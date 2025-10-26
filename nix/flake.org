@@ -424,7 +424,7 @@ modules = [
 ];
 #+end_src
 ** Modules
-*** CPU Limiter
+*** TODO CPU Limiter
 #+begin_src nix :tangle modules/cpuLimiter.nix
 { config, lib, ... }:
 with lib;
@@ -562,16 +562,10 @@ intel = {
   '';
 };
 #+end_src
-*** Default Bootloader
-#+begin_src nix :tangle modules/defaultBootloader.nix
-{ config, lib, ... }: {
-  boot.loader = {
-    efi.canTouchEfiVariables = true;
-    systemd-boot.enable = true;
   };
 }
 #+end_src
-*** Default Settings
+*** TODO Default Settings
 #+begin_src nix :noweb-ref nix-module-settings-default
 networking.networkmanager.enable = true;
 nix.settings.experimental-features = [ "nix-command" "flakes" ];

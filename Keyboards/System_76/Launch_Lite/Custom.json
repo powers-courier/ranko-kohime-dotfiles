@@ -357,19 +357,19 @@
       "ROLL_OVER"
     ],
     "K41": [
-      "LEFT_ALT",
-      "ROLL_OVER",
-      "ROLL_OVER",
-      "ROLL_OVER"
-    ],
-    "K42": [
       "FN",
       "LAYER_ACCESS_3",
       "ROLL_OVER",
       "ROLL_OVER"
     ],
-    "K43": [
+    "K42": [
       "LEFT_SUPER",
+      "ROLL_OVER",
+      "ROLL_OVER",
+      "ROLL_OVER"
+    ],
+    "K43": [
+      "LEFT_ALT",
       "ROLL_OVER",
       "ROLL_OVER",
       "ROLL_OVER"

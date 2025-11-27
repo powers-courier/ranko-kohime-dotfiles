@@ -46,7 +46,14 @@ in {
     systemd.tmpfiles.rules = [
       "d ${config.services.jellyfin.cacheDir} 0750 jellyfin jellyfin - -"
     ];
-    users.groups.jellyfin.members = [ "jellyfin" ];
+    users.jellyfin = lib.mkIf config.user.jellyfin.enable {
+      extraGroups = [ "render" "video" ];
+      group = "jellyfin";
+      isNormalUser = true;
+      isSystemUser = lib.mkForce false;
+      uid = 8096;
+      gid = 8096;
+    };
     systemd.services.jellyfin = {
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];

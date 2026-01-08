@@ -249,13 +249,6 @@ jelly-proxy-03 = {
       options = [ <<nix-flake-nfs-common-mount>> ];
     };
   };
-
-  environment.etc."opt/shell.nix" = {
-    text = ''
-      <<nix-flake-module-ytdl-env>>
-    '';
-    mode = "0444";
-  };
 };
 #+end_src
 *** DONE jelly-proxy-04

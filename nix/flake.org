@@ -61,9 +61,7 @@ handles applying this function to the set of default systems that Nix supports."
     };
 }
 #+end_src
-:properties:
-:header-args: :noweb-ref nix-flake-inputs
-:end:
+
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref nix-flake-inputs
@@ -148,7 +146,7 @@ timeZern = "Etc/UTC";
 tailscale-fqdn = "manticore-elnath.ts.net";
 truenas-ip = "192.168.168.2";
 #+end_src
-** DONE Hardware Configs [10/10]
+** TODO Hardware Configs [10/11]
 :properties:
 :header-args+: :noweb-ref nix-flake-hardware-configs
 :end:
@@ -179,7 +177,7 @@ framework-7840u = {
     };
   };
   swapDevices = [ ];
-};
+}
 #+end_src
 *** DONE jelly-proxy-01
 #+begin_src nix
@@ -368,6 +366,29 @@ n100 = {
 :properties:
 :header-args+: :noweb-ref nix-flake-host-configurations
 :end:
+#+begin_src nix :noweb-ref nix-flake-host-auto-discovery
+# Get all .nix files from machines directory
+hostsFiles = builtins.readDir ./hosts;
+
+# Filter for .nix files and create configurations
+hostAutoDiscovery = builtins.listToAttrs (
+  builtins.map (name:
+    let
+      # Remove .nix extension for the attribute name
+      hostAutoName = builtins.replaceStrings [".nix"] [""] name;
+    in {
+      name = hostAutoName;
+      value = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [ (./hosts + "/${name}") ];
+      };
+    }
+  ) (builtins.filter (name:
+    hostAutoDiscovery.${name} == "regular" &&
+    nixpkgs.lib.hasSuffix ".nix" name
+  ) (builtins.attrNames hostAutoDiscovery))
+);
+#+end_src
 *** Desktops [0/0]
 *** DONE Servers [1/1]
 **** DONE Proxy Hosts Generator

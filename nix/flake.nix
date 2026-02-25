@@ -5,13 +5,6 @@
     hardware.url = "github:nixos/nixos-hardware";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    sops-nix.url = "github:Mic92/sops-nix";
-    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
-    disko.url = "github:nix-community/disko";
-    disko.inputs.nixpkgs.follows = "nixpkgs";
-    flake-utils.url = "github:numtide/flake-utils";
-    catppuccin.url = "github:catppuccin/nix";
-    catppuccin.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = { nixpkgs, ... }@inputs:
     let
@@ -109,13 +102,6 @@
               options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
             };
           };
-        
-          environment.etc."opt/shell.nix" = {
-            text = ''
-              
-            '';
-            mode = "0444";
-          };
         };
         jelly-proxy-04 = {
           fileSystems = {
@@ -208,6 +194,36 @@
           };
         };
       };
+      flakeModules = {
+        defaultSettings = { config, lib, ... }: {
+          options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
+          config = lib.mkIf config.defaultSettings.enable {
+            networking.networkmanager.enable = true;
+            nix.settings.experimental-features = [ "nix-command" "flakes" ];
+            nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+            time.timeZone = vars.timeZern;
+          };
+        }
+        lokale = { config, lib, ... }: {
+          options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
+          config = lib.mkIf config.lokale.enable {
+            i18n = {
+              defaultLocale = vars.loKale;
+              extraLocaleSettings = {
+                LC_ADDRESS = vars.loKale;
+                LC_IDENTIFICATION = vars.loKale;
+                LC_MEASUREMENT = vars.loKale;
+                LC_MONETARY = vars.loKale;
+                LC_NAME = vars.loKale;
+                LC_NUMERIC = vars.loKale;
+                LC_PAPER = vars.loKale;
+                LC_TELEPHONE = vars.loKale;
+                LC_TIME = vars.loKale;
+              };
+            };
+          };
+        }
+      };
       proxyCount = 7;
       Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
         num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
@@ -224,25 +240,16 @@
             ({ pkgs, vars, ... }: {
               networking.hostName = name;
               system.stateVersion = "25.05";
-          #    
-              networking.networkmanager.enable = true;
-              nix.settings.experimental-features = [ "nix-command" "flakes" ];
-              nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-              time.timeZone = vars.timeZern;
+              
+              
             })
           ];
         };
       }) (builtins.genList (i: i) proxyCount));
     in
     rec {
-      homeConfigurations = {
-        
-      };
-      nixosConfigurations = Jelly-Proxy-Configs // {
-        
-      };
-      images = {
-        
-      };
+      
+      
+      
     };
 }

@@ -19,6 +19,7 @@ yubico-piv-tool -s 9a -a import-key -i ed25519_${SN}
 openssl enc -aes-256-cbc -salt -in ed25519_${SN}
 #+end_example
 + [[https://github.com/TamtamHero/fw-fanctrl][fw-fanctrl]]
++ pciutils and usbutils
 
 * Flake
 ** Contents
@@ -34,77 +35,76 @@ handles applying this function to the set of default systems that Nix supports."
 #+begin_src nix :tangle flake.nix
 {
   description = "Ranko Kohime's Flake v2";
-  inputs = {
-    <<nix-flake-inputs>>
-  };
+  <<inputs-preamble>>
   outputs = { nixpkgs, ... }@inputs:
     let
       lib = nixpkgs.lib;
-      vars = {
-        <<nix-flake-variables>>
-      };
-      hardwareConfigs = {
-        <<nix-flake-hardware-configs>>
-      };
+      <<flake-variables-preamble>>
+      <<hardware-configs-preamble>>
+      <<modules-preamble>>
       <<proxy-host-generator>>
     in
     rec {
-      homeConfigurations = {
-        <<nix-flake-home-configurations>>
-      };
-      nixosConfigurations = Jelly-Proxy-Configs // {
-        <<nix-flake-host-configurations>>
-      };
-      images = {
-        <<nix-flake-image-generators>>
-      };
+      <<home-folder-configuration-preamble>>
+      <<system-configuration-preamble>>
+      <<images-preamble>>
     };
 }
 #+end_src
 
-** TODO Inputs [3/8]
+** TODO Inputs [4/10]
+*** DONE Preamble
+#+begin_src nix :noweb-ref inputs-preamble
+inputs = {
+  <<flake-inputs>>
+};
+#+end_src
+
+*** TODO Inputs [3/8]
 :properties:
-:header-args: :noweb-ref nix-flake-inputs
+:header-args: :noweb-ref flake-inputs
 :end:
-*** DONE Nixpkgs (unstable)
+
+**** DONE Nixpkgs (unstable)
 #+begin_src nix
 nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 #+end_src
 
-*** DONE Hardware
+**** DONE Hardware
 #+begin_src nix
 hardware.url = "github:nixos/nixos-hardware";
 #+end_src
 
-*** DONE Home Manager
+**** DONE Home Manager
 #+begin_src nix
 home-manager.url = "github:nix-community/home-manager";
 home-manager.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-*** TODO sops-nix (Secrets)
-#+begin_src nix
+**** TODO sops-nix (Secrets)
+#+begin_src nix :noweb-ref no
 sops-nix.url = "github:Mic92/sops-nix";
 sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
-*** TODO Disko
-#+begin_src nix
+**** TODO Disko
+#+begin_src nix :noweb-ref no
 disko.url = "github:nix-community/disko";
 disko.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-*** TODO Flake Utils
-#+begin_src nix
+**** TODO Flake Utils
+#+begin_src nix :noweb-ref no
 flake-utils.url = "github:numtide/flake-utils";
+flake-utils.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-*** TODO Catppuccin Theme
-#+begin_src nix
+**** TODO Catppuccin Theme
+#+begin_src nix :noweb-ref no
 catppuccin.url = "github:catppuccin/nix";
 catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-*** TODO Import
+**** TODO Import
 #+begin_src nix :noweb-ref no
 determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
 fh.url = "https://flakehub.com/f/DeterminateSystems/fh/*";
@@ -128,10 +128,17 @@ quickemu.inputs.nixpkgs.follows = "nixpkgs";
 quickgui.url = "https://flakehub.com/f/quickemu-project/quickgui/*";
 quickgui.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
-** DONE Variables [3/3]
+** DONE Variables [4/4]
 :properties:
-:header-args+: :noweb-ref nix-flake-variables
+:header-args+: :noweb-ref flake-variables
 :end:
+*** DONE Preamble
+#+begin_src nix :noweb-ref flake-variables-preamble
+vars = {
+  <<flake-variables>>
+};
+#+end_src
+
 *** DONE Locale
 #+begin_src nix
 loKale = "en_US.UTF-8";
@@ -141,15 +148,24 @@ loKale = "en_US.UTF-8";
 #+begin_src nix
 timeZern = "Etc/UTC";
 #+end_src
+
 *** DONE Host IPs and FQDN
 #+begin_src nix
 tailscale-fqdn = "manticore-elnath.ts.net";
 truenas-ip = "192.168.168.2";
 #+end_src
-** TODO Hardware Configs [10/11]
+
+** TODO Hardware Configs [11/12]
 :properties:
-:header-args+: :noweb-ref nix-flake-hardware-configs
+:header-args+: :noweb-ref hardware-configs
 :end:
+*** DONE Preamble
+#+begin_src nix :noweb-ref hardware-configs-preamble
+hardwareConfigs = {
+  <<hardware-configs>>
+};
+#+end_src
+
 *** DONE framework-7840u
 #+begin_src nix
 framework-7840u = {
@@ -177,7 +193,7 @@ framework-7840u = {
     };
   };
   swapDevices = [ ];
-}
+};
 #+end_src
 *** DONE jelly-proxy-01
 #+begin_src nix
@@ -357,38 +373,27 @@ n100 = {
   };
 };
 #+end_src
-** TODO Home Configurations [0/0]
+** TODO Home Configurations [0/1]
 :properties:
-:header-args+: :noweb-ref nix-flake-home-configurations
+:header-args+: :noweb-ref home-configurations
 :end:
-*** Test
-** DONE Host Configurations [2/2]
+*** WAIT Preamble
+#+begin_src nix :noweb-ref home-folder-configuration-preamble-no
+homeConfigurations = {
+  <<home-configurations>>
+};
+#+end_src
+** TODO Host Configurations [2/3]
 :properties:
 :header-args+: :noweb-ref nix-flake-host-configurations
 :end:
-#+begin_src nix :noweb-ref nix-flake-host-auto-discovery
-# Get all .nix files from machines directory
-hostsFiles = builtins.readDir ./hosts;
-
-# Filter for .nix files and create configurations
-hostAutoDiscovery = builtins.listToAttrs (
-  builtins.map (name:
-    let
-      # Remove .nix extension for the attribute name
-      hostAutoName = builtins.replaceStrings [".nix"] [""] name;
-    in {
-      name = hostAutoName;
-      value = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [ (./hosts + "/${name}") ];
-      };
-    }
-  ) (builtins.filter (name:
-    hostAutoDiscovery.${name} == "regular" &&
-    nixpkgs.lib.hasSuffix ".nix" name
-  ) (builtins.attrNames hostAutoDiscovery))
-);
+*** WAIT Preamble
+#+begin_src nix :noweb-ref system-configuration-preamble-no
+nixosConfigurations = Jelly-Proxy-Configs // {
+  <<nix-flake-host-configurations>>
+};
 #+end_src
+
 *** Desktops [0/0]
 *** DONE Servers [1/1]
 **** DONE Proxy Hosts Generator
@@ -432,7 +437,7 @@ modules = [
   ({ pkgs, vars, ... }: {
     networking.hostName = name;
     system.stateVersion = "25.05";
-#    <<nix-flake-module-jellyfin-proxy>>
+    <<nix-flake-module-jellyfin-proxy>>
     <<nix-module-settings-default>>
   })
 ];
@@ -529,7 +534,7 @@ in {
   };
 }
 #+end_src
-**** AMD Unit
+***** AMD Unit
 #+begin_src nix :noweb-ref cpu-limit-arch-amd
 amd = {
   description = "Limit CPU max performance percentage for AMD processors";
@@ -542,7 +547,7 @@ amd = {
   '';
 };
 #+end_src
-**** ARM Unit
+***** ARM Unit
 #+begin_src nix :noweb-ref cpu-limit-arch-arm
 arm = {
   description = "Limit CPU max performance percentage for ARM processors";
@@ -563,7 +568,7 @@ arm = {
   '';
 };
 #+end_src
-**** Intel Unit
+***** Intel Unit
 #+begin_src nix :noweb-ref cpu-limit-arch-intel
 intel = {
   description = "Limit CPU max performance percentage using intel_pstate";
@@ -579,62 +584,41 @@ intel = {
   };
 }
 #+end_src
-*** TODO Default Settings
-#+begin_src nix :noweb-ref nix-module-settings-default
-networking.networkmanager.enable = true;
-nix.settings.experimental-features = [ "nix-command" "flakes" ];
-nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-time.timeZone = vars.timeZern;
+**** DONE Default Settings
+#+begin_src nix
+defaultSettings = { config, lib, ... }: {
+  options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
+  config = lib.mkIf config.defaultSettings.enable {
+    networking.networkmanager.enable = true;
+    nix.settings.experimental-features = [ "nix-command" "flakes" ];
+    nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+    time.timeZone = vars.timeZern;
+  };
+}
 #+end_src
-*** DONE Network Filesystems [4/4]
-**** DONE NFS Settings
-#+begin_src nix :noweb-ref nix-flake-nfs-client-settings
-networking = {
-  domain = "midgard";
-  firewall.allowedTCPPorts = [ 2049 ];
-};
-services = {
-  nfs.idmapd = {
-    settings = {
-      General = {
-        Domain = "midgard";
+
+**** DONE Locale
+#+begin_src nix
+lokale = { config, lib, ... }: {
+  options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
+  config = lib.mkIf config.lokale.enable {
+    i18n = {
+      defaultLocale = vars.loKale;
+      extraLocaleSettings = {
+        LC_ADDRESS = vars.loKale;
+        LC_IDENTIFICATION = vars.loKale;
+        LC_MEASUREMENT = vars.loKale;
+        LC_MONETARY = vars.loKale;
+        LC_NAME = vars.loKale;
+        LC_NUMERIC = vars.loKale;
+        LC_PAPER = vars.loKale;
+        LC_TELEPHONE = vars.loKale;
+        LC_TIME = vars.loKale;
       };
     };
   };
-  rpcbind.enable = true;
-};
+}
 #+end_src
-**** DONE Common NFS Mount Options
-#+begin_src nix :noweb-ref nix-flake-nfs-common-mount
-"nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576"
-#+end_src
-**** DONE Documents et al
-#+begin_src nix :noweb-ref nix-flake-nfs-documents
-fileSystems = {
-  "/Mounts/Disks" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Disks";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/Documents" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Documents";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/Downloads" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Downloads";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/LGC_Actual" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Actual";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/LGC_Lore_Table" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Lore_Table";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
   };
   "/Mounts/Library" = {
     device = "${vars.truenas-ip}:/mnt/Svartalfheim/Library";

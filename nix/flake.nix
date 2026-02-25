@@ -248,6 +248,7 @@
       }) (builtins.genList (i: i) proxyCount));
     in
     rec {
+      nixosModules = flakeModules;
       
       
       

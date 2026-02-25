@@ -45,6 +45,7 @@ handles applying this function to the set of default systems that Nix supports."
       <<proxy-host-generator>>
     in
     rec {
+      <<modules-enabler>>
       <<home-folder-configuration-preamble>>
       <<system-configuration-preamble>>
       <<images-preamble>>
@@ -666,12 +667,18 @@ images = {
 };
 #+end_src
 
-** TODO Modules [7/13]
-*** Preamble
+** TODO Modules [9/15]
+*** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
   <<flake-module-configurations>>
 };
+#+end_src
+
+*** DONE Enabler
+Exposes custom modules under the standard name so other flakes / your hosts can discover them
+#+begin_src nix :noweb-ref modules-enabler
+nixosModules = flakeModules;
 #+end_src
 
 *** TODO Modules [7/12]

@@ -732,6 +732,20 @@ nixosModules = flakeModules;
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
+
+**** Notes
+#+begin_example nix
+modules = [
+  # One central place where you list them (or most of them)
+  myModules.locale
+  myModules.zsh
+  myModules.firefox
+  # ...
+  # or even shorter if you want almost everything by default:
+  # (builtins.attrValues myModules)   ← imports ALL of them at once!
+] ++ [ /* host-specific things */ ];
+#+end_example
+
 **** DONE 📁 Network Filesystems [4/4]
 ***** DONE NFS Settings
 #+begin_src nix :noweb-ref nix-flake-nfs-client-settings

@@ -203,7 +203,7 @@
             nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
             time.timeZone = vars.timeZern;
           };
-        }
+        };
         lokale = { config, lib, ... }: {
           options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
           config = lib.mkIf config.lokale.enable {
@@ -222,7 +222,7 @@
               };
             };
           };
-        }
+        };
       };
       proxyCount = 7;
       Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let

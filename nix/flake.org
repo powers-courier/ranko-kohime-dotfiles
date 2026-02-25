@@ -442,9 +442,437 @@ modules = [
   })
 ];
 #+end_src
-** Modules
-*** TODO CPU Limiter
-#+begin_src nix :tangle modules/cpuLimiter.nix
+***** New Generator
+#+begin_src nix :noweb-ref no
+{
+  outputs = { self, nixpkgs, ... }@inputs:
+    let
+      system = "x86_64-linux"; # Adjust as needed
+
+      # Common hardware configuration shared by all hosts
+      commonHardwareConfig = { config, lib, pkgs, modulesPath, ... }: {
+        imports = [
+          (modulesPath + "/installer/scan/not-detected.nix")
+        ];
+
+        boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usb_storage" "sd_mod" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-intel" ];
+        boot.extraModulePackages = [ ];
+
+        networking.useDHCP = lib.mkDefault true;
+        nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+        hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+      };
+      # Fallback number of hosts if auto-detection fails
+      fallbackHostCount = 10;
+
+      # Helper function to format number with leading zero
+      formatHostNumber = num: 
+        if num < 10 then "0${toString num}" else toString num;
+
+      # Helper function to generate hostname
+      generateHostname = num: "jelly-proxy-${formatHostNumber num}";
+
+      # Auto-detect available hardware configs
+      detectAvailableHosts = 
+        let
+          # Get all available host numbers from hardwareConfigs
+          availableHosts = builtins.filter (name: 
+            builtins.match "jelly-proxy-[0-9][0-9]" name != null
+          ) (builtins.attrNames hardwareConfigs);
+          
+          # Extract numbers and find the maximum
+          hostNumbers = builtins.map (name:
+            let
+              matches = builtins.match "jelly-proxy-([0-9][0-9])" name;
+            in
+              if matches != null 
+              then builtins.fromJSON (builtins.elemAt matches 0)
+              else 0
+          ) availableHosts;
+          
+          maxHost = if hostNumbers != [] 
+                   then builtins.foldl' builtins.max 0 hostNumbers
+                   else 0;
+        in
+          if maxHost > 0 then maxHost else fallbackHostCount;
+
+      # Number of hosts to generate
+      numHosts = detectAvailableHosts;
+
+      # Generate a single host configuration
+      generateHostConfig = hostNum:
+        let
+          hostname = generateHostname hostNum;
+          hostHardwareConfig = hardwareConfigs.${hostname} or null;
+        in
+          if hostHardwareConfig != null then {
+            name = hostname;
+            value = nixpkgs.lib.nixosSystem {
+              inherit system;
+              modules = [
+                # Common hardware configuration
+                commonHardwareConfig
+                
+                # Host-specific hardware configuration (fileSystems, swapDevices)
+                ({ config, lib, pkgs, ... }: hostHardwareConfig)
+                
+                # Base system configuration shared by all hosts
+                ({ config, pkgs, ... }: {
+                  # Set the hostname
+                  networking.hostName = hostname;
+                  
+                  # Basic system configuration
+                  system.stateVersion = "23.11"; # Adjust as needed
+                  
+                  # Add your common configuration here
+                  services.openssh.enable = true;
+                  networking.firewall.enable = true;
+                  
+                  # Example: jelly-proxy specific configuration
+                  # services.nginx.enable = true;
+                  # services.nginx.virtualHosts.${hostname} = {
+                  #   # Your proxy configuration
+                  # };
+                  
+                  # You could also add host-specific configuration based on hostname
+                  # networking.interfaces.eth0.ipv4.addresses = [{
+                  #   address = "192.168.1.${toString (10 + hostNum)}";
+                  #   prefixLength = 24;
+                  # }];
+                })
+                
+                # Add other common modules here
+                # ./modules/common.nix
+                # ./modules/jelly-proxy.nix
+              ];
+              
+              # Pass inputs to modules if needed
+              specialArgs = { inherit inputs; };
+            };
+          } else null;
+
+      # Generate all host configurations
+      hostConfigs = 
+        let
+          # Generate list of host numbers from 1 to numHosts
+          hostNumbers = builtins.genList (i: i + 1) numHosts;
+          
+          # Generate configurations for each host
+          configs = builtins.map generateHostConfig hostNumbers;
+          
+          # Filter out null configurations (missing hardware configs)
+          validConfigs = builtins.filter (config: config != null) configs;
+        in
+          builtins.listToAttrs validConfigs;
+
+      # Debug information
+      debugInfo = {
+        detectedHostCount = numHosts;
+        availableHardwareConfigs = builtins.attrNames hardwareConfigs;
+        generatedHosts = builtins.attrNames hostConfigs;
+        commonHardwareEnabled = true;
+      };
+
+    in {
+      # NixOS configurations
+      nixosConfigurations = hostConfigs;
+      
+      # Expose debug information
+      debug = debugInfo;
+      
+      # Expose common hardware config for reuse
+      lib = {
+        inherit commonHardwareConfig;
+        inherit hardwareConfigs;
+        inherit generateHostname formatHostNumber;
+      };
+      
+      # Helper function to build all hosts
+      packages.${system} = {
+        all-hosts = nixpkgs.legacyPackages.${system}.writeShellScriptBin "build-all-hosts" ''
+          echo "Building ${toString (builtins.length (builtins.attrNames hostConfigs))} hosts..."
+          ${builtins.concatStringsSep "\n" (builtins.map (hostname: 
+            "echo 'Building ${hostname}...' && nixos-rebuild build --flake .#${hostname}"
+          ) (builtins.attrNames hostConfigs))}
+        '';
+
+        # Helper to generate hardware config template
+        generate-hardware-template = nixpkgs.legacyPackages.${system}.writeShellScriptBin "generate-hardware-template" ''
+          if [ -z "$1" ]; then
+            echo "Usage: $0 <host-number>"
+            echo "Example: $0 6  # generates template for jelly-proxy-06"
+            exit 1
+          fi
+          
+          HOST_NUM=$(printf "%02d" "$1")
+          echo "Add this to hardwareConfigs in your flake.nix:"
+          echo ""
+          echo "jelly-proxy-$HOST_NUM = {"
+          echo "  fileSystems.\"/\" = {"
+          echo "    device = \"/dev/disk/by-uuid/YOUR-ROOT-UUID-HERE\";"
+          echo "    fsType = \"ext4\";"
+          echo "  };"
+          echo "  fileSystems.\"/boot\" = {"
+          echo "    device = \"/dev/disk/by-uuid/YOUR-BOOT-UUID-HERE\";"
+          echo "    fsType = \"vfat\";"
+          echo "  };"
+          echo "  swapDevices = ["
+          echo "    { device = \"/dev/disk/by-uuid/YOUR-SWAP-UUID-HERE\"; }"
+          echo "  ];"
+          echo "};"
+        '';
+      };
+      # Development shell
+      devShells.${system}.default = nixpkgs.legacyPackages.${system}.mkShell {
+        buildInputs = with nixpkgs.legacyPackages.${system}; [
+          nixos-rebuild
+          nix-output-monitor
+        ];
+        shellHook = ''
+          echo "Jelly Proxy Host Generator"
+          echo "========================="
+          echo "Detected ${toString numHosts} hosts"
+          echo "Available configurations:"
+          ${builtins.concatStringsSep "\n" (builtins.map (hostname:
+            "echo '  - ${hostname}'"
+          ) (builtins.attrNames hostConfigs))}
+          echo ""
+          echo "Usage:"
+          echo "  nixos-rebuild build --flake .#jelly-proxy-01"
+          echo "  nix run .#all-hosts  # Build all hosts"
+          echo "  nix run .#generate-hardware-template 6  # Generate template for new host"
+          echo "  nix eval .#debug --json  # Show debug info"
+          echo ""
+          echo "Common hardware config includes:"
+          echo "  - Boot modules and kernel modules"
+          echo "  - CPU microcode updates"
+          echo "  - Network DHCP settings"
+          echo "  - Platform settings"
+        '';
+      };
+    };
+}
+#+end_src
+** TODO Images [0/1]
+:properties:
+:header-args+: :noweb-ref flake-image-generators
+:end:
+*** WAIT Preamble
+#+begin_src nix :noweb-ref images-preamble-no
+images = {
+  <<flake-image-generators>>
+};
+#+end_src
+
+** TODO Modules [7/13]
+*** Preamble
+#+begin_src nix :noweb-ref modules-preamble
+flakeModules = {
+  <<flake-module-configurations>>
+};
+#+end_src
+
+*** TODO Modules [7/12]
+:properties:
+:header-args+: :noweb-ref flake-module-configurations
+:end:
+**** DONE 📁 Network Filesystems [4/4]
+***** DONE NFS Settings
+#+begin_src nix :noweb-ref nix-flake-nfs-client-settings
+networking = {
+  domain = "midgard";
+  firewall.allowedTCPPorts = [ 2049 ];
+};
+services = {
+  nfs.idmapd = {
+    settings = {
+      General = {
+        Domain = "midgard";
+      };
+    };
+  };
+  rpcbind.enable = true;
+};
+#+end_src
+***** DONE Common NFS Mount Options
+#+begin_src nix :noweb-ref nix-flake-nfs-common-mount
+"nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576"
+#+end_src
+***** DONE Documents et al
+#+begin_src nix :noweb-ref nix-flake-nfs-documents
+fileSystems = {
+  "/Mounts/Disks" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Disks";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Documents" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Documents";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Downloads" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Downloads";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/LGC_Actual" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Actual";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/LGC_Lore_Table" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Lore_Table";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Library" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Library";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Workspace" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Workspace";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+};
+#+end_src
+
+***** DONE Multimedia
+#+begin_src nix :noweb-ref nix-flake-nfs-multimedia
+fileSystems = {
+  "/Mounts/JellyConfig" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos/JellyConfig";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Music" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Music";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Videos" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/youtube-dl" = {
+    device = "${vars.truenas-ip}:/mnt/youtube-dl/youtube-dl";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/youtube-dl/z.Daily/Finished" = {
+    device = "${vars.truenas-ip}:/mnt/ytdl-fin/Finished";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+};
+#+end_src
+
+**** TODO 📁 Services [0/1]
+***** TODO Jellyfin Server
+[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
+intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
+
+Jellyfin must be set to VAAPI for transcoding on modern Intel platforms as of 2025
+#+begin_src nix :noweb-ref no
+{ config, lib, pkgs, ... }:
+
+with lib;
+
+let
+  cfg = config.services.jellyfin-server;
+in {
+  # Define the option for enabling/disabling the Jellyfin module
+  options.services.jellyfin-server = {
+    enable = mkEnableOption "Jellyfin media server with hardware acceleration";
+  };
+
+  config = mkIf cfg.enable {
+    boot.kernelParams = [ "i915.enable_guc=2" ];
+    nixpkgs.config.allowUnfree = true;
+    <<module-service-jellyfin-hardware>>
+    <<module-service-jellyfin-service>>
+    <<module-service-jellyfin-environment>>
+    <<module-service-jellyfin-cachedir>>
+    users.groups.jellyfin.members = [ "jellyfin" ];
+    <<module-service-jellyfin-systemd>>
+  };
+}
+#+end_src
+****** hardware
+#+begin_src nix :noweb-ref module-service-jellyfin-hardware
+hardware = {
+  enableAllFirmware = true;
+  graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-compute-runtime
+      intel-media-driver
+      libva
+    ];
+  };
+};
+#+end_src
+****** Jellyfin service
+#+begin_src nix :noweb-ref module-service-jellyfin-service
+services.jellyfin = {
+  enable = true;
+  group = "jellyfin";
+  openFirewall = true;
+  user = "jellyfin";
+  dataDir = "/var/lib/jellyfin"; # Default data directory
+  cacheDir = "/var/cache/jellyfin"; # Cache directory for transcoding
+};
+#+end_src
+****** environment
+#+begin_src nix :noweb-ref module-service-jellyfin-environment
+environment = {
+  sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
+  systemPackages = with pkgs; [
+    intel-gpu-tools
+    jellyfin-ffmpeg
+    libva-utils
+    libvdpau-va-gl
+    vaapiVdpau
+    vpl-gpu-rt
+  ];
+};
+#+end_src
+****** cacheDir
+#+begin_src nix :noweb-ref module-service-jellyfin-cachedir
+systemd.tmpfiles.rules = [
+  "d ${config.services.jellyfin.cacheDir} 0750 jellyfin jellyfin - -"
+];
+#+end_src
+****** systemD service
+#+begin_src nix :noweb-ref module-service-jellyfin-systemd
+systemd.services.jellyfin = {
+  after = [ "network.target" ];
+  wantedBy = [ "multi-user.target" ];
+  serviceConfig = {
+    Restart = "on-failure";
+    RestartSec = 5;
+  };
+};
+#+end_src
+**** TODO Automatic Upgrades
+#+begin_src nix :noweb-ref no
+options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // {default = false; };
+config = lib.mkIf config.autoUpgrade.enable {
+  system.autoUpgrade = {
+    enable = true;
+    flake = "git+https://github.com/RankoKohime/ranko-kohime-dotfiles?ref=main";
+    dates = "weekly";
+    allowReboot = false; # Optional: avoid reboots
+  };
+};
+#+end_src
+**** TODO CPU Limiter
+#+begin_src nix :noweb-ref no
 { config, lib, ... }:
 with lib;
 let
@@ -594,7 +1022,7 @@ defaultSettings = { config, lib, ... }: {
     nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
     time.timeZone = vars.timeZern;
   };
-}
+};
 #+end_src
 
 **** DONE Locale
@@ -617,49 +1045,26 @@ lokale = { config, lib, ... }: {
       };
     };
   };
-}
-#+end_src
-  };
-  "/Mounts/Library" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Library";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/Workspace" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Workspace";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
 };
 #+end_src
 
-**** DONE Multimedia
-#+begin_src nix :noweb-ref nix-flake-nfs-multimedia
-fileSystems = {
-  "/Mounts/JellyConfig" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos/JellyConfig";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
+**** TODO ZFS Settings
+#+begin_src nix :noweb-ref no
+boot.kernelParams = [ "zfs.zfs_arc_max=12884901888" ];
+services = {
+  sanoid = {
+    enable = true;
   };
-  "/Mounts/Music" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Music";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
+  syncoid = {
+    enable = true;
   };
-  "/Mounts/Videos" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/youtube-dl" = {
-    device = "${vars.truenas-ip}:/mnt/youtube-dl/youtube-dl";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/youtube-dl/z.Daily/Finished" = {
-    device = "${vars.truenas-ip}:/mnt/ytdl-fin/Finished";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
+  zfs = {
+    autoScrub = {
+      enable = true;
+      interval = "monthly";
+      pools = [ "zroot" ];
+    };
+    trim.enable = true;
   };
 };
 #+end_src

@@ -374,6 +374,53 @@ n100 = {
   };
 };
 #+end_src
+
+*** TODO sleipnir
+Asus G14 with Ryzen 7840HS and Nvidia 4060
+#+begin_example nix
+sleipnir = {
+  boot = {
+    blacklistedKernelModules = [
+      "nvidia"
+      "nvidia_drm"
+      "nvidia_modeset"
+      "nvidia_uvm"
+      "nouveau"
+    ];
+    initrd.kernelModules = [ "amdgpu" ];
+  };
+  environment.systemPackages = with pkgs; [ ryzenadj ];
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+  networking.hostName = "sleipnir";
+  powerManagement = {
+    enable = true;
+    cpuFreqGovernor = "powersave";
+  };
+};
+{ config, pkgs, lib, ... }: {
+  systemd.services.apu-tdp-limit = {
+    description = "Set AMD APU power limit to 15W";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "multi-user.target" ];
+    script = ''
+      sleep 5
+      ${pkgs.ryzenadj}/bin/ryzenadj \
+        --stapm-limit=15000 \
+        --fast-limit=15000 \
+        --slow-limit=15000 \
+        --tctl-temp=85 || true
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  };
+}
+#+end_example
+
 ** TODO Home Configurations [0/1]
 :properties:
 :header-args+: :noweb-ref home-configurations
@@ -444,7 +491,7 @@ modules = [
 ];
 #+end_src
 ***** New Generator
-#+begin_src nix :noweb-ref no
+#+begin_example nix
 {
   outputs = { self, nixpkgs, ... }@inputs:
     let
@@ -655,7 +702,7 @@ modules = [
       };
     };
 }
-#+end_src
+#+end_example
 ** TODO Images [0/1]
 :properties:
 :header-args+: :noweb-ref flake-image-generators

@@ -878,6 +878,23 @@ config = lib.mkIf config.autoUpgrade.enable {
   };
 };
 #+end_src
+**** DONE Base Packages
+#+begin_src nix
+basePackages = { config, lib, pkgs, ... }: {
+  options.basePackages.enable = lib.mkEnableOption "Install standard packages" // { default = true; };
+  config = lib.mkIf config.basePackages.enable {
+    environment.systemPackages = with pkgs; [
+      byobu
+      git
+      glances
+      sshfs
+      tmux
+      tree
+    ];
+  };
+};
+#+end_src
+
 **** TODO CPU Limiter
 #+begin_src nix :noweb-ref no
 { config, lib, ... }:

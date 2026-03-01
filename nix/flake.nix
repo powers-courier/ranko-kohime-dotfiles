@@ -208,6 +208,15 @@
             ];
           };
         };
+        defaultBootloader = { config, lib, ... }: {
+          options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" // { default = true; };
+          config = lib.mkIf config.defaultBootloader.enable {
+            boot.loader = {
+              efi.canTouchEfiVariables = true;
+              systemd-boot.enable = true;
+            };
+          };
+        };
         defaultSettings = { config, lib, ... }: {
           options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
           config = lib.mkIf config.defaultSettings.enable {

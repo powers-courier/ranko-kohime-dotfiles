@@ -714,7 +714,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [13/18]
+** TODO Modules [14/19]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -728,7 +728,7 @@ Exposes custom modules under the standard name so other flakes / your hosts can 
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [11/15]
+*** TODO Modules [12/16]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -955,6 +955,18 @@ basePackages = { config, lib, pkgs, ... }: {
 };
 #+end_src
 
+**** DONE Bootloader
+#+begin_src nix
+defaultBootloader = { config, lib, ... }: {
+  options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" // { default = true; };
+  config = lib.mkIf config.defaultBootloader.enable {
+    boot.loader = {
+      efi.canTouchEfiVariables = true;
+      systemd-boot.enable = true;
+    };
+  };
+};
+#+end_src
 **** TODO CPU Limiter
 #+begin_src nix :noweb-ref no
 { config, lib, ... }:

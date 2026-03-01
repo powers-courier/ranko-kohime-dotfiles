@@ -442,26 +442,32 @@ nixosConfigurations = Jelly-Proxy-Configs // {
 };
 #+end_src
 
-*** Desktops [0/0]
-*** DONE Servers [1/1]
-**** DONE Proxy Hosts Generator
-***** Explanation
-****** proxyCount:
+*** DONE Hosts
+:properties:
+:header-args+: :noweb-ref nix-flake-host-configurations
+:end:
+**** Desktops [0/0]
+
+**** Laptops
+**** DONE Servers [1/1]
+***** DONE Proxy Hosts Generator
+****** Explanation
+******* proxyCount:
 Set to 3—generates jelly-proxy-01, jelly-proxy-02, jelly-proxy-03.
 Change to 5 for jelly-proxy-05, etc.
-****** builtins.genList:
+******* builtins.genList:
 builtins.genList (i: i) 3 → [0 1 2]—a list of indices.
 i + 1 shifts it to 1, 2, 3 for numbering.
-****** map:
+******* map:
 Loops over [0 1 2], creating a list of { name = ...; value = ...; } pairs.
 num: Pads with 0 for 01-09 (e.g., if i < 9 then "0${toString (i + 1)}"), then plain numbers (10, 11, ...).
-****** builtins.listToAttrs:
+******* builtins.listToAttrs:
 Turns the list into an attrset:
-****** networking.hostName = name:
+******* networking.hostName = name:
 Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynamically—no repetition.
-****** // Operator:
+******* // Operator:
 Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
-***** Code
+****** Code
 #+begin_src nix :noweb-ref proxy-host-generator
 proxyCount = 7;
 Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
@@ -480,17 +486,139 @@ in {
 #+begin_src nix :noweb-ref proxy-host-generator-modules
 modules = [
   hardwareConfigs.${name}
-  ./modules/cpuLimiter.nix
-  ./modules/defaultBootloader.nix
+  #flakeModules.cpuLimiter
+  flakeModules.defaultBootloader
+  flakeModules.defaultSettings
   ({ pkgs, vars, ... }: {
     networking.hostName = name;
     system.stateVersion = "25.05";
-    <<nix-flake-module-jellyfin-proxy>>
-    <<nix-module-settings-default>>
+    <<module-jellyfin-proxy>>
   })
 ];
 #+end_src
-****** New Generator
+******* TODO Jellyfin Remote access proxy nodes [5/6]
+:properties:
+:header-args+: :noweb-ref module-jellyfin-proxy
+:end:
+******** Host list
+01. Jeff & Jackie O'Connell
+02. Suzie?
+03. John & Darlene Powers
+04. Max & Alyssa O'Connell
+05. Ken & Stacy O'Connell ?
+06. Joeseph O'Connell
+07. Don & Gabby O'Connell
+
+******** DONE Networking
+Nginx listens on TCP 8096
+Avahi listens on UDP 5353
+#+begin_src nix
+networking = {
+  firewall = {
+    enable = true;
+    allowedTCPPorts = [ 8096 ];
+    allowedUDPPorts = [ 5353 ];
+  };
+};
+#+end_src
+
+Settings for Tailscale subnet routing
+#+begin_src nix
+boot.kernel.sysctl = {
+  "net.ipv4.ip_forward" = 1;
+  "net.ipv6.conf.all.forwarding" = 1;
+};
+services.networkd-dispatcher = {
+  enable = true;
+  rules."50-tailscale" = {
+    onState = [ "routable" ];
+    script = ''
+      #!/usr/bin/env bash
+      ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
+    '';
+  };
+};
+#+end_src
+******** WAIT resolv.conf tmpfs
+#+begin_src nix :noweb-ref no
+fileSystems."/etc/resolv.conf" = {
+  device = "tmpfs";
+  fsType = "tmpfs";
+  options = [ "mode=0644" "size=1m" ];
+};
+#+end_src
+
+******** DONE Tailscale
+Requires manual setup to add to Tailnet
+#+begin_src nix
+services.tailscale = {
+  enable = true;
+  openFirewall = true;
+};
+#+end_src
+******** DONE Nginx
+#+begin_src nix
+services.nginx = {
+  enable = true;
+  virtualHosts."default" = {
+    default = true;
+    listen = [ { addr = "0.0.0.0"; port = 8096; } ];
+    locations."/" = {
+      proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
+      extraConfig = ''
+        proxy_http_version 1.1;
+        proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      '';
+    };
+  };
+};
+#+end_src
+******** DONE mDNS with Avahi
+nssmdns4 = Enable mDNS for IPv4 name resolution
+
+#+begin_src nix
+services.avahi = {
+  enable = true;
+  nssmdns4 = true;
+  publish = {
+    enable = true;
+    addresses = true;
+    userServices = true;
+  };
+};
+#+end_src
+
+#+begin_src nix
+environment.etc."avahi/services/jellyfin.service".text = ''
+  <?xml version="1.0" standalone='no'?>
+  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+  <service-group>
+    <name>Jellyfin Proxy</name>
+    <service>
+      <type>_http._tcp</type>
+      <port>8096</port>
+      <txt-record>description=Jellyfin Media Server Proxy</txt-record>
+    </service>
+  </service-group>
+'';
+#+end_src
+******** DONE Packages
+#+begin_src nix
+environment.systemPackages = with pkgs; [
+  avahi
+  ethtool
+  nginx
+  tailscale
+];
+#+end_src
+
+
+********** New Generator
 #+begin_example nix
 {
   outputs = { self, nixpkgs, ... }@inputs:

@@ -714,7 +714,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [12/17]
+** TODO Modules [13/18]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -728,7 +728,7 @@ Exposes custom modules under the standard name so other flakes / your hosts can 
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [10/14]
+*** TODO Modules [11/15]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1104,6 +1104,16 @@ defaultSettings = { config, lib, ... }: {
     networking.networkmanager.enable = true;
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
     nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+    programs.nano.nanorc = ''
+      set autoindent
+      set boldtext
+      set constantshow
+      set linenumbers
+      set nowrap
+      set smarthome
+      set tabsize 2
+      set tabstospaces
+    '';
     time.timeZone = vars.timeZern;
   };
 };
@@ -1165,7 +1175,7 @@ zfsOptions = { config, lib, ... }: {
 };
 #+end_src
 
-**** ZFS Sanoid/Syncoid
+**** DONE ZFS Sanoid/Syncoid
 #+begin_src nix
 zfsSanoid = { config, lib, ... }: {
   options.zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" // { default = false; };

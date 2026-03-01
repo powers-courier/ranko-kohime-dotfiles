@@ -214,6 +214,16 @@
             networking.networkmanager.enable = true;
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
             nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+            programs.nano.nanorc = ''
+              set autoindent
+              set boldtext
+              set constantshow
+              set linenumbers
+              set nowrap
+              set smarthome
+              set tabsize 2
+              set tabstospaces
+            '';
             time.timeZone = vars.timeZern;
           };
         };

@@ -471,12 +471,12 @@
           modules = lib.flatten [
             hardwareConfigs.${hostname}
             platformModuleList
-            flakeModules
+            (builtins.attrValues flakeModules)
             # Always set hostname (can be overridden later)
             {
               networking.hostName = hostname;
             }
-          ];
+          ] ++ extraModules;
         };
     in
     rec {
@@ -490,6 +490,8 @@
           system = "x86_64-linux";
           cpuVendor = "intel";
           extraModules = [
+            { fancyKeyboards.enable = true; }
+            { zfsOptions.enable = true; }
           ];
         };
       };

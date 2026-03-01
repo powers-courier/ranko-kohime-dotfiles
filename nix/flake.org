@@ -483,12 +483,12 @@ mkHost = {
     modules = lib.flatten [
       hardwareConfigs.${hostname}
       platformModuleList
-      flakeModules
+      (builtins.attrValues flakeModules)
       # Always set hostname (can be overridden later)
       {
         networking.hostName = hostname;
       }
-    ];
+    ] ++ extraModules;
   };
 #+end_src
 
@@ -557,6 +557,8 @@ framework-13 = mkHost {
   system = "x86_64-linux";
   cpuVendor = "intel";
   extraModules = [
+    { fancyKeyboards.enable = true; }
+    { zfsOptions.enable = true; }
   ];
 };
 #+end_src
@@ -954,7 +956,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [14/19]
+** TODO Modules [15/20]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -969,7 +971,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [12/16]
+*** TODO Modules [13/17]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1408,7 +1410,7 @@ lokale = { config, lib, ... }: {
 };
 #+end_src
 
-**** Tailscale VPN
+**** DONE Tailscale VPN
 #+begin_src nix
 tailscaleVPN = { config, lib, ... }: {
   options.tailscale.enable = lib.mkEnableOption "Enable Tailscale VPN" // { default = true; };

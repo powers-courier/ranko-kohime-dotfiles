@@ -476,7 +476,7 @@ in {
   };
 }) (builtins.genList (i: i) proxyCount));
 #+end_src
-****** Modules
+******* Modules
 #+begin_src nix :noweb-ref proxy-host-generator-modules
 modules = [
   hardwareConfigs.${name}
@@ -490,7 +490,7 @@ modules = [
   })
 ];
 #+end_src
-***** New Generator
+****** New Generator
 #+begin_example nix
 {
   outputs = { self, nixpkgs, ... }@inputs:
@@ -714,7 +714,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [9/15]
+** TODO Modules [11/17]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -728,11 +728,10 @@ Exposes custom modules under the standard name so other flakes / your hosts can 
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [7/12]
+*** TODO Modules [9/14]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
-
 **** Notes
 #+begin_example nix
 modules = [
@@ -1106,6 +1105,19 @@ defaultSettings = { config, lib, ... }: {
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
     nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
     time.timeZone = vars.timeZern;
+  };
+};
+#+end_src
+
+**** DONE Keyboards
+#+begin_src nix
+fancyKeyboards = { config, lib, pkgs, ... }: {
+  options.fancyKeyboards.enable = lib.mkEnableOption "Configuration for fancy keyboards" // { default = false; };
+  config = lib.mkIf config.fancyKeyboards.enable {
+    environment.systemPackages = with pkgs; [
+      system76-keyboard-configurator
+    ];
+    hardware.keyboard.zsa.enable = true;
   };
 };
 #+end_src

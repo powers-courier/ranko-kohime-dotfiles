@@ -16,7 +16,14 @@
         truenas-ip = "192.168.168.2";
       };
       hardwareConfigs = {
-        framework-7840u = {
+        framework-13 = {
+          boot = {
+            loader = {
+              grub.enable = false;
+            };
+            supportedFilesystems = [ "zfs" ];
+            zfs.forceImportRoot = false;
+          };
           fileSystems = {
             "/" = {
               device = "zroot/root";
@@ -40,7 +47,11 @@
               fsType = "zfs";
             };
           };
+          networking = {
+            hostId = "af2f1b7f";
+          };
           swapDevices = [ ];
+          system.stateVersion = "25.05";
         };
         jelly-proxy-01 = {
           fileSystems = {
@@ -396,13 +407,94 @@
           ];
         };
       }) (builtins.genList (i: i) proxyCount));
+      platformModules = {
+        # Called with { system = "x86_64-linux"; cpuVendor = "intel"; } or similar
+        x86_64-linux = { cpuVendor ? "generic", ... }: [
+          ({ config, pkgs, lib, ... }: {
+            # Base x86_64 settings everyone gets
+            boot.kernelPackages = pkgs.linuxPackages_latest;
+          })
+      
+          (lib.mkIf (cpuVendor == "intel") {
+            # Intel-specific
+            hardware.cpu.intel.updateMicrocode = true;
+            boot.kernelParams = [ "intel_iommu=on" ];
+          })
+      
+          (lib.mkIf (cpuVendor == "amd") {
+            # AMD-specific
+            hardware.cpu.amd.updateMicrocode = true;
+            boot.kernelParams = [ "amd_iommu=on" ];
+          })
+        ];
+      
+        aarch64-linux = { cpuVendor ? "generic", ... }: [
+          ({ config, pkgs, lib, ... }: {
+            # Base arm64 settings
+            boot.kernelPackages = pkgs.linuxPackages_latest;
+            # e.g. better handling of big.LITTLE if needed, etc.
+          })
+      
+          (lib.mkIf (cpuVendor == "apple") {
+            # Apple Silicon (asahi or similar)
+            hardware.asahi.enable = true;   # example
+            # or your custom apple tweaks
+          })
+      
+          (lib.mkIf (cpuVendor == "rockchip") {
+            # e.g. RK3588, Orange Pi 5, etc.
+            boot.kernelParams = [ "coherent_pool=1M" ];
+          })
+        ];
+      };
+      mkHost = {
+        hostname,
+        system ? "x86_64-linux",          # required or default
+        cpuVendor ? "generic",            # intel, amd, apple, qualcomm, rockchip, ...
+        extraModules ? [],                # host-specific stuff
+      }@args:
+      
+        let
+          # Select the right platform-specific module list
+          selectedPlatformModules =
+            platformModules.${system} or
+              (throw "Unsupported system: ${system}");
+      
+          platformModuleList = selectedPlatformModules {
+            inherit system cpuVendor;
+            inherit (args) hostname;   # if needed inside
+          };
+        in
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+      
+          modules = lib.flatten [
+            hardwareConfigs.${hostname}
+            platformModuleList
+            flakeModules
+            # Always set hostname (can be overridden later)
+            {
+              networking.hostName = hostname;
+            }
+          ];
+        };
     in
     rec {
       nixosModules = flakeModules;
-      
-      nixosConfigurations = Jelly-Proxy-Configs // {
+      homeConfigurations = {
         
       };
-      
+      nixosConfigurations = Jelly-Proxy-Configs // {
+        framework-13 = mkHost {
+          hostname = "framework-13";
+          system = "x86_64-linux";
+          cpuVendor = "intel";
+          extraModules = [
+          ];
+        };
+      };
+      images = {
+        
+      };
     };
 }

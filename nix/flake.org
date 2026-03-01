@@ -56,6 +56,7 @@ outputs = { nixpkgs, ... }@inputs:
     <<hardware-configs-preamble>>
     <<modules-preamble>>
     <<proxy-host-generator>>
+    <<mkhost-generator>>
   in
   rec {
     <<modules-enabler>>
@@ -173,9 +174,16 @@ hardwareConfigs = {
 };
 #+end_src
 
-*** DONE framework-7840u
+*** DONE framework-13
 #+begin_src nix
-framework-7840u = {
+framework-13 = {
+  boot = {
+    loader = {
+      grub.enable = false;
+    };
+    supportedFilesystems = [ "zfs" ];
+    zfs.forceImportRoot = false;
+  };
   fileSystems = {
     "/" = {
       device = "zroot/root";
@@ -199,7 +207,11 @@ framework-7840u = {
       fsType = "zfs";
     };
   };
+  networking = {
+    hostId = "af2f1b7f";
+  };
   swapDevices = [ ];
+  system.stateVersion = "25.05";
 };
 #+end_src
 *** DONE jelly-proxy-01
@@ -432,29 +444,123 @@ sleipnir = {
 :header-args+: :noweb-ref home-configurations
 :end:
 *** WAIT Preamble
-#+begin_src nix :noweb-ref home-folder-configuration-preamble-no
+#+begin_src nix :noweb-ref home-folder-configuration-preamble
 homeConfigurations = {
   <<home-configurations>>
 };
 #+end_src
-** TODO Host Configurations [2/3]
-:properties:
-:header-args+: :noweb-ref nix-flake-host-configurations
-:end:
-*** WAIT Preamble
-#+begin_src nix :noweb-ref system-configuration-preamble-no
+** TODO Host Configurations [14/16]
+*** DONE mkHost [3/3]
+**** DONE Preamble
+#+begin_src nix :noweb-ref mkhost-generator
+<<mkhost-generator-platform>>
+<<mkhost-generator-function>>
+#+end_src
+
+**** DONE Function
+#+begin_src nix :noweb-ref mkhost-generator-function
+mkHost = {
+  hostname,
+  system ? "x86_64-linux",          # required or default
+  cpuVendor ? "generic",            # intel, amd, apple, qualcomm, rockchip, ...
+  extraModules ? [],                # host-specific stuff
+}@args:
+
+  let
+    # Select the right platform-specific module list
+    selectedPlatformModules =
+      platformModules.${system} or
+        (throw "Unsupported system: ${system}");
+
+    platformModuleList = selectedPlatformModules {
+      inherit system cpuVendor;
+      inherit (args) hostname;   # if needed inside
+    };
+  in
+  nixpkgs.lib.nixosSystem {
+    inherit system;
+
+    modules = lib.flatten [
+      hardwareConfigs.${hostname}
+      platformModuleList
+      flakeModules
+      # Always set hostname (can be overridden later)
+      {
+        networking.hostName = hostname;
+      }
+    ];
+  };
+#+end_src
+
+**** DONE platformModules
+#+begin_src nix :noweb-ref mkhost-generator-platform
+platformModules = {
+  # Called with { system = "x86_64-linux"; cpuVendor = "intel"; } or similar
+  x86_64-linux = { cpuVendor ? "generic", ... }: [
+    ({ config, pkgs, lib, ... }: {
+      # Base x86_64 settings everyone gets
+      boot.kernelPackages = pkgs.linuxPackages_latest;
+    })
+
+    (lib.mkIf (cpuVendor == "intel") {
+      # Intel-specific
+      hardware.cpu.intel.updateMicrocode = true;
+      boot.kernelParams = [ "intel_iommu=on" ];
+    })
+
+    (lib.mkIf (cpuVendor == "amd") {
+      # AMD-specific
+      hardware.cpu.amd.updateMicrocode = true;
+      boot.kernelParams = [ "amd_iommu=on" ];
+    })
+  ];
+
+  aarch64-linux = { cpuVendor ? "generic", ... }: [
+    ({ config, pkgs, lib, ... }: {
+      # Base arm64 settings
+      boot.kernelPackages = pkgs.linuxPackages_latest;
+      # e.g. better handling of big.LITTLE if needed, etc.
+    })
+
+    (lib.mkIf (cpuVendor == "apple") {
+      # Apple Silicon (asahi or similar)
+      hardware.asahi.enable = true;   # example
+      # or your custom apple tweaks
+    })
+
+    (lib.mkIf (cpuVendor == "rockchip") {
+      # e.g. RK3588, Orange Pi 5, etc.
+      boot.kernelParams = [ "coherent_pool=1M" ];
+    })
+  ];
+};
+#+end_src
+
+*** DONE Preamble
+#+begin_src nix :noweb-ref system-configuration-preamble
 nixosConfigurations = Jelly-Proxy-Configs // {
-  <<nix-flake-host-configurations>>
+  <<host-configurations>>
 };
 #+end_src
 
 *** DONE Hosts
 :properties:
-:header-args+: :noweb-ref nix-flake-host-configurations
+:header-args+: :noweb-ref host-configurations
 :end:
 **** Desktops [0/0]
 
 **** Laptops
+***** DONE Framework 13
+#+begin_src nix
+framework-13 = mkHost {
+  hostname = "framework-13";
+  system = "x86_64-linux";
+  cpuVendor = "intel";
+  extraModules = [
+  ];
+};
+#+end_src
+
 **** DONE Servers [1/1]
 ***** DONE Proxy Hosts Generator
 ****** Explanation
@@ -842,7 +948,7 @@ environment.systemPackages = with pkgs; [
 :header-args+: :noweb-ref flake-image-generators
 :end:
 *** WAIT Preamble
-#+begin_src nix :noweb-ref images-preamble-no
+#+begin_src nix :noweb-ref images-preamble
 images = {
   <<flake-image-generators>>
 };
@@ -858,6 +964,7 @@ flakeModules = {
 
 *** DONE Enabler
 Exposes custom modules under the standard name so other flakes / your hosts can discover them
+Not certain what how this is supposed to work.
 #+begin_src nix :noweb-ref modules-enabler
 nixosModules = flakeModules;
 #+end_src

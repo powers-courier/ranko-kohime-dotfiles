@@ -245,6 +245,35 @@
             };
           };
         };
+        zfsOptions = { config, lib, ... }: {
+          options.zfsOptions.enable = lib.mkEnableOption "Common settings for ZFS pools" // { default = false; };
+          config = lib.mkIf config.zfsOptions.enable {
+            boot.kernelParams = [ "zfs.zfs_arc_max=1073741824" ];
+            services = {
+              zfs = {
+                autoScrub = {
+                  enable = true;
+                  interval = "monthly";
+                  pools = [ "zroot" ];
+                };
+                trim.enable = true;
+              };
+            };
+          };
+        };
+        zfsSanoid = { config, lib, ... }: {
+          options.zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" // { default = false; };
+          config = lib.mkIf config.zfsSanoid.enable {
+            services = {
+              sanoid = {
+                enable = true;
+              };
+              syncoid = {
+                enable = true;
+              };
+            };
+          };
+        };
       };
       proxyCount = 7;
       Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let

@@ -714,7 +714,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [11/17]
+** TODO Modules [12/17]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -728,7 +728,7 @@ Exposes custom modules under the standard name so other flakes / your hosts can 
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [9/14]
+*** TODO Modules [10/14]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1145,23 +1145,39 @@ lokale = { config, lib, ... }: {
 };
 #+end_src
 
-**** TODO ZFS Settings
-#+begin_src nix :noweb-ref no
-boot.kernelParams = [ "zfs.zfs_arc_max=12884901888" ];
-services = {
-  sanoid = {
-    enable = true;
-  };
-  syncoid = {
-    enable = true;
-  };
-  zfs = {
-    autoScrub = {
-      enable = true;
-      interval = "monthly";
-      pools = [ "zroot" ];
+**** DONE ZFS Settings
+#+begin_src nix
+zfsOptions = { config, lib, ... }: {
+  options.zfsOptions.enable = lib.mkEnableOption "Common settings for ZFS pools" // { default = false; };
+  config = lib.mkIf config.zfsOptions.enable {
+    boot.kernelParams = [ "zfs.zfs_arc_max=1073741824" ];
+    services = {
+      zfs = {
+        autoScrub = {
+          enable = true;
+          interval = "monthly";
+          pools = [ "zroot" ];
+        };
+        trim.enable = true;
+      };
     };
-    trim.enable = true;
+  };
+};
+#+end_src
+
+**** ZFS Sanoid/Syncoid
+#+begin_src nix
+zfsSanoid = { config, lib, ... }: {
+  options.zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" // { default = false; };
+  config = lib.mkIf config.zfsSanoid.enable {
+    services = {
+      sanoid = {
+        enable = true;
+      };
+      syncoid = {
+        enable = true;
+      };
+    };
   };
 };
 #+end_src

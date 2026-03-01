@@ -21,8 +21,8 @@ openssl enc -aes-256-cbc -salt -in ed25519_${SN}
 + [[https://github.com/TamtamHero/fw-fanctrl][fw-fanctrl]]
 + pciutils and usbutils
 
-* Flake
-** Contents
+* DONE Flake [3/3]
+** DONE Contents
 Outputs:
 + "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 + "nixpkgs" references the inputs above
@@ -36,31 +36,37 @@ handles applying this function to the set of default systems that Nix supports."
 {
   description = "Ranko Kohime's Flake v2";
   <<inputs-preamble>>
-  outputs = { nixpkgs, ... }@inputs:
-    let
-      lib = nixpkgs.lib;
-      <<flake-variables-preamble>>
-      <<hardware-configs-preamble>>
-      <<modules-preamble>>
-      <<proxy-host-generator>>
-    in
-    rec {
-      <<modules-enabler>>
-      <<home-folder-configuration-preamble>>
-      <<system-configuration-preamble>>
-      <<images-preamble>>
-    };
+  <<outputs-preamble>>
 }
 #+end_src
 
-** TODO Inputs [4/10]
-*** DONE Preamble
+** DONE Inputs
 #+begin_src nix :noweb-ref inputs-preamble
 inputs = {
   <<flake-inputs>>
 };
 #+end_src
 
+** DONE Outputs
+#+begin_src nix :noweb-ref outputs-preamble
+outputs = { nixpkgs, ... }@inputs:
+  let
+    lib = nixpkgs.lib;
+    <<flake-variables-preamble>>
+    <<hardware-configs-preamble>>
+    <<modules-preamble>>
+    <<proxy-host-generator>>
+  in
+  rec {
+    <<modules-enabler>>
+    <<home-folder-configuration-preamble>>
+    <<system-configuration-preamble>>
+    <<images-preamble>>
+  };
+#+end_src
+
+* Other
+** TODO Inputs [4/10]
 *** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs

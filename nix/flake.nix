@@ -255,6 +255,16 @@
             };
           };
         };
+        tailscaleVPN = { config, lib, ... }: {
+          options.tailscale.enable = lib.mkEnableOption "Enable Tailscale VPN" // { default = true; };
+          config = lib.mkIf config.tailscale.enable {
+            services.tailscale = {
+              enable = true;
+              openFirewall = true;
+              port = 0;
+            };
+          };
+        };
         zfsOptions = { config, lib, ... }: {
           options.zfsOptions.enable = lib.mkEnableOption "Common settings for ZFS pools" // { default = false; };
           config = lib.mkIf config.zfsOptions.enable {

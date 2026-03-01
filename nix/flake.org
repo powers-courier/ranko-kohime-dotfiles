@@ -1155,6 +1155,19 @@ lokale = { config, lib, ... }: {
 };
 #+end_src
 
+**** Tailscale VPN
+#+begin_src nix
+tailscaleVPN = { config, lib, ... }: {
+  options.tailscale.enable = lib.mkEnableOption "Enable Tailscale VPN" // { default = true; };
+  config = lib.mkIf config.tailscale.enable {
+    services.tailscale = {
+      enable = true;
+      openFirewall = true;
+      port = 0;
+    };
+  };
+};
+#+end_src
 **** DONE ZFS Settings
 #+begin_src nix
 zfsOptions = { config, lib, ... }: {

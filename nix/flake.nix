@@ -217,6 +217,15 @@
             time.timeZone = vars.timeZern;
           };
         };
+        fancyKeyboards = { config, lib, ... }: {
+          options.fancyKeyboards.enable = lib.mkEnableOption "Configuration for fancy keyboards" // { default = false;};
+          config = lib mkIf config.defaultSettings.enable {
+            environment.systemPackages = with pkgs; [
+              system76-keyboard-configurator
+            ];
+            hardware.keyboard.zsa.enable = true;
+          };
+        };
         lokale = { config, lib, ... }: {
           options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
           config = lib.mkIf config.lokale.enable {

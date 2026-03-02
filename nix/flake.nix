@@ -468,7 +468,12 @@
       
           (lib.mkIf (cpuVendor == "intel") {
             # Intel-specific
-            hardware.cpu.intel.updateMicrocode = true;
+            hardware = {
+              cpu.intel = {
+                updateMicrocode = true;
+              };
+              intel-gpu-tools.enable = true;
+            };
             boot.kernelParams = [ "intel_iommu=on" ];
           })
       

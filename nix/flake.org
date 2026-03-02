@@ -177,13 +177,6 @@ hardwareConfigs = {
 *** DONE framework-13
 #+begin_src nix
 framework-13 = {
-  boot = {
-    loader = {
-      grub.enable = false;
-    };
-    supportedFilesystems = [ "zfs" ];
-    zfs.forceImportRoot = false;
-  };
   fileSystems = {
     "/" = {
       device = "zroot/root";
@@ -374,6 +367,9 @@ main-host = {
       options = [ "fmask=0022" "dmask=0022" ];
     };
   };
+  networking = {
+    hostId = "2b7f3c3a";
+  };
 };
 #+end_src
 *** DONE n100
@@ -449,7 +445,7 @@ homeConfigurations = {
   <<home-configurations>>
 };
 #+end_src
-** TODO Host Configurations [14/16]
+** TODO Host Configurations [14/17]
 *** DONE mkHost [3/3]
 **** DONE Preamble
 #+begin_src nix :noweb-ref mkhost-generator
@@ -558,13 +554,13 @@ framework-13 = mkHost {
   cpuVendor = "intel";
   extraModules = [
     { fancyKeyboards.enable = true; }
-    { zfsOptions.enable = true; }
+    { zfsBootOptions.enable = true; }
   ];
 };
 #+end_src
 
-**** DONE Servers [1/1]
-***** DONE Proxy Hosts Generator
+**** TODO Servers [7/9]
+***** DONE jelly-proxy Hosts Generator
 ****** Explanation
 ******* proxyCount:
 Set to 3—generates jelly-proxy-01, jelly-proxy-02, jelly-proxy-03.
@@ -945,6 +941,31 @@ environment.systemPackages = with pkgs; [
     };
 }
 #+end_example
+***** DONE main-host
+#+begin_src nix
+main-host = mkHost {
+  hostname = "main-host";
+  system = "x86_64-linux";
+  cpuVendor = "intel";
+  extraModules = [
+    { zfsBootOptions.enable = true; }
+      ({
+        networking = {
+          interfaces = {
+            enp4s0 = {
+              ipv4.addresses = [{
+                address = "192.168.168.25";
+                prefixLength = 24;
+              }];
+              mtu = 9000;
+            };
+          };
+        };
+    })
+  ];
+};
+#+end_src
+
 ** TODO Images [0/1]
 :properties:
 :header-args+: :noweb-ref flake-image-generators
@@ -956,7 +977,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [15/20]
+** TODO Modules [16/21]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -971,7 +992,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [13/17]
+*** TODO Modules [14/18]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1423,6 +1444,24 @@ tailscaleVPN = { config, lib, ... }: {
   };
 };
 #+end_src
+**** DONE ZFS Boot Options
+#+begin_src nix
+zfsBootOptions = { config, lib, ... }: {
+  options.zfsBootOptions.enable = lib.mkEnableOption "Boot settings for root on ZFS hosts" // { default = false; };
+  config = lib.mkIf config.zfsBootOptions.enable {
+    boot = {
+      loader = {
+        grub.enable = false;
+      };
+      supportedFilesystems = [ "zfs" ];
+      zfs.forceImportRoot = false;
+    };
+    zfsOptions.enable = true;
+    zfsSanoid.enable = true;
+  };
+};
+#+end_src
+
 **** DONE ZFS Settings
 #+begin_src nix
 zfsOptions = { config, lib, ... }: {

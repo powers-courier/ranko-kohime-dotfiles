@@ -17,13 +17,6 @@
       };
       hardwareConfigs = {
         framework-13 = {
-          boot = {
-            loader = {
-              grub.enable = false;
-            };
-            supportedFilesystems = [ "zfs" ];
-            zfs.forceImportRoot = false;
-          };
           fileSystems = {
             "/" = {
               device = "zroot/root";
@@ -190,6 +183,9 @@
               options = [ "fmask=0022" "dmask=0022" ];
             };
           };
+          networking = {
+            hostId = "2b7f3c3a";
+          };
         };
         n100 = {
           fileSystems = {
@@ -283,6 +279,20 @@
               openFirewall = true;
               port = 0;
             };
+          };
+        };
+        zfsBootOptions = { config, lib, ... }: {
+          options.zfsBootOptions.enable = lib.mkEnableOption "Boot settings for root on ZFS hosts" // { default = false; };
+          config = lib.mkIf config.zfsBootOptions.enable {
+            boot = {
+              loader = {
+                grub.enable = false;
+              };
+              supportedFilesystems = [ "zfs" ];
+              zfs.forceImportRoot = false;
+            };
+            zfsOptions.enable = true;
+            zfsSanoid.enable = true;
           };
         };
         zfsOptions = { config, lib, ... }: {
@@ -491,7 +501,28 @@
           cpuVendor = "intel";
           extraModules = [
             { fancyKeyboards.enable = true; }
-            { zfsOptions.enable = true; }
+            { zfsBootOptions.enable = true; }
+          ];
+        };
+        main-host = mkHost {
+          hostname = "main-host";
+          system = "x86_64-linux";
+          cpuVendor = "intel";
+          extraModules = [
+            { zfsBootOptions.enable = true; }
+              ({
+                networking = {
+                  interfaces = {
+                    enp4s0 = {
+                      ipv4.addresses = [{
+                        address = "192.168.168.25";
+                        prefixLength = 24;
+                      }];
+                      mtu = 9000;
+                    };
+                  };
+                };
+            })
           ];
         };
       };

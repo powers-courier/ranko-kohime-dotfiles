@@ -246,6 +246,7 @@
               git
               glances
               lm_sensors
+              neovim
               sshfs
               tmux
               tree
@@ -538,7 +539,6 @@
             # Base x86_64 settings everyone gets
             boot.kernelPackages = pkgs.linuxPackages_latest;
           })
-      
           (lib.mkIf (cpuVendor == "intel") {
             # Intel-specific
             hardware = {
@@ -549,27 +549,23 @@
             };
             boot.kernelParams = [ "intel_iommu=on" ];
           })
-      
           (lib.mkIf (cpuVendor == "amd") {
             # AMD-specific
             hardware.cpu.amd.updateMicrocode = true;
             boot.kernelParams = [ "amd_iommu=on" ];
           })
         ];
-      
         aarch64-linux = { cpuVendor ? "generic", ... }: [
           ({ config, pkgs, lib, ... }: {
             # Base arm64 settings
             boot.kernelPackages = pkgs.linuxPackages_latest;
             # e.g. better handling of big.LITTLE if needed, etc.
           })
-      
           (lib.mkIf (cpuVendor == "apple") {
             # Apple Silicon (asahi or similar)
             hardware.asahi.enable = true;   # example
             # or your custom apple tweaks
           })
-      
           (lib.mkIf (cpuVendor == "rockchip") {
             # e.g. RK3588, Orange Pi 5, etc.
             boot.kernelParams = [ "coherent_pool=1M" ];

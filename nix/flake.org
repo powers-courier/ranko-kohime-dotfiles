@@ -982,7 +982,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [16/21]
+** TODO Modules [19/24]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -997,7 +997,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [14/18]
+*** TODO Modules [17/21]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1207,6 +1207,24 @@ config = lib.mkIf config.autoUpgrade.enable {
   };
 };
 #+end_src
+**** DONE Backup Packages
+These packages are for file/disk backups, and disk archiving
+https://github.com/animetosho/par2cmdline-turbo
+
+#+begin_src nix
+backupPackages = { config, lib, pkgs, ... }: {
+  options.backupPackages.enable = lib.mkEnableOption "Install backup packages" // { default = true; };
+  config = lib.mkIf config.backupPackages.enable {
+    environment.systemPackages = with pkgs; [
+      dar
+      ddrescue
+      par2cmdline
+      unison
+    ];
+  };
+};
+#+end_src
+
 **** DONE Base Packages
 #+begin_src nix
 basePackages = { config, lib, pkgs, ... }: {

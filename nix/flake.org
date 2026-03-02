@@ -1144,26 +1144,16 @@ fileSystems = {
 };
 #+end_src
 
-**** TODO 📁 Services [0/1]
-***** TODO Jellyfin Server
+**** DONE 📁 Services [6/6]
+***** DONE Jellyfin Server [5/5]
 [[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
 intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
 
 Jellyfin must be set to VAAPI for transcoding on modern Intel platforms as of 2025
 #+begin_src nix :noweb-ref no
-{ config, lib, pkgs, ... }:
-
-with lib;
-
-let
-  cfg = config.services.jellyfin-server;
-in {
-  # Define the option for enabling/disabling the Jellyfin module
-  options.services.jellyfin-server = {
-    enable = mkEnableOption "Jellyfin media server with hardware acceleration";
-  };
-
-  config = mkIf cfg.enable {
+jellyfinServer = { config, lib, pkgs, ... }: {
+  options.jellyfinServer.enable = lib.mkEnableOption "Setup Jellyfin Server" // { default = false; };
+  config = lib.mkIf config.jellyfinServer.enable {
     boot.kernelParams = [ "i915.enable_guc=2" ];
     nixpkgs.config.allowUnfree = true;
     <<module-service-jellyfin-hardware>>
@@ -1173,23 +1163,16 @@ in {
     users.groups.jellyfin.members = [ "jellyfin" ];
     <<module-service-jellyfin-systemd>>
   };
-}
+};
 #+end_src
-****** hardware
+****** DONE hardware
 #+begin_src nix :noweb-ref module-service-jellyfin-hardware
 hardware = {
   enableAllFirmware = true;
-  graphics = {
-    enable = true;
-    extraPackages = with pkgs; [
-      intel-compute-runtime
-      intel-media-driver
-      libva
-    ];
-  };
+  graphics.enable = true;
 };
 #+end_src
-****** Jellyfin service
+****** DONE Jellyfin service
 #+begin_src nix :noweb-ref module-service-jellyfin-service
 services.jellyfin = {
   enable = true;
@@ -1200,13 +1183,16 @@ services.jellyfin = {
   cacheDir = "/var/cache/jellyfin"; # Cache directory for transcoding
 };
 #+end_src
-****** environment
+****** DONE environment
 #+begin_src nix :noweb-ref module-service-jellyfin-environment
 environment = {
   sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
   systemPackages = with pkgs; [
+    intel-compute-runtime
     intel-gpu-tools
+    intel-media-driver
     jellyfin-ffmpeg
+    libva
     libva-utils
     libvdpau-va-gl
     vaapiVdpau
@@ -1214,13 +1200,13 @@ environment = {
   ];
 };
 #+end_src
-****** cacheDir
+****** DONE cacheDir
 #+begin_src nix :noweb-ref module-service-jellyfin-cachedir
 systemd.tmpfiles.rules = [
   "d ${config.services.jellyfin.cacheDir} 0750 jellyfin jellyfin - -"
 ];
 #+end_src
-****** systemD service
+****** DONE systemD service
 #+begin_src nix :noweb-ref module-service-jellyfin-systemd
 systemd.services.jellyfin = {
   after = [ "network.target" ];

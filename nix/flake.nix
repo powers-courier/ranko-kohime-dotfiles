@@ -574,13 +574,13 @@
       };
       mkHost = {
         hostname,
-        system ? "x86_64-linux",          # required or default
-        cpuVendor ? "generic",            # intel, amd, apple, qualcomm, rockchip, ...
-        extraModules ? [],                # host-specific stuff
+        system ? "x86_64-linux",
+        cpuVendor ? "generic",
+        extraModules ? [],
+        homeUsers ? null,
+        excludeHomeUsers ? [],
       }@args:
-      
         let
-          # Select the right platform-specific module list
           selectedPlatformModules =
             platformModules.${system} or
               (throw "Unsupported system: ${system}");

@@ -54,6 +54,7 @@ outputs = { nixpkgs, ... }@inputs:
     lib = nixpkgs.lib;
     <<flake-variables-preamble>>
     <<hardware-configs-preamble>>
+    <<home-folder-configuration-preamble>>
     <<modules-preamble>>
     <<proxy-host-generator>>
     <<mkhost-generator>>
@@ -439,18 +440,14 @@ sleipnir = {
 }
 #+end_example
 
-** TODO Home Configurations [0/1]
-:properties:
-:header-args+: :noweb-ref home-configurations
-:end:
-*** WAIT Preamble
+** TODO Home Configurations [5/8]
+*** DONE Preamble
 #+begin_src nix :noweb-ref home-folder-configuration-preamble
+defaultHomeUsers = [ "jellyfin" "ranko" ];
 homeConfigurations = {
   <<home-configurations>>
 };
 #+end_src
-** TODO Host Configurations [14/17]
-*** DONE mkHost [3/3]
 *** TODO Users [0/0]
 :properties:
 :header-args+: :noweb-ref home-configurations

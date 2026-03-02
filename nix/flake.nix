@@ -197,7 +197,6 @@
           };
         };
       };
-      defaultHomeUsers = [ "jellyfin" "ranko" ];
       homeConfigurations = {
         jellyfin = { config, ... }: {
           home.stateVersion = "25.05";
@@ -581,11 +580,6 @@
         excludeHomeUsers ? [],
       }@args:
         let
-          finalHomeUsers =
-            if homeUsers != null then
-              homeUsers                        # full override: use exactly this list
-            else
-              lib.subtractLists excludeHomeUsers defaultHomeUsers;
           selectedPlatformModules =
             platformModules.${system} or
               (throw "Unsupported system: ${system}");
@@ -600,24 +594,6 @@
             hardwareConfigs.${hostname}
             platformModuleList
             (builtins.attrValues flakeModules)
-            (lib.mkIf (homeUsers != [ ]) [
-              inputs.home-manager.nixosModules.home-manager
-              {
-                home-manager = {
-                  useGlobalPkgs     = true;
-                  useUserPackages   = true;
-                  extraSpecialArgs  = { inherit vars; };  # optional
-                  users = lib.genAttrs homeUsers (name:
-                    homeConfigurations.${name} or (throw "No home config for user ${name}")
-                  );
-                };
-                # Optional: make system users exist first (good practice)
-                users.users = lib.genAttrs homeUsers (name: {
-                  isNormalUser = true;
-                  extraGroups = [ "wheel" ];
-                });
-              }
-            ])
             {
               networking.hostName = hostname;
             }
@@ -626,7 +602,6 @@
     in
     rec {
       nixosModules = flakeModules;
-      defaultHomeUsers = [ "jellyfin" "ranko" ];
       homeConfigurations = {
         jellyfin = { config, ... }: {
           home.stateVersion = "25.05";

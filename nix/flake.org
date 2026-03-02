@@ -67,7 +67,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [72/94]
+* TODO Contents [71/93]
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -443,7 +443,6 @@ sleipnir = {
 ** TODO Home Configurations [5/8]
 *** DONE Preamble
 #+begin_src nix :noweb-ref home-folder-configuration-preamble
-defaultHomeUsers = [ "jellyfin" "ranko" ];
 homeConfigurations = {
   <<home-configurations>>
 };
@@ -528,21 +527,20 @@ ranko = { config, ... }: {
 };
 #+end_src
 
-** TODO Host Configurations [19/22]
-*** DONE mkHost [8/8]
+** TODO Host Configurations [18/21]
+*** DONE mkHost [7/7]
 **** DONE Preamble
 #+begin_src nix :noweb-ref mkhost-generator
 <<mkhost-generator-platform>>
 <<mkhost-generator-function>>
 #+end_src
 
-**** DONE Function [5/5]
+**** DONE Function [4/4]
 #+begin_src nix :noweb-ref mkhost-generator-function
 mkHost = {
   <<mkhost-generator-options>>
 }@args:
   let
-    <<mkhost-generator-user-selector>>
     <<mkhost-generator-platform-selector>>
   in
   nixpkgs.lib.nixosSystem {
@@ -561,15 +559,6 @@ homeUsers ? null,
 excludeHomeUsers ? [],
 #+end_src
 
-***** DONE User Selector
-#+begin_src nix :noweb-ref mkhost-generator-user-selector
-finalHomeUsers =
-  if homeUsers != null then
-    homeUsers                        # full override: use exactly this list
-  else
-    lib.subtractLists excludeHomeUsers defaultHomeUsers;
-#+end_src
-
 ***** DONE Platform Selector
 Select the right platform-specific module list
 #+begin_src nix :noweb-ref mkhost-generator-platform-selector
@@ -582,7 +571,7 @@ platformModuleList = selectedPlatformModules {
 };
 #+end_src
 
-***** DONE Modules [1/1]
+***** DONE Modules
 Always set hostname (can be overridden later)
 
 #+begin_src nix :noweb-ref mkhost-generator-modules
@@ -590,35 +579,10 @@ modules = lib.flatten [
   hardwareConfigs.${hostname}
   platformModuleList
   (builtins.attrValues flakeModules)
-  <<mkhost-generator-module-homemanager>>
   {
     networking.hostName = hostname;
   }
 ] ++ extraModules;
-#+end_src
-
-****** DONE Home Manager
-Only activate home-manager if any users are requested
-
-#+begin_src nix :noweb-ref mkhost-generator-module-homemanager
-(lib.mkIf (homeUsers != [ ]) [
-  inputs.home-manager.nixosModules.home-manager
-  {
-    home-manager = {
-      useGlobalPkgs     = true;
-      useUserPackages   = true;
-      extraSpecialArgs  = { inherit vars; };  # optional
-      users = lib.genAttrs homeUsers (name:
-        homeConfigurations.${name} or (throw "No home config for user ${name}")
-      );
-    };
-    # Optional: make system users exist first (good practice)
-    users.users = lib.genAttrs homeUsers (name: {
-      isNormalUser = true;
-      extraGroups = [ "wheel" ];
-    });
-  }
-])
 #+end_src
 
 **** DONE platformModules

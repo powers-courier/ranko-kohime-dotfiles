@@ -581,10 +581,14 @@
         excludeHomeUsers ? [],
       }@args:
         let
+          finalHomeUsers =
+            if homeUsers != null then
+              homeUsers                        # full override: use exactly this list
+            else
+              lib.subtractLists excludeHomeUsers defaultHomeUsers;
           selectedPlatformModules =
             platformModules.${system} or
               (throw "Unsupported system: ${system}");
-      
           platformModuleList = selectedPlatformModules {
             inherit system cpuVendor;
             inherit (args) hostname;   # if needed inside
@@ -592,12 +596,28 @@
         in
         nixpkgs.lib.nixosSystem {
           inherit system;
-      
           modules = lib.flatten [
             hardwareConfigs.${hostname}
             platformModuleList
             (builtins.attrValues flakeModules)
-            # Always set hostname (can be overridden later)
+            (lib.mkIf (homeUsers != [ ]) [
+              inputs.home-manager.nixosModules.home-manager
+              {
+                home-manager = {
+                  useGlobalPkgs     = true;
+                  useUserPackages   = true;
+                  extraSpecialArgs  = { inherit vars; };  # optional
+                  users = lib.genAttrs homeUsers (name:
+                    homeConfigurations.${name} or (throw "No home config for user ${name}")
+                  );
+                };
+                # Optional: make system users exist first (good practice)
+                users.users = lib.genAttrs homeUsers (name: {
+                  isNormalUser = true;
+                  extraGroups = [ "wheel" ];
+                });
+              }
+            ])
             {
               networking.hostName = hostname;
             }

@@ -987,7 +987,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [19/24]
+** TODO Modules [22/27]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -1002,7 +1002,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [17/21]
+*** TODO Modules [20/24]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1244,6 +1244,7 @@ basePackages = { config, lib, pkgs, ... }: {
       sshfs
       tmux
       tree
+      yazi
     ];
   };
 };

@@ -221,6 +221,7 @@
               sshfs
               tmux
               tree
+              yazi
             ];
           };
         };

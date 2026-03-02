@@ -1489,6 +1489,26 @@ tailscaleVPN = { config, lib, ... }: {
   };
 };
 #+end_src
+**** DONE YubiKey
+#+begin_src nix
+yubikey = { config, lib, pkgs, ... }: {
+  options.yubikey-mod.enable = lib.mkEnableOption "Enable settings for Yubikeys" // { default = true; };
+  config = lib.mkIf config.yubikey-mod.enable {
+    environment.systemPackages = with pkgs; [
+      libfido2
+      pam_u2f
+      yubico-piv-tool
+      yubikey-agent
+      yubikey-manager
+      yubikey-personalization
+      yubikey-touch-detector
+    ];
+    services.yubikey-agent.enable = true;
+    programs.yubikey-touch-detector.enable = true;
+  };
+};
+#+end_src
+
 **** DONE ZFS Boot Options
 #+begin_src nix
 zfsBootOptions = { config, lib, ... }: {

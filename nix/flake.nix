@@ -100,11 +100,6 @@
               fsType = "nfs";
               options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
             };
-            "/Mounts/youtube-dl/z.DownloadTemp" = {
-              device = "192.168.1.22:/mnt/tank2/Snapless/Workspace/ytdl-temp";
-              fsType = "nfs";
-              options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-            };
           };
         };
         jelly-proxy-04 = {
@@ -186,6 +181,7 @@
           networking = {
             hostId = "2b7f3c3a";
           };
+          system.stateVersion = "25.05";
         };
         n100 = {
           fileSystems = {

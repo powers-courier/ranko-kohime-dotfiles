@@ -207,6 +207,7 @@ framework-13 = {
   system.stateVersion = "25.05";
 };
 #+end_src
+
 *** DONE jelly-proxy-01
 #+begin_src nix
 jelly-proxy-01 = {
@@ -224,6 +225,7 @@ jelly-proxy-01 = {
   };
 };
 #+end_src
+
 *** DONE jelly-proxy-02
 #+begin_src nix
 jelly-proxy-02 = {
@@ -240,6 +242,7 @@ jelly-proxy-02 = {
   };
 };
 #+end_src
+
 *** DONE jelly-proxy-03
 #+begin_src nix
 jelly-proxy-03 = {
@@ -269,14 +272,10 @@ jelly-proxy-03 = {
       fsType = "nfs";
       options = [ <<nix-flake-nfs-common-mount>> ];
     };
-    "/Mounts/youtube-dl/z.DownloadTemp" = {
-      device = "192.168.1.22:/mnt/tank2/Snapless/Workspace/ytdl-temp";
-      fsType = "nfs";
-      options = [ <<nix-flake-nfs-common-mount>> ];
-    };
   };
 };
 #+end_src
+
 *** DONE jelly-proxy-04
 #+begin_src nix
 jelly-proxy-04 = {
@@ -293,6 +292,7 @@ jelly-proxy-04 = {
   };
 };
 #+end_src
+
 *** DONE jelly-proxy-05
 #+begin_src nix
 jelly-proxy-05 = {
@@ -309,6 +309,7 @@ jelly-proxy-05 = {
   };
 };
 #+end_src
+
 *** DONE jelly-proxy-06
 #+begin_src nix
 jelly-proxy-06 = {
@@ -325,6 +326,7 @@ jelly-proxy-06 = {
   };
 };
 #+end_src
+
 *** DONE jelly-proxy-07
 #+begin_src nix
 jelly-proxy-07 = {
@@ -341,6 +343,7 @@ jelly-proxy-07 = {
   };
 };
 #+end_src
+
 *** DONE main-host
 #+begin_src nix
 main-host = {
@@ -370,8 +373,10 @@ main-host = {
   networking = {
     hostId = "2b7f3c3a";
   };
+  system.stateVersion = "25.05";
 };
 #+end_src
+
 *** DONE n100
 #+begin_src nix
 n100 = {

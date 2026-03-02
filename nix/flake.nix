@@ -197,6 +197,34 @@
           };
         };
       };
+      defaultHomeUsers = [ "jellyfin" "ranko" ];
+      homeConfigurations = {
+        jellyfin = { config, ... }: {
+          home.stateVersion = "25.05";
+          users = {
+            groups.jellyfin = {
+              gid = 8096;
+              name = "jellyfin";
+            };
+            users.jellyfin = {
+              extraGroups = [ "render" "video" ];
+              group = "jellyfin";
+              isNormalUser = true;
+              isSystemUser = lib.mkForce false;
+              uid = 8096;
+            };
+          };
+        };
+        ranko = { config, ... }: {
+          home.stateVersion = "25.05";
+          users.users.ranko = {
+            isNormalUser = true;
+            description = "Ranko Kohime";
+            extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
+            uid = 1000;
+          };
+        };
+      };
       flakeModules = {
         backupPackages = { config, lib, pkgs, ... }: {
           options.backupPackages.enable = lib.mkEnableOption "Install backup packages" // { default = true; };
@@ -582,8 +610,33 @@
     in
     rec {
       nixosModules = flakeModules;
+      defaultHomeUsers = [ "jellyfin" "ranko" ];
       homeConfigurations = {
-        
+        jellyfin = { config, ... }: {
+          home.stateVersion = "25.05";
+          users = {
+            groups.jellyfin = {
+              gid = 8096;
+              name = "jellyfin";
+            };
+            users.jellyfin = {
+              extraGroups = [ "render" "video" ];
+              group = "jellyfin";
+              isNormalUser = true;
+              isSystemUser = lib.mkForce false;
+              uid = 8096;
+            };
+          };
+        };
+        ranko = { config, ... }: {
+          home.stateVersion = "25.05";
+          users.users.ranko = {
+            isNormalUser = true;
+            description = "Ranko Kohime";
+            extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
+            uid = 1000;
+          };
+        };
       };
       nixosConfigurations = Jelly-Proxy-Configs // {
         framework-13 = mkHost {

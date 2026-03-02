@@ -66,53 +66,52 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* Other
-** TODO Inputs [4/10]
-*** TODO Inputs [3/8]
+* TODO Contents [72/94]
+** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
 :end:
 
-**** DONE Nixpkgs (unstable)
+*** DONE Nixpkgs (unstable)
 #+begin_src nix
 nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 #+end_src
 
-**** DONE Hardware
+*** DONE Hardware
 #+begin_src nix
 hardware.url = "github:nixos/nixos-hardware";
 #+end_src
 
-**** DONE Home Manager
+*** DONE Home Manager
 #+begin_src nix
 home-manager.url = "github:nix-community/home-manager";
 home-manager.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-**** TODO sops-nix (Secrets)
+*** TODO sops-nix (Secrets)
 #+begin_src nix :noweb-ref no
 sops-nix.url = "github:Mic92/sops-nix";
 sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
-**** TODO Disko
+*** TODO Disko
 #+begin_src nix :noweb-ref no
 disko.url = "github:nix-community/disko";
 disko.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-**** TODO Flake Utils
+*** TODO Flake Utils
 #+begin_src nix :noweb-ref no
 flake-utils.url = "github:numtide/flake-utils";
 flake-utils.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-**** TODO Catppuccin Theme
+*** TODO Catppuccin Theme
 #+begin_src nix :noweb-ref no
 catppuccin.url = "github:catppuccin/nix";
 catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
-**** TODO Import
+*** TODO Import
 #+begin_src nix :noweb-ref no
 determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
 fh.url = "https://flakehub.com/f/DeterminateSystems/fh/*";
@@ -452,6 +451,43 @@ homeConfigurations = {
 #+end_src
 ** TODO Host Configurations [14/17]
 *** DONE mkHost [3/3]
+*** TODO Users [0/0]
+:properties:
+:header-args+: :noweb-ref home-configurations
+:end:
+**** DONE Jellyfin
+#+begin_src nix
+jellyfin = { config, ... }: {
+  home.stateVersion = "25.05";
+  users = {
+    groups.jellyfin = {
+      gid = 8096;
+      name = "jellyfin";
+    };
+    users.jellyfin = {
+      extraGroups = [ "render" "video" ];
+      group = "jellyfin";
+      isNormalUser = true;
+      isSystemUser = lib.mkForce false;
+      uid = 8096;
+    };
+  };
+};
+#+end_src
+
+**** DONE Ranko Kohime
+#+begin_src nix
+ranko = { config, ... }: {
+  home.stateVersion = "25.05";
+  users.users.ranko = {
+    isNormalUser = true;
+    description = "Ranko Kohime";
+    extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
+    uid = 1000;
+  };
+};
+#+end_src
+
 **** DONE Preamble
 #+begin_src nix :noweb-ref mkhost-generator
 <<mkhost-generator-platform>>
@@ -1625,3 +1661,4 @@ zramSwap = { config, lib, ... }: {
   };
 };
 #+end_src
+

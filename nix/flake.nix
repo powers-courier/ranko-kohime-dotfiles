@@ -451,11 +451,10 @@
           };
         };
       };
-      proxyCount = 7;
-      Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
-        num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
-        name = "jelly-proxy-${num}";
-      in {
+      jellyProxyHosts = builtins.filter
+        (name: lib.hasPrefix "jelly-proxy-" name)
+        (lib.attrNames hardwareConfigs);
+      Jelly-Proxy-Configs = lib.listToAttrs (map (name: {
         inherit name;
         value = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
@@ -540,7 +539,7 @@
             })
           ];
         };
-      }) (builtins.genList (i: i) proxyCount));
+      }) jellyProxyHosts);
       platformModules = {
         # Called with { system = "x86_64-linux"; cpuVendor = "intel"; } or similar
         x86_64-linux = { cpuVendor ? "generic", ... }: [

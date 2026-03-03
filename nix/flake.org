@@ -692,19 +692,19 @@ Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynami
 Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
 ****** Code
 #+begin_src nix :noweb-ref proxy-host-generator
-proxyCount = 7;
-Jelly-Proxy-Configs = builtins.listToAttrs (map (i: let
-  num = if i < 9 then "0${toString (i + 1)}" else toString (i + 1);
-  name = "jelly-proxy-${num}";
-in {
+jellyProxyHosts = builtins.filter
+  (name: lib.hasPrefix "jelly-proxy-" name)
+  (lib.attrNames hardwareConfigs);
+Jelly-Proxy-Configs = lib.listToAttrs (map (name: {
   inherit name;
   value = nixpkgs.lib.nixosSystem {
     system = "x86_64-linux";
     specialArgs = { inherit vars; };
     <<proxy-host-generator-modules>>
   };
-}) (builtins.genList (i: i) proxyCount));
+}) jellyProxyHosts);
 #+end_src
+
 ******* DONE Modules
 #+begin_src nix :noweb-ref proxy-host-generator-modules
 modules = lib.flatten [

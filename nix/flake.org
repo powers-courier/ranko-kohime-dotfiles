@@ -67,7 +67,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [71/94]
+* TODO Contents [79/97]
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -360,6 +360,7 @@ jelly-proxy-08 = {
   };
 };
 #+end_src
+
 *** DONE main-host
 #+begin_src nix
 main-host = {
@@ -616,12 +617,18 @@ platformModules = {
         };
         intel-gpu-tools.enable = true;
       };
-      boot.kernelParams = [ "intel_iommu=on" ];
+      boot = {
+        kernelModules = [ "kvm-intel" ];
+        kernelParams = [ "intel_iommu=on" ];
+      };
     })
     (lib.mkIf (cpuVendor == "amd") {
       # AMD-specific
       hardware.cpu.amd.updateMicrocode = true;
-      boot.kernelParams = [ "amd_iommu=on" ];
+      boot = {
+        kernelModules = [ "kvm-amd" ];
+        kernelParams = [ "amd_iommu=on" ];
+      };
     })
   ];
   aarch64-linux = { cpuVendor ? "generic", ... }: [
@@ -670,8 +677,8 @@ framework-13 = mkHost {
 };
 #+end_src
 
-**** TODO Servers [7/10]
-***** TODO jelly-proxy Hosts Generator [6/8]
+**** DONE Servers [4/4]
+***** DONE jelly-proxy Hosts Generator [2/2]
 ****** Explanation
 ******* proxyCount:
 Set to 3—generates jelly-proxy-01, jelly-proxy-02, jelly-proxy-03.
@@ -688,7 +695,7 @@ Turns the list into an attrset:
 Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynamically—no repetition.
 ******* // Operator:
 Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
-****** Code
+****** DONE Code
 #+begin_src nix :noweb-ref proxy-host-generator
 jellyProxyHosts = builtins.filter
   (name: lib.hasPrefix "jelly-proxy-" name)
@@ -703,7 +710,7 @@ Jelly-Proxy-Configs = lib.listToAttrs (map (name: {
 }) jellyProxyHosts);
 #+end_src
 
-******* DONE Modules
+****** DONE Modules
 #+begin_src nix :noweb-ref proxy-host-generator-modules
 modules = lib.flatten [
   hardwareConfigs.${name}
@@ -964,7 +971,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [29/32]
+** TODO Modules [41/44]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -979,7 +986,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [27/29]
+*** TODO Modules [39/41]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1292,7 +1299,7 @@ systemd.services.jellyfin = {
 #+end_src
 **** TODO Automatic Upgrades
 #+begin_src nix :noweb-ref no
-options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // {default = false; };
+options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // { default = false; };
 config = lib.mkIf config.autoUpgrade.enable {
   system.autoUpgrade = {
     enable = true;
@@ -1346,9 +1353,12 @@ basePackages = { config, lib, pkgs, ... }: {
 defaultBootloader = { config, lib, ... }: {
   options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" // { default = true; };
   config = lib.mkIf config.defaultBootloader.enable {
-    boot.loader = {
-      efi.canTouchEfiVariables = true;
-      systemd-boot.enable = true;
+    boot = {
+      initrd.availableKernelModules = [ "ahci" "nvme" "sd_mod" "thunderbolt" "usb_storage" "xhci_pci" ];
+      loader = {
+        efi.canTouchEfiVariables = true;
+        systemd-boot.enable = true;
+      };
     };
   };
 };

@@ -321,9 +321,12 @@
         defaultBootloader = { config, lib, ... }: {
           options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" // { default = true; };
           config = lib.mkIf config.defaultBootloader.enable {
-            boot.loader = {
-              efi.canTouchEfiVariables = true;
-              systemd-boot.enable = true;
+            boot = {
+              initrd.availableKernelModules = [ "ahci" "nvme" "sd_mod" "thunderbolt" "usb_storage" "xhci_pci" ];
+              loader = {
+                efi.canTouchEfiVariables = true;
+                systemd-boot.enable = true;
+              };
             };
           };
         };
@@ -560,12 +563,18 @@
               };
               intel-gpu-tools.enable = true;
             };
-            boot.kernelParams = [ "intel_iommu=on" ];
+            boot = {
+              kernelModules = [ "kvm-intel" ];
+              kernelParams = [ "intel_iommu=on" ];
+            };
           })
           (lib.mkIf (cpuVendor == "amd") {
             # AMD-specific
             hardware.cpu.amd.updateMicrocode = true;
-            boot.kernelParams = [ "amd_iommu=on" ];
+            boot = {
+              kernelModules = [ "kvm-amd" ];
+              kernelParams = [ "amd_iommu=on" ];
+            };
           })
         ];
         aarch64-linux = { cpuVendor ? "generic", ... }: [

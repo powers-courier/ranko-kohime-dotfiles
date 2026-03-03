@@ -410,8 +410,6 @@ n100 = {
 };
 #+end_src
 
-
-
 *** TODO sleipnir
 Asus G14 with Ryzen 7840HS and Nvidia 4060
 #+begin_example nix
@@ -458,7 +456,7 @@ sleipnir = {
 }
 #+end_example
 
-** TODO Home Configurations [5/8]
+** TODO Home Configurations [2/5]
 *** DONE Preamble
 #+begin_src nix :noweb-ref home-folder-configuration-preamble
 homeConfigurations = {
@@ -466,7 +464,7 @@ homeConfigurations = {
 };
 #+end_src
 
-*** TODO Modules [2/3]
+*** TODO Modules [1/3]
 **** DONE Git
 #+begin_src nix
 programs.git = {
@@ -713,131 +711,9 @@ modules = lib.flatten [
   ({ pkgs, vars, ... }: {
     networking.hostName = name;
     system.stateVersion = "25.05";
-    <<module-jellyfin-proxy>>
   })
 ];
 #+end_src
-******* TODO Jellyfin Remote access proxy nodes [5/6]
-:properties:
-:header-args+: :noweb-ref module-jellyfin-proxy
-:end:
-******** Host list
-01. Jeff & Jackie O'Connell
-02. Suzie?
-03. John & Darlene Powers
-04. Max & Alyssa O'Connell
-05. Ken & Stacy O'Connell ?
-06. Joeseph O'Connell
-07. Don & Gabby O'Connell
-
-******** DONE Networking
-Nginx listens on TCP 8096
-Avahi listens on UDP 5353
-#+begin_src nix
-networking = {
-  firewall = {
-    enable = true;
-    allowedTCPPorts = [ 8096 ];
-    allowedUDPPorts = [ 5353 ];
-  };
-};
-#+end_src
-
-Settings for Tailscale subnet routing
-#+begin_src nix
-boot.kernel.sysctl = {
-  "net.ipv4.ip_forward" = 1;
-  "net.ipv6.conf.all.forwarding" = 1;
-};
-services.networkd-dispatcher = {
-  enable = true;
-  rules."50-tailscale" = {
-    onState = [ "routable" ];
-    script = ''
-      #!/usr/bin/env bash
-      ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
-    '';
-  };
-};
-#+end_src
-******** WAIT resolv.conf tmpfs
-#+begin_src nix :noweb-ref no
-fileSystems."/etc/resolv.conf" = {
-  device = "tmpfs";
-  fsType = "tmpfs";
-  options = [ "mode=0644" "size=1m" ];
-};
-#+end_src
-
-******** DONE Tailscale
-Requires manual setup to add to Tailnet
-#+begin_src nix
-services.tailscale = {
-  enable = true;
-  openFirewall = true;
-};
-#+end_src
-******** DONE Nginx
-#+begin_src nix
-services.nginx = {
-  enable = true;
-  virtualHosts."default" = {
-    default = true;
-    listen = [ { addr = "0.0.0.0"; port = 8096; } ];
-    locations."/" = {
-      proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
-      extraConfig = ''
-        proxy_http_version 1.1;
-        proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-      '';
-    };
-  };
-};
-#+end_src
-******** DONE mDNS with Avahi
-nssmdns4 = Enable mDNS for IPv4 name resolution
-
-#+begin_src nix
-services.avahi = {
-  enable = true;
-  nssmdns4 = true;
-  publish = {
-    enable = true;
-    addresses = true;
-    userServices = true;
-  };
-};
-#+end_src
-
-#+begin_src nix
-environment.etc."avahi/services/jellyfin.service".text = ''
-  <?xml version="1.0" standalone='no'?>
-  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
-  <service-group>
-    <name>Jellyfin Proxy</name>
-    <service>
-      <type>_http._tcp</type>
-      <port>8096</port>
-      <txt-record>description=Jellyfin Media Server Proxy</txt-record>
-    </service>
-  </service-group>
-'';
-#+end_src
-******** DONE Packages
-#+begin_src nix
-environment.systemPackages = with pkgs; [
-  avahi
-  ethtool
-  nginx
-  tailscale
-];
-#+end_src
-
 
 ******* New Generator
 #+begin_example nix
@@ -1214,7 +1090,134 @@ fileSystems = {
 };
 #+end_src
 
-**** DONE 📁 Services [6/6]
+**** DONE 📁 Services [15/15]
+***** DONE Jellyfin Remote access proxy nodes [8/8]
+****** Host list
+01. Jeff & Jackie O'Connell
+02. Suzie?
+03. John & Darlene Powers
+04. Max & Alyssa O'Connell
+05. Ken & Stacy O'Connell ?
+06. Joeseph O'Connell
+07. Don & Gabby O'Connell
+08. ?
+
+****** DONE Preamble
+#+begin_src nix
+jellyfinProxyHost = { config, lib, pkgs, ... }: {
+  options.jellyfinProxyHost.enable = lib.mkEnableOption "Enable proxy hosting for Jellyfin server" // { default = false; };
+  config = lib.mkIf config.jellyfinProxyHost.enable {
+    <<jelly-proxy-networking-firewall>>
+    <<jelly-proxy-networking-subnet>>
+    <<jelly-proxy-networking-tailscale>>
+    <<jelly-proxy-nginx>>
+    <<jelly-proxy-mdns-avahi>>
+    <<jelly-proxy-packages>>
+  };
+};
+#+end_src
+
+****** DONE Networking [3/3]
+******* DONE Firewall
+Nginx listens on TCP 8096
+Avahi listens on UDP 5353
+#+begin_src nix :noweb-ref jelly-proxy-networking-firewall
+networking = {
+  firewall = {
+    enable = true;
+    allowedTCPPorts = [ 8096 ];
+    allowedUDPPorts = [ 5353 ];
+  };
+};
+#+end_src
+
+******* DONE Settings for Tailscale subnet routing
+#+begin_src nix :noweb-ref jelly-proxy-networking-subnet
+boot.kernel.sysctl = {
+  "net.ipv4.ip_forward" = 1;
+  "net.ipv6.conf.all.forwarding" = 1;
+};
+services.networkd-dispatcher = {
+  enable = true;
+  rules."50-tailscale" = {
+    onState = [ "routable" ];
+    script = ''
+      #!/usr/bin/env bash
+      ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
+    '';
+  };
+};
+#+end_src
+
+******* DONE Tailscale
+Requires manual setup to add to Tailnet
+#+begin_src nix :noweb-ref jelly-proxy-networking-tailscale
+services.tailscale = {
+  enable = true;
+  openFirewall = true;
+};
+#+end_src
+
+****** DONE Nginx
+#+begin_src nix :noweb-ref jelly-proxy-nginx
+services.nginx = {
+  enable = true;
+  virtualHosts."default" = {
+    default = true;
+    listen = [ { addr = "0.0.0.0"; port = 8096; } ];
+    locations."/" = {
+      proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
+      extraConfig = ''
+        proxy_http_version 1.1;
+        proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      '';
+    };
+  };
+};
+#+end_src
+
+****** DONE mDNS with Avahi
+nssmdns4 = Enable mDNS for IPv4 name resolution
+
+#+begin_src nix :noweb-ref jelly-proxy-mdns-avahi
+services.avahi = {
+  enable = true;
+  nssmdns4 = true;
+  publish = {
+    enable = true;
+    addresses = true;
+    userServices = true;
+  };
+};
+environment.etc."avahi/services/jellyfin.service".text = ''
+  <?xml version="1.0" standalone='no'?>
+  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+  <service-group>
+    <name>Jellyfin Proxy</name>
+    <service>
+      <type>_http._tcp</type>
+      <port>8096</port>
+      <txt-record>description=Jellyfin Media Server Proxy</txt-record>
+    </service>
+  </service-group>
+'';
+#+end_src
+
+****** DONE Packages
+#+begin_src nix :noweb-ref jelly-proxy-packages
+environment.systemPackages = with pkgs; [
+  avahi
+  ethtool
+  nginx
+  tailscale
+];
+#+end_src
+
 ***** DONE Jellyfin Server [5/5]
 [[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
 intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)

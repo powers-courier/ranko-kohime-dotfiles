@@ -211,31 +211,7 @@
         };
       };
       homeConfigurations = {
-        jellyfin = { config, ... }: {
-          home.stateVersion = "25.05";
-          users = {
-            groups.jellyfin = {
-              gid = 8096;
-              name = "jellyfin";
-            };
-            users.jellyfin = {
-              extraGroups = [ "render" "video" ];
-              group = "jellyfin";
-              isNormalUser = true;
-              isSystemUser = lib.mkForce false;
-              uid = 8096;
-            };
-          };
-        };
-        ranko = { config, ... }: {
-          home.stateVersion = "25.05";
-          users.users.ranko = {
-            isNormalUser = true;
-            description = "Ranko Kohime";
-            extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
-            uid = 1000;
-          };
-        };
+        
       };
       flakeModules = {
         backupPackages = { config, lib, pkgs, ... }: {
@@ -381,6 +357,29 @@
             };
           };
         };
+        userJellyfin = { config, ... }: {
+          users = {
+            groups.jellyfin = {
+              gid = 8096;
+              name = "jellyfin";
+            };
+            users.jellyfin = {
+              extraGroups = [ "render" "video" ];
+              group = "jellyfin";
+              isNormalUser = true;
+              isSystemUser = lib.mkForce false;
+              uid = 8096;
+            };
+          };
+        };
+        userRanko = { config, ... }: {
+          users.users.ranko = {
+            isNormalUser = true;
+            description = "Ranko Kohime";
+            extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
+            uid = 1000;
+          };
+        };
         yubikey = { config, lib, pkgs, ... }: {
           options.yubikey-mod.enable = lib.mkEnableOption "Enable settings for Yubikeys" // { default = true; };
           config = lib.mkIf config.yubikey-mod.enable {
@@ -461,11 +460,9 @@
         value = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit vars; };
-          modules = [
+          modules = lib.flatten [
             hardwareConfigs.${name}
-            #flakeModules.cpuLimiter
-            flakeModules.defaultBootloader
-            flakeModules.defaultSettings
+            (builtins.attrValues flakeModules)
             ({ pkgs, vars, ... }: {
               networking.hostName = name;
               system.stateVersion = "25.05";
@@ -589,8 +586,6 @@
         system ? "x86_64-linux",
         cpuVendor ? "generic",
         extraModules ? [],
-        homeUsers ? null,
-        excludeHomeUsers ? [],
       }@args:
         let
           selectedPlatformModules =
@@ -616,31 +611,7 @@
     rec {
       nixosModules = flakeModules;
       homeConfigurations = {
-        jellyfin = { config, ... }: {
-          home.stateVersion = "25.05";
-          users = {
-            groups.jellyfin = {
-              gid = 8096;
-              name = "jellyfin";
-            };
-            users.jellyfin = {
-              extraGroups = [ "render" "video" ];
-              group = "jellyfin";
-              isNormalUser = true;
-              isSystemUser = lib.mkForce false;
-              uid = 8096;
-            };
-          };
-        };
-        ranko = { config, ... }: {
-          home.stateVersion = "25.05";
-          users.users.ranko = {
-            isNormalUser = true;
-            description = "Ranko Kohime";
-            extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
-            uid = 1000;
-          };
-        };
+        
       };
       nixosConfigurations = Jelly-Proxy-Configs // {
         framework-13 = mkHost {

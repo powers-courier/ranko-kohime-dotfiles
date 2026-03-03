@@ -410,6 +410,8 @@ n100 = {
 };
 #+end_src
 
+
+
 *** TODO sleipnir
 Asus G14 with Ryzen 7840HS and Nvidia 4060
 #+begin_example nix
@@ -571,8 +573,6 @@ hostname,
 system ? "x86_64-linux",
 cpuVendor ? "generic",
 extraModules ? [],
-homeUsers ? null,
-excludeHomeUsers ? [],
 #+end_src
 
 ***** DONE Platform Selector
@@ -672,8 +672,8 @@ framework-13 = mkHost {
 };
 #+end_src
 
-**** TODO Servers [7/9]
-***** DONE jelly-proxy Hosts Generator
+**** TODO Servers [7/10]
+***** TODO jelly-proxy Hosts Generator [6/8]
 ****** Explanation
 ******* proxyCount:
 Set to 3—generates jelly-proxy-01, jelly-proxy-02, jelly-proxy-03.
@@ -705,13 +705,11 @@ in {
   };
 }) (builtins.genList (i: i) proxyCount));
 #+end_src
-******* Modules
+******* DONE Modules
 #+begin_src nix :noweb-ref proxy-host-generator-modules
-modules = [
+modules = lib.flatten [
   hardwareConfigs.${name}
-  #flakeModules.cpuLimiter
-  flakeModules.defaultBootloader
-  flakeModules.defaultSettings
+  (builtins.attrValues flakeModules)
   ({ pkgs, vars, ... }: {
     networking.hostName = name;
     system.stateVersion = "25.05";
@@ -841,7 +839,7 @@ environment.systemPackages = with pkgs; [
 #+end_src
 
 
-********** New Generator
+******* New Generator
 #+begin_example nix
 {
   outputs = { self, nixpkgs, ... }@inputs:
@@ -1004,7 +1002,7 @@ environment.systemPackages = with pkgs; [
             echo "Example: $0 6  # generates template for jelly-proxy-06"
             exit 1
           fi
-          
+
           HOST_NUM=$(printf "%02d" "$1")
           echo "Add this to hardwareConfigs in your flake.nix:"
           echo ""
@@ -1626,6 +1624,38 @@ tailscaleVPN = { config, lib, ... }: {
   };
 };
 #+end_src
+**** DONE Users [2/2]
+***** DONE Jellyfin
+#+begin_src nix
+userJellyfin = { config, ... }: {
+  users = {
+    groups.jellyfin = {
+      gid = 8096;
+      name = "jellyfin";
+    };
+    users.jellyfin = {
+      extraGroups = [ "render" "video" ];
+      group = "jellyfin";
+      isNormalUser = true;
+      isSystemUser = lib.mkForce false;
+      uid = 8096;
+    };
+  };
+};
+#+end_src
+
+***** DONE Ranko Kohime
+#+begin_src nix
+userRanko = { config, ... }: {
+  users.users.ranko = {
+    isNormalUser = true;
+    description = "Ranko Kohime";
+    extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
+    uid = 1000;
+  };
+};
+#+end_src
+
 **** DONE YubiKey
 #+begin_src nix
 yubikey = { config, lib, pkgs, ... }: {

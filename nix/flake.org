@@ -759,7 +759,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [42/49]
+** TODO Modules [46/51]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -774,7 +774,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [40/46]
+*** TODO Modules [44/48]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -790,6 +790,40 @@ modules = [
   # (builtins.attrValues myModules)   ← imports ALL of them at once!
 ] ++ [ /* host-specific things */ ];
 #+end_example
+
+**** DONE 📁 Desktop Environments [1/1]
+***** DONE XFCE Desktop
+#+begin_src nix
+desktopXFCE = { config, lib, pkgs, ... }: {
+  options.desktopXFCE.enable = lib.mkEnableOption "XFCE Desktop" // { default = false; };
+  config = lib.mkIf config.desktopXFCE.enable {
+    environment.systemPackages = with pkgs; [
+      ulauncher
+    ];
+    programs.firefox.enable = true;
+    services = {
+      displayManager = {
+        autoLogin = {
+          enable = true;
+          user = "ranko";
+        };
+        defaultSession = "xfce";
+      };
+      xserver = {
+        displayManager = {
+          lightdm.enable = true;
+        };
+        desktopManager.xfce.enable = true;
+        enable = true;
+        xkb = {
+          layout = "us";
+          variant = "";
+        };
+      };
+    };
+  };
+};
+#+end_src
 
 **** DONE 📁 Network Filesystems [4/4]
 ***** DONE NFS Settings

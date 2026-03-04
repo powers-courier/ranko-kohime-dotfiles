@@ -780,6 +780,7 @@
           system = "x86_64-linux";
           cpuVendor = "intel";
           extraModules = [
+            { jellyfinServer.enable = true; }
             { zfsBootOptions.enable = true; }
             {
               networking = {

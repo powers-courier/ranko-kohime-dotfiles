@@ -826,6 +826,82 @@ desktopXFCE = { config, lib, pkgs, ... }: {
 };
 #+end_src
 
+**** DONE Hardware Enablement [1/1]
+***** DONE AMD
+#+begin_src nix
+cpuAmdOptimizations = { config, lib, pkgs, ... }: {
+  options.cpuAmdOptimizations.enable = lib.mkEnableOption "Optimizations for AMD Hardware" // { default = false; };
+  config = lib.mkIf config.cpuAmdOptimizations.enable {
+    boot = {
+      extraModprobeConfig = ''
+        options iwlwifi power_save=1
+      '';
+      kernelParams = [
+        "acpi_osi=!"
+        "amd_pstate=guided"
+        "amdgpu.dcdebugmask=0x10"
+        "amdgpu.runpm=1"
+        "mem_sleep_default=s2idle"
+        "nvme.noacpi=1"
+        "pcie_aspm.policy=powersave"
+      ];
+    };
+    powerManagement.powertop.enable = true;
+    services = {
+      <<cpu-amd-auto-cpufreq-service>>
+      power-profiles-daemon.enable = true;
+      tlp.enable = false;
+    };
+    <<cpu-amd-igpu-suspend-service>>
+  };
+};
+#+end_src
+
+#+begin_src nix :noweb-ref cpu-amd-auto-cpufreq-service
+auto-cpufreq = {
+  enable = true;
+  settings = {
+    battery = {
+      governor = "powersave";
+      energy_performance_preference = "power";
+      scaling_min_freq = "400000";
+      scaling_max_freq = "2000000";
+    };
+    charger = {
+      governor = "performance";
+      energy_performance_preference = "performance";
+      turbo = "always";
+    };
+  };
+};
+#+end_src
+
+#+begin_src nix :noweb-ref cpu-amd-igpu-suspend-service
+systemd.services.suspend-pre = {
+  description = "Pre-suspend GPU state save";
+  wantedBy = [ "suspend.target" ];
+  before = [ "suspend.target" ];
+  serviceConfig.Type = "oneshot";
+  script = ''
+    #!/usr/bin/env bash
+    echo OFF > /sys/class/drm/card0/device/power_dpm_force_performance_level  # iGPU to low power
+    # For ASUS NVIDIA: Add if nvidia-smi works: nvidia-smi -pm 1 (enable persistence)
+  '';
+};
+systemd.services.suspend-post = {
+  description = "Post-resume GPU state restore";
+  wantedBy = [ "suspend.target" ];
+  after = [ "suspend.target" ];
+  serviceConfig.Type = "oneshot";
+  script = ''
+    #!/usr/bin/env bash
+    sleep 2  # Give hardware time to settle
+    echo ON > /sys/class/drm/card0/device/power_dpm_force_performance_level  # Restore iGPU
+    # Trigger display: xrandr --output eDP-1 --auto (if X11; for Wayland, use wlr-randr)
+  '';
+};
+#+end_src
+
 **** DONE 📁 Network Filesystems [4/4]
 ***** DONE NFS Settings
 #+begin_src nix :noweb-ref nix-flake-nfs-client-settings

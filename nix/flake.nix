@@ -243,7 +243,7 @@
             };
           };
         };
-        cpuAmdOptimizations = { config, lib, pkgs, ... }: {
+        cpuAmdOptimizations = { config, lib, ... }: {
           options.cpuAmdOptimizations.enable = lib.mkEnableOption "Optimizations for AMD Hardware" // { default = false; };
           config = lib.mkIf config.cpuAmdOptimizations.enable {
             boot = {
@@ -262,22 +262,6 @@
             };
             powerManagement.powertop.enable = true;
             services = {
-              auto-cpufreq = {
-                enable = true;
-                settings = {
-                  battery = {
-                    governor = "powersave";
-                    energy_performance_preference = "power";
-                    scaling_min_freq = "400000";
-                    scaling_max_freq = "2000000";
-                  };
-                  charger = {
-                    governor = "performance";
-                    energy_performance_preference = "performance";
-                    turbo = "always";
-                  };
-                };
-              };
               power-profiles-daemon.enable = true;
               tlp.enable = false;
             };
@@ -544,7 +528,7 @@
             };
           };
         };
-        userJellyfin = { config, ... }: {
+        userJellyfin = { ... }: {
           users = {
             groups.jellyfin = {
               gid = 8096;
@@ -559,7 +543,7 @@
             };
           };
         };
-        userRanko = { config, ... }: {
+        userRanko = { ... }: {
           users.users.ranko = {
             isNormalUser = true;
             description = "Ranko Kohime";

@@ -67,7 +67,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [79/97]
+* TODO Contents [84/104]
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -829,7 +829,7 @@ desktopXFCE = { config, lib, pkgs, ... }: {
 **** DONE Hardware Enablement [1/1]
 ***** DONE AMD
 #+begin_src nix
-cpuAmdOptimizations = { config, lib, pkgs, ... }: {
+cpuAmdOptimizations = { config, lib, ... }: {
   options.cpuAmdOptimizations.enable = lib.mkEnableOption "Optimizations for AMD Hardware" // { default = false; };
   config = lib.mkIf config.cpuAmdOptimizations.enable {
     boot = {
@@ -848,7 +848,6 @@ cpuAmdOptimizations = { config, lib, pkgs, ... }: {
     };
     powerManagement.powertop.enable = true;
     services = {
-      <<cpu-amd-auto-cpufreq-service>>
       power-profiles-daemon.enable = true;
       tlp.enable = false;
     };
@@ -1577,7 +1576,7 @@ tailscaleVPN = { config, lib, ... }: {
 **** DONE Users [2/2]
 ***** DONE Jellyfin
 #+begin_src nix
-userJellyfin = { config, ... }: {
+userJellyfin = { ... }: {
   users = {
     groups.jellyfin = {
       gid = 8096;
@@ -1596,7 +1595,7 @@ userJellyfin = { config, ... }: {
 
 ***** DONE Ranko Kohime
 #+begin_src nix
-userRanko = { config, ... }: {
+userRanko = { ... }: {
   users.users.ranko = {
     isNormalUser = true;
     description = "Ranko Kohime";

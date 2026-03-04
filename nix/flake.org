@@ -1093,7 +1093,7 @@ environment.systemPackages = with pkgs; [
 intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
 
 Jellyfin must be set to VAAPI for transcoding on modern Intel platforms as of 2025
-#+begin_src nix :noweb-ref no
+#+begin_src nix
 jellyfinServer = { config, lib, pkgs, ... }: {
   options.jellyfinServer.enable = lib.mkEnableOption "Setup Jellyfin Server" // { default = false; };
   config = lib.mkIf config.jellyfinServer.enable {

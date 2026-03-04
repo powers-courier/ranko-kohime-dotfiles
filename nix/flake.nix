@@ -590,6 +590,7 @@
               networking.hostName = name;
               system.stateVersion = "25.05";
               cpuLimiterIntel.enable = true;
+              jellyfinProxyHost.enable = true;
             })
           ];
         };

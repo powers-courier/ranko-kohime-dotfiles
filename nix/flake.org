@@ -718,6 +718,7 @@ modules = lib.flatten [
   ({ pkgs, vars, ... }: {
     networking.hostName = name;
     system.stateVersion = "25.05";
+    cpuLimiterIntel.enable = true;
   })
 ];
 #+end_src
@@ -971,7 +972,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [41/44]
+** TODO Modules [42/49]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -986,7 +987,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [39/41]
+*** TODO Modules [40/46]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1363,8 +1364,30 @@ defaultBootloader = { config, lib, ... }: {
   };
 };
 #+end_src
-**** TODO CPU Limiter
-#+begin_src nix :noweb-ref no
+**** TODO CPU Limiter [1/2]
+***** DONE Intel
+#+begin_src nix
+cpuLimiterIntel = { config, lib, ... }: {
+  options.cpuLimiterIntel.enable = lib.mkEnableOption "Set CPU Limiter on boot for Intel" // { default = false; };
+  config = lib.mkIf config.cpuLimiterIntel.enable {
+    systemd.services.limit-cpu-max-perf = {
+      description = "Limit CPU max performance percentage using intel_pstate";
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = ''
+          /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
+        '';
+        RemainAfterExit = true;
+      };
+    };
+  };
+};
+#+end_src
+
+***** TODO Others
+#+begin_example nix
+
 { config, lib, ... }:
 with lib;
 let
@@ -1453,7 +1476,7 @@ in {
     };
   };
 }
-#+end_src
+#+end_example
 ***** AMD Unit
 #+begin_src nix :noweb-ref cpu-limit-arch-amd
 amd = {
@@ -1487,22 +1510,6 @@ arm = {
     echo $TARGET_FREQ > ${archImplementations.arm.path}
   '';
 };
-#+end_src
-***** Intel Unit
-#+begin_src nix :noweb-ref cpu-limit-arch-intel
-intel = {
-  description = "Limit CPU max performance percentage using intel_pstate";
-  path = "/sys/devices/system/cpu/intel_pstate/max_perf_pct";
-  checkCommand = ''
-    if [ ! -d "/sys/devices/system/cpu/intel_pstate" ]; then
-      echo "Intel pstate driver not available" >&2
-      exit 1
-    fi
-  '';
-};
-#+end_src
-  };
-}
 #+end_src
 **** DONE Default Settings
 #+begin_src nix

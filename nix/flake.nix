@@ -736,19 +736,19 @@
           cpuVendor = "intel";
           extraModules = [
             { zfsBootOptions.enable = true; }
-              ({
-                networking = {
-                  interfaces = {
-                    enp4s0 = {
-                      ipv4.addresses = [{
-                        address = "192.168.168.25";
-                        prefixLength = 24;
-                      }];
-                      mtu = 9000;
-                    };
+            {
+              networking = {
+                interfaces = {
+                  enp4s0 = {
+                    ipv4.addresses = [{
+                      address = "192.168.168.25";
+                      prefixLength = 24;
+                    }];
+                    mtu = 9000;
                   };
                 };
-            })
+              };
+            }
           ];
         };
       };

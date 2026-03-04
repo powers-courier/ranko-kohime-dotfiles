@@ -507,42 +507,7 @@ programs.zsh = {
 };
 #+end_src
 
-*** TODO Users [0/0]
-:properties:
-:header-args+: :noweb-ref home-configurations
-:end:
-**** DONE Jellyfin
-#+begin_src nix
-jellyfin = { config, ... }: {
-  home.stateVersion = "25.05";
-  users = {
-    groups.jellyfin = {
-      gid = 8096;
-      name = "jellyfin";
-    };
-    users.jellyfin = {
-      extraGroups = [ "render" "video" ];
-      group = "jellyfin";
-      isNormalUser = true;
-      isSystemUser = lib.mkForce false;
-      uid = 8096;
-    };
-  };
-};
-#+end_src
 
-**** DONE Ranko Kohime
-#+begin_src nix
-ranko = { config, ... }: {
-  home.stateVersion = "25.05";
-  users.users.ranko = {
-    isNormalUser = true;
-    description = "Ranko Kohime";
-    extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
-    uid = 1000;
-  };
-};
-#+end_src
 
 ** TODO Host Configurations [18/21]
 *** DONE mkHost [7/7]

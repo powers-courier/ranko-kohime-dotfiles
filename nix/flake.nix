@@ -771,6 +771,8 @@
           system = "x86_64-linux";
           cpuVendor = "intel";
           extraModules = [
+            { cpuAmdOptimizations.enable = true; }
+            { desktopXFCE.enable = true; }
             { fancyKeyboards.enable = true; }
             { zfsBootOptions.enable = true; }
           ];

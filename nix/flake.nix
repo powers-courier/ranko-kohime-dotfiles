@@ -21,6 +21,7 @@
             "/" = {
               device = "zroot/root";
               fsType = "zfs";
+              options = [ "zfsutil" ];
             };
             "/boot" = {
               device = "/dev/disk/by-uuid/F83E-8932";
@@ -30,14 +31,17 @@
             "/home" = {
               device = "zroot/home";
               fsType = "zfs";
+              options = [ "zfsutil" ];
             };
             "/nix" = {
               device = "zroot/nix";
               fsType = "zfs";
+              options = [ "zfsutil" ];
             };
             "/var" = {
               device = "zroot/var";
               fsType = "zfs";
+              options = [ "zfsutil" ];
             };
           };
           networking = {

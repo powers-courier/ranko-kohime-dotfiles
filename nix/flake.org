@@ -67,7 +67,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [84/109]
+* TODO Contents [91/133]
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -181,6 +181,7 @@ framework-13 = {
     "/" = {
       device = "zroot/root";
       fsType = "zfs";
+      options = [ "zfsutil" ];
     };
     "/boot" = {
       device = "/dev/disk/by-uuid/F83E-8932";
@@ -190,14 +191,17 @@ framework-13 = {
     "/home" = {
       device = "zroot/home";
       fsType = "zfs";
+      options = [ "zfsutil" ];
     };
     "/nix" = {
       device = "zroot/nix";
       fsType = "zfs";
+      options = [ "zfsutil" ];
     };
     "/var" = {
       device = "zroot/var";
       fsType = "zfs";
+      options = [ "zfsutil" ];
     };
   };
   networking = {

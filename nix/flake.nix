@@ -432,6 +432,7 @@
               glances
               lm_sensors
               neovim
+              socat
               sshfs
               tmux
               tree

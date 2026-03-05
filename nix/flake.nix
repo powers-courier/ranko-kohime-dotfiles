@@ -226,6 +226,7 @@
           options.desktopXFCE.enable = lib.mkEnableOption "XFCE Desktop" // { default = false; };
           config = lib.mkIf config.desktopXFCE.enable {
             environment.systemPackages = with pkgs; [
+              thunar-volman
               ulauncher
             ];
             programs.firefox.enable = true;
@@ -269,7 +270,7 @@
                 "pcie_aspm.policy=powersave"
               ];
             };
-            environment.systemPackages = [
+            environment.systemPackages = with pkgs; [
               brightnessctl
             ];
             powerManagement.powertop.enable = true;
@@ -507,7 +508,7 @@
               };
             };
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
-            nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+            nixpkgs.config.allowUnfree = true;
             programs.nano.nanorc = ''
               set autoindent
               set boldtext
@@ -730,6 +731,7 @@
           ({ config, pkgs, lib, ... }: {
             # Base x86_64 settings everyone gets
             boot.kernelPackages = pkgs.linuxPackages_latest;
+            nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
           })
           (lib.mkIf (cpuVendor == "intel") {
             # Intel-specific

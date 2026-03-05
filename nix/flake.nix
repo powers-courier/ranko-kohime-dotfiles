@@ -252,7 +252,7 @@
             };
           };
         };
-        cpuAmdOptimizations = { config, lib, ... }: {
+        cpuAmdOptimizations = { config, lib, pkgs, ... }: {
           options.cpuAmdOptimizations.enable = lib.mkEnableOption "Optimizations for AMD Hardware" // { default = false; };
           config = lib.mkIf config.cpuAmdOptimizations.enable {
             boot = {

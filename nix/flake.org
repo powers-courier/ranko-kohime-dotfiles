@@ -828,7 +828,7 @@ desktopXFCE = { config, lib, pkgs, ... }: {
 **** DONE Hardware Enablement [1/1]
 ***** DONE AMD
 #+begin_src nix
-cpuAmdOptimizations = { config, lib, ... }: {
+cpuAmdOptimizations = { config, lib, pkgs, ... }: {
   options.cpuAmdOptimizations.enable = lib.mkEnableOption "Optimizations for AMD Hardware" // { default = false; };
   config = lib.mkIf config.cpuAmdOptimizations.enable {
     boot = {

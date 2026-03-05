@@ -67,7 +67,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [84/108]
+* TODO Contents [84/109]
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -702,7 +702,10 @@ modules = lib.flatten [
   hardwareConfigs.${name}
   (builtins.attrValues flakeModules)
   ({ pkgs, vars, ... }: {
-    networking.hostName = name;
+    networking = {
+      hostName = name;
+      wireless.iwd.enable = false;
+    };
     system.stateVersion = "25.05";
     cpuLimiterIntel.enable = true;
     jellyfinProxyHost.enable = true;
@@ -747,7 +750,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [46/51]
+** TODO Modules [46/52]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -762,7 +765,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [44/48]
+*** TODO Modules [44/49]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1222,6 +1225,7 @@ basePackages = { config, lib, pkgs, ... }: {
       dmidecode
       git
       glances
+      linux-firmware
       lm_sensors
       neovim
       socat
@@ -1401,7 +1405,28 @@ arm = {
 defaultSettings = { config, lib, ... }: {
   options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
   config = lib.mkIf config.defaultSettings.enable {
-    networking.networkmanager.enable = true;
+    hardware.enableRedistributableFirmware = true;
+    networking = {
+      networkmanager = {
+        enable = true;
+        wifi.backend = "iwd";
+      };
+      wireless.iwd = {
+        enable = true;
+        settings = {
+          General = {
+            EnableNetworkConfiguration = true;  # lets iwd manage IP/DNS too
+          };
+          Network = {
+            EnableIPv6 = true;
+            RoutePriorityOffset = 300;   # helps with multi-interface priority
+          };
+          Settings = {
+            AutoConnect = true;
+          };
+        };
+      };
+    };
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
     nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
     programs.nano.nanorc = ''

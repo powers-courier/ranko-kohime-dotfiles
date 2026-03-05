@@ -430,6 +430,7 @@
               dmidecode
               git
               glances
+              linux-firmware
               lm_sensors
               neovim
               socat
@@ -471,7 +472,28 @@
         defaultSettings = { config, lib, ... }: {
           options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
           config = lib.mkIf config.defaultSettings.enable {
-            networking.networkmanager.enable = true;
+            hardware.enableRedistributableFirmware = true;
+            networking = {
+              networkmanager = {
+                enable = true;
+                wifi.backend = "iwd";
+              };
+              wireless.iwd = {
+                enable = true;
+                settings = {
+                  General = {
+                    EnableNetworkConfiguration = true;  # lets iwd manage IP/DNS too
+                  };
+                  Network = {
+                    EnableIPv6 = true;
+                    RoutePriorityOffset = 300;   # helps with multi-interface priority
+                  };
+                  Settings = {
+                    AutoConnect = true;
+                  };
+                };
+              };
+            };
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
             nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
             programs.nano.nanorc = ''
@@ -680,7 +702,10 @@
             hardwareConfigs.${name}
             (builtins.attrValues flakeModules)
             ({ pkgs, vars, ... }: {
-              networking.hostName = name;
+              networking = {
+                hostName = name;
+                wireless.iwd.enable = false;
+              };
               system.stateVersion = "25.05";
               cpuLimiterIntel.enable = true;
               jellyfinProxyHost.enable = true;

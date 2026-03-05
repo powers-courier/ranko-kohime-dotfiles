@@ -176,18 +176,22 @@
             "/" =
             { device = "zroot/root";
               fsType = "zfs";
+              options = [ "zfsutil" ];
             };
             "/nix" = {
               device = "zroot/nix";
               fsType = "zfs";
+              options = [ "zfsutil" ];
             };
             "/var" = {
               device = "zroot/var";
               fsType = "zfs";
+              options = [ "zfsutil" ];
             };
             "/home" = {
               device = "zroot/home";
               fsType = "zfs";
+              options = [ "zfsutil" ];
             };
             "/boot" = {
               device = "/dev/disk/by-uuid/A0D5-9779";

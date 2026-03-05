@@ -709,7 +709,7 @@
             };
           })
           (lib.mkIf (cpuVendor == "amd") {
-            # AMD-specific
+            cpuAmdOptimizations.enable = true;
             hardware.cpu.amd.updateMicrocode = true;
             boot = {
               kernelModules = [ "kvm-amd" ];

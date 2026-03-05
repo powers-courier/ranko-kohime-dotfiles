@@ -574,27 +574,8 @@ platformModules = {
       # Base x86_64 settings everyone gets
       boot.kernelPackages = pkgs.linuxPackages_latest;
     })
-    (lib.mkIf (cpuVendor == "intel") {
-      # Intel-specific
-      hardware = {
-        cpu.intel = {
-          updateMicrocode = true;
-        };
-        intel-gpu-tools.enable = true;
-      };
-      boot = {
-        kernelModules = [ "kvm-intel" ];
-        kernelParams = [ "intel_iommu=on" ];
-      };
-    })
-    (lib.mkIf (cpuVendor == "amd") {
-      # AMD-specific
-      hardware.cpu.amd.updateMicrocode = true;
-      boot = {
-        kernelModules = [ "kvm-amd" ];
-        kernelParams = [ "amd_iommu=on" ];
-      };
-    })
+    <<platform-module-intel>>
+    <<platform-module-amd>>
   ];
   aarch64-linux = { cpuVendor ? "generic", ... }: [
     ({ config, pkgs, lib, ... }: {
@@ -602,17 +583,56 @@ platformModules = {
       boot.kernelPackages = pkgs.linuxPackages_latest;
       # e.g. better handling of big.LITTLE if needed, etc.
     })
-    (lib.mkIf (cpuVendor == "apple") {
-      # Apple Silicon (asahi or similar)
-      hardware.asahi.enable = true;   # example
-      # or your custom apple tweaks
-    })
-    (lib.mkIf (cpuVendor == "rockchip") {
-      # e.g. RK3588, Orange Pi 5, etc.
-      boot.kernelParams = [ "coherent_pool=1M" ];
-    })
+    <<platform-module-apple>>
+    <<platform-module-rockchip>>
   ];
 };
+#+end_src
+
+***** DONE Intel
+#+begin_src nix :noweb-ref platform-module-intel
+(lib.mkIf (cpuVendor == "intel") {
+  # Intel-specific
+  hardware = {
+    cpu.intel = {
+      updateMicrocode = true;
+    };
+    intel-gpu-tools.enable = true;
+  };
+  boot = {
+    kernelModules = [ "kvm-intel" ];
+    kernelParams = [ "intel_iommu=on" ];
+  };
+})
+#+end_src
+
+***** DONE AMD
+#+begin_src nix :noweb-ref platform-module-amd
+(lib.mkIf (cpuVendor == "amd") {
+  cpuAmdOptimizations.enable = true;
+  hardware.cpu.amd.updateMicrocode = true;
+  boot = {
+    kernelModules = [ "kvm-amd" ];
+    kernelParams = [ "amd_iommu=on" ];
+  };
+})
+#+end_src
+
+***** TODO Apple
+#+begin_src nix :noweb-ref platform-module-apple
+(lib.mkIf (cpuVendor == "apple") {
+  # Apple Silicon (asahi or similar)
+  hardware.asahi.enable = true;   # example
+  # or your custom apple tweaks
+})
+#+end_src
+
+***** TODO Rockchip
+#+begin_src nix :noweb-ref platform-module-rockchip
+(lib.mkIf (cpuVendor == "rockchip") {
+  # e.g. RK3588, Orange Pi 5, etc.
+  boot.kernelParams = [ "coherent_pool=1M" ];
+})
 #+end_src
 
 *** DONE Preamble

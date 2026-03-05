@@ -757,7 +757,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [46/52]
+** TODO Modules [53/76]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -772,7 +772,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [44/49]
+*** TODO Modules [51/73]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -836,6 +836,7 @@ cpuAmdOptimizations = { config, lib, ... }: {
       kernelParams = [
         "acpi_osi=!"
         "amd_pstate=guided"
+        "amdgpu.backlight=1"
         "amdgpu.dcdebugmask=0x10"
         "amdgpu.runpm=1"
         "mem_sleep_default=s2idle"
@@ -843,6 +844,9 @@ cpuAmdOptimizations = { config, lib, ... }: {
         "pcie_aspm.policy=powersave"
       ];
     };
+    environment.systemPackages = [
+      brightnessctl
+    ];
     powerManagement.powertop.enable = true;
     services = {
       power-profiles-daemon.enable = true;

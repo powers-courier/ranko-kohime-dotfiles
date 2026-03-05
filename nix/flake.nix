@@ -261,6 +261,7 @@
               kernelParams = [
                 "acpi_osi=!"
                 "amd_pstate=guided"
+                "amdgpu.backlight=1"
                 "amdgpu.dcdebugmask=0x10"
                 "amdgpu.runpm=1"
                 "mem_sleep_default=s2idle"
@@ -268,6 +269,9 @@
                 "pcie_aspm.policy=powersave"
               ];
             };
+            environment.systemPackages = [
+              brightnessctl
+            ];
             powerManagement.powertop.enable = true;
             services = {
               power-profiles-daemon.enable = true;
@@ -623,7 +627,7 @@
           users.users.ranko = {
             isNormalUser = true;
             description = "Ranko Kohime";
-            extraGroups = [ "jellyfin" "networkmanager" "wheel" ];
+            extraGroups = [ "jellyfin" "networkmanager" "video" "wheel" ];
             uid = 1000;
           };
         };

@@ -67,7 +67,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [84/104]
+* TODO Contents [84/108]
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -654,9 +654,8 @@ nixosConfigurations = Jelly-Proxy-Configs // {
 framework-13 = mkHost {
   hostname = "framework-13";
   system = "x86_64-linux";
-  cpuVendor = "intel";
+  cpuVendor = "amd";
   extraModules = [
-    { cpuAmdOptimizations.enable = true; }
     { desktopXFCE.enable = true; }
     { fancyKeyboards.enable = true; }
     { zfsBootOptions.enable = true; }

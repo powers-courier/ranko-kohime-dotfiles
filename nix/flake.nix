@@ -479,7 +479,7 @@
                 wifi.backend = "iwd";
               };
               wireless.iwd = {
-                enable = true;
+                enable = lib.mkDefault true;
                 settings = {
                   General = {
                     EnableNetworkConfiguration = true;  # lets iwd manage IP/DNS too
@@ -704,7 +704,6 @@
             ({ pkgs, vars, ... }: {
               networking = {
                 hostName = name;
-                wireless.iwd.enable = false;
               };
               system.stateVersion = "25.05";
               cpuLimiterIntel.enable = true;

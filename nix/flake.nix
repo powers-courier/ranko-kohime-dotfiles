@@ -260,9 +260,11 @@
                 options iwlwifi power_save=1
               '';
               kernelParams = [
+                "acpi_backlight=vendor"
                 "acpi_osi=!"
                 "amd_pstate=guided"
-                "amdgpu.backlight=1"
+                "amdgpu.abmlevel=0"
+                "amdgpu.backlight=0"
                 "amdgpu.dcdebugmask=0x10"
                 "amdgpu.runpm=1"
                 "mem_sleep_default=s2idle"

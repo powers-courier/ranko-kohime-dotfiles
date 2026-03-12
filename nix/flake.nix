@@ -8,7 +8,7 @@
   };
   outputs = { nixpkgs, ... }@inputs:
     let
-      lib = nixpkgs.lib;
+      inherit (nixpkgs) lib;
       vars = {
         loKale = "en_US.UTF-8";
         timeZern = "Etc/UTC";
@@ -708,7 +708,7 @@
       platformModules = {
         # Called with { system = "x86_64-linux"; cpuVendor = "intel"; } or similar
         x86_64-linux = { cpuVendor ? "generic", ... }: [
-          ({ config, pkgs, lib, ... }: {
+          ({ pkgs, lib, ... }: {
             # Base x86_64 settings everyone gets
             boot.kernelPackages = pkgs.linuxPackages_latest;
             nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
@@ -736,7 +736,7 @@
           })
         ];
         aarch64-linux = { cpuVendor ? "generic", ... }: [
-          ({ config, pkgs, lib, ... }: {
+          ({ pkgs, ... }: {
             # Base arm64 settings
             boot.kernelPackages = pkgs.linuxPackages_latest;
             # e.g. better handling of big.LITTLE if needed, etc.

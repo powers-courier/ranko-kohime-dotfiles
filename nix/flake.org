@@ -51,7 +51,7 @@ inputs = {
 #+begin_src nix :noweb-ref outputs-preamble
 outputs = { nixpkgs, ... }@inputs:
   let
-    lib = nixpkgs.lib;
+    inherit (nixpkgs) lib;
     <<flake-variables-preamble>>
     <<hardware-configs-preamble>>
     <<home-folder-configuration-preamble>>
@@ -578,7 +578,7 @@ modules = lib.flatten [
 platformModules = {
   # Called with { system = "x86_64-linux"; cpuVendor = "intel"; } or similar
   x86_64-linux = { cpuVendor ? "generic", ... }: [
-    ({ config, pkgs, lib, ... }: {
+    ({ pkgs, lib, ... }: {
       # Base x86_64 settings everyone gets
       boot.kernelPackages = pkgs.linuxPackages_latest;
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
@@ -587,7 +587,7 @@ platformModules = {
     <<platform-module-amd>>
   ];
   aarch64-linux = { cpuVendor ? "generic", ... }: [
-    ({ config, pkgs, lib, ... }: {
+    ({ pkgs, ... }: {
       # Base arm64 settings
       boot.kernelPackages = pkgs.linuxPackages_latest;
       # e.g. better handling of big.LITTLE if needed, etc.

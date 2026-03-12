@@ -280,28 +280,6 @@
               power-profiles-daemon.enable = true;
               tlp.enable = false;
             };
-            systemd.services.suspend-pre = {
-              description = "Pre-suspend GPU state save";
-              wantedBy = [ "suspend.target" ];
-              before = [ "suspend.target" ];
-              serviceConfig.Type = "oneshot";
-              script = ''
-                #!/usr/bin/env bash
-                echo OFF > /sys/class/drm/card0/device/power_dpm_force_performance_level  # iGPU to low power
-                # For ASUS NVIDIA: Add if nvidia-smi works: nvidia-smi -pm 1 (enable persistence)
-              '';
-            };
-            systemd.services.suspend-post = {
-              description = "Post-resume GPU state restore";
-              wantedBy = [ "suspend.target" ];
-              after = [ "suspend.target" ];
-              serviceConfig.Type = "oneshot";
-              script = ''
-                #!/usr/bin/env bash
-                sleep 2  # Give hardware time to settle
-                echo ON > /sys/class/drm/card0/device/power_dpm_force_performance_level  # Restore iGPU
-                # Trigger display: xrandr --output eDP-1 --auto (if X11; for Wayland, use wlr-randr)
-              '';
             };
           };
         };

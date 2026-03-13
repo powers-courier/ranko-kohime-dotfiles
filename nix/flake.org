@@ -508,19 +508,69 @@ gtk = {
 };
 #+end_src
 
+** TODO Host Configurations [16/21]
+*** TODO Host Generators [8/11]
+**** DONE jelly-proxy Hosts Generator [2/2]
+***** Explanation
+****** proxyCount:
+Set to 3—generates jelly-proxy-01, jelly-proxy-02, jelly-proxy-03.
+Change to 5 for jelly-proxy-05, etc.
+****** builtins.genList:
+builtins.genList (i: i) 3 → [0 1 2]—a list of indices.
+i + 1 shifts it to 1, 2, 3 for numbering.
+****** map:
+Loops over [0 1 2], creating a list of { name = ...; value = ...; } pairs.
+num: Pads with 0 for 01-09 (e.g., if i < 9 then "0${toString (i + 1)}"), then plain numbers (10, 11, ...).
+****** builtins.listToAttrs:
+Turns the list into an attrset:
+****** networking.hostName = name:
+Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynamically—no repetition.
+****** // Operator:
+Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
+***** DONE Code
+#+begin_src nix :noweb-ref proxy-host-generator
+jellyProxyHosts = builtins.filter
+  (name: lib.hasPrefix "jelly-proxy-" name)
+  (lib.attrNames hardwareConfigs);
+Jelly-Proxy-Configs = lib.listToAttrs (map (name: {
+  inherit name;
+  value = nixpkgs.lib.nixosSystem {
+    system = "x86_64-linux";
+    specialArgs = { inherit vars; };
+    <<proxy-host-generator-modules>>
+  };
+}) jellyProxyHosts);
+#+end_src
+#+begin_example
+jellyProxyHosts = lib.sort (a: b: a < b) (
+  builtins.filter (name: lib.hasPrefix "jelly-proxy-" name)
+    (lib.attrNames hardwareConfigs)
+);
+#+end_example
+***** DONE Modules
+#+begin_src nix :noweb-ref proxy-host-generator-modules
+modules = lib.flatten [
+  hardwareConfigs.${name}
+  (builtins.attrValues flakeModules)
+  ({ ... }: {
+    networking = {
+      hostName = name;
+    };
+    system.stateVersion = "25.05";
+    cpuLimiterIntel.enable = true;
+    jellyfinProxyHost.enable = true;
+  })
+];
 #+end_src
 
-
-
-** TODO Host Configurations [18/21]
-*** DONE mkHost [7/7]
-**** DONE Preamble
+**** TODO mkHost [8/10]
+***** DONE Preamble
 #+begin_src nix :noweb-ref mkhost-generator
 <<mkhost-generator-platform>>
 <<mkhost-generator-function>>
 #+end_src
 
-**** DONE Function [4/4]
+***** DONE Function [4/4]
 #+begin_src nix :noweb-ref mkhost-generator-function
 mkHost = {
   <<mkhost-generator-options>>
@@ -667,53 +717,6 @@ framework-13 = mkHost {
 };
 #+end_src
 
-**** DONE Servers [4/4]
-***** DONE jelly-proxy Hosts Generator [2/2]
-****** Explanation
-******* proxyCount:
-Set to 3—generates jelly-proxy-01, jelly-proxy-02, jelly-proxy-03.
-Change to 5 for jelly-proxy-05, etc.
-******* builtins.genList:
-builtins.genList (i: i) 3 → [0 1 2]—a list of indices.
-i + 1 shifts it to 1, 2, 3 for numbering.
-******* map:
-Loops over [0 1 2], creating a list of { name = ...; value = ...; } pairs.
-num: Pads with 0 for 01-09 (e.g., if i < 9 then "0${toString (i + 1)}"), then plain numbers (10, 11, ...).
-******* builtins.listToAttrs:
-Turns the list into an attrset:
-******* networking.hostName = name:
-Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynamically—no repetition.
-******* // Operator:
-Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
-****** DONE Code
-#+begin_src nix :noweb-ref proxy-host-generator
-jellyProxyHosts = builtins.filter
-  (name: lib.hasPrefix "jelly-proxy-" name)
-  (lib.attrNames hardwareConfigs);
-Jelly-Proxy-Configs = lib.listToAttrs (map (name: {
-  inherit name;
-  value = nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
-    specialArgs = { inherit vars; };
-    <<proxy-host-generator-modules>>
-  };
-}) jellyProxyHosts);
-#+end_src
-
-****** DONE Modules
-#+begin_src nix :noweb-ref proxy-host-generator-modules
-modules = lib.flatten [
-  hardwareConfigs.${name}
-  (builtins.attrValues flakeModules)
-  ({ pkgs, vars, ... }: {
-    networking = {
-      hostName = name;
-    };
-    system.stateVersion = "25.05";
-    cpuLimiterIntel.enable = true;
-    jellyfinProxyHost.enable = true;
-  })
-];
 **** Routers
 ***** TODO ask-router
 #+begin_src nix

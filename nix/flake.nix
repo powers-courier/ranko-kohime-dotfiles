@@ -788,7 +788,7 @@
         framework-13 = mkHost {
           hostname = "framework-13";
           system = "x86_64-linux";
-          cpuVendor = "amd";
+          cpuVendor = "intel";
           extraModules = [
             { desktopXFCE.enable = true; }
             { fancyKeyboards.enable = true; }

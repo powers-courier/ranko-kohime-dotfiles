@@ -508,11 +508,6 @@ gtk = {
 };
 #+end_src
 
-**** DONE ZSH Shell
-#+begin_src nix
-programs.zsh = {
-  enable = true;
-};
 #+end_src
 
 

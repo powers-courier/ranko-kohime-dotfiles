@@ -67,7 +67,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [91/133]
+* TODO Contents [92/141]
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -348,23 +348,6 @@ jelly-proxy-07 = {
 };
 #+end_src
 
-*** DONE jelly-proxy-08
-#+begin_src nix
-jelly-proxy-08 = {
-  fileSystems = {
-    "/" = {
-      device = "/dev/disk/by-uuid/3b3ab7cd-a88b-4023-ba13-b81e90ba7f99";
-      fsType = "ext4";
-    };
-    "/boot" = {
-      device = "/dev/disk/by-uuid/C515-66E7";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
-  };
-};
-#+end_src
-
 *** DONE main-host
 #+begin_src nix
 main-host = {
@@ -412,6 +395,23 @@ n100 = {
     };
     "/boot" = {
       device = "/dev/disk/by-uuid/9BBB-EE1C";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
+  };
+};
+#+end_src
+
+*** DONE router-ask
+#+begin_src nix
+router-ask = {
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/3b3ab7cd-a88b-4023-ba13-b81e90ba7f99";
+      fsType = "ext4";
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/C515-66E7";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
@@ -539,7 +539,7 @@ mkHost = {
   };
 #+end_src
 
-***** DONE Options
+****** DONE Options
 #+begin_src nix :noweb-ref mkhost-generator-options
 hostname,
 system ? "x86_64-linux",
@@ -547,7 +547,7 @@ cpuVendor ? "generic",
 extraModules ? [],
 #+end_src
 
-***** DONE Platform Selector
+****** DONE Platform Selector
 Select the right platform-specific module list
 #+begin_src nix :noweb-ref mkhost-generator-platform-selector
 selectedPlatformModules =
@@ -559,7 +559,7 @@ platformModuleList = selectedPlatformModules {
 };
 #+end_src
 
-***** DONE Modules
+****** DONE Modules
 Always set hostname (can be overridden later)
 
 #+begin_src nix :noweb-ref mkhost-generator-modules
@@ -573,7 +573,7 @@ modules = lib.flatten [
 ] ++ extraModules;
 #+end_src
 
-**** DONE platformModules
+***** DONE platformModules
 #+begin_src nix :noweb-ref mkhost-generator-platform
 platformModules = {
   # Called with { system = "x86_64-linux"; cpuVendor = "intel"; } or similar
@@ -598,7 +598,7 @@ platformModules = {
 };
 #+end_src
 
-***** DONE Intel
+****** DONE Intel
 #+begin_src nix :noweb-ref platform-module-intel
 (lib.mkIf (cpuVendor == "intel") {
   # Intel-specific
@@ -615,7 +615,7 @@ platformModules = {
 })
 #+end_src
 
-***** DONE AMD
+****** DONE AMD
 #+begin_src nix :noweb-ref platform-module-amd
 (lib.mkIf (cpuVendor == "amd") {
   cpuAmdOptimizations.enable = true;
@@ -627,7 +627,7 @@ platformModules = {
 })
 #+end_src
 
-***** TODO Apple
+****** TODO Apple
 #+begin_src nix :noweb-ref platform-module-apple
 (lib.mkIf (cpuVendor == "apple") {
   # Apple Silicon (asahi or similar)
@@ -636,7 +636,7 @@ platformModules = {
 })
 #+end_src
 
-***** TODO Rockchip
+****** TODO Rockchip
 #+begin_src nix :noweb-ref platform-module-rockchip
 (lib.mkIf (cpuVendor == "rockchip") {
   # e.g. RK3588, Orange Pi 5, etc.
@@ -719,8 +719,20 @@ modules = lib.flatten [
     jellyfinProxyHost.enable = true;
   })
 ];
+**** Routers
+***** TODO ask-router
+#+begin_src nix
+router-ask = mkHost {
+  hostname = "router-ask";
+  system = "x86_64-linux";
+  cpuVendor = "intel";
+  extraModules = [
+    { flakey-router.enable = true; }
+  ];
+};
 #+end_src
 
+**** DONE Servers [4/4]
 ***** DONE main-host
 #+begin_src nix
 main-host = mkHost {

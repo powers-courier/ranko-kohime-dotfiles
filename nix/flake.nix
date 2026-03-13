@@ -158,19 +158,6 @@
             };
           };
         };
-        jelly-proxy-08 = {
-          fileSystems = {
-            "/" = {
-              device = "/dev/disk/by-uuid/3b3ab7cd-a88b-4023-ba13-b81e90ba7f99";
-              fsType = "ext4";
-            };
-            "/boot" = {
-              device = "/dev/disk/by-uuid/C515-66E7";
-              fsType = "vfat";
-              options = [ "fmask=0077" "dmask=0077" ];
-            };
-          };
-        };
         main-host = {
           fileSystems = {
             "/" =
@@ -212,6 +199,19 @@
             };
             "/boot" = {
               device = "/dev/disk/by-uuid/9BBB-EE1C";
+              fsType = "vfat";
+              options = [ "fmask=0077" "dmask=0077" ];
+            };
+          };
+        };
+        router-ask = {
+          fileSystems = {
+            "/" = {
+              device = "/dev/disk/by-uuid/3b3ab7cd-a88b-4023-ba13-b81e90ba7f99";
+              fsType = "ext4";
+            };
+            "/boot" = {
+              device = "/dev/disk/by-uuid/C515-66E7";
               fsType = "vfat";
               options = [ "fmask=0077" "dmask=0077" ];
             };
@@ -694,7 +694,7 @@
           modules = lib.flatten [
             hardwareConfigs.${name}
             (builtins.attrValues flakeModules)
-            ({ pkgs, vars, ... }: {
+            ({ ... }: {
               networking = {
                 hostName = name;
               };
@@ -793,6 +793,14 @@
             { desktopXFCE.enable = true; }
             { fancyKeyboards.enable = true; }
             { zfsBootOptions.enable = true; }
+          ];
+        };
+        router-ask = mkHost {
+          hostname = "router-ask";
+          system = "x86_64-linux";
+          cpuVendor = "intel";
+          extraModules = [
+            { flakey-router.enable = true; }
           ];
         };
         main-host = mkHost {

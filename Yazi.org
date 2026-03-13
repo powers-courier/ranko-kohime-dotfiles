@@ -9,3 +9,7 @@
 #+property: header-args+ :tangle ~/some/file
 
 * Notes
+
+* keymap.toml
+* theme.toml
+* yazi.toml

@@ -1,4 +1,4 @@
-opensshServer = { config, lib, ... }: {
+{ config, lib, ... }: {
   options.opensshServer.enable = lib.mkEnableOption "Enable OpenSSH server, and Mosh" // { default = true; };
   config = lib.mkIf config.opensshServer.enable {
     services.openssh = {
@@ -17,4 +17,4 @@ opensshServer = { config, lib, ... }: {
     };
     programs.mosh.enable = true;
   };
-};
+}

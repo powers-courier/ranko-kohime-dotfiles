@@ -21,10 +21,11 @@ in
     <<wifiKill-networkManager>>
     <<wifiKill-supplicants>>
     <<wifiKill-bluetooth>>
-    services.modemmanager.enable = lib.mkForce false;
+    networking.modemmanager.enable = lib.mkForce false;
     <<wifiKill-rfkill>>
     <<wifiKill-blacklistModules>>
-    boot.initrd.blacklistedKernelModules = config.boot.blacklistedKernelModules;
+     # This option does not exist
+#    boot.initrd.blacklistedKernelModules = config.boot.blacklistedKernelModules;
     <<wifiKill-packages>>
     <<wifiKill-logMessage>>
   };

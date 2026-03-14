@@ -25,7 +25,7 @@ in
       powerOnBoot = lib.mkForce false;
     };
     services.blueman.enable = lib.mkForce false;
-    services.modemmanager.enable = lib.mkForce false;
+    networking.modemmanager.enable = lib.mkForce false;
     services.udev.extraRules = ''
       ACTION=="add", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="1", RUN+="${pkgs.rfkill}/bin/rfkill block all"
       ACTION=="change", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="0", RUN+="${pkgs.rfkill}/bin/rfkill block all"
@@ -62,7 +62,8 @@ in
       "rtw88_pci"
       "usbserial"
     ];
-    boot.initrd.blacklistedKernelModules = config.boot.blacklistedKernelModules;
+     # This option does not exist
+#    boot.initrd.blacklistedKernelModules = config.boot.blacklistedKernelModules;
     environment.systemPackages = with pkgs; [
       rfkill
       iw

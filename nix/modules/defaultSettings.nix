@@ -1,4 +1,4 @@
-{ config, lib, ... }: {
+{ config, lib, vars, ... }: {
   options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
   config = lib.mkIf config.defaultSettings.enable {
     hardware.enableRedistributableFirmware = true;

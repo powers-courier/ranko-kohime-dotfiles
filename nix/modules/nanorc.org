@@ -1,0 +1,24 @@
+#+title: Default nanorc Settings
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
+
+* Sane defaults for a reasonable Nano usage
+#+begin_src nix :tangle nanorc.nix
+{ config, lib, ... }: {
+  options.defaultNanoRC = lib.mkEnableOption "Sane defaults for nanorc" // { default = true; };
+  config = lib. mkIf config.defaultNanoRC.enable {
+    programs.nano.nanorc = ''
+      set autoindent
+      set boldtext
+      set constantshow
+      set linenumbers
+      set nowrap
+      set smarthome
+      set tabsize 2
+      set tabstospaces
+    '';
+  };
+}
+#+end_src

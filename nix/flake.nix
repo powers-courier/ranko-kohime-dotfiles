@@ -489,16 +489,6 @@
             };
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
             nixpkgs.config.allowUnfree = true;
-            programs.nano.nanorc = ''
-              set autoindent
-              set boldtext
-              set constantshow
-              set linenumbers
-              set nowrap
-              set smarthome
-              set tabsize 2
-              set tabstospaces
-            '';
             time.timeZone = vars.timeZern;
           };
         };

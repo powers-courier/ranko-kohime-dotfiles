@@ -507,22 +507,6 @@ gtk = {
 ** TODO Host Configurations [16/21]
 *** TODO Host Generators [8/11]
 **** DONE jelly-proxy Hosts Generator [2/2]
-***** Explanation
-****** proxyCount:
-Set to 3—generates jelly-proxy-01, jelly-proxy-02, jelly-proxy-03.
-Change to 5 for jelly-proxy-05, etc.
-****** builtins.genList:
-builtins.genList (i: i) 3 → [0 1 2]—a list of indices.
-i + 1 shifts it to 1, 2, 3 for numbering.
-****** map:
-Loops over [0 1 2], creating a list of { name = ...; value = ...; } pairs.
-num: Pads with 0 for 01-09 (e.g., if i < 9 then "0${toString (i + 1)}"), then plain numbers (10, 11, ...).
-****** builtins.listToAttrs:
-Turns the list into an attrset:
-****** networking.hostName = name:
-Inside the inline module, name (e.g., "jelly-proxy-01") sets the hostName dynamically—no repetition.
-****** // Operator:
-Merges proxyConfigs with other configs (e.g., jellyfin-db)—keeps non-proxy hosts separate.
 ***** DONE Code
 #+begin_src nix :noweb-ref proxy-host-generator
 jellyProxyHosts = builtins.filter
@@ -555,7 +539,6 @@ modules = lib.flatten [
     system.stateVersion = "25.05";
     cpuLimiterIntel.enable = true;
     jellyfinProxyHost.enable = true;
-    defaultNetworking.useIwd = false;
   })
 ];
 #+end_src

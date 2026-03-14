@@ -56,6 +56,7 @@ outputs = { nixpkgs, ... }@inputs:
     <<hardware-configs-preamble>>
     <<home-folder-configuration-preamble>>
     <<modules-preamble>>
+    <<modules-importer>>
     <<proxy-host-generator>>
     <<mkhost-generator>>
   in
@@ -612,6 +613,7 @@ modules = lib.flatten [
   hardwareConfigs.${hostname}
   platformModuleList
   (builtins.attrValues flakeModules)
+  (builtins.attrValues autoModules)
   {
     networking.hostName = hostname;
   }
@@ -774,6 +776,21 @@ images = {
 flakeModules = {
   <<flake-module-configurations>>
 };
+#+end_src
+
+#+begin_src nix :noweb-ref modules-importer
+autoModules = let
+  dir = ./modules;
+  entries = builtins.readDir dir;
+  nixFiles = builtins.filter
+    (name: builtins.match ".*\\.nix" name != null)
+    (builtins.attrNames entries);
+in builtins.listToAttrs (builtins.map
+  (name: {
+    name = builtins.replaceStrings [".nix"] [""] name;  # e.g. "backupPackages"
+    value = import (dir + "/${name}");
+  })
+  nixFiles);
 #+end_src
 
 *** DONE Enabler

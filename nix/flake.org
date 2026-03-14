@@ -153,11 +153,6 @@ vars = {
 loKale = "en_US.UTF-8";
 #+end_src
 
-*** DONE Timezone
-#+begin_src nix
-timeZern = "Etc/UTC";
-#+end_src
-
 *** DONE Host IPs and FQDN
 #+begin_src nix
 tailscale-fqdn = "manticore-elnath.ts.net";

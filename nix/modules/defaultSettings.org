@@ -1,0 +1,19 @@
+#+title: Default System Settings
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
+
+* DONE Default Settings
+#+begin_src nix :tangle defaultSettings.nix
+{ config, lib, ... }: {
+  options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
+  config = lib.mkIf config.defaultSettings.enable {
+    hardware.enableRedistributableFirmware = true;
+    nix.settings.experimental-features = [ "nix-command" "flakes" ];
+    nixpkgs.config.allowUnfree = true;
+    time.timeZone = vars.timeZern;
+  };
+}
+#+end_src
+

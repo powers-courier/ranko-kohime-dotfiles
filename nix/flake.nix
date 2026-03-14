@@ -462,36 +462,6 @@
             };
           };
         };
-        defaultSettings = { config, lib, ... }: {
-          options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
-          config = lib.mkIf config.defaultSettings.enable {
-            hardware.enableRedistributableFirmware = true;
-            networking = {
-              networkmanager = {
-                enable = true;
-                wifi.backend = "iwd";
-              };
-              wireless.iwd = {
-                enable = lib.mkDefault true;
-                settings = {
-                  General = {
-                    EnableNetworkConfiguration = true;  # lets iwd manage IP/DNS too
-                  };
-                  Network = {
-                    EnableIPv6 = true;
-                    RoutePriorityOffset = 300;   # helps with multi-interface priority
-                  };
-                  Settings = {
-                    AutoConnect = true;
-                  };
-                };
-              };
-            };
-            nix.settings.experimental-features = [ "nix-command" "flakes" ];
-            nixpkgs.config.allowUnfree = true;
-            time.timeZone = vars.timeZern;
-          };
-        };
         fwupd = { config, lib, ... }: {
           options.fwupd.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
           config = lib.mkIf config.fwupd.enable {

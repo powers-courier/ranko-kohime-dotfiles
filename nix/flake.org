@@ -68,7 +68,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [92/141]
+* TODO Contents [91/139]
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -770,14 +770,14 @@ images = {
 };
 #+end_src
 
-** TODO Modules [53/76]
+** TODO Modules [53/81]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
   <<flake-module-configurations>>
 };
 #+end_src
-
+*** DONE Automatic module loader
 #+begin_src nix :noweb-ref modules-importer
 autoModules = let
   dir = ./modules;
@@ -1415,36 +1415,6 @@ arm = {
   '';
 };
 #+end_src
-**** DONE Default Settings
-#+begin_src nix
-defaultSettings = { config, lib, ... }: {
-  options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
-  config = lib.mkIf config.defaultSettings.enable {
-    hardware.enableRedistributableFirmware = true;
-    networking = {
-      networkmanager = {
-        enable = true;
-        wifi.backend = "iwd";
-      };
-      wireless.iwd = {
-        enable = lib.mkDefault true;
-        settings = {
-          General = {
-            EnableNetworkConfiguration = true;  # lets iwd manage IP/DNS too
-          };
-          Network = {
-            EnableIPv6 = true;
-            RoutePriorityOffset = 300;   # helps with multi-interface priority
-          };
-          Settings = {
-            AutoConnect = true;
-          };
-        };
-      };
-    };
-    nix.settings.experimental-features = [ "nix-command" "flakes" ];
-    nixpkgs.config.allowUnfree = true;
-    time.timeZone = vars.timeZern;
   };
 };
 #+end_src

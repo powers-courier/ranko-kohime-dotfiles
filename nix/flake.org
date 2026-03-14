@@ -1546,30 +1546,6 @@ lokale = { config, lib, ... }: {
 };
 #+end_src
 
-**** DONE OpenSSH Server
-#+begin_src nix
-opensshServer = { config, lib, ... }: {
-  options.openssh.enable = lib.mkEnableOption "Enable OpenSSH server, and Mosh" // { default = true; };
-  config = lib.mkIf config.openssh.enable {
-    services.openssh = {
-      banner = "Welcome to... wherever you happen to be\n";
-      enable = true;
-      extraConfig ="";
-      openFirewall = true;
-      ports = [ 22 ];
-      settings = {
-        PasswordAuthentication = false;
-        PermitRootLogin = "prohibit-password";
-        PrintMotd = true;
-        StrictModes = true;
-        X11Forwarding = true;
-      };
-    };
-    programs.mosh.enable = true;
-  };
-};
-#+end_src
-
 **** DONE Tailscale VPN
 #+begin_src nix
 tailscaleVPN = { config, lib, ... }: {

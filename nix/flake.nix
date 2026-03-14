@@ -635,6 +635,7 @@
               system.stateVersion = "25.05";
               cpuLimiterIntel.enable = true;
               jellyfinProxyHost.enable = true;
+              defaultNetworking.useIwd = false;
             })
           ];
         };

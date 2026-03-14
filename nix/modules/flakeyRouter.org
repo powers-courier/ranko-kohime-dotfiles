@@ -8,9 +8,9 @@
 Flexible flake module for a router running NixOS
 
 * Usage
-Import the flakey-router.nix file as a module in your current flake, then add the following to any host you wish to be a router, and customize to taste:
+Import the flakeyRouter.nix file as a module in your current flake, then add the following to any host you wish to be a router, and customize to taste:
 #+begin_example nix
-flakey-router = {
+flakeyRouter = {
   enable       = true;
   lanInterface = "eth1";
   wanInterface = "eth0";
@@ -40,10 +40,10 @@ GNU GPLv3
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.flakey-router;
+  cfg = config.flakeyRouter;
 in
 {
-  options.flakey-router = with lib; {
+  options.flakeyRouter = with lib; {
     enable = mkEnableOption "basic home/SOHO router functionality"
       // { default = false; };  # ← explicitly default to off (common pattern)
 

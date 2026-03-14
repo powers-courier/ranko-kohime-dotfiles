@@ -4,6 +4,6 @@
     hardware.enableRedistributableFirmware = true;
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
     nixpkgs.config.allowUnfree = true;
-    time.timeZone = vars.timeZern;
+#    time.timeZone = vars.timeZern;
   };
 }

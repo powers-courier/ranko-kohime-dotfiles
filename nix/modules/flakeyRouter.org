@@ -36,7 +36,7 @@ flakey-router = {
 GNU GPLv3
 
 * Flake Contents
-#+begin_src nix :tangle flakey-router.nix
+#+begin_src nix :tangle flakeyRouter.nix
 { config, lib, pkgs, ... }:
 
 let

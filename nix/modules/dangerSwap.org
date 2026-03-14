@@ -5,10 +5,10 @@
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
 * DONE ZRAM
-#+begin_src nix :tangle zramSwap.nix
+#+begin_src nix :tangle dangerSwap.nix
 { config, lib, ... }: {
-  options.zramSwap.enable = lib.mkEnableOption "Enable zram compressed swap" // { default = true; };
-  config = lib.mkIf config.zramSwap.enable {
+  options.dangerSwap.enable = lib.mkEnableOption "Enable zram compressed swap" // { default = true; };
+  config = lib.mkIf config.dangerSwap.enable {
     zramSwap = {
       enable = true;
       priority = 1;

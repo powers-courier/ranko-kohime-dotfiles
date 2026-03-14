@@ -68,7 +68,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [91/139]
+* TODO Contents [89/144]
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -504,8 +504,8 @@ gtk = {
 };
 #+end_src
 
-** TODO Host Configurations [16/21]
-*** TODO Host Generators [8/11]
+** TODO Host Configurations [17/29]
+*** TODO Host Generators [12/22]
 **** DONE jelly-proxy Hosts Generator [2/2]
 ***** DONE Code
 #+begin_src nix :noweb-ref proxy-host-generator
@@ -543,7 +543,7 @@ modules = lib.flatten [
 ];
 #+end_src
 
-**** TODO mkHost [8/10]
+**** TODO mkHost [9/18]
 ***** DONE Preamble
 #+begin_src nix :noweb-ref mkhost-generator
 <<mkhost-generator-platform>>
@@ -557,6 +557,8 @@ mkHost = {
 }@args:
   let
     <<mkhost-generator-platform-selector>>
+    <<mkhost-generator-role-validator>>
+    <<mkhost-generator-role-modules>>
   in
   nixpkgs.lib.nixosSystem {
     inherit system;
@@ -569,6 +571,7 @@ mkHost = {
 hostname,
 system ? "x86_64-linux",
 cpuVendor ? "generic",
+role ? "desktop",
 extraModules ? [],
 #+end_src
 
@@ -596,6 +599,7 @@ modules = lib.flatten [
   {
     networking.hostName = hostname;
   }
+  (roleModules.${role} or (throw "No role module defined for '${role}'"))
 ] ++ extraModules;
 #+end_src
 
@@ -670,6 +674,107 @@ platformModules = {
 })
 #+end_src
 
+***** TODO Roles [1/7]
+****** DONE Validate roles
+#+begin_src nix :noweb-ref mkhost-generator-role-validator
+validRoles = [
+  "desktop"
+  "laptop"
+  "minimal"
+  "router"
+  "server"
+];
+  _ = if builtins.elem role validRoles
+    then null
+    else throw "Invalid role '${role}' for host '${hostname}'. Valid: ${toString validRoles}";
+#+end_src
+
+****** TODO roleModules [0/5]
+#+begin_src nix :noweb-ref mkhost-generator-role-modules
+roleModules = {
+  <<mkhost-generator-role-module-desktop>>
+  <<mkhost-generator-role-module-laptop>>
+  <<mkhost-generator-role-module-minimal>>
+  <<mkhost-generator-role-module-router>>
+  <<mkhost-generator-role-module-server>>
+  # Future roles (placeholders)
+};
+#+end_src
+
+******* TODO Desktop
+#+begin_src nix :noweb-ref mkhost-generator-role-module-desktop
+desktop = { pkgs, ... }: {
+  fancyKeyboards.enable = true;
+  # GUI, sound, printing, etc.
+  services.xserver.enable = true;
+  services.pulseaudio.enable = false;  # or pipewire
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    pulse.enable = true;
+  };
+
+  # Common desktop packages
+  environment.systemPackages = with pkgs; [
+    firefox libreoffice-fresh vlc
+    # ... your usual suspects
+  ];
+
+  # Power management suitable for laptops/desktops
+  powerManagement.enable = true;
+  services.tlp.enable = true;  # or auto-cpufreq, etc.
+};
+#+end_src
+
+******* TODO Laptop
+#+begin_src nix :noweb-ref mkhost-generator-role-module-laptop
+laptop = { ... }: {
+  imports = [ roleModules.desktop ];
+  environment.systemPackages = with pkgs; [
+  ];
+};
+#+end_src
+
+******* TODO Minimal
+#+begin_src nix :noweb-ref mkhost-generator-role-module-minimal
+minimal = { ... }: {
+  environment.systemPackages = lib.mkForce [];
+};
+#+end_src
+
+******* TODO Router
+#+begin_src nix :noweb-ref mkhost-generator-role-module-router
+router = { ... }: {
+  my-router.enable = true;
+};
+#+end_src
+
+******* TODO Server
+#+begin_src nix :noweb-ref mkhost-generator-role-module-server
+server = { lib, pkgs, ... }: {
+  # Disable anything graphical or wireless
+  security.disableWireless.enable = true;   # your new module
+  boot.kernelParams = [ "quiet" "splash" ]; # less verbose boot
+
+  # No X/Wayland
+  services.xserver.enable = lib.mkForce false;
+
+  # Common server hardening
+  networking.firewall.enable = true;
+  };
+
+  # Minimal packages
+  environment.systemPackages = with pkgs; [
+    htop tmux git
+  ];
+
+  # Disable unnecessary services
+  services.printing.enable = lib.mkForce false;
+  hardware.bluetooth.enable = lib.mkForce false;
+  networking.networkmanager.enable = lib.mkForce false;  # usually no NM on servers
+};
+#+end_src
+
 *** DONE Preamble
 #+begin_src nix :noweb-ref system-configuration-preamble
 nixosConfigurations = Jelly-Proxy-Configs // {
@@ -690,9 +795,9 @@ framework-13 = mkHost {
   hostname = "framework-13";
   system = "x86_64-linux";
   cpuVendor = "intel";
+  role = "laptop";
   extraModules = [
     { desktopXFCE.enable = true; }
-    { fancyKeyboards.enable = true; }
     { zfsBootOptions.enable = true; }
   ];
 };

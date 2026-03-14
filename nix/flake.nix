@@ -689,6 +689,7 @@
         hostname,
         system ? "x86_64-linux",
         cpuVendor ? "generic",
+        role ? "desktop",
         extraModules ? [],
       }@args:
         let
@@ -698,6 +699,78 @@
           platformModuleList = selectedPlatformModules {
             inherit system cpuVendor;
             inherit (args) hostname;   # if needed inside
+          };
+          validRoles = [
+            "desktop"
+            "laptop"
+            "minimal"
+            "router"
+            "server"
+          ];
+            _ = if builtins.elem role validRoles
+              then null
+              else throw "Invalid role '${role}' for host '${hostname}'. Valid: ${toString validRoles}";
+          roleModules = {
+            desktop = { pkgs, ... }: {
+              fancyKeyboards.enable = true;
+            
+              # Enable common desktop features
+              defaultNetworking.enable = true;
+              defaultNetworking.useIwd = true;
+            
+              # GUI, sound, printing, etc.
+              services.xserver.enable = true;
+              services.pulseaudio.enable = false;  # or pipewire
+              services.pipewire = {
+                enable = true;
+                alsa.enable = true;
+                pulse.enable = true;
+              };
+            
+              # Common desktop packages
+              environment.systemPackages = with pkgs; [
+                firefox libreoffice-fresh vlc
+                # ... your usual suspects
+              ];
+            
+              # Power management suitable for laptops/desktops
+              powerManagement.enable = true;
+              services.tlp.enable = true;  # or auto-cpufreq, etc.
+            };
+            laptop = { ... }: {
+              imports = [ roleModules.desktop ];
+              environment.systemPackages = with pkgs; [
+              ];
+            };
+            minimal = { ... }: {
+              environment.systemPackages = lib.mkForce [];
+            };
+            router = { ... }: {
+              my-router.enable = true;
+            };
+            server = { lib, pkgs, ... }: {
+              # Disable anything graphical or wireless
+              security.disableWireless.enable = true;   # your new module
+              boot.kernelParams = [ "quiet" "splash" ]; # less verbose boot
+            
+              # No X/Wayland
+              services.xserver.enable = lib.mkForce false;
+            
+              # Common server hardening
+              networking.firewall.enable = true;
+              };
+            
+              # Minimal packages
+              environment.systemPackages = with pkgs; [
+                htop tmux git
+              ];
+            
+              # Disable unnecessary services
+              services.printing.enable = lib.mkForce false;
+              hardware.bluetooth.enable = lib.mkForce false;
+              networking.networkmanager.enable = lib.mkForce false;  # usually no NM on servers
+            };
+            # Future roles (placeholders)
           };
         in
         nixpkgs.lib.nixosSystem {
@@ -710,6 +783,7 @@
             {
               networking.hostName = hostname;
             }
+            (roleModules.${role} or (throw "No role module defined for '${role}'"))
           ] ++ extraModules;
         };
     in
@@ -723,9 +797,9 @@
           hostname = "framework-13";
           system = "x86_64-linux";
           cpuVendor = "intel";
+          role = "laptop";
           extraModules = [
             { desktopXFCE.enable = true; }
-            { fancyKeyboards.enable = true; }
             { zfsBootOptions.enable = true; }
           ];
         };

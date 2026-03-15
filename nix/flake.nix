@@ -268,6 +268,7 @@
                 "amdgpu.runpm=1"
                 "mem_sleep_default=s2idle"
                 "nvme.noacpi=1"
+                "nvme_core.default_ps_max_latency_us=0"
                 "pcie_aspm.policy=powersave"
               ];
             };

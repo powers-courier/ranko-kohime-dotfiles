@@ -700,24 +700,9 @@
             inherit system cpuVendor;
             inherit (args) hostname;   # if needed inside
           };
-          validRoles = [
-            "desktop"
-            "laptop"
-            "minimal"
-            "router"
-            "server"
-          ];
-            _ = if builtins.elem role validRoles
-              then null
-              else throw "Invalid role '${role}' for host '${hostname}'. Valid: ${toString validRoles}";
           roleModules = {
             desktop = { pkgs, ... }: {
               fancyKeyboards.enable = true;
-            
-              # Enable common desktop features
-              defaultNetworking.enable = true;
-              defaultNetworking.useIwd = true;
-            
               # GUI, sound, printing, etc.
               services.xserver.enable = true;
               services.pulseaudio.enable = false;  # or pipewire

@@ -557,7 +557,6 @@ mkHost = {
 }@args:
   let
     <<mkhost-generator-platform-selector>>
-    <<mkhost-generator-role-validator>>
     <<mkhost-generator-role-modules>>
   in
   nixpkgs.lib.nixosSystem {
@@ -674,8 +673,8 @@ platformModules = {
 })
 #+end_src
 
-***** TODO Roles [1/7]
-****** DONE Validate roles
+***** TODO Roles [0/7]
+****** WAIT Validate roles
 #+begin_src nix :noweb-ref mkhost-generator-role-validator
 validRoles = [
   "desktop"

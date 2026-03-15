@@ -4,7 +4,6 @@
 #+startup: content
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
-* Sane defaults for a reasonable Nano usage
 #+begin_src nix :tangle defaultNanoRC.nix
 { config, lib, programs, ... }: {
   options.defaultNanoRC.enable = lib.mkEnableOption "Sane defaults for nanorc" // { default = true; };

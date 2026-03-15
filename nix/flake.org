@@ -68,7 +68,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [89/144]
+* TODO Contents [88/144]
 ** TODO Inputs [3/8]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -504,8 +504,8 @@ gtk = {
 };
 #+end_src
 
-** TODO Host Configurations [17/29]
-*** TODO Host Generators [12/22]
+** TODO Host Configurations [16/29]
+*** TODO Host Generators [11/22]
 **** DONE jelly-proxy Hosts Generator [2/2]
 ***** DONE Code
 #+begin_src nix :noweb-ref proxy-host-generator
@@ -543,7 +543,7 @@ modules = lib.flatten [
 ];
 #+end_src
 
-**** TODO mkHost [9/18]
+**** TODO mkHost [8/18]
 ***** DONE Preamble
 #+begin_src nix :noweb-ref mkhost-generator
 <<mkhost-generator-platform>>

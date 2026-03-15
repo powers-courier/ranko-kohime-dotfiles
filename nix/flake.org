@@ -1544,11 +1544,6 @@ with lib;
 }
 
 #+end_src
-#+begin_src nix
-  };
-};
-#+end_src
-
 **** DONE Locale
 #+begin_src nix
 lokale = { config, lib, ... }: {

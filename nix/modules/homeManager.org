@@ -1,0 +1,16 @@
+#+title: Home Manager
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
+
+
+#+begin_src nix :tangle homeManager.nix
+{ config, lib, ... }: {
+  options.homeManager.enable = lib.mkEnableOption "Enable Home Manager" // { default = false; };
+  config = lib.mkIf config.homeManager.enable {
+    
+  };
+}
+#+end_src
+

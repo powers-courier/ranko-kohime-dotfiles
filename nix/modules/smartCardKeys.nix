@@ -1,4 +1,4 @@
-smartCardKeys = { config, lib, pkgs, ... }: {
+{ config, lib, pkgs, ... }: {
   options.smartCardKeys.enable = lib.mkEnableOption "Enable settings for Smart Cards and Yubikeys" // { default = false; };
   config = lib.mkIf config.smartCardKeys.enable {
     boot.kernelModules = [ "uhid" "hid_goodix" ];
@@ -31,4 +31,4 @@ smartCardKeys = { config, lib, pkgs, ... }: {
     };
     programs.yubikey-touch-detector.enable = true;
   };
-};
+}

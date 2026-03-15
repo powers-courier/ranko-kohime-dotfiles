@@ -547,22 +547,6 @@
             uid = 1000;
           };
         };
-        yubikey = { config, lib, pkgs, ... }: {
-          options.yubikey-mod.enable = lib.mkEnableOption "Enable settings for Yubikeys" // { default = true; };
-          config = lib.mkIf config.yubikey-mod.enable {
-            environment.systemPackages = with pkgs; [
-              libfido2
-              pam_u2f
-              yubico-piv-tool
-              yubikey-agent
-              yubikey-manager
-              yubikey-personalization
-              yubikey-touch-detector
-            ];
-            services.yubikey-agent.enable = true;
-            programs.yubikey-touch-detector.enable = true;
-          };
-        };
         zfsBootOptions = { config, lib, ... }: {
           options.zfsBootOptions.enable = lib.mkEnableOption "Boot settings for root on ZFS hosts" // { default = false; };
           config = lib.mkIf config.zfsBootOptions.enable {
@@ -725,10 +709,15 @@
               powerManagement.enable = true;
               services.tlp.enable = true;  # or auto-cpufreq, etc.
             };
-            laptop = { ... }: {
+            laptop = { pkgs, ... }: {
               imports = [ roleModules.desktop ];
               environment.systemPackages = with pkgs; [
+                byobu # Just to have non-empty list
               ];
+              powerManagement = {
+                cpuFreqGovernor = lib.mkDefault "powersave";
+                powertop.enable = true;
+              };
             };
             minimal = { ... }: {
               environment.systemPackages = lib.mkForce [];
@@ -746,7 +735,6 @@
             
               # Common server hardening
               networking.firewall.enable = true;
-              };
             
               # Minimal packages
               environment.systemPackages = with pkgs; [

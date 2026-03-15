@@ -5,7 +5,7 @@
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
 #+begin_src nix :tangle fwupdFirmware.nix
-fwupdFirmware = { config, lib, ... }: {
+{ config, lib, ... }: {
   options.fwupdFirmware.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
   config = lib.mkIf config.fwupdFirmware.enable {
     services.fwupd = {

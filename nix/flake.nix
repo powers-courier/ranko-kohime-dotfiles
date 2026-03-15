@@ -280,6 +280,8 @@
               power-profiles-daemon.enable = true;
               tlp.enable = false;
             };
+            systemd.settings.Manager = {
+              DefaultTimeoutStopSec = "90s";
             };
           };
         };

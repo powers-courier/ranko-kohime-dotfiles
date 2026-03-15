@@ -1,6 +1,6 @@
 { config, lib, ... }: {
   options.defaultNanoRC = lib.mkEnableOption "Sane defaults for nanorc" // { default = true; };
-  config = lib. mkIf config.defaultNanoRC.enable {
+  config = lib.mkIf config.defaultNanoRC.enable {
     programs.nano.nanorc = ''
       set autoindent
       set boldtext

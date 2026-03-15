@@ -650,16 +650,16 @@
             nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
           })
           (lib.mkIf (cpuVendor == "intel") {
-            # Intel-specific
+            boot = {
+              kernelModules = [ "kvm-intel" ];
+              kernelParams = [ "intel_iommu=on" ];
+            };
             hardware = {
+              acpilight.enable = true;
               cpu.intel = {
                 updateMicrocode = true;
               };
               intel-gpu-tools.enable = true;
-            };
-            boot = {
-              kernelModules = [ "kvm-intel" ];
-              kernelParams = [ "intel_iommu=on" ];
             };
           })
           (lib.mkIf (cpuVendor == "amd") {

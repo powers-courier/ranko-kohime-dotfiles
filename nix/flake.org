@@ -68,8 +68,8 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [88/144]
-** TODO Inputs [3/8]
+* TODO Contents [85/143]
+** TODO Inputs [4/9]
 :properties:
 :header-args: :noweb-ref flake-inputs
 :end:
@@ -90,7 +90,15 @@ home-manager.url = "github:nix-community/home-manager";
 home-manager.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
+*** DONE OpenClaw
+#+begin_src nix
+nix-openclaw.url = "github:openclaw/nix-openclaw";
+nix-openclaw.inputs.nixpkgs.follows = "nixpkgs";
+#+end_src
+
 *** TODO sops-nix (Secrets)
+
+*** 
 #+begin_src nix :noweb-ref no
 sops-nix.url = "github:Mic92/sops-nix";
 sops-nix.inputs.nixpkgs.follows = "nixpkgs";
@@ -163,7 +171,7 @@ truenas-ip = "192.168.168.2";
 :properties:
 :header-args+: :noweb-ref hardware-configs
 :end:
-*** DONE Preamble
+*** DONE 0.Preamble
 #+begin_src nix :noweb-ref hardware-configs-preamble
 hardwareConfigs = {
   <<hardware-configs>>
@@ -219,23 +227,6 @@ jelly-proxy-01 = {
     };
     "/boot" = {
       device = "/dev/disk/by-uuid/7655-7B22";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
-  };
-};
-#+end_src
-
-*** DONE jelly-proxy-02
-#+begin_src nix
-jelly-proxy-02 = {
-  fileSystems = {
-    "/" = {
-      device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
-      fsType = "ext4";
-    };
-    "/boot" = {
-      device = "/dev/disk/by-uuid/B830-073C";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
@@ -398,6 +389,28 @@ n100 = {
 };
 #+end_src
 
+*** DONE openclaw
+#+begin_src nix
+openclaw = {
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
+      fsType = "ext4";
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/B830-073C";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
+    "/var/lib/openclaw/workspace" = {
+      device = "${vars.truenas-ip}:/mnt/Svartalfheim/OpenClaw";
+      fsType = "nfs";
+      options = [ <<nix-flake-nfs-common-mount>> ];
+    };
+  };
+};
+#+end_src
+
 *** DONE router-ask
 #+begin_src nix
 router-ask = {
@@ -504,7 +517,7 @@ gtk = {
 };
 #+end_src
 
-** TODO Host Configurations [16/29]
+** TODO Host Configurations [16/32]
 *** TODO Host Generators [11/22]
 **** DONE jelly-proxy Hosts Generator [2/2]
 ***** DONE Code
@@ -791,7 +804,7 @@ nixosConfigurations = Jelly-Proxy-Configs // {
 :end:
 **** Desktops [0/0]
 
-**** Laptops
+**** DONE Laptops [1/1]
 ***** DONE Framework 13
 #+begin_src nix
 framework-13 = mkHost {
@@ -819,7 +832,7 @@ router-ask = mkHost {
 };
 #+end_src
 
-**** DONE Servers [4/4]
+**** TODO Servers [1/2]
 ***** DONE main-host
 #+begin_src nix
 main-host = mkHost {
@@ -842,6 +855,18 @@ main-host = mkHost {
         };
       };
     }
+  ];
+};
+#+end_src
+
+***** TODO openclaw
+#+begin_src nix
+openclaw = mkHost {
+  hostname = "openclaw";
+  system = "x86_64-linux";
+  cpuVendor = "intel";
+  extraModules = [
+    { openBot.enable = true; }
   ];
 };
 #+end_src

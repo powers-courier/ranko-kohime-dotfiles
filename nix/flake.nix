@@ -5,6 +5,8 @@
     hardware.url = "github:nixos/nixos-hardware";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    nix-openclaw.url = "github:openclaw/nix-openclaw";
+    nix-openclaw.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = { nixpkgs, ... }@inputs:
     let
@@ -58,19 +60,6 @@
             };
             "/boot" = {
               device = "/dev/disk/by-uuid/7655-7B22";
-              fsType = "vfat";
-              options = [ "fmask=0077" "dmask=0077" ];
-            };
-          };
-        };
-        jelly-proxy-02 = {
-          fileSystems = {
-            "/" = {
-              device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
-              fsType = "ext4";
-            };
-            "/boot" = {
-              device = "/dev/disk/by-uuid/B830-073C";
               fsType = "vfat";
               options = [ "fmask=0077" "dmask=0077" ];
             };
@@ -200,6 +189,24 @@
               device = "/dev/disk/by-uuid/9BBB-EE1C";
               fsType = "vfat";
               options = [ "fmask=0077" "dmask=0077" ];
+            };
+          };
+        };
+        openclaw = {
+          fileSystems = {
+            "/" = {
+              device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
+              fsType = "ext4";
+            };
+            "/boot" = {
+              device = "/dev/disk/by-uuid/B830-073C";
+              fsType = "vfat";
+              options = [ "fmask=0077" "dmask=0077" ];
+            };
+            "/var/lib/openclaw/workspace" = {
+              device = "${vars.truenas-ip}:/mnt/Svartalfheim/OpenClaw";
+              fsType = "nfs";
+              options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
             };
           };
         };
@@ -766,6 +773,14 @@
                 };
               };
             }
+          ];
+        };
+        openclaw = mkHost {
+          hostname = "openclaw";
+          system = "x86_64-linux";
+          cpuVendor = "intel";
+          extraModules = [
+            { openBot.enable = true; }
           ];
         };
       };

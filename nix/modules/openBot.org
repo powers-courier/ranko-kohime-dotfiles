@@ -1,0 +1,131 @@
+#+title: OpenClaw Bot with Security
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
+
+* Module
+#+begin_src nix :tangle openBot.nix
+{ config, lib, pkgs, nix-openclaw, ... }: {
+  options.openBot.enable = lib.mkEnableOption "Enable openBot" // { default = false; };
+  config = lib.mkIf config.openBot.enable {
+    <<openBot-user>>
+    <<openBot-systemd-hardening>>
+    <<openBot-home-manager>>
+  };
+}
+#+end_src
+
+** Home Manager
+#+begin_src nix :noweb-ref openBot-home-manager
+home-manager = {
+  useGlobalPkgs = true;
+  useUserPackages = true;
+  users.openclaw = { pkgs, ... }: {
+    imports = [ nix-openclaw.homeManagerModules.default ];
+    programs.openclaw = {
+      enable = true;
+      package = pkgs.openclaw;  # or the latest from nix-openclaw
+      <<openBot-hm-config>>
+      <<openBot-hm-documents>>
+      <<openBot-hm-instances>>
+    };
+  };
+};
+#+end_src
+
+*** Config
+#+begin_src nix :noweb-ref openBot-hm-config
+config = {
+  agent.model = "anthropic/claude-opus-4-5";  # or local ollama if you prefer
+  tools = {
+    profile = "minimal";           # only safe tools initially
+    deny = [ "group:automation" "group:runtime" "group:fs:write" "rm" "sudo" "apt" "mv" "cp" ];
+    exec = {
+      security = "ask";           # forces confirmation for any exec
+      safeBinProfiles = [ "read-only-diagnostics" ];
+    };
+  };
+  agents.defaults.sandbox = {
+    mode = "session";             # Docker-like isolation for non-main sessions
+    workspaceAccess = "ro";       # start read-only
+  };
+  dmPolicy = "pairing";           # you must approve the first chat
+};
+#+end_src
+
+*** Documents
+#+begin_src nix :noweb-ref openBot-hm-documents
+documents = {
+  "AGENTS.md" = pkgs.writeText "AGENTS.md" ''
+    You are a read-only homelab diagnostic assistant.
+    You have NO write or destructive permissions.
+    If a command would fail due to permissions, respond with the EXACT command the human (root) should run.
+    Never attempt rm, mv, apt, sudo, etc.
+  '';
+  "SOUL.md" = pkgs.writeText "SOUL.md" ''
+    You are helpful but extremely cautious. Always prefer suggesting commands over executing.
+  '';
+};
+#+end_src
+
+*** Instances
+#+begin_src nix :noweb-ref openBot-hm-instances
+instances.default = {
+  enable = true;
+  stateDir = "/var/lib/openclaw";
+  workspaceDir = "/var/lib/openclaw/workspace";
+};
+#+end_src
+
+** WAIT NFS Share
+#+begin_src nix
+# NFS storage (your dedicated dataset)
+fileSystems."/var/lib/openclaw/workspace" = {
+  device = "your-nfs-server:/path/to/dedicated/dataset";
+  fsType = "nfs";
+  options = [ "noatime" "nodiratime" "rw" "soft" ];  # change rw → ro for ultra-minimal
+};
+#+end_src
+
+** System Hardening
+#+begin_src nix :noweb-ref openBot-systemd-hardening
+systemd.services."openclaw-gateway" = {
+  description = "OpenClaw Gateway Daemon";
+  after = [ "network.target" "remote-fs.target" ];
+  wantedBy = [ "multi-user.target" ];
+  serviceConfig = {
+    User = "openclaw";
+    WorkingDirectory = "/var/lib/openclaw";
+    ExecStart = "${home-manager.outputs.packages.${system}.default}/bin/openclaw gateway --port 18789";
+    Restart = "always";
+    ProtectSystem = "strict";
+    ProtectHome = "read-only";
+    ReadOnlyPaths = [ "/etc" "/var/log/journal" ];
+    NoNewPrivileges = true;
+    PrivateTmp = true;
+    ProtectKernelTunables = true;
+    ProtectControlGroups = true;
+    RestrictNamespaces = true;
+    MemoryMax = "12G";
+  };
+};
+#+end_src
+
+** DONE User
+#+begin_src nix :noweb-ref openBot-user
+users = {
+  groups.openclaw = {
+    gid = 18789;
+    name = "openclaw";
+  };
+  users.openclaw = {
+    createHome = true;
+    group = "openclaw";
+    home = "/var/lib/openclaw";
+    isSystemUser = true;
+    shell = "/run/current-system/sw/bin/bash";
+    uid = 18789;
+  };
+};
+#+end_src

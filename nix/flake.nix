@@ -779,6 +779,7 @@
           hostname = "openclaw";
           system = "x86_64-linux";
           cpuVendor = "intel";
+          role = "server";
           extraModules = [
             { openBot.enable = true; }
           ];

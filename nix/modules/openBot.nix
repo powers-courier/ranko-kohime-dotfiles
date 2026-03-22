@@ -1,4 +1,4 @@
-{ config, lib, pkgs, nix-openclaw, ... }: {
+{ config, home-manager, lib, pkgs, nix-openclaw, system,  ... }: {
   options.openBot.enable = lib.mkEnableOption "Enable openBot" // { default = false; };
   config = lib.mkIf config.openBot.enable {
     users = {

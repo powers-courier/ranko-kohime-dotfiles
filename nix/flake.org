@@ -97,8 +97,6 @@ nix-openclaw.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
 *** TODO sops-nix (Secrets)
-
-*** 
 #+begin_src nix :noweb-ref no
 sops-nix.url = "github:Mic92/sops-nix";
 sops-nix.inputs.nixpkgs.follows = "nixpkgs";
@@ -408,6 +406,7 @@ openclaw = {
       options = [ <<nix-flake-nfs-common-mount>> ];
     };
   };
+  system.stateVersion = "25.05";
 };
 #+end_src
 
@@ -567,13 +566,14 @@ modules = lib.flatten [
 #+begin_src nix :noweb-ref mkhost-generator-function
 mkHost = {
   <<mkhost-generator-options>>
-}@args:
+} @ args:
   let
     <<mkhost-generator-platform-selector>>
     <<mkhost-generator-role-modules>>
   in
   nixpkgs.lib.nixosSystem {
     inherit system;
+    specialArgs = args.specialArgs // { inherit vars; };
     <<mkhost-generator-modules>>
   };
 #+end_src
@@ -585,6 +585,7 @@ system ? "x86_64-linux",
 cpuVendor ? "generic",
 role ? "desktop",
 extraModules ? [],
+specialArgs ? {},
 #+end_src
 
 ****** DONE Platform Selector
@@ -869,6 +870,7 @@ openclaw = mkHost {
   extraModules = [
     { openBot.enable = true; }
   ];
+  specialArgs = { inherit (inputs) nix-openclaw; };
 };
 #+end_src
 

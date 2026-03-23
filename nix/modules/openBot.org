@@ -6,7 +6,7 @@
 
 * Module
 #+begin_src nix :tangle openBot.nix
-{ config, lib, pkgs, nix-openclaw, ... }: {
+{ config, home-manager, lib, pkgs, nix-openclaw, system,  ... }: {
   options.openBot.enable = lib.mkEnableOption "Enable openBot" // { default = false; };
   config = lib.mkIf config.openBot.enable {
     <<openBot-user>>

@@ -209,6 +209,7 @@
               options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
             };
           };
+          system.stateVersion = "25.05";
         };
         router-ask = {
           fileSystems = {
@@ -644,7 +645,8 @@
         cpuVendor ? "generic",
         role ? "desktop",
         extraModules ? [],
-      }@args:
+        specialArgs ? {},
+      } @ args:
         let
           selectedPlatformModules =
             platformModules.${system} or
@@ -717,6 +719,7 @@
         in
         nixpkgs.lib.nixosSystem {
           inherit system;
+          specialArgs = args.specialArgs // { inherit vars; };
           modules = lib.flatten [
             hardwareConfigs.${hostname}
             platformModuleList
@@ -783,6 +786,7 @@
           extraModules = [
             { openBot.enable = true; }
           ];
+          specialArgs = { inherit (inputs) nix-openclaw; };
         };
       };
       images = {

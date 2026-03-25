@@ -63,8 +63,8 @@ services.blueman.enable = lib.mkForce false;
 Block all wireless devices at rfkill level (hardware radio kill switch)
 #+begin_src nix :noweb-ref wifiKill-rfkill
 services.udev.extraRules = ''
-  ACTION=="add", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="1", RUN+="${pkgs.rfkill}/bin/rfkill block all"
-  ACTION=="change", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="0", RUN+="${pkgs.rfkill}/bin/rfkill block all"
+  ACTION=="add", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="1", RUN+="${pkgs.util-linux}/bin/rfkill block all"
+  ACTION=="change", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="0", RUN+="${pkgs.util-linux}/bin/rfkill block all"
 '';
 #+end_src
 
@@ -107,9 +107,9 @@ boot.blacklistedKernelModules = [
 ** Packages
 #+begin_src nix :noweb-ref wifiKill-packages
 environment.systemPackages = with pkgs; [
-  rfkill
-  iw
   bluez-tools  # even though bluetooth is off, useful for debugging
+  iw
+  util-linux   # for rfkill
 ];
 #+end_src
 

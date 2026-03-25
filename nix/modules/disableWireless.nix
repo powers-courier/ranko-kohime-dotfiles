@@ -27,8 +27,8 @@ in
     services.blueman.enable = lib.mkForce false;
     networking.modemmanager.enable = lib.mkForce false;
     services.udev.extraRules = ''
-      ACTION=="add", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="1", RUN+="${pkgs.rfkill}/bin/rfkill block all"
-      ACTION=="change", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="0", RUN+="${pkgs.rfkill}/bin/rfkill block all"
+      ACTION=="add", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="1", RUN+="${pkgs.util-linux}/bin/rfkill block all"
+      ACTION=="change", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="0", RUN+="${pkgs.util-linux}/bin/rfkill block all"
     '';
     boot.blacklistedKernelModules = [
       "ath10k_core"
@@ -65,9 +65,9 @@ in
      # This option does not exist
 #    boot.initrd.blacklistedKernelModules = config.boot.blacklistedKernelModules;
     environment.systemPackages = with pkgs; [
-      rfkill
-      iw
       bluez-tools  # even though bluetooth is off, useful for debugging
+      iw
+      util-linux   # for rfkill
     ];
     environment.etc."motd".text = lib.mkAfter ''
       NOTICE: Wireless (Wi-Fi / Bluetooth / WWAN) is forcibly disabled on this system.

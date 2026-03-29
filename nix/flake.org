@@ -1175,24 +1175,15 @@ jellyfinProxyHost = { config, lib, pkgs, ... }: {
     <<jelly-proxy-mdns-avahi>>
     <<jelly-proxy-packages>>
 
-**** DONE NanoRC
+**** DONE Default Settings
 #+begin_src nix
-defaultNanoRC = { config, lib, programs, ... }: {
-  options.defaultNanoRC.enable = lib.mkEnableOption "Sane defaults for nanorc" // { default = true; };
-  config = lib.mkIf config.defaultNanoRC.enable {
-    programs.nano = lib.mkForce {
-      enable = true;
-      nanorc = ''
-        set autoindent
-        set boldtext
-        set constantshow
-        set linenumbers
-        set nowrap
-        set smarthome
-        set tabsize 2
-        set tabstospaces
-      '';
-    };
+defaultSettings = { config, lib, ... }: {
+  options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
+  config = lib.mkIf config.defaultSettings.enable {
+    hardware.enableRedistributableFirmware = true;
+    nix.settings.experimental-features = [ "nix-command" "flakes" ];
+    nixpkgs.config.allowUnfree = true;
+    time.timeZone = lib.mkDefault "Etc/UTC";
   };
 };
 #+end_src

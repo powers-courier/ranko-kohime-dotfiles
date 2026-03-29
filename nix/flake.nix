@@ -907,6 +907,14 @@
                 efi.canTouchEfiVariables = true;
                 systemd-boot.enable = true;
               };
+            security.pam.services = {
+              login.fprintAuth = true;
+              sudo.fprintAuth = true;
+              # For GNOME/KDE lockscreen (if using)
+        #      gdm.fprintAuth = true;  # GNOME
+        #      sddm.fprintAuth = true; # KDE/Sway/etc.
+              # For i3lock or similar (if using)
+        #      i3lock.fprintAuth = true;
             };
           };
         };
@@ -922,8 +930,15 @@
                   /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
                 '';
                 RemainAfterExit = true;
+            services = {
+              fprintd = {
+                enable = true;
+                tod.enable = true;
+                tod.driver = pkgs.libfprint-2-tod1-goodix;  # Goodix MOC sensor – swap to libfprint-2-tod1-goodix-550a if issues
               };
+              yubikey-agent.enable = true;
             };
+            programs.yubikey-touch-detector.enable = true;
           };
         };
         lokale = { config, lib, ... }: {
@@ -942,6 +957,13 @@
                 LC_TELEPHONE = vars.loKale;
                 LC_TIME = vars.loKale;
               };
+        tailscaleVPN = { config, lib, ... }: {
+          options.tailscaleVPN.enable = lib.mkEnableOption "Enable Tailscale VPN" // { default = true; };
+          config = lib.mkIf config.tailscaleVPN.enable {
+            services.tailscale = {
+              enable = true;
+              openFirewall = true;
+              port = 0;
             };
           };
         };

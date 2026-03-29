@@ -1405,6 +1405,7 @@ environment.etc."motd".text = lib.mkAfter ''
 '';
 #+end_src
 
+**** DONE Fancy Keyboards
 #+begin_src nix
 jellyfinServer = { config, lib, pkgs, ... }: {
   options.jellyfinServer.enable = lib.mkEnableOption "Setup Jellyfin Server" // { default = false; };
@@ -1417,6 +1418,13 @@ jellyfinServer = { config, lib, pkgs, ... }: {
     <<module-service-jellyfin-cachedir>>
     users.groups.jellyfin.members = [ "jellyfin" ];
     <<module-service-jellyfin-systemd>>
+fancyKeyboards = { config, lib, pkgs, ... }: {
+  options.fancyKeyboards.enable = lib.mkEnableOption "Configuration for fancy keyboards" // { default = false; };
+  config = lib.mkIf config.fancyKeyboards.enable {
+    environment.systemPackages = with pkgs; [
+      system76-keyboard-configurator
+    ];
+    hardware.keyboard.zsa.enable = true;
   };
 };
 #+end_src

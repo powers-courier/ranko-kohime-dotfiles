@@ -859,11 +859,23 @@
         backupPackages = { config, lib, pkgs, ... }: {
           options.backupPackages.enable = lib.mkEnableOption "Install backup packages" // { default = true; };
           config = lib.mkIf config.backupPackages.enable {
+        smartCardKeys = { config, lib, pkgs, ... }: {
+          options.smartCardKeys.enable = lib.mkEnableOption "Enable settings for Smart Cards and Yubikeys" // { default = false; };
+          config = lib.mkIf config.smartCardKeys.enable {
+            boot.kernelModules = [ "uhid" "hid_goodix" ];
             environment.systemPackages = with pkgs; [
               dar
               ddrescue
               par2cmdline
               unison
+              fprintd
+              libfido2
+              pam_u2f
+              yubico-piv-tool
+              yubikey-agent
+              yubikey-manager
+              yubikey-personalization
+              yubikey-touch-detector
             ];
           };
         };

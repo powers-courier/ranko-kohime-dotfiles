@@ -68,7 +68,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [85/143]
+* TODO Contents [97/160]
 ** TODO Inputs [4/9]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -400,11 +400,6 @@ openclaw = {
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
-    "/var/lib/openclaw/workspace" = {
-      device = "${vars.truenas-ip}:/mnt/Svartalfheim/OpenClaw";
-      fsType = "nfs";
-      options = [ <<nix-flake-nfs-common-mount>> ];
-    };
   };
   system.stateVersion = "25.05";
 };
@@ -539,6 +534,7 @@ jellyProxyHosts = lib.sort (a: b: a < b) (
     (lib.attrNames hardwareConfigs)
 );
 #+end_example
+
 ***** DONE Modules
 #+begin_src nix :noweb-ref proxy-host-generator-modules
 modules = lib.flatten [
@@ -770,24 +766,11 @@ router = { ... }: {
 ******* TODO Server
 #+begin_src nix :noweb-ref mkhost-generator-role-module-server
 server = { lib, pkgs, ... }: {
-  # Disable anything graphical or wireless
-  security.disableWireless.enable = true;   # your new module
-  boot.kernelParams = [ "quiet" "splash" ]; # less verbose boot
-
-  # No X/Wayland
+  security.disableWireless.enable = true;
+  boot.kernelParams = [ "quiet" "splash" ];
   services.xserver.enable = lib.mkForce false;
-
-  # Common server hardening
   networking.firewall.enable = true;
-
-  # Minimal packages
-  environment.systemPackages = with pkgs; [
-    htop tmux git
-  ];
-
-  # Disable unnecessary services
   services.printing.enable = lib.mkForce false;
-  hardware.bluetooth.enable = lib.mkForce false;
   networking.networkmanager.enable = lib.mkForce false;  # usually no NM on servers
 };
 #+end_src
@@ -820,8 +803,8 @@ framework-13 = mkHost {
 };
 #+end_src
 
-**** Routers
-***** TODO ask-router
+**** TODO Routers [0/1]
+***** TODO router-ask
 #+begin_src nix
 router-ask = mkHost {
   hostname = "router-ask";
@@ -885,7 +868,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [53/81]
+** TODO Modules [59/91]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -915,7 +898,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [51/73]
+*** TODO Modules [56/87]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -931,6 +914,332 @@ modules = [
   # (builtins.attrValues myModules)   ← imports ALL of them at once!
 ] ++ [ /* host-specific things */ ];
 #+end_example
+
+**** TODO Automatic Upgrades
+#+begin_src nix :noweb-ref no
+options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // { default = false; };
+config = lib.mkIf config.autoUpgrade.enable {
+  system.autoUpgrade = {
+    enable = true;
+    flake = "git+https://github.com/RankoKohime/ranko-kohime-dotfiles?ref=main";
+    dates = "weekly";
+    allowReboot = false; # Optional: avoid reboots
+  };
+};
+#+end_src
+**** DONE Backup Packages
+These packages are for file/disk backups, and disk archiving
+https://github.com/animetosho/par2cmdline-turbo
+
+#+begin_src nix
+backupPackages = { config, lib, pkgs, ... }: {
+  options.backupPackages.enable = lib.mkEnableOption "Install backup packages" // { default = true; };
+  config = lib.mkIf config.backupPackages.enable {
+    environment.systemPackages = with pkgs; [
+      dar
+      ddrescue
+      par2cmdline
+      unison
+    ];
+  };
+};
+#+end_src
+
+**** DONE Base Packages
+#+begin_src nix
+basePackages = { config, lib, pkgs, ... }: {
+  options.basePackages.enable = lib.mkEnableOption "Install standard packages" // { default = true; };
+  config = lib.mkIf config.basePackages.enable {
+    environment.systemPackages = with pkgs; [
+      byobu
+      dmidecode
+      git
+      glances
+      linux-firmware
+      lm_sensors
+      neovim
+      socat
+      sshfs
+      tmux
+      tree
+      yazi
+    ];
+  };
+};
+#+end_src
+
+**** DONE Bootloader
+#+begin_src nix
+defaultBootloader = { config, lib, ... }: {
+  options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" // { default = true; };
+  config = lib.mkIf config.defaultBootloader.enable {
+    boot = {
+      initrd.availableKernelModules = [ "ahci" "nvme" "sd_mod" "thunderbolt" "usb_storage" "xhci_pci" ];
+      loader = {
+        efi.canTouchEfiVariables = true;
+        systemd-boot.enable = true;
+      };
+    };
+  };
+};
+#+end_src
+**** TODO CPU Limiter [1/2]
+***** DONE Intel
+#+begin_src nix
+cpuLimiterIntel = { config, lib, ... }: {
+  options.cpuLimiterIntel.enable = lib.mkEnableOption "Set CPU Limiter on boot for Intel" // { default = false; };
+  config = lib.mkIf config.cpuLimiterIntel.enable {
+    systemd.services.limit-cpu-max-perf = {
+      description = "Limit CPU max performance percentage using intel_pstate";
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = ''
+          /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
+        '';
+        RemainAfterExit = true;
+      };
+    };
+  };
+};
+#+end_src
+
+***** TODO Others
+#+begin_example nix
+
+{ config, lib, ... }:
+with lib;
+let
+  cfg = config.services.limitCpuMaxPerf;
+  # Architecture-specific implementations
+  archImplementations = {
+    <<cpu-limit-arch-amd>>
+    <<cpu-limit-arch-arm>>
+    <<cpu-limit-arch-intel>>
+  };
+in {
+  options.services.limitCpuMaxPerf = {
+    enable = mkEnableOption "CPU maximum performance limiting service";
+    architecture = mkOption {
+      type = types.enum [ "intel" "amd" "arm" "auto" ];
+      default = "auto";
+      description = "CPU architecture to target";
+      example = "intel";
+    };
+    performancePercentage = mkOption {
+      type = types.int;
+      default = 80;
+      description = "Maximum CPU performance percentage (1-100)";
+      example = 50;
+    };
+    applyAtBoot = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to apply the limit at system boot";
+    };
+  };
+  config = mkIf cfg.enable {
+    systemd.services.limit-cpu-max-perf = {
+      description = "Limit CPU max performance percentage";
+      wantedBy = mkIf cfg.applyAtBoot [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = let
+          # Ensure percentage is within valid range
+          percentage = max 1 (min 100 cfg.performancePercentage);
+          # Auto-detect architecture if set to auto
+          autoDetectScript = ''
+            if [ -d "/sys/devices/system/cpu/intel_pstate" ]; then
+              ARCH="intel"
+            elif [ -d "/sys/devices/system/cpu/amd_pstate" ]; then
+              ARCH="amd"
+            elif [ -f "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq" ]; then
+              ARCH="arm"
+            else
+              echo "Could not auto-detect CPU architecture" >&2
+              exit 1
+            fi
+          '';
+          # Create the script based on architecture
+          script = if cfg.architecture == "auto" then ''
+            #!/bin/sh
+            # Auto-detect architecture
+            ${autoDetectScript}
+            # Apply based on detected architecture
+            case "$ARCH" in
+              intel)
+                ${archImplementations.intel.checkCommand}
+                echo ${toString percentage} > ${archImplementations.intel.path}
+                ;;
+              amd)
+                ${archImplementations.amd.checkCommand}
+                echo ${toString percentage} > ${archImplementations.amd.path}
+                ;;
+              arm)
+                ${archImplementations.arm.checkCommand}
+                ${archImplementations.arm.writeCommand percentage}
+                ;;
+            esac
+          '' else ''
+            #!/bin/sh
+            # Apply for specific architecture: ${cfg.architecture}
+            ${archImplementations.${cfg.architecture}.checkCommand}
+            ${if cfg.architecture == "arm" 
+              then archImplementations.arm.writeCommand percentage
+              else "echo ${toString percentage} > ${archImplementations.${cfg.architecture}.path}"}
+          '';
+        in
+          pkgs.writeShellScript "limit-cpu-perf.sh" script;
+        RemainAfterExit = true;
+      };
+    };
+  };
+}
+#+end_example
+***** AMD Unit
+#+begin_src nix :noweb-ref cpu-limit-arch-amd
+amd = {
+  description = "Limit CPU max performance percentage for AMD processors";
+  path = "/sys/devices/system/cpu/amd_pstate/max_perf_pct";
+  checkCommand = ''
+    if [ ! -d "/sys/devices/system/cpu/amd_pstate" ]; then
+      echo "AMD pstate driver not available" >&2
+      exit 1
+    fi
+  '';
+};
+#+end_src
+***** ARM Unit
+#+begin_src nix :noweb-ref cpu-limit-arch-arm
+arm = {
+  description = "Limit CPU max performance percentage for ARM processors";
+  path = "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq";
+  checkCommand = ''
+    if [ ! -f "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq" ]; then
+      echo "ARM CPU frequency scaling not available" >&2
+      exit 1
+    fi
+    # For ARM, we need to get the maximum frequency first
+    MAX_FREQ=$(cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq)
+  '';
+  # ARM requires a different approach - calculate frequency from percentage
+  writeCommand = percentage: ''
+    MAX_FREQ=$(cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq)
+    TARGET_FREQ=$(( $MAX_FREQ * ${toString percentage} / 100 ))
+    echo $TARGET_FREQ > ${archImplementations.arm.path}
+  '';
+};
+#+end_src
+**** DONE Default Network Settings
+#+begin_src nix
+defaultNetworking = { config, lib, ... }: {
+  options.defaultNetworking = {
+    enable = lib.mkEnableOption "Default network settings" // { default = true; };
+    useIwd = lib.mkEnableOption "Enable IWD Wireless Client" // { default = true; };
+  };
+  config = lib.mkIf config.defaultNetworking.enable {
+    networking = {
+      networkmanager = {
+        enable = true;
+        wifi.backend = "iwd";
+      };
+      wireless.iwd = lib.mkIf config.defaultNetworking.useIwd {
+        enable = lib.mkDefault true;
+        settings = {
+          General = {
+            EnableNetworkConfiguration = true;
+          };
+          Network = {
+            EnableIPv6 = true;
+            RoutePriorityOffset = 300;
+          };
+          Settings = {
+            AutoConnect = true;
+          };
+        };
+      };
+    };
+  };
+};
+#+end_src
+
+**** DONE Default Settings
+#+begin_src nix
+defaultSettings = { config, lib, ... }: {
+  options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
+  config = lib.mkIf config.defaultSettings.enable {
+    hardware.enableRedistributableFirmware = true;
+    nix.settings.experimental-features = [ "nix-command" "flakes" ];
+    nixpkgs.config.allowUnfree = true;
+    time.timeZone = lib.mkDefault "Etc/UTC";
+  };
+};
+#+end_src
+
+**** TODO Desktop [1/5]
+#+begin_src nix :noweb-ref no
+desktop-packages = { lib, pkgs, ... }: {
+  options.desktop-packages.enable = lib.mkEnableOption "Enable desktop package collection";
+  config = lib.mkIf config.desktop-packages.enable {
+    environment.systemPackages = with pkgs; [
+      blueman
+      <<nix-flake-packages-coding>>
+      <<nix-flake-packages-file-management>>
+      <<nix-flake-packages-multimedia-consumption>>
+      <<nix-flake-packages-multimedia-production>>
+      <<nix-flake-packages-office>>
+    ];
+    hardware.bluetooth.enable = true;
+    services.blueman.enable = true;
+  };
+};
+#+end_src
+
+***** TODO Coding
+#+begin_src nix :noweb-ref nix-flake-packages-coding
+deadnix
+emacs
+statix
+vscodium
+#+end_src
+
+***** TODO File Management
+#+begin_src nix :noweb-ref nix-flake-packages-file-management
+gprename
+mate.engrampa
+#+end_src
+
+***** TODO Multimedia Consumption
+#+begin_src nix :noweb-ref nix-flake-packages-multimedia-consumption
+mpv
+mpvc
+strawberry
+vlc
+#+end_src
+
+***** DONE Multimedia Production
++ libmediainfo is a dependency of Tiny Media Manager
++ python3.12-musicbrainzngs is a dependency of Ex Falso
++ Quod Libet brings in Ex Falso
+#+begin_src nix :noweb-ref nix-flake-packages-multimedia-production
+flac
+gimp3-with-plugins
+handbrake
+libmediainfo
+mediainfo
+mkvtoolnix
+python312Packages.musicbrainzngs
+quodlibet
+vorbisgain
+vorbis-tools
+#+end_src
+
+***** TODO Office
+#+begin_src nix :noweb-ref nix-flake-packages-office
+gnucash
+libreoffice-fresh
+xreader
+#+end_src
 
 **** DONE 📁 Desktop Environments [1/1]
 ***** DONE XFCE Desktop
@@ -967,297 +1276,6 @@ desktopXFCE = { config, lib, pkgs, ... }: {
 };
 #+end_src
 
-**** DONE Hardware Enablement [1/1]
-***** DONE AMD
-#+begin_src nix
-cpuAmdOptimizations = { config, lib, pkgs, ... }: {
-  options.cpuAmdOptimizations.enable = lib.mkEnableOption "Optimizations for AMD Hardware" // { default = false; };
-  config = lib.mkIf config.cpuAmdOptimizations.enable {
-    boot = {
-      extraModprobeConfig = ''
-        options iwlwifi power_save=1
-      '';
-      kernelParams = [
-        "acpi_backlight=vendor"
-        "acpi_osi=!"
-        "amd_pstate=guided"
-        "amdgpu.abmlevel=0"
-        "amdgpu.backlight=0"
-        "amdgpu.dcdebugmask=0x10"
-        "amdgpu.runpm=1"
-        "mem_sleep_default=s2idle"
-        "nvme.noacpi=1"
-        "nvme_core.default_ps_max_latency_us=0"
-        "pcie_aspm.policy=powersave"
-      ];
-    };
-    environment.systemPackages = with pkgs; [
-      brightnessctl
-    ];
-    powerManagement.powertop.enable = true;
-    services = {
-      power-profiles-daemon.enable = true;
-      tlp.enable = false;
-    };
-    systemd.settings.Manager = {
-      DefaultTimeoutStopSec = "90s";
-    };
-  };
-};
-#+end_src
-
-#+begin_src nix :noweb-ref cpu-amd-auto-cpufreq-service
-auto-cpufreq = {
-  enable = true;
-  settings = {
-    battery = {
-      governor = "powersave";
-      energy_performance_preference = "power";
-      scaling_min_freq = "400000";
-      scaling_max_freq = "2000000";
-    };
-    charger = {
-      governor = "performance";
-      energy_performance_preference = "performance";
-      turbo = "always";
-    };
-  };
-};
-#+end_src
-
-**** DONE 📁 Network Filesystems [4/4]
-***** DONE NFS Settings
-#+begin_src nix :noweb-ref nix-flake-nfs-client-settings
-networking = {
-  domain = "midgard";
-  firewall.allowedTCPPorts = [ 2049 ];
-};
-services = {
-  nfs.idmapd = {
-    settings = {
-      General = {
-        Domain = "midgard";
-      };
-    };
-  };
-  rpcbind.enable = true;
-};
-#+end_src
-***** DONE Common NFS Mount Options
-#+begin_src nix :noweb-ref nix-flake-nfs-common-mount
-"nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576"
-#+end_src
-***** DONE Documents et al
-#+begin_src nix :noweb-ref nix-flake-nfs-documents
-fileSystems = {
-  "/Mounts/Disks" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Disks";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/Documents" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Documents";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/Downloads" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Downloads";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/LGC_Actual" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Actual";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/LGC_Lore_Table" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Lore_Table";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/Library" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Library";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/Workspace" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Workspace";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-};
-#+end_src
-
-***** DONE Multimedia
-#+begin_src nix :noweb-ref nix-flake-nfs-multimedia
-fileSystems = {
-  "/Mounts/JellyConfig" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos/JellyConfig";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/Music" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Music";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/Videos" = {
-    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/youtube-dl" = {
-    device = "${vars.truenas-ip}:/mnt/youtube-dl/youtube-dl";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-  "/Mounts/youtube-dl/z.Daily/Finished" = {
-    device = "${vars.truenas-ip}:/mnt/ytdl-fin/Finished";
-    fsType = "nfs";
-    options = [ <<nix-flake-nfs-common-mount>> ];
-  };
-};
-#+end_src
-
-**** DONE 📁 Services [15/15]
-***** DONE Jellyfin Remote access proxy nodes [8/8]
-****** Host list
-01. Jeff & Jackie O'Connell
-02. Suzie?
-03. John & Darlene Powers
-04. Max & Alyssa O'Connell
-05. Ken & Stacy O'Connell ?
-06. Joeseph O'Connell
-07. Don & Gabby O'Connell
-08. ?
-**** DONE Default Network Settings
-#+begin_src nix
-defaultNetworking = { config, lib, ... }: {
-  options.defaultNetworking = {
-    enable = lib.mkEnableOption "Default network settings" // { default = true; };
-    useIwd = lib.mkEnableOption "Enable IWD Wireless Client" // { default = true; };
-  };
-  config = lib.mkIf config.defaultNetworking.enable {
-    networking = {
-      networkmanager = {
-        enable = true;
-        wifi.backend = "iwd";
-      };
-      wireless.iwd = lib.mkIf config.defaultNetworking.useIwd {
-        enable = lib.mkDefault true;
-        settings = {
-          General = {
-            EnableNetworkConfiguration = true;
-          };
-          Network = {
-            EnableIPv6 = true;
-            RoutePriorityOffset = 300;
-          };
-          Settings = {
-            AutoConnect = true;
-          };
-        };
-      };
-    };
-  };
-};
-#+end_src
-
-****** DONE Preamble
-#+begin_src nix
-jellyfinProxyHost = { config, lib, pkgs, ... }: {
-  options.jellyfinProxyHost.enable = lib.mkEnableOption "Enable proxy hosting for Jellyfin server" // { default = false; };
-  config = lib.mkIf config.jellyfinProxyHost.enable {
-    <<jelly-proxy-networking-firewall>>
-    <<jelly-proxy-networking-subnet>>
-    <<jelly-proxy-networking-tailscale>>
-    <<jelly-proxy-nginx>>
-    <<jelly-proxy-mdns-avahi>>
-    <<jelly-proxy-packages>>
-
-**** DONE Default Settings
-#+begin_src nix
-defaultSettings = { config, lib, ... }: {
-  options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
-  config = lib.mkIf config.defaultSettings.enable {
-    hardware.enableRedistributableFirmware = true;
-    nix.settings.experimental-features = [ "nix-command" "flakes" ];
-    nixpkgs.config.allowUnfree = true;
-    time.timeZone = lib.mkDefault "Etc/UTC";
-  };
-};
-#+end_src
-
-  };
-};
-#+end_src
-
-****** DONE Networking [3/3]
-******* DONE Firewall
-Nginx listens on TCP 8096
-Avahi listens on UDP 5353
-#+begin_src nix :noweb-ref jelly-proxy-networking-firewall
-networking = {
-  firewall = {
-    enable = true;
-    allowedTCPPorts = [ 8096 ];
-    allowedUDPPorts = [ 5353 ];
-  };
-};
-#+end_src
-
-******* DONE Settings for Tailscale subnet routing
-#+begin_src nix :noweb-ref jelly-proxy-networking-subnet
-boot.kernel.sysctl = {
-  "net.ipv4.ip_forward" = 1;
-  "net.ipv6.conf.all.forwarding" = 1;
-};
-services.networkd-dispatcher = {
-  enable = true;
-  rules."50-tailscale" = {
-    onState = [ "routable" ];
-    script = ''
-      #!/usr/bin/env bash
-      ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
-    '';
-  };
-};
-#+end_src
-
-******* DONE Tailscale
-Requires manual setup to add to Tailnet
-#+begin_src nix :noweb-ref jelly-proxy-networking-tailscale
-services.tailscale = {
-  enable = true;
-  openFirewall = true;
-};
-#+end_src
-
-****** DONE Nginx
-#+begin_src nix :noweb-ref jelly-proxy-nginx
-services.nginx = {
-  enable = true;
-  virtualHosts."default" = {
-    default = true;
-    listen = [ { addr = "0.0.0.0"; port = 8096; } ];
-    locations."/" = {
-      proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
-      extraConfig = ''
-        proxy_http_version 1.1;
-        proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-      '';
-    };
-  };
-};
-#+end_src
-
-****** DONE mDNS with Avahi
-nssmdns4 = Enable mDNS for IPv4 name resolution
 **** TODO Disable All Wireless connectivity
 #+begin_src nix
 disableWireless = { config, lib, pkgs, ... }:
@@ -1271,14 +1289,6 @@ in
     };
   };
 
-#+begin_src nix :noweb-ref jelly-proxy-mdns-avahi
-services.avahi = {
-  enable = true;
-  nssmdns4 = true;
-  publish = {
-    enable = true;
-    addresses = true;
-    userServices = true;
   config = lib.mkIf cfg.enable {
     <<wifiKill-networkManager>>
     <<wifiKill-supplicants>>
@@ -1292,27 +1302,8 @@ services.avahi = {
     <<wifiKill-logMessage>>
   };
 };
-environment.etc."avahi/services/jellyfin.service".text = ''
-  <?xml version="1.0" standalone='no'?>
-  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
-  <service-group>
-    <name>Jellyfin Proxy</name>
-    <service>
-      <type>_http._tcp</type>
-      <port>8096</port>
-      <txt-record>description=Jellyfin Media Server Proxy</txt-record>
-    </service>
-  </service-group>
-'';
 #+end_src
 
-****** DONE Packages
-#+begin_src nix :noweb-ref jelly-proxy-packages
-environment.systemPackages = with pkgs; [
-  avahi
-  ethtool
-  nginx
-  tailscale
 ***** Network Manager
 #+begin_src nix :noweb-ref wifiKill-networkManager
 networking.networkmanager = {
@@ -1385,9 +1376,6 @@ boot.blacklistedKernelModules = [
 ];
 #+end_src
 
-***** DONE Jellyfin Server [5/5]
-[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
-intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
 ***** Packages
 #+begin_src nix :noweb-ref wifiKill-packages
 environment.systemPackages = with pkgs; [
@@ -1397,7 +1385,6 @@ environment.systemPackages = with pkgs; [
 ];
 #+end_src
 
-Jellyfin must be set to VAAPI for transcoding on modern Intel platforms as of 2025
 ***** Log Message
 #+begin_src nix :noweb-ref wifiKill-logMessage
 environment.etc."motd".text = lib.mkAfter ''
@@ -1407,17 +1394,6 @@ environment.etc."motd".text = lib.mkAfter ''
 
 **** DONE Fancy Keyboards
 #+begin_src nix
-jellyfinServer = { config, lib, pkgs, ... }: {
-  options.jellyfinServer.enable = lib.mkEnableOption "Setup Jellyfin Server" // { default = false; };
-  config = lib.mkIf config.jellyfinServer.enable {
-    boot.kernelParams = [ "i915.enable_guc=2" ];
-    nixpkgs.config.allowUnfree = true;
-    <<module-service-jellyfin-hardware>>
-    <<module-service-jellyfin-service>>
-    <<module-service-jellyfin-environment>>
-    <<module-service-jellyfin-cachedir>>
-    users.groups.jellyfin.members = [ "jellyfin" ];
-    <<module-service-jellyfin-systemd>>
 fancyKeyboards = { config, lib, pkgs, ... }: {
   options.fancyKeyboards.enable = lib.mkEnableOption "Configuration for fancy keyboards" // { default = false; };
   config = lib.mkIf config.fancyKeyboards.enable {
@@ -1428,11 +1404,7 @@ fancyKeyboards = { config, lib, pkgs, ... }: {
   };
 };
 #+end_src
-****** DONE hardware
-#+begin_src nix :noweb-ref module-service-jellyfin-hardware
-hardware = {
-  enableAllFirmware = true;
-  graphics.enable = true;
+
 **** TODO Flakey Router
 ***** Description
 Flexible flake module for a router running NixOS
@@ -1540,15 +1512,7 @@ in
   };
 };
 #+end_src
-****** DONE Jellyfin service
-#+begin_src nix :noweb-ref module-service-jellyfin-service
-services.jellyfin = {
-  enable = true;
-  group = "jellyfin";
-  openFirewall = true;
-  user = "jellyfin";
-  dataDir = "/var/lib/jellyfin"; # Default data directory
-  cacheDir = "/var/cache/jellyfin"; # Cache directory for transcoding
+
 ***** Sub-modules
 
 ****** Avahi
@@ -1563,21 +1527,7 @@ services.avahi = {
   };
 };
 #+end_src
-****** DONE environment
-#+begin_src nix :noweb-ref module-service-jellyfin-environment
-environment = {
-  sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
-  systemPackages = with pkgs; [
-    intel-compute-runtime
-    intel-gpu-tools
-    intel-media-driver
-    jellyfin-ffmpeg
-    libva
-    libva-utils
-    libvdpau-va-gl
-    vaapiVdpau
-    vpl-gpu-rt
-  ];
+
 ****** DHCP
 #+begin_src nix :noweb-ref flakey-dhcp-options
 dhcpRange = mkOption {
@@ -1586,11 +1536,7 @@ dhcpRange = mkOption {
   description = "dnsmasq DHCP range (start,end,lease-time)";
 };
 #+end_src
-****** DONE cacheDir
-#+begin_src nix :noweb-ref module-service-jellyfin-cachedir
-systemd.tmpfiles.rules = [
-  "d ${config.services.jellyfin.cacheDir} 0750 jellyfin jellyfin - -"
-];
+
 ****** DNS
 #+begin_src nix :noweb-ref flakey-dns-options
 upstreamDns = mkOption {
@@ -1604,14 +1550,7 @@ upstreamDns = mkOption {
   description = "Upstream DNS servers to forward queries to";
 };
 #+end_src
-****** DONE systemD service
-#+begin_src nix :noweb-ref module-service-jellyfin-systemd
-systemd.services.jellyfin = {
-  after = [ "network.target" ];
-  wantedBy = [ "multi-user.target" ];
-  serviceConfig = {
-    Restart = "on-failure";
-    RestartSec = 5;
+
 dnsmasq (DHCP + DNS resolver)
 #+begin_src nix :noweb-ref flakey-dns-settings
 services.dnsmasq = {
@@ -1639,16 +1578,7 @@ services.dnsmasq = {
   };
 };
 #+end_src
-**** TODO Automatic Upgrades
-#+begin_src nix :noweb-ref no
-options.autoUpgrade.enable = lib.mkEnableOption "Enable automatic upgrades from flake Git repo" // { default = false; };
-config = lib.mkIf config.autoUpgrade.enable {
-  system.autoUpgrade = {
-    enable = true;
-    flake = "git+https://github.com/RankoKohime/ranko-kohime-dotfiles?ref=main";
-    dates = "weekly";
-    allowReboot = false; # Optional: avoid reboots
-  };
+
 ****** Firewall (nftables)
 #+begin_src nix :noweb-ref flakey-nftables
 networking.nftables = {
@@ -1663,21 +1593,7 @@ networking.nftables = {
   '';
 };
 #+end_src
-**** DONE Backup Packages
-These packages are for file/disk backups, and disk archiving
-https://github.com/animetosho/par2cmdline-turbo
 
-#+begin_src nix
-backupPackages = { config, lib, pkgs, ... }: {
-  options.backupPackages.enable = lib.mkEnableOption "Install backup packages" // { default = true; };
-  config = lib.mkIf config.backupPackages.enable {
-    environment.systemPackages = with pkgs; [
-      dar
-      ddrescue
-      par2cmdline
-      unison
-    ];
-  };
 ******* chains
 ******** input
 #+begin_src nix :noweb-ref flakey-nftables-chain-input
@@ -1730,7 +1646,6 @@ boot.kernel.sysctl = {
 };
 #+end_src
 
-**** DONE Base Packages
 ****** Packages
 #+begin_src nix :noweb-ref flakey-pacakges
 environment.systemPackages = with pkgs; [
@@ -1743,23 +1658,6 @@ environment.systemPackages = with pkgs; [
 #+end_src
 **** DONE fwupdFirmware
 #+begin_src nix
-basePackages = { config, lib, pkgs, ... }: {
-  options.basePackages.enable = lib.mkEnableOption "Install standard packages" // { default = true; };
-  config = lib.mkIf config.basePackages.enable {
-    environment.systemPackages = with pkgs; [
-      byobu
-      dmidecode
-      git
-      glances
-      linux-firmware
-      lm_sensors
-      neovim
-      socat
-      sshfs
-      tmux
-      tree
-      yazi
-    ];
 fwupdFirmware = { config, lib, ... }: {
   options.fwupdFirmware.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
   config = lib.mkIf config.fwupdFirmware.enable {
@@ -1775,29 +1673,40 @@ fwupdFirmware = { config, lib, ... }: {
 };
 #+end_src
 
-**** DONE Bootloader
-#+begin_src nix
-defaultBootloader = { config, lib, ... }: {
-  options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" // { default = true; };
-  config = lib.mkIf config.defaultBootloader.enable {
-    boot = {
-      initrd.availableKernelModules = [ "ahci" "nvme" "sd_mod" "thunderbolt" "usb_storage" "xhci_pci" ];
-      loader = {
-        efi.canTouchEfiVariables = true;
-        systemd-boot.enable = true;
+**** TODO Garbage Collection
+#+begin_src nix :noweb-ref no
+{ config, lib, ... }:
+with lib;
+{
+  options = {
+    services.nixGarbageCollection = {
+      enable = mkEnableOption "automatic Nix garbage collection" // {
+        default = true;
+      };
+      dates = mkOption {
+        type = types.str;
+        default = "monthly";
+        description = "How often to run garbage collection";
+      };
+      options = mkOption {
+        type = types.str;
+        default = "--delete-older-than 365d";
+        description = "Options to pass to nix-collect-garbage";
       };
     };
   };
-};
+  config = mkIf config.services.nixGarbageCollection.enable {
+    nix.gc = {
+      automatic = true;
+      dates = config.services.nixGarbageCollection.dates;
+      options = config.services.nixGarbageCollection.options;
+    };
+  };
+}
+
 #+end_src
-**** TODO CPU Limiter [1/2]
-***** DONE Intel
+**** DONE Glances Server
 #+begin_src nix
-cpuLimiterIntel = { config, lib, ... }: {
-  options.cpuLimiterIntel.enable = lib.mkEnableOption "Set CPU Limiter on boot for Intel" // { default = false; };
-  config = lib.mkIf config.cpuLimiterIntel.enable {
-    systemd.services.limit-cpu-max-perf = {
-      description = "Limit CPU max performance percentage using intel_pstate";
 glancesServer = { config, lib, pkgs, ... }: {
   options.glancesServer.enable = lib.mkEnableOption "Enable Glances service" // { default = true; };
   config = lib.mkIf config.glancesServer.enable {
@@ -1806,11 +1715,6 @@ glancesServer = { config, lib, pkgs, ... }: {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
       serviceConfig = {
-        Type = "oneshot";
-        ExecStart = ''
-          /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
-        '';
-        RemainAfterExit = true;
         Type = "simple";
         ExecStart = "${pkgs.glances}/bin/glances -w";
         RemainAfterExit = false;
@@ -1821,93 +1725,64 @@ glancesServer = { config, lib, pkgs, ... }: {
 };
 #+end_src
 
-***** TODO Others
-#+begin_example nix
+**** DONE 📁 Hardware Enablement [1/1]
+***** DONE AMD
+#+begin_src nix
+cpuAmdOptimizations = { config, lib, pkgs, ... }: {
+  options.cpuAmdOptimizations.enable = lib.mkEnableOption "Optimizations for AMD Hardware" // { default = false; };
+  config = lib.mkIf config.cpuAmdOptimizations.enable {
+    boot = {
+      extraModprobeConfig = ''
+        options iwlwifi power_save=1
+      '';
+      kernelParams = [
+        "acpi_backlight=vendor"
+        "acpi_osi=!"
+        "amd_pstate=guided"
+        "amdgpu.abmlevel=0"
+        "amdgpu.backlight=0"
+        "amdgpu.dcdebugmask=0x10"
+        "amdgpu.runpm=1"
+        "mem_sleep_default=s2idle"
+        "nvme.noacpi=1"
+        "nvme_core.default_ps_max_latency_us=0"
+        "pcie_aspm.policy=powersave"
+      ];
+    };
+    environment.systemPackages = with pkgs; [
+      brightnessctl
+    ];
+    powerManagement.powertop.enable = true;
+    services = {
+      power-profiles-daemon.enable = true;
+      tlp.enable = false;
+    };
+    systemd.settings.Manager = {
+      DefaultTimeoutStopSec = "90s";
+    };
+  };
+};
+#+end_src
 
-{ config, lib, ... }:
-with lib;
-let
-  cfg = config.services.limitCpuMaxPerf;
-  # Architecture-specific implementations
-  archImplementations = {
-    <<cpu-limit-arch-amd>>
-    <<cpu-limit-arch-arm>>
-    <<cpu-limit-arch-intel>>
-  };
-in {
-  options.services.limitCpuMaxPerf = {
-    enable = mkEnableOption "CPU maximum performance limiting service";
-    architecture = mkOption {
-      type = types.enum [ "intel" "amd" "arm" "auto" ];
-      default = "auto";
-      description = "CPU architecture to target";
-      example = "intel";
+#+begin_src nix :noweb-ref cpu-amd-auto-cpufreq-service
+auto-cpufreq = {
+  enable = true;
+  settings = {
+    battery = {
+      governor = "powersave";
+      energy_performance_preference = "power";
+      scaling_min_freq = "400000";
+      scaling_max_freq = "2000000";
     };
-    performancePercentage = mkOption {
-      type = types.int;
-      default = 80;
-      description = "Maximum CPU performance percentage (1-100)";
-      example = 50;
-    };
-    applyAtBoot = mkOption {
-      type = types.bool;
-      default = true;
-      description = "Whether to apply the limit at system boot";
+    charger = {
+      governor = "performance";
+      energy_performance_preference = "performance";
+      turbo = "always";
     };
   };
-  config = mkIf cfg.enable {
-    systemd.services.limit-cpu-max-perf = {
-      description = "Limit CPU max performance percentage";
-      wantedBy = mkIf cfg.applyAtBoot [ "multi-user.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = let
-          # Ensure percentage is within valid range
-          percentage = max 1 (min 100 cfg.performancePercentage);
-          # Auto-detect architecture if set to auto
-          autoDetectScript = ''
-            if [ -d "/sys/devices/system/cpu/intel_pstate" ]; then
-              ARCH="intel"
-            elif [ -d "/sys/devices/system/cpu/amd_pstate" ]; then
-              ARCH="amd"
-            elif [ -f "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq" ]; then
-              ARCH="arm"
-            else
-              echo "Could not auto-detect CPU architecture" >&2
-              exit 1
-            fi
-          '';
-          # Create the script based on architecture
-          script = if cfg.architecture == "auto" then ''
-            #!/bin/sh
-            # Auto-detect architecture
-            ${autoDetectScript}
-            # Apply based on detected architecture
-            case "$ARCH" in
-              intel)
-                ${archImplementations.intel.checkCommand}
-                echo ${toString percentage} > ${archImplementations.intel.path}
-                ;;
-              amd)
-                ${archImplementations.amd.checkCommand}
-                echo ${toString percentage} > ${archImplementations.amd.path}
-                ;;
-              arm)
-                ${archImplementations.arm.checkCommand}
-                ${archImplementations.arm.writeCommand percentage}
-                ;;
-            esac
-          '' else ''
-            #!/bin/sh
-            # Apply for specific architecture: ${cfg.architecture}
-            ${archImplementations.${cfg.architecture}.checkCommand}
-            ${if cfg.architecture == "arm" 
-              then archImplementations.arm.writeCommand percentage
-              else "echo ${toString percentage} > ${archImplementations.${cfg.architecture}.path}"}
-          '';
-        in
-          pkgs.writeShellScript "limit-cpu-perf.sh" script;
-        RemainAfterExit = true;
+};
+#+end_src
+
 **** TODO Home Manager
 #+begin_src nix
 homeManager = { config, lib, ... }: {
@@ -1918,7 +1793,145 @@ homeManager = { config, lib, ... }: {
 };
 #+end_src
 
+**** DONE Locale
+#+begin_src nix
+lokale = { config, lib, ... }: {
+  options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
+  config = lib.mkIf config.lokale.enable {
+    i18n = {
+      defaultLocale = vars.loKale;
+      extraLocaleSettings = {
+        LC_ADDRESS = vars.loKale;
+        LC_IDENTIFICATION = vars.loKale;
+        LC_MEASUREMENT = vars.loKale;
+        LC_MONETARY = vars.loKale;
+        LC_NAME = vars.loKale;
+        LC_NUMERIC = vars.loKale;
+        LC_PAPER = vars.loKale;
+        LC_TELEPHONE = vars.loKale;
+        LC_TIME = vars.loKale;
       };
+    };
+  };
+};
+#+end_src
+
+**** DONE NanoRC
+#+begin_src nix
+defaultNanoRC = { config, lib, programs, ... }: {
+  options.defaultNanoRC.enable = lib.mkEnableOption "Sane defaults for nanorc" // { default = true; };
+  config = lib.mkIf config.defaultNanoRC.enable {
+    programs.nano = lib.mkForce {
+      enable = true;
+      nanorc = ''
+        set autoindent
+        set boldtext
+        set constantshow
+        set linenumbers
+        set nowrap
+        set smarthome
+        set tabsize 2
+        set tabstospaces
+      '';
+    };
+  };
+};
+#+end_src
+
+**** DONE 📁 Network Filesystems [4/4]
+***** DONE NFS Settings
+#+begin_src nix :noweb-ref nix-flake-nfs-client-settings
+networking = {
+  domain = "midgard";
+  firewall.allowedTCPPorts = [ 2049 ];
+};
+services = {
+  nfs.idmapd = {
+    settings = {
+      General = {
+        Domain = "midgard";
+      };
+    };
+  };
+  rpcbind.enable = true;
+};
+#+end_src
+***** DONE Common NFS Mount Options
+#+begin_src nix :noweb-ref nix-flake-nfs-common-mount
+"nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576"
+#+end_src
+***** DONE Documents et al
+#+begin_src nix :noweb-ref nix-flake-nfs-documents
+fileSystems = {
+  "/Mounts/Disks" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Disks";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Documents" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Documents";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Downloads" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Downloads";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/LGC_Actual" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Actual";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/LGC_Lore_Table" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/LGC_Lore_Table";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Library" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Library";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Workspace" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Workspace";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+};
+#+end_src
+
+***** DONE Multimedia
+#+begin_src nix :noweb-ref nix-flake-nfs-multimedia
+fileSystems = {
+  "/Mounts/JellyConfig" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos/JellyConfig";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Music" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Music";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/Videos" = {
+    device = "${vars.truenas-ip}:/mnt/Svartalfheim/Videos";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/youtube-dl" = {
+    device = "${vars.truenas-ip}:/mnt/youtube-dl/youtube-dl";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+  "/Mounts/youtube-dl/z.Daily/Finished" = {
+    device = "${vars.truenas-ip}:/mnt/ytdl-fin/Finished";
+    fsType = "nfs";
+    options = [ <<nix-flake-nfs-common-mount>> ];
+  };
+};
+#+end_src
+
 **** TODO openClaw [1/2]
 ***** Module
 #+begin_src nix
@@ -2065,98 +2078,1585 @@ opensshServer = { config, lib, ... }: {
         X11Forwarding = true;
       };
     };
-  };
-}
-#+end_example
-***** AMD Unit
-#+begin_src nix :noweb-ref cpu-limit-arch-amd
-amd = {
-  description = "Limit CPU max performance percentage for AMD processors";
-  path = "/sys/devices/system/cpu/amd_pstate/max_perf_pct";
-  checkCommand = ''
-    if [ ! -d "/sys/devices/system/cpu/amd_pstate" ]; then
-      echo "AMD pstate driver not available" >&2
-      exit 1
-    fi
-  '';
-};
-#+end_src
-***** ARM Unit
-#+begin_src nix :noweb-ref cpu-limit-arch-arm
-arm = {
-  description = "Limit CPU max performance percentage for ARM processors";
-  path = "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq";
-  checkCommand = ''
-    if [ ! -f "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq" ]; then
-      echo "ARM CPU frequency scaling not available" >&2
-      exit 1
-    fi
-    # For ARM, we need to get the maximum frequency first
-    MAX_FREQ=$(cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq)
-  '';
-  # ARM requires a different approach - calculate frequency from percentage
-  writeCommand = percentage: ''
-    MAX_FREQ=$(cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq)
-    TARGET_FREQ=$(( $MAX_FREQ * ${toString percentage} / 100 ))
-    echo $TARGET_FREQ > ${archImplementations.arm.path}
-  '';
-};
-#+end_src
+    programs.mosh.enable = true;
   };
 };
 #+end_src
 
-#+end_src
-
-**** TODO Garbage Collection
+**** TODO 📁 Services [23/39]
+***** TODO Docker
 #+begin_src nix :noweb-ref no
-{ config, lib, ... }:
-with lib;
-{
-  options = {
-    services.nixGarbageCollection = {
-      enable = mkEnableOption "automatic Nix garbage collection" // {
-        default = true;
-      };
-      dates = mkOption {
-        type = types.str;
-        default = "monthly";
-        description = "How often to run garbage collection";
-      };
-      options = mkOption {
-        type = types.str;
-        default = "--delete-older-than 365d";
-        description = "Options to pass to nix-collect-garbage";
-      };
-    };
+virtualisation.docker.enable = true;
+#+end_src
+***** TODO Gitlab
+#+begin_src nix :noweb-ref no
+networking.firewall.allowedTCPPorts = [];
+services.gitlab = {
+  enable = true;
+  port = 8050;
+};
+#+end_src
+***** TODO Home Assistant
+***** TODO Homepage Dashboard [9/18]
+#+begin_src nix :noweb-ref no
+networking.firewall.allowedTCPPorts = [ 8080 ];
+services.homepage-dashboard = {
+  allowedHosts = "*";
+#  allowedHosts = "main-host.manticore-elnath.ts.net:8080,localhost:8080,127.0.0.1:8080";
+  enable = true;
+  listenPort = 8080;
+  openFirewall = true;
+  settings = {
+    <<homepage-dashboard-settings>>
   };
-  config = mkIf config.services.nixGarbageCollection.enable {
-    nix.gc = {
-      automatic = true;
-      dates = config.services.nixGarbageCollection.dates;
-      options = config.services.nixGarbageCollection.options;
+  services = [
+    <<homepage-dashboard-services>>
+  ];
+  widgets = [
+    <<homepage-dashboard-widgets>>
+  ];
+};
+#+end_src
+****** DONE Settings
+#+begin_src nix :noweb-ref homepage-dashboard-settings
+title = "Dashboard";
+description = "The Atomic Ass's Amazing Dashboard";
+background = {
+  image = "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop";
+  opacity = 50;
+};
+cardBlur = "sm";
+headerStyle = "boxedWidgets";
+theme = "dark";
+color = "neutral";
+layout = {
+  <<homepage-dashboard-layout>>
+};
+#+end_src
+
+****** TODO Layout
+#+begin_src nix :noweb-ref homepage-dashboard-layout
+"Monitoring" = {
+  disableCollapse = true;
+  header = false;
+};
+"Multimedia" = {
+  disableCollapse = true;
+  header = false;
+#  style = ;
+};
+"Servers" = {
+  disableCollapse = true;
+  header = false;
+};
+#+end_src
+
+****** TODO Services [7/11]
+******* DONE Groups
+#+begin_src nix :noweb-ref homepage-dashboard-services
+{
+  "Monitoring" = [
+    <<homepage-dashboard-services-monitoring>>
+  ];
+}
+{
+  "Multimedia" = [
+    <<homepage-dashboard-services-multimedia>>
+  ];
+}
+{
+  "Servers" = [
+    (mkGlancesService "main-host")
+    (mkGlancesService "n100-1")
+  ] ++ proxyServices;
+}
+#+end_src
+******* TODO Calibre-web
+#+begin_src nix :noweb-ref no
+{
+  "Calibre-web" = {
+    href = "";
+    description = "";
+    icon = "si-calibre-web-#45B29D";
+    widget:
+      type: calibreweb
+      url: http://your.calibreweb.host:port
+      username: username
+      password: password
+  };
+}
+#+end_src
+******* DONE Monitoring [3/3]
+:properties:
+:header-args+: :noweb-ref homepage-dashboard-services-monitoring
+:end:
+******** DONE pfSense (Heimdall)
+#+begin_src nix
+{
+  "pfSense" = {
+    href = "https://heimdall.${vars.tailscale-fqdn}/";
+    description = "pfSense Router (Heimdall)";
+    icon = "si-pfsense-#212121";
+    widget = {
+      type = "pfsense";
+      url = "https://heimdall.${vars.tailscale-fqdn}/";
+      headers.X-API-Key = "";
+      version = 2;
+      wan = "ix3";
+      fields = [ "load" "temp" "wanIP" "wanStatus" ];
     };
   };
 }
-
 #+end_src
-**** DONE Locale
+******** DONE Svartalfheim (TrueNAS Core)
 #+begin_src nix
-lokale = { config, lib, ... }: {
-  options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
-  config = lib.mkIf config.lokale.enable {
-    i18n = {
-      defaultLocale = vars.loKale;
-      extraLocaleSettings = {
-        LC_ADDRESS = vars.loKale;
-        LC_IDENTIFICATION = vars.loKale;
-        LC_MEASUREMENT = vars.loKale;
-        LC_MONETARY = vars.loKale;
-        LC_NAME = vars.loKale;
-        LC_NUMERIC = vars.loKale;
-        LC_PAPER = vars.loKale;
-        LC_TELEPHONE = vars.loKale;
-        LC_TIME = vars.loKale;
+{
+  "TrueNAS (Svartalfheim)" = {
+    href = "http://192.168.0.2";
+    description = "TrueNAS Server (Svartalfheim)";
+    icon = "si-truenas-#0095D5";
+    widget = {
+      type = "truenas";
+      url = "http://192.168.0.2";
+      key = "";
+      enablePools = true;
+      nasType = "core";
+    };
+  };
+}
+#+end_src
+
+******* DONE Multimedia [1/1]
+:properties:
+:header-args+: :noweb-ref homepage-dashboard-services-multimedia
+:end:
+******** DONE Jellyfin
+#+begin_src nix
+{
+  "Jellyfin" = {
+    href = "http://main-host.${vars.tailscale-fqdn}:8096/";
+    description = "Multimedia Streamer";
+    icon = "si-jellyfin-#00A4DC";
+    widget = {
+      type = "jellyfin";
+      url = "http://main-host.${vars.tailscale-fqdn}:8096/";
+      key = "";
+      enableBlocks =  true;
+      enableNowPlaying = true;
+      enableUser = true;
+      showEpisodeNumber = true;
+      expandOneStreamToTwoRows = false;
+    };
+  };
+}
+#+end_src
+******* TODO Glances Generator
+#+begin_src nix :noweb-ref homepage-dashboard-services-glances-generator
+mkGlancesService = hostname: {
+  "Glances ${hostname}" = {
+    href = "http://${hostname}.${vars.tailscale-fqdn}:61208/";
+    description = "Glances";
+    icon = "si-iterm2";
+    widget = {
+      type = "glances";
+      url = "http://${hostname}.${vars.tailscale-fqdn}:61208/";
+      version = 4;
+      metric = "info";
+      refreshInterval = 5000;
+    };
+  };
+};
+proxyHosts = map (i: "jelly-proxy-${lib.fixedWidthNumber 2 i}") (lib.range 1 proxyCount);
+proxyServices = map (host: mkGlancesService host) proxyHosts;
+#+end_src
+******* TODO Lubelog
+******* TODO Nextcloud
+#+begin_src nix :noweb-ref no
+{
+  "Nextcloud" = {
+    href = "";
+    description = "";
+    icon = "si-nextcloud-#0082C9";
+    widgets = {
+
+    };
+  };
+}
+#+end_src
+
+****** TODO Widgets [1/3]
+:properties:
+:header-args+: :noweb-ref homepage-dashboard-widgets
+:end:
+******* TODO Clock
+#+begin_src nix
+{
+  datetime = {
+    text_size = "x1";
+    format = {
+      dateStyle = "short";
+      timeStyle = "short";
+      hourCycle = "h23";
+    };
+  };
+}
+#+end_src
+******* WAIT Resources
+#+begin_src nix :noweb-ref no
+{
+  resources = {
+    cpu = true;
+    cputemp = true;
+    memory = true;
+    network = true;
+  };
+}
+#+end_src
+
+******* DONE Search
+#+begin_src nix
+{
+  "search" = {
+    provider = "custom";
+    focus = true;
+    url = "https://www.startpage.com/sp/search?query=";
+    target = "_blank";
+  };
+}
+#+end_src
+
+***** DONE Jellyfin Remote access proxy nodes [8/8]
+****** Host list
+01. Jeff & Jackie O'Connell
+02. Suzie?
+03. John & Darlene Powers
+04. Max & Alyssa O'Connell
+05. Ken & Stacy O'Connell ?
+06. Joeseph O'Connell
+07. Don & Gabby O'Connell
+08. ?
+
+****** DONE Preamble
+#+begin_src nix
+jellyfinProxyHost = { config, lib, pkgs, ... }: {
+  options.jellyfinProxyHost.enable = lib.mkEnableOption "Enable proxy hosting for Jellyfin server" // { default = false; };
+  config = lib.mkIf config.jellyfinProxyHost.enable {
+    <<jelly-proxy-networking-firewall>>
+    <<jelly-proxy-networking-subnet>>
+    <<jelly-proxy-networking-tailscale>>
+    <<jelly-proxy-nginx>>
+    <<jelly-proxy-mdns-avahi>>
+    <<jelly-proxy-packages>>
+  };
+};
+#+end_src
+
+****** DONE Networking [3/3]
+******* DONE Firewall
+Nginx listens on TCP 8096
+Avahi listens on UDP 5353
+#+begin_src nix :noweb-ref jelly-proxy-networking-firewall
+networking = {
+  firewall = {
+    enable = true;
+    allowedTCPPorts = [ 8096 ];
+    allowedUDPPorts = [ 5353 ];
+  };
+};
+#+end_src
+
+******* DONE Settings for Tailscale subnet routing
+#+begin_src nix :noweb-ref jelly-proxy-networking-subnet
+boot.kernel.sysctl = {
+  "net.ipv4.ip_forward" = 1;
+  "net.ipv6.conf.all.forwarding" = 1;
+};
+services.networkd-dispatcher = {
+  enable = true;
+  rules."50-tailscale" = {
+    onState = [ "routable" ];
+    script = ''
+      #!/usr/bin/env bash
+      ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
+    '';
+  };
+};
+#+end_src
+
+******* DONE Tailscale
+Requires manual setup to add to Tailnet
+#+begin_src nix :noweb-ref jelly-proxy-networking-tailscale
+services.tailscale = {
+  enable = true;
+  openFirewall = true;
+};
+#+end_src
+
+****** DONE Nginx
+#+begin_src nix :noweb-ref jelly-proxy-nginx
+services.nginx = {
+  enable = true;
+  virtualHosts."default" = {
+    default = true;
+    listen = [ { addr = "0.0.0.0"; port = 8096; } ];
+    locations."/" = {
+      proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
+      extraConfig = ''
+        proxy_http_version 1.1;
+        proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      '';
+    };
+  };
+};
+#+end_src
+
+****** DONE mDNS with Avahi
+nssmdns4 = Enable mDNS for IPv4 name resolution
+
+#+begin_src nix :noweb-ref jelly-proxy-mdns-avahi
+services.avahi = {
+  enable = true;
+  nssmdns4 = true;
+  publish = {
+    enable = true;
+    addresses = true;
+    userServices = true;
+  };
+};
+environment.etc."avahi/services/jellyfin.service".text = ''
+  <?xml version="1.0" standalone='no'?>
+  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+  <service-group>
+    <name>Jellyfin Proxy</name>
+    <service>
+      <type>_http._tcp</type>
+      <port>8096</port>
+      <txt-record>description=Jellyfin Media Server Proxy</txt-record>
+    </service>
+  </service-group>
+'';
+#+end_src
+
+****** DONE Packages
+#+begin_src nix :noweb-ref jelly-proxy-packages
+environment.systemPackages = with pkgs; [
+  avahi
+  ethtool
+  nginx
+  tailscale
+];
+#+end_src
+
+***** DONE Jellyfin Server [5/5]
+[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
+intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
+
+Jellyfin must be set to VAAPI for transcoding on modern Intel platforms as of 2025
+#+begin_src nix
+jellyfinServer = { config, lib, pkgs, ... }: {
+  options.jellyfinServer.enable = lib.mkEnableOption "Setup Jellyfin Server" // { default = false; };
+  config = lib.mkIf config.jellyfinServer.enable {
+    boot.kernelParams = [ "i915.enable_guc=2" ];
+    nixpkgs.config.allowUnfree = true;
+    <<module-service-jellyfin-hardware>>
+    <<module-service-jellyfin-service>>
+    <<module-service-jellyfin-environment>>
+    <<module-service-jellyfin-cachedir>>
+    users.groups.jellyfin.members = [ "jellyfin" ];
+    <<module-service-jellyfin-systemd>>
+  };
+};
+#+end_src
+****** DONE hardware
+#+begin_src nix :noweb-ref module-service-jellyfin-hardware
+hardware = {
+  enableAllFirmware = true;
+  graphics.enable = true;
+};
+#+end_src
+****** DONE Jellyfin service
+#+begin_src nix :noweb-ref module-service-jellyfin-service
+services.jellyfin = {
+  enable = true;
+  group = "jellyfin";
+  openFirewall = true;
+  user = "jellyfin";
+  dataDir = "/var/lib/jellyfin"; # Default data directory
+  cacheDir = "/var/cache/jellyfin"; # Cache directory for transcoding
+};
+#+end_src
+****** DONE environment
+#+begin_src nix :noweb-ref module-service-jellyfin-environment
+environment = {
+  sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
+  systemPackages = with pkgs; [
+    intel-compute-runtime
+    intel-gpu-tools
+    intel-media-driver
+    jellyfin-ffmpeg
+    libva
+    libva-utils
+    libvdpau-va-gl
+    vaapiVdpau
+    vpl-gpu-rt
+  ];
+};
+#+end_src
+****** DONE cacheDir
+#+begin_src nix :noweb-ref module-service-jellyfin-cachedir
+systemd.tmpfiles.rules = [
+  "d ${config.services.jellyfin.cacheDir} 0750 jellyfin jellyfin - -"
+];
+#+end_src
+****** DONE systemD service
+#+begin_src nix :noweb-ref module-service-jellyfin-systemd
+systemd.services.jellyfin = {
+  after = [ "network.target" ];
+  wantedBy = [ "multi-user.target" ];
+  serviceConfig = {
+    Restart = "on-failure";
+    RestartSec = 5;
+  };
+};
+#+end_src
+***** TODO Nextcloud
+#+begin_src nix :noweb-ref no
+services.nextcloud = {
+  enable = true;
+};
+#+end_src
+
+***** TODO Netdata
+#+begin_src nix :noweb-ref no
+services.netdata = {
+#  config = {
+#};
+  enable = true;
+};
+#+end_src
+
+    <<nix-flake-service-netdata-config>>
+
+****** TODO Config
+#+begin_src nix :noweb-ref nix-flake-service-netdata-config
+global = {
+  "run as user" = "netdata";
+	# host access prefix = /host
+	# glibc malloc arena max for plugins = 1
+	# glibc malloc arena max for netdata = 1
+	# hostname = b17913f8d0b3
+	# history = 3996
+	# update every = 1
+	# config directory = /etc/netdata
+	# log directory = /var/log/netdata
+	# web files directory = /usr/share/netdata/web
+	# cache directory = /var/cache/netdata
+	# lib directory = /var/lib/netdata
+	# home directory = /var/cache/netdata
+	# plugins directory = "/usr/libexec/netdata/plugins.d" "/etc/netdata/custom-plugins.d"
+	# memory mode = save
+	# memory deduplication (ksm) = yes
+	# TZ environment variable = :/etc/localtime
+	# timezone = Etc/UTC
+	# debug flags = 0x0000000000000000
+	# debug log = /var/log/netdata/debug.log
+	# error log = /var/log/netdata/error.log
+	# access log = /var/log/netdata/access.log
+	# errors flood protection period = 1200
+	# errors to trigger flood protection = 200
+	# OOM score = 1000
+	# process scheduling policy = idle
+	# pthread stack size = 8388608
+	# cleanup obsolete charts after seconds = 3600
+	# gap when lost iterations above = 1
+	# cleanup orphan hosts after seconds = 3600
+	# delete obsolete charts files = yes
+	# delete orphan hosts files = yes
+};
+web = {
+  "default port" = 19999;
+	# mode = static-threaded
+	# listen backlog = 4096
+	# bind to = *
+	# web files owner = root
+	# web files group = root
+	# disconnect idle clients after seconds = 60
+	# timeout for first request = 60
+	# respect do not track policy = no
+	# x-frame-options response header = 
+	# allow connections from = localhost *
+	# allow dashboard from = localhost *
+	# allow badges from = *
+	# allow streaming from = *
+	# allow netdata.conf from = localhost fd* 10.* 192.168.* 172.16.* 172.17.* 172.18.* 172.19.* 172.20.* 172.21.* 172.22.* 172.23.* 172.24.* 172.25.* 172.26.* 172.27.* 172.28.* 172.29.* 172.30.* 172.31.*
+	# enable gzip compression = yes
+	# gzip compression strategy = default
+	# gzip compression level = 3
+	# web server threads = 1
+	# web server max sockets = 32768
+};
+plugins = {
+	# PATH environment variable = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+	# PYTHONPATH environment variable = 
+	# proc = yes
+	# diskspace = yes
+	# cgroups = yes
+	# tc = yes
+	# idlejitter = yes
+	# enable running new plugins = yes
+	# check for new plugins every = 60
+	# apps = yes
+	# charts.d = yes
+	# fping = yes
+	# node.d = yes
+	# python.d = yes
+};
+health = {
+	# enabled = yes
+	# in memory max health log entries = 1000
+	# script to execute on alarm = /usr/libexec/netdata/plugins.d/alarm-notify.sh
+	# health configuration directory = /etc/netdata/health.d
+	# run at least every seconds = 10
+	# postpone alarms during hibernation for seconds = 60
+	# rotate log every lines = 2000
+};
+registry = {
+	# enabled = no
+	# registry db directory = /var/lib/netdata/registry
+	# netdata unique id file = /var/lib/netdata/registry/netdata.public.unique.id
+	# registry db file = /var/lib/netdata/registry/registry.db
+	# registry log file = /var/lib/netdata/registry/registry-log.db
+	# registry save db every new entries = 1000000
+	# registry expire idle persons days = 365
+	# registry domain = 
+	# registry to announce = https://registry.my-netdata.io
+	# registry hostname = b17913f8d0b3
+	# verify browser cookies support = yes
+	# max URL length = 1024
+	# max URL name length = 50
+	# allow from = *
+};
+backend = {
+	# host tags = 
+	# enabled = no
+	# data source = average
+	# type = graphite
+	# destination = localhost
+	# prefix = netdata
+	# hostname = b17913f8d0b3
+	# update every = 10
+	# buffer on failures = 10
+	# timeout ms = 20000
+	# send names instead of ids = yes
+	# send charts matching = *
+	# send hosts matching = localhost *
+};
+statsd = {
+	# enabled = yes
+	# update every (flushInterval) = 1
+	# udp messages to process at once = 10
+	# create private charts for metrics matching = *
+	# max private charts allowed = 200
+	# max private charts hard limit = 1000
+	# private charts memory mode = save
+	# private charts history = 3996
+	# decimal detail = 1000
+	# disconnect idle tcp clients after seconds = 600
+	# private charts hidden = no
+	# histograms and timers percentile (percentThreshold) = 95.00000
+	# add dimension for number of events received = yes
+	# gaps on gauges (deleteGauges) = no
+	# gaps on counters (deleteCounters) = no
+	# gaps on meters (deleteMeters) = no
+	# gaps on sets (deleteSets) = no
+	# gaps on histograms (deleteHistograms) = no
+	# gaps on timers (deleteTimers) = no
+	# statsd server max TCP sockets = 16384
+	# listen backlog = 4096
+	# default port = 8125
+	# bind to = udp:localhost tcp:localhost
+};
+
+# per plugin configuration
+
+[plugin:apps]
+	# update every = 1
+	# command options = 
+
+[plugin:charts.d]
+	# update every = 1
+	# command options = 
+
+[plugin:fping]
+	# update every = 1
+	# command options = 
+
+[plugin:node.d]
+	# update every = 1
+	# command options = 
+
+[plugin:cgroups]
+	# cgroups plugin resource charts = yes
+	# update every = 1
+	# check for new cgroups every = 10
+	# enable cpuacct stat (total CPU) = auto
+	# enable cpuacct usage (per core CPU) = auto
+	# enable memory (used mem including cache) = auto
+	# enable detailed memory = auto
+	# enable memory limits fail count = auto
+	# enable swap memory = auto
+	# enable blkio bandwidth = auto
+	# enable blkio operations = auto
+	# enable blkio throttle bandwidth = auto
+	# enable blkio throttle operations = auto
+	# enable blkio queued operations = auto
+	# enable blkio merged operations = auto
+	# recheck zero blkio every iterations = 10
+	# recheck zero memory failcnt every iterations = 10
+	# recheck zero detailed memory every iterations = 10
+	# enable systemd services = yes
+	# enable systemd services detailed memory = no
+	# report used memory without cache = yes
+	# path to /sys/fs/cgroup/cpuacct = /host/sys/fs/cgroup/cpuacct
+	# path to /sys/fs/cgroup/blkio = /host/sys/fs/cgroup/blkio
+	# path to /sys/fs/cgroup/memory = /host/sys/fs/cgroup/memory
+	# path to /sys/fs/cgroup/devices = /host/sys/fs/cgroup/devices
+	# max cgroups to allow = 1000
+	# max cgroups depth to monitor = 0
+	# enable new cgroups detected at run time = yes
+	# enable by default cgroups matching =  !*/init.scope  !/system.slice/run-*.scope  *.scope  /machine.slice/*.service  !*/vcpu*  !*/emulator  !*.mount  !*.partition  !*.service  !*.socket  !*.slice  !*.swap  !*.user  !/  !/docker  !/libvirt  !/lxc  !/lxc/*/*  !/machine  !/qemu  !/system  !/systemd  !/user  * 
+	# search for cgroups in subpaths matching =  !*/init.scope  !*-qemu  !*.libvirt-qemu  !/init.scope  !/system  !/systemd  !/user  !/user.slice  !/lxc/*/*  * 
+	# script to get cgroup names = /usr/libexec/netdata/plugins.d/cgroup-name.sh
+	# script to get cgroup network interfaces = /usr/libexec/netdata/plugins.d/cgroup-network
+	# run script to rename cgroups matching =  !/  !*.mount  !*.socket  !*.partition  /machine.slice/*.service  !*.service  !*.slice  !*.swap  !*.user  !init.scope  !*.scope/vcpu*  !*.scope/emulator  *.scope  *docker*  *lxc*  *qemu*  *kubepods*  *.libvirt-qemu  * 
+	# cgroups to match as systemd services =  !/system.slice/*/*.service  /system.slice/*.service 
+
+[plugin:proc]
+	# netdata server resources = yes
+	# /proc/stat = yes
+	# /proc/uptime = yes
+	# /proc/loadavg = yes
+	# /proc/sys/kernel/random/entropy_avail = yes
+	# /proc/interrupts = yes
+	# /proc/softirqs = yes
+	# /proc/vmstat = yes
+	# /proc/meminfo = yes
+	# /sys/kernel/mm/ksm = yes
+	# /sys/devices/system/edac/mc = yes
+	# /sys/devices/system/node = yes
+	# /proc/net/dev = yes
+	# /proc/net/sockstat = yes
+	# /proc/net/sockstat6 = yes
+	# /proc/net/netstat = yes
+	# /proc/net/snmp = yes
+	# /proc/net/snmp6 = yes
+	# /proc/net/softnet_stat = yes
+	# /proc/net/ip_vs/stats = yes
+	# /proc/net/stat/conntrack = yes
+	# /proc/net/stat/synproxy = yes
+	/proc/diskstats = no
+	# /proc/net/rpc/nfsd = yes
+	# /proc/net/rpc/nfs = yes
+	# /proc/spl/kstat/zfs/arcstats = yes
+	# /sys/fs/btrfs = yes
+	# ipc = yes
+
+[plugin:proc:diskspace]
+	# remove charts of unmounted disks = yes
+	# update every = 1
+	# check for new mount points every = 15
+
+[plugin:idlejitter]
+	# loop time in ms = 20
+
+[plugin:python.d]
+	# update every = 1
+	# command options = 
+
+[plugin:tc]
+	# script to run to get tc values = /usr/libexec/netdata/plugins.d/tc-qos-helper.sh
+
+[plugin:proc:/proc/stat]
+	# cpu utilization = yes
+	# per cpu core utilization = yes
+	# cpu interrupts = yes
+	# context switches = yes
+	# processes started = yes
+	# processes running = yes
+	# keep per core files open = yes
+	# core_throttle_count = auto
+	# package_throttle_count = no
+	# scaling_cur_freq = no
+	# core_throttle_count filename to monitor = /host/sys/devices/system/cpu/%s/thermal_throttle/core_throttle_count
+	# package_throttle_count filename to monitor = /host/sys/devices/system/cpu/%s/thermal_throttle/package_throttle_count
+	# scaling_cur_freq filename to monitor = /host/sys/devices/system/cpu/%s/cpufreq/scaling_cur_freq
+	# filename to monitor = /host/proc/stat
+
+[plugin:proc:/proc/uptime]
+	# filename to monitor = /host/proc/uptime
+
+[plugin:proc:/proc/loadavg]
+	# filename to monitor = /host/proc/loadavg
+
+[plugin:proc:/proc/sys/kernel/random/entropy_avail]
+	# filename to monitor = /host/proc/sys/kernel/random/entropy_avail
+
+[plugin:proc:/proc/interrupts]
+	# interrupts per core = yes
+	# filename to monitor = /host/proc/interrupts
+
+[plugin:proc:/proc/softirqs]
+	# interrupts per core = yes
+	# filename to monitor = /host/proc/softirqs
+
+[plugin:proc:/proc/vmstat]
+	# swap i/o = auto
+	# disk i/o = yes
+	# memory page faults = yes
+	# system-wide numa metric summary = auto
+	# filename to monitor = /host/proc/vmstat
+
+[plugin:proc:/sys/devices/system/node]
+	# directory to monitor = /host/sys/devices/system/node
+
+[plugin:proc:/proc/meminfo]
+	# system ram = yes
+	# system swap = auto
+	# hardware corrupted ECC = auto
+	# committed memory = yes
+	# writeback memory = yes
+	# kernel memory = yes
+	# slab memory = yes
+	# hugepages = auto
+	# transparent hugepages = auto
+	# filename to monitor = /host/proc/meminfo
+
+[plugin:proc:/sys/kernel/mm/ksm]
+	# /sys/kernel/mm/ksm/pages_shared = /host/sys/kernel/mm/ksm/pages_shared
+	# /sys/kernel/mm/ksm/pages_sharing = /host/sys/kernel/mm/ksm/pages_sharing
+	# /sys/kernel/mm/ksm/pages_unshared = /host/sys/kernel/mm/ksm/pages_unshared
+	# /sys/kernel/mm/ksm/pages_volatile = /host/sys/kernel/mm/ksm/pages_volatile
+
+[plugin:proc:/sys/devices/system/edac/mc]
+	# directory to monitor = /host/sys/devices/system/edac/mc
+
+[plugin:proc:/proc/net/dev]
+	# path to get virtual interfaces = /host/sys/devices/virtual/net/%s
+	# enable new interfaces detected at runtime = auto
+	# bandwidth for all interfaces = auto
+	# packets for all interfaces = auto
+	# errors for all interfaces = auto
+	# drops for all interfaces = auto
+	# fifo for all interfaces = auto
+	# compressed packets for all interfaces = auto
+	# frames, collisions, carrier counters for all interfaces = auto
+	# disable by default interfaces matching = lo fireqos* *-ifb
+	# filename to monitor = /host/proc/net/dev
+
+[plugin:proc:/proc/net/sockstat]
+	# ipv4 sockets = auto
+	# ipv4 TCP sockets = auto
+	# ipv4 TCP memory = auto
+	# ipv4 UDP sockets = auto
+	# ipv4 UDP memory = auto
+	# ipv4 UDPLITE sockets = auto
+	# ipv4 RAW sockets = auto
+	# ipv4 FRAG sockets = auto
+	# ipv4 FRAG memory = auto
+	# update constants every = 60
+	# filename to monitor = /host/proc/net/sockstat
+
+[plugin:proc:/proc/net/sockstat6]
+	# ipv6 TCP sockets = auto
+	# ipv6 UDP sockets = auto
+	# ipv6 UDPLITE sockets = auto
+	# ipv6 RAW sockets = auto
+	# ipv6 FRAG sockets = auto
+	# filename to monitor = /host/proc/net/sockstat6
+
+[plugin:proc:/proc/net/netstat]
+	# bandwidth = auto
+	# input errors = auto
+	# multicast bandwidth = auto
+	# broadcast bandwidth = auto
+	# multicast packets = auto
+	# broadcast packets = auto
+	# ECN packets = auto
+	# TCP reorders = auto
+	# TCP SYN cookies = auto
+	# TCP out-of-order queue = auto
+	# TCP connection aborts = auto
+	# TCP memory pressures = auto
+	# TCP listen issues = auto
+	# filename to monitor = /host/proc/net/netstat
+
+[plugin:proc:/proc/net/snmp]
+	# ipv4 packets = yes
+	# ipv4 fragments sent = yes
+	# ipv4 fragments assembly = yes
+	# ipv4 errors = yes
+	# ipv4 TCP connections = yes
+	# ipv4 TCP packets = yes
+	# ipv4 TCP errors = yes
+	# ipv4 TCP opens = yes
+	# ipv4 TCP handshake issues = yes
+	# ipv4 UDP packets = yes
+	# ipv4 UDP errors = yes
+	# ipv4 ICMP packets = yes
+	# ipv4 ICMP messages = yes
+	# ipv4 UDPLite packets = yes
+	# filename to monitor = /host/proc/net/snmp
+
+[plugin:proc:/proc/net/snmp6]
+	# ipv6 packets = auto
+	# ipv6 fragments sent = auto
+	# ipv6 fragments assembly = auto
+	# ipv6 errors = auto
+	# ipv6 UDP packets = auto
+	# ipv6 UDP errors = auto
+	# ipv6 UDPlite packets = auto
+	# ipv6 UDPlite errors = auto
+	# bandwidth = auto
+	# multicast bandwidth = auto
+	# broadcast bandwidth = auto
+	# multicast packets = auto
+	# icmp = auto
+	# icmp redirects = auto
+	# icmp errors = auto
+	# icmp echos = auto
+	# icmp group membership = auto
+	# icmp router = auto
+	# icmp neighbor = auto
+	# icmp mldv2 = auto
+	# icmp types = auto
+	# ect = auto
+	# filename to monitor = /host/proc/net/snmp6
+
+[plugin:proc:/proc/net/softnet_stat]
+	# softnet_stat per core = yes
+	# filename to monitor = /host/proc/net/softnet_stat
+
+[plugin:proc:/proc/net/ip_vs_stats]
+	# IPVS bandwidth = yes
+	# IPVS connections = yes
+	# IPVS packets = yes
+	# filename to monitor = /host/proc/net/ip_vs_stats
+
+[plugin:proc:/proc/net/stat/nf_conntrack]
+	# filename to monitor = /host/proc/net/stat/nf_conntrack
+	# netfilter new connections = no
+	# netfilter connection changes = no
+	# netfilter connection expectations = no
+	# netfilter connection searches = no
+	# netfilter errors = no
+	# netfilter connections = no
+
+[plugin:proc:/proc/sys/net/netfilter/nf_conntrack_max]
+	# filename to monitor = /host/proc/sys/net/netfilter/nf_conntrack_max
+	# read every seconds = 10
+
+[plugin:proc:/proc/sys/net/netfilter/nf_conntrack_count]
+	# filename to monitor = /host/proc/sys/net/netfilter/nf_conntrack_count
+
+[plugin:proc:/proc/net/stat/synproxy]
+	# SYNPROXY entries = auto
+	# SYNPROXY cookies = auto
+	# SYNPROXY SYN received = auto
+	# SYNPROXY connections reopened = auto
+	# filename to monitor = /host/proc/net/stat/synproxy
+
+[plugin:proc:/proc/diskstats]
+	# enable new disks detected at runtime = yes
+	# performance metrics for physical disks = auto
+	# performance metrics for virtual disks = auto
+	# performance metrics for partitions = no
+	# bandwidth for all disks = auto
+	# operations for all disks = auto
+	# merged operations for all disks = auto
+	# i/o time for all disks = auto
+	# queued operations for all disks = auto
+	# utilization percentage for all disks = auto
+	# backlog for all disks = auto
+	# bcache for all disks = auto
+	# remove charts of removed disks = yes
+	# path to get block device = /host/sys/block/%s
+	# path to get block device bcache = /host/sys/block/%s/bcache
+	# path to get virtual block device = /host/sys/devices/virtual/block/%s
+	# path to get block device infos = /host/sys/dev/block/%lu:%lu/%s
+	# path to device mapper = /host/dev/mapper
+	# path to /dev/disk/by-label = /host/dev/disk/by-label
+	# path to /dev/disk/by-id = /host/dev/disk/by-id
+	# name disks by id = no
+	# exclude disks = loop* ram*
+	# filename to monitor = /host/proc/diskstats
+
+[plugin:proc:/proc/net/rpc/nfsd]
+	# filename to monitor = /host/proc/net/rpc/nfsd
+
+[plugin:proc:/proc/net/rpc/nfs]
+	# filename to monitor = /host/proc/net/rpc/nfs
+
+[plugin:proc:/proc/spl/kstat/zfs/arcstats]
+	# filename to monitor = /host/proc/spl/kstat/zfs/arcstats
+
+[plugin:proc:/sys/fs/btrfs]
+	# path to monitor = /host/sys/fs/btrfs
+	# check for btrfs changes every = 60
+	# physical disks allocation = auto
+	# data allocation = auto
+	# metadata allocation = auto
+	# system allocation = auto
+
+
+# per chart configuration
+
+[system.idlejitter]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/system.idlejitter
+	# chart type = area
+	# type = system
+	# family = idlejitter
+	# units = microseconds lost/s
+	# context = system.idlejitter
+	# priority = 800
+	# name = system.idlejitter
+	# title = CPU Idle Jitter
+	# dim min name = min
+	# dim min algorithm = absolute
+	# dim min multiplier = 1
+	# dim min divisor = 1
+	# dim max name = max
+	# dim max algorithm = absolute
+	# dim max multiplier = 1
+	# dim max divisor = 1
+	# dim average name = average
+	# dim average algorithm = absolute
+	# dim average multiplier = 1
+	# dim average divisor = 1
+
+[netdata.statsd_metrics]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.statsd_metrics
+	# chart type = stacked
+	# type = netdata
+	# family = statsd
+	# units = metrics
+	# context = netdata.statsd_metrics
+	# priority = 132010
+	# name = netdata.statsd_metrics
+	# title = Metrics in the netdata statsd database
+	# dim gauges name = gauges
+	# dim gauges algorithm = absolute
+	# dim gauges multiplier = 1
+	# dim gauges divisor = 1
+	# dim counters name = counters
+	# dim counters algorithm = absolute
+	# dim counters multiplier = 1
+	# dim counters divisor = 1
+	# dim timers name = timers
+	# dim timers algorithm = absolute
+	# dim timers multiplier = 1
+	# dim timers divisor = 1
+	# dim meters name = meters
+	# dim meters algorithm = absolute
+	# dim meters multiplier = 1
+	# dim meters divisor = 1
+	# dim histograms name = histograms
+	# dim histograms algorithm = absolute
+	# dim histograms multiplier = 1
+	# dim histograms divisor = 1
+	# dim sets name = sets
+	# dim sets algorithm = absolute
+	# dim sets multiplier = 1
+	# dim sets divisor = 1
+
+[netdata.statsd_events]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.statsd_events
+	# chart type = stacked
+	# type = netdata
+	# family = statsd
+	# units = events/s
+	# context = netdata.statsd_events
+	# priority = 132011
+	# name = netdata.statsd_events
+	# title = Events processed by the netdata statsd server
+	# dim gauges name = gauges
+	# dim gauges algorithm = incremental
+	# dim gauges multiplier = 1
+	# dim gauges divisor = 1
+	# dim counters name = counters
+	# dim counters algorithm = incremental
+	# dim counters multiplier = 1
+	# dim counters divisor = 1
+	# dim timers name = timers
+	# dim timers algorithm = incremental
+	# dim timers multiplier = 1
+	# dim timers divisor = 1
+	# dim meters name = meters
+	# dim meters algorithm = incremental
+	# dim meters multiplier = 1
+	# dim meters divisor = 1
+	# dim histograms name = histograms
+	# dim histograms algorithm = incremental
+	# dim histograms multiplier = 1
+	# dim histograms divisor = 1
+	# dim sets name = sets
+	# dim sets algorithm = incremental
+	# dim sets multiplier = 1
+	# dim sets divisor = 1
+	# dim unknown name = unknown
+	# dim unknown algorithm = incremental
+	# dim unknown multiplier = 1
+	# dim unknown divisor = 1
+	# dim errors name = errors
+	# dim errors algorithm = incremental
+	# dim errors multiplier = 1
+	# dim errors divisor = 1
+
+[netdata.statsd_reads]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.statsd_reads
+	# chart type = stacked
+	# type = netdata
+	# family = statsd
+	# units = reads/s
+	# context = netdata.statsd_reads
+	# priority = 132012
+	# name = netdata.statsd_reads
+	# title = Read operations made by the netdata statsd server
+	# dim tcp name = tcp
+	# dim tcp algorithm = incremental
+	# dim tcp multiplier = 1
+	# dim tcp divisor = 1
+	# dim udp name = udp
+	# dim udp algorithm = incremental
+	# dim udp multiplier = 1
+	# dim udp divisor = 1
+
+[netdata.statsd_bytes]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.statsd_bytes
+	# chart type = stacked
+	# type = netdata
+	# family = statsd
+	# units = kilobits/s
+	# context = netdata.statsd_bytes
+	# priority = 132013
+	# name = netdata.statsd_bytes
+	# title = Bytes read by the netdata statsd server
+	# dim tcp name = tcp
+	# dim tcp algorithm = incremental
+	# dim tcp multiplier = 8
+	# dim tcp divisor = 1000
+	# dim udp name = udp
+	# dim udp algorithm = incremental
+	# dim udp multiplier = 8
+	# dim udp divisor = 1000
+
+[netdata.statsd_packets]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.statsd_packets
+	# chart type = stacked
+	# type = netdata
+	# family = statsd
+	# units = packets/s
+	# context = netdata.statsd_packets
+	# priority = 132014
+	# name = netdata.statsd_packets
+	# title = Network packets processed by the netdata statsd server
+	# dim tcp name = tcp
+	# dim tcp algorithm = incremental
+	# dim tcp multiplier = 1
+	# dim tcp divisor = 1
+	# dim udp name = udp
+	# dim udp algorithm = incremental
+	# dim udp multiplier = 1
+	# dim udp divisor = 1
+
+[netdata.tcp_connects]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.tcp_connects
+	# chart type = line
+	# type = netdata
+	# family = statsd
+	# units = events
+	# context = netdata.tcp_connects
+	# priority = 132015
+	# name = netdata.tcp_connects
+	# title = statsd server TCP connects and disconnects
+	# dim connects name = connects
+	# dim connects algorithm = incremental
+	# dim connects multiplier = 1
+	# dim connects divisor = 1
+	# dim disconnects name = disconnects
+	# dim disconnects algorithm = incremental
+	# dim disconnects multiplier = -1
+	# dim disconnects divisor = 1
+
+[netdata.tcp_connected]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.tcp_connected
+	# chart type = line
+	# type = netdata
+	# family = statsd
+	# units = connected
+	# context = netdata.tcp_connected
+	# priority = 132016
+	# name = netdata.tcp_connected
+	# title = statsd server TCP connected sockets
+	# dim connected name = connected
+	# dim connected algorithm = absolute
+	# dim connected multiplier = 1
+	# dim connected divisor = 1
+
+[netdata.private_charts]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.private_charts
+	# chart type = area
+	# type = netdata
+	# family = statsd
+	# units = charts
+	# context = netdata.private_charts
+	# priority = 132020
+	# name = netdata.private_charts
+	# title = Private metric charts created by the netdata statsd server
+	# dim charts name = charts
+	# dim charts algorithm = absolute
+	# dim charts multiplier = 1
+	# dim charts divisor = 1
+
+[netdata.plugin_statsd_charting_cpu]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.plugin_statsd_charting_cpu
+	# chart type = stacked
+	# type = netdata
+	# family = statsd
+	# units = milliseconds/s
+	# context = netdata.statsd_cpu
+	# priority = 132001
+	# name = netdata.plugin_statsd_charting_cpu
+	# title = NetData statsd charting thread CPU usage
+	# dim user name = user
+	# dim user algorithm = incremental
+	# dim user multiplier = 1
+	# dim user divisor = 1000
+	# dim system name = system
+	# dim system algorithm = incremental
+	# dim system multiplier = 1
+	# dim system divisor = 1000
+
+[netdata.plugin_statsd_collector1_cpu]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.plugin_statsd_collector1_cpu
+	# chart type = stacked
+	# type = netdata
+	# family = statsd
+	# units = milliseconds/s
+	# context = netdata.statsd_cpu
+	# priority = 132002
+	# name = netdata.plugin_statsd_collector1_cpu
+	# title = NetData statsd collector thread No 1 CPU usage
+	# dim user name = user
+	# dim user algorithm = incremental
+	# dim user multiplier = 1
+	# dim user divisor = 1000
+	# dim system name = system
+	# dim system algorithm = incremental
+	# dim system multiplier = 1
+	# dim system divisor = 1000
+
+[netdata.web_thread1_cpu]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.web_thread1_cpu
+	# chart type = stacked
+	# type = netdata
+	# family = web
+	# units = milliseconds/s
+	# context = netdata.web_cpu
+	# priority = 132000
+	# name = netdata.web_thread1_cpu
+	# title = NetData web server thread No 1 CPU usage
+	# dim user name = user
+	# dim user algorithm = incremental
+	# dim user multiplier = 1
+	# dim user divisor = 1000
+	# dim system name = system
+	# dim system algorithm = incremental
+	# dim system multiplier = 1
+	# dim system divisor = 1000
+
+[netdata.plugin_cgroups_cpu]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.plugin_cgroups_cpu
+	# chart type = stacked
+	# type = netdata
+	# family = cgroups
+	# units = milliseconds/s
+	# context = netdata.plugin_cgroups_cpu
+	# priority = 132000
+	# name = netdata.plugin_cgroups_cpu
+	# title = NetData CGroups Plugin CPU usage
+	# dim user name = user
+	# dim user algorithm = incremental
+	# dim user multiplier = 1
+	# dim user divisor = 1000
+	# dim system name = system
+	# dim system algorithm = incremental
+	# dim system multiplier = 1
+	# dim system divisor = 1000
+
+[netdata.plugin_diskspace]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.plugin_diskspace
+	# chart type = stacked
+	# type = netdata
+	# family = diskspace
+	# units = milliseconds/s
+	# context = netdata.plugin_diskspace
+	# priority = 132020
+	# name = netdata.plugin_diskspace
+	# title = NetData Disk Space Plugin CPU usage
+	# dim user name = user
+	# dim user algorithm = incremental
+	# dim user multiplier = 1
+	# dim user divisor = 1000
+	# dim system name = system
+	# dim system algorithm = incremental
+	# dim system multiplier = 1
+	# dim system divisor = 1000
+
+[system.ipc_semaphores]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/system.ipc_semaphores
+	# chart type = area
+	# type = system
+	# family = ipc semaphores
+	# units = semaphores
+	# context = system.ipc_semaphores
+	# priority = 1000
+	# name = system.ipc_semaphores
+	# title = IPC Semaphores
+	# dim semaphores name = semaphores
+	# dim semaphores algorithm = absolute
+	# dim semaphores multiplier = 1
+	# dim semaphores divisor = 1
+
+[netdata.plugin_diskspace_dt]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.plugin_diskspace_dt
+	# chart type = area
+	# type = netdata
+	# family = diskspace
+	# units = milliseconds/run
+	# context = netdata.plugin_diskspace_dt
+	# priority = 132021
+	# name = netdata.plugin_diskspace_dt
+	# title = NetData Disk Space Plugin Duration
+	# dim duration name = duration
+	# dim duration algorithm = absolute
+	# dim duration multiplier = 1
+	# dim duration divisor = 1000
+
+[system.ipc_semaphore_arrays]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/system.ipc_semaphore_arrays
+	# chart type = area
+	# type = system
+	# family = ipc semaphores
+	# units = arrays
+	# context = system.ipc_semaphore_arrays
+	# priority = 1000
+	# name = system.ipc_semaphore_arrays
+	# title = IPC Semaphore Arrays
+	# dim arrays name = arrays
+	# dim arrays algorithm = absolute
+	# dim arrays multiplier = 1
+	# dim arrays divisor = 1
+
+[netdata.plugin_proc_modules]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.plugin_proc_modules
+	# chart type = stacked
+	# type = netdata
+	# family = proc
+	# units = milliseconds/run
+	# context = netdata.plugin_proc_modules
+	# priority = 132001
+	# name = netdata.plugin_proc_modules
+	# title = NetData Proc Plugin Modules Durations
+	# dim diskstats name = diskstats
+	# dim diskstats algorithm = absolute
+	# dim diskstats multiplier = 1
+	# dim diskstats divisor = 1000
+	# dim btrfs name = btrfs
+	# dim btrfs algorithm = absolute
+	# dim btrfs multiplier = 1
+	# dim btrfs divisor = 1000
+	# dim ipc name = ipc
+	# dim ipc algorithm = absolute
+	# dim ipc multiplier = 1
+	# dim ipc divisor = 1000
+
+[netdata.plugin_proc_cpu]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.plugin_proc_cpu
+	# chart type = stacked
+	# type = netdata
+	# family = proc
+	# units = milliseconds/s
+	# context = netdata.plugin_proc_cpu
+	# priority = 132000
+	# name = netdata.plugin_proc_cpu
+	# title = NetData Proc Plugin CPU usage
+	# dim user name = user
+	# dim user algorithm = incremental
+	# dim user multiplier = 1
+	# dim user divisor = 1000
+	# dim system name = system
+	# dim system algorithm = incremental
+	# dim system multiplier = 1
+	# dim system divisor = 1000
+
+[netdata.server_cpu]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.server_cpu
+	# chart type = stacked
+	# type = netdata
+	# family = netdata
+	# units = milliseconds/s
+	# context = netdata.server_cpu
+	# priority = 130000
+	# name = netdata.server_cpu
+	# title = NetData CPU usage
+	# dim user name = user
+	# dim user algorithm = incremental
+	# dim user multiplier = 1
+	# dim user divisor = 1000
+	# dim system name = system
+	# dim system algorithm = incremental
+	# dim system multiplier = 1
+	# dim system divisor = 1000
+
+[netdata.clients]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.clients
+	# chart type = line
+	# type = netdata
+	# family = netdata
+	# units = connected clients
+	# context = netdata.clients
+	# priority = 130200
+	# name = netdata.clients
+	# title = NetData Web Clients
+	# dim clients name = clients
+	# dim clients algorithm = absolute
+	# dim clients multiplier = 1
+	# dim clients divisor = 1
+
+[netdata.requests]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.requests
+	# chart type = line
+	# type = netdata
+	# family = netdata
+	# units = requests/s
+	# context = netdata.requests
+	# priority = 130300
+	# name = netdata.requests
+	# title = NetData Web Requests
+	# dim requests name = requests
+	# dim requests algorithm = incremental
+	# dim requests multiplier = 1
+	# dim requests divisor = 1
+
+[netdata.net]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.net
+	# chart type = area
+	# type = netdata
+	# family = netdata
+	# units = kilobits/s
+	# context = netdata.net
+	# priority = 130000
+	# name = netdata.net
+	# title = NetData Network Traffic
+	# dim in name = in
+	# dim in algorithm = incremental
+	# dim in multiplier = 8
+	# dim in divisor = 1000
+	# dim out name = out
+	# dim out algorithm = incremental
+	# dim out multiplier = -8
+	# dim out divisor = 1000
+
+[netdata.response_time]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.response_time
+	# chart type = line
+	# type = netdata
+	# family = netdata
+	# units = ms/request
+	# context = netdata.response_time
+	# priority = 130400
+	# name = netdata.response_time
+	# title = NetData API Response Time
+	# dim average name = average
+	# dim average algorithm = absolute
+	# dim average multiplier = 1
+	# dim average divisor = 1000
+	# dim max name = max
+	# dim max algorithm = absolute
+	# dim max multiplier = 1
+	# dim max divisor = 1000
+
+[netdata.compression_ratio]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.compression_ratio
+	# chart type = line
+	# type = netdata
+	# family = netdata
+	# units = percentage
+	# context = netdata.compression_ratio
+	# priority = 130500
+	# name = netdata.compression_ratio
+	# title = NetData API Responses Compression Savings Ratio
+	# dim savings name = savings
+	# dim savings algorithm = absolute
+	# dim savings multiplier = 1
+	# dim savings divisor = 1000
+
+[netdata.plugin_tc_cpu]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.plugin_tc_cpu
+	# chart type = stacked
+	# type = netdata
+	# family = tc.helper
+	# units = milliseconds/s
+	# context = netdata.plugin_tc_cpu
+	# priority = 135000
+	# name = netdata.plugin_tc_cpu
+	# title = NetData TC CPU usage
+	# dim user name = user
+	# dim user algorithm = incremental
+	# dim user multiplier = 1
+	# dim user divisor = 1000
+	# dim system name = system
+	# dim system algorithm = incremental
+	# dim system multiplier = 1
+	# dim system divisor = 1000
+
+[netdata.plugin_tc_time]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.plugin_tc_time
+	# chart type = area
+	# type = netdata
+	# family = tc.helper
+	# units = milliseconds/run
+	# context = netdata.plugin_tc_time
+	# priority = 135001
+	# name = netdata.plugin_tc_time
+	# title = NetData TC script execution
+	# dim run_time name = run time
+	# dim run_time algorithm = absolute
+	# dim run_time multiplier = 1
+	# dim run_time divisor = 1
+
+[netdata.runtime_cpufreq]
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/netdata.runtime_cpufreq
+	# chart type = line
+	# type = netdata
+	# family = python.d
+	# units = ms
+	# context = netdata.pythond_runtime
+	# priority = 145000
+	# name = netdata.runtime_cpufreq
+	# title = Execution time for cpufreq
+	# dim run_time name = run time
+	# dim run_time algorithm = absolute
+	# dim run_time multiplier = 1
+	# dim run_time divisor = 1
+
+cpu.cpufreq = {
+	# history = 3996
+	# enabled = yes
+	# cache directory = /var/cache/netdata/cpu.cpufreq
+	# chart type = line
+	# type = cpu
+	# family = cpufreq
+	# units = MHz
+	# context = cpufreq.cpufreq
+	# priority = 60000
+	# name = cpu.cpufreq
+	# title = CPU Clock
+	# dim cpu0 name = cpu0
+	# dim cpu0 algorithm = absolute
+	# dim cpu0 multiplier = 1
+	# dim cpu0 divisor = 1000
+	# dim cpu1 name = cpu1
+	# dim cpu1 algorithm = absolute
+	# dim cpu1 multiplier = 1
+	# dim cpu1 divisor = 1000
+	# dim cpu2 name = cpu2
+	# dim cpu2 algorithm = absolute
+	# dim cpu2 multiplier = 1
+	# dim cpu2 divisor = 1000
+	# dim cpu3 name = cpu3
+	# dim cpu3 algorithm = absolute
+	# dim cpu3 multiplier = 1
+	# dim cpu3 divisor = 1000
+	# dim cpu4 name = cpu4
+	# dim cpu4 algorithm = absolute
+	# dim cpu4 multiplier = 1
+	# dim cpu4 divisor = 1000
+	# dim cpu5 name = cpu5
+	# dim cpu5 algorithm = absolute
+	# dim cpu5 multiplier = 1
+	# dim cpu5 divisor = 1000
+	# dim cpu6 name = cpu6
+	# dim cpu6 algorithm = absolute
+	# dim cpu6 multiplier = 1
+	# dim cpu6 divisor = 1000
+	# dim cpu7 name = cpu7
+	# dim cpu7 algorithm = absolute
+	# dim cpu7 multiplier = 1
+	# dim cpu7 divisor = 1000
+};
+#+end_src
 **** DONE Smart Cards / Yubikeys
 #+begin_src nix
 smartCardKeys = { config, lib, pkgs, ... }: {
@@ -2209,7 +3709,7 @@ tailscaleVPN = { config, lib, ... }: {
 };
 #+end_src
 
-**** DONE Users [2/2]
+**** DONE 📁 Users [2/2]
 ***** DONE Jellyfin
 #+begin_src nix
 userJellyfin = { ... }: {
@@ -2241,7 +3741,8 @@ userRanko = { ... }: {
 };
 #+end_src
 
-**** DONE ZFS Boot Options
+**** DONE 📁 ZFS [3/3]
+***** DONE ZFS Boot Options
 #+begin_src nix
 zfsBootOptions = { config, lib, ... }: {
   options.zfsBootOptions.enable = lib.mkEnableOption "Boot settings for root on ZFS hosts" // { default = false; };
@@ -2259,7 +3760,24 @@ zfsBootOptions = { config, lib, ... }: {
 };
 #+end_src
 
-**** DONE ZFS Settings
+***** DONE ZFS Sanoid/Syncoid
+#+begin_src nix
+zfsSanoid = { config, lib, ... }: {
+  options.zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" // { default = false; };
+  config = lib.mkIf config.zfsSanoid.enable {
+    services = {
+      sanoid = {
+        enable = true;
+      };
+      syncoid = {
+        enable = true;
+      };
+    };
+  };
+};
+#+end_src
+
+***** DONE ZFS Settings
 #+begin_src nix
 zfsOptions = { config, lib, ... }: {
   options.zfsOptions.enable = lib.mkEnableOption "Common settings for ZFS pools" // { default = false; };
@@ -2279,20 +3797,8 @@ zfsOptions = { config, lib, ... }: {
 };
 #+end_src
 
-**** DONE ZFS Sanoid/Syncoid
-#+begin_src nix
-zfsSanoid = { config, lib, ... }: {
-  options.zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" // { default = false; };
-  config = lib.mkIf config.zfsSanoid.enable {
-    services = {
-      sanoid = {
-        enable = true;
-      };
-      syncoid = {
-        enable = true;
-      };
 **** DONE ZRAM
-#+begin_src nix :tangle dangerSwap.nix
+#+begin_src nix
 zramSwap = { config, lib, ... }: {
   options.dangerSwap.enable = lib.mkEnableOption "Enable zram compressed swap" // { default = true; };
   config = lib.mkIf config.dangerSwap.enable {

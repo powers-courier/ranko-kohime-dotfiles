@@ -203,11 +203,6 @@
               fsType = "vfat";
               options = [ "fmask=0077" "dmask=0077" ];
             };
-            "/var/lib/openclaw/workspace" = {
-              device = "${vars.truenas-ip}:/mnt/Svartalfheim/OpenClaw";
-              fsType = "nfs";
-              options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
-            };
           };
           system.stateVersion = "25.05";
         };
@@ -229,6 +224,64 @@
         
       };
       flakeModules = {
+        backupPackages = { config, lib, pkgs, ... }: {
+          options.backupPackages.enable = lib.mkEnableOption "Install backup packages" // { default = true; };
+          config = lib.mkIf config.backupPackages.enable {
+            environment.systemPackages = with pkgs; [
+              dar
+              ddrescue
+              par2cmdline
+              unison
+            ];
+          };
+        };
+        basePackages = { config, lib, pkgs, ... }: {
+          options.basePackages.enable = lib.mkEnableOption "Install standard packages" // { default = true; };
+          config = lib.mkIf config.basePackages.enable {
+            environment.systemPackages = with pkgs; [
+              byobu
+              dmidecode
+              git
+              glances
+              linux-firmware
+              lm_sensors
+              neovim
+              socat
+              sshfs
+              tmux
+              tree
+              yazi
+            ];
+          };
+        };
+        defaultBootloader = { config, lib, ... }: {
+          options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" // { default = true; };
+          config = lib.mkIf config.defaultBootloader.enable {
+            boot = {
+              initrd.availableKernelModules = [ "ahci" "nvme" "sd_mod" "thunderbolt" "usb_storage" "xhci_pci" ];
+              loader = {
+                efi.canTouchEfiVariables = true;
+                systemd-boot.enable = true;
+              };
+            };
+          };
+        };
+        cpuLimiterIntel = { config, lib, ... }: {
+          options.cpuLimiterIntel.enable = lib.mkEnableOption "Set CPU Limiter on boot for Intel" // { default = false; };
+          config = lib.mkIf config.cpuLimiterIntel.enable {
+            systemd.services.limit-cpu-max-perf = {
+              description = "Limit CPU max performance percentage using intel_pstate";
+              wantedBy = [ "multi-user.target" ];
+              serviceConfig = {
+                Type = "oneshot";
+                ExecStart = ''
+                  /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
+                '';
+                RemainAfterExit = true;
+              };
+            };
+          };
+        };
         defaultNetworking = { config, lib, ... }: {
           options.defaultNetworking = {
             enable = lib.mkEnableOption "Default network settings" // { default = true; };
@@ -610,6 +663,25 @@
             
           };
         };
+        lokale = { config, lib, ... }: {
+          options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
+          config = lib.mkIf config.lokale.enable {
+            i18n = {
+              defaultLocale = vars.loKale;
+              extraLocaleSettings = {
+                LC_ADDRESS = vars.loKale;
+                LC_IDENTIFICATION = vars.loKale;
+                LC_MEASUREMENT = vars.loKale;
+                LC_MONETARY = vars.loKale;
+                LC_NAME = vars.loKale;
+                LC_NUMERIC = vars.loKale;
+                LC_PAPER = vars.loKale;
+                LC_TELEPHONE = vars.loKale;
+                LC_TIME = vars.loKale;
+              };
+            };
+          };
+        };
         defaultNanoRC = { config, lib, programs, ... }: {
           options.defaultNanoRC.enable = lib.mkEnableOption "Sane defaults for nanorc" // { default = true; };
           config = lib.mkIf config.defaultNanoRC.enable {
@@ -856,18 +928,11 @@
             };
           };
         };
-        backupPackages = { config, lib, pkgs, ... }: {
-          options.backupPackages.enable = lib.mkEnableOption "Install backup packages" // { default = true; };
-          config = lib.mkIf config.backupPackages.enable {
         smartCardKeys = { config, lib, pkgs, ... }: {
           options.smartCardKeys.enable = lib.mkEnableOption "Enable settings for Smart Cards and Yubikeys" // { default = false; };
           config = lib.mkIf config.smartCardKeys.enable {
             boot.kernelModules = [ "uhid" "hid_goodix" ];
             environment.systemPackages = with pkgs; [
-              dar
-              ddrescue
-              par2cmdline
-              unison
               fprintd
               libfido2
               pam_u2f
@@ -877,36 +942,6 @@
               yubikey-personalization
               yubikey-touch-detector
             ];
-          };
-        };
-        basePackages = { config, lib, pkgs, ... }: {
-          options.basePackages.enable = lib.mkEnableOption "Install standard packages" // { default = true; };
-          config = lib.mkIf config.basePackages.enable {
-            environment.systemPackages = with pkgs; [
-              byobu
-              dmidecode
-              git
-              glances
-              linux-firmware
-              lm_sensors
-              neovim
-              socat
-              sshfs
-              tmux
-              tree
-              yazi
-            ];
-          };
-        };
-        defaultBootloader = { config, lib, ... }: {
-          options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" // { default = true; };
-          config = lib.mkIf config.defaultBootloader.enable {
-            boot = {
-              initrd.availableKernelModules = [ "ahci" "nvme" "sd_mod" "thunderbolt" "usb_storage" "xhci_pci" ];
-              loader = {
-                efi.canTouchEfiVariables = true;
-                systemd-boot.enable = true;
-              };
             security.pam.services = {
               login.fprintAuth = true;
               sudo.fprintAuth = true;
@@ -916,20 +951,6 @@
               # For i3lock or similar (if using)
         #      i3lock.fprintAuth = true;
             };
-          };
-        };
-        cpuLimiterIntel = { config, lib, ... }: {
-          options.cpuLimiterIntel.enable = lib.mkEnableOption "Set CPU Limiter on boot for Intel" // { default = false; };
-          config = lib.mkIf config.cpuLimiterIntel.enable {
-            systemd.services.limit-cpu-max-perf = {
-              description = "Limit CPU max performance percentage using intel_pstate";
-              wantedBy = [ "multi-user.target" ];
-              serviceConfig = {
-                Type = "oneshot";
-                ExecStart = ''
-                  /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
-                '';
-                RemainAfterExit = true;
             services = {
               fprintd = {
                 enable = true;
@@ -941,22 +962,6 @@
             programs.yubikey-touch-detector.enable = true;
           };
         };
-        lokale = { config, lib, ... }: {
-          options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
-          config = lib.mkIf config.lokale.enable {
-            i18n = {
-              defaultLocale = vars.loKale;
-              extraLocaleSettings = {
-                LC_ADDRESS = vars.loKale;
-                LC_IDENTIFICATION = vars.loKale;
-                LC_MEASUREMENT = vars.loKale;
-                LC_MONETARY = vars.loKale;
-                LC_NAME = vars.loKale;
-                LC_NUMERIC = vars.loKale;
-                LC_PAPER = vars.loKale;
-                LC_TELEPHONE = vars.loKale;
-                LC_TIME = vars.loKale;
-              };
         tailscaleVPN = { config, lib, ... }: {
           options.tailscaleVPN.enable = lib.mkEnableOption "Enable Tailscale VPN" // { default = true; };
           config = lib.mkIf config.tailscaleVPN.enable {
@@ -1004,6 +1009,19 @@
             zfsSanoid.enable = true;
           };
         };
+        zfsSanoid = { config, lib, ... }: {
+          options.zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" // { default = false; };
+          config = lib.mkIf config.zfsSanoid.enable {
+            services = {
+              sanoid = {
+                enable = true;
+              };
+              syncoid = {
+                enable = true;
+              };
+            };
+          };
+        };
         zfsOptions = { config, lib, ... }: {
           options.zfsOptions.enable = lib.mkEnableOption "Common settings for ZFS pools" // { default = false; };
           config = lib.mkIf config.zfsOptions.enable {
@@ -1020,16 +1038,6 @@
             };
           };
         };
-        zfsSanoid = { config, lib, ... }: {
-          options.zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" // { default = false; };
-          config = lib.mkIf config.zfsSanoid.enable {
-            services = {
-              sanoid = {
-                enable = true;
-              };
-              syncoid = {
-                enable = true;
-              };
         zramSwap = { config, lib, ... }: {
           options.dangerSwap.enable = lib.mkEnableOption "Enable zram compressed swap" // { default = true; };
           config = lib.mkIf config.dangerSwap.enable {
@@ -1178,24 +1186,11 @@
               my-router.enable = true;
             };
             server = { lib, pkgs, ... }: {
-              # Disable anything graphical or wireless
-              security.disableWireless.enable = true;   # your new module
-              boot.kernelParams = [ "quiet" "splash" ]; # less verbose boot
-            
-              # No X/Wayland
+              security.disableWireless.enable = true;
+              boot.kernelParams = [ "quiet" "splash" ];
               services.xserver.enable = lib.mkForce false;
-            
-              # Common server hardening
               networking.firewall.enable = true;
-            
-              # Minimal packages
-              environment.systemPackages = with pkgs; [
-                htop tmux git
-              ];
-            
-              # Disable unnecessary services
               services.printing.enable = lib.mkForce false;
-              hardware.bluetooth.enable = lib.mkForce false;
               networking.networkmanager.enable = lib.mkForce false;  # usually no NM on servers
             };
             # Future roles (placeholders)

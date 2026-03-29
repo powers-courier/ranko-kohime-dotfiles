@@ -382,6 +382,165 @@
             hardware.keyboard.zsa.enable = true;
           };
         };
+        flakeyRouter = { config, lib, pkgs, ... }:
+        
+        let
+          cfg = config.flakeyRouter;
+        in
+        {
+          options.flakeyRouter = with lib; {
+            enable = mkEnableOption "basic home/SOHO router functionality"
+              // { default = false; };  # ← explicitly default to off (common pattern)
+        
+            lanInterface = mkOption {
+              type        = types.str;
+              default     = "enp2s0";
+              description = "LAN-facing network interface";
+            };
+        
+            wanInterface = mkOption {
+              type        = types.str;
+              default     = "enp1s0";
+              description = "WAN/ISP-facing network interface";
+            };
+        
+            lan = {
+              subnet = mkOption {
+                type        = types.str;
+                default     = "192.168.88.0/24";
+                description = "LAN subnet in CIDR notation";
+              };
+        
+              gateway = mkOption {
+                type        = types.str;
+                default     = "192.168.88.1";
+                description = "Router's IP on the LAN interface";
+              };
+        
+              dhcpRange = mkOption {
+                type = types.str;
+                default = "192.168.42.100,192.168.42.200,12h";
+                description = "dnsmasq DHCP range (start,end,lease-time)";
+              };
+            };
+        
+            upstreamDns = mkOption {
+              type = types.listOf types.str;
+              default = [
+                "1.1.1.1"
+                "1.0.0.1"
+                "2606:4700:4700::1111"
+                "2606:4700:4700::1001"
+                        ];
+              description = "Upstream DNS servers to forward queries to";
+            };
+          };
+        
+          config = lib.mkIf cfg.enable {
+        
+            boot.kernel.sysctl = {
+              "net.ipv4.ip_forward"              = lib.mkDefault 1;
+              "net.ipv6.conf.all.forwarding"     = lib.mkDefault 1;
+              "net.ipv6.conf.default.forwarding" = lib.mkDefault 1;
+            };
+        
+            # ──────────────────────────────────────────────────────────────
+            #  Networking basics
+            # ──────────────────────────────────────────────────────────────
+            networking = {
+              useNetworkd = true;
+              useDHCP     = false;
+        
+              interfaces.${cfg.lanInterface} = {
+                ipv4.addresses = [{
+                  address      = cfg.lan.gateway;
+                  prefixLength = 24;
+                }];
+              };
+        
+              interfaces.${cfg.wanInterface}.useDHCP = true;
+            };
+        
+            networking.nftables = {
+              enable   = true;
+              ruleset  = ''
+                table inet filter {
+                  chain input {
+                    type filter hook input priority 0; policy drop;
+                    ct state { established, related } accept
+                    ct state invalid drop
+                    iifname "lo" accept
+                    iifname "${cfg.lanInterface}" accept
+                    # ICMPv4
+                    ip protocol icmp icmp type { destination-unreachable, router-solicitation, router-advertisement, time-exceeded, parameter-problem } accept
+                    # ICMPv6 / NDP
+                    ip6 nexthdr icmpv6 icmpv6 type { destination-unreachable, packet-too-big, time-exceeded, parameter-problem, nd-router-solicit, nd-router-advert, nd-neighbor-solicit, nd-neighbor-advert, mld-listener-query, mld-listener-report, mld-listener-reduction } accept
+                  }
+                  chain forward {
+                    type filter hook forward priority 0; policy drop;
+                    ct state { established, related } accept
+                    ct state invalid drop
+                    iifname "${cfg.lanInterface}" oifname "${cfg.wanInterface}" accept
+                    iifname "${cfg.wanInterface}" oifname "${cfg.lanInterface}" ct state established,related accept
+                  }
+                  chain output {
+                    type filter hook output priority 0; policy accept;
+                  }
+                }
+                table ip nat {
+                  chain postrouting {
+                    type nat hook postrouting priority 100; policy accept;
+                    oifname "${cfg.wanInterface}" masquerade
+                  }
+                }
+              '';
+            };
+            # Disable default iptables firewall – we're using nftables
+            networking.firewall.enable = false;
+        
+            services.dnsmasq = {
+              enable = true;
+            
+              settings = {
+                interface          = cfg.lanInterface;
+                bind-interfaces    = true;
+                except-interface   = cfg.wanInterface;
+            
+                dhcp-range         = cfg.lan.dhcpRange;
+                dhcp-option        = [
+                  "option:router,${cfg.lan.gateway}"
+                  "option:dns-server,${cfg.lan.gateway}"
+                ];
+            
+                server             = cfg.upstreamDns;
+                no-resolv          = true;
+            
+                domain             = "lan";
+                expand-hosts       = true;
+                local              = "/lan/";
+            
+                strict-order       = true;
+              };
+            };
+            environment.systemPackages = with pkgs; [
+              bind.dnsutils
+              ethtool
+              iproute2
+              nftables
+              tcpdump
+            ];
+            # Optional: Avahi for local discovery
+            services.avahi = {
+              enable = cfg.enableAvahi;
+              nssmdns4 = true;
+              publish = {
+                enable = true;
+                addresses = true;
+                userServices = true;
+              };
+            };
+          };
+        };
         fwupdFirmware = { config, lib, ... }: {
           options.fwupdFirmware.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
           config = lib.mkIf config.fwupdFirmware.enable {
@@ -467,6 +626,113 @@
                 set tabstospaces
               '';
             };
+          };
+        };
+        openBot = { config, home-manager, lib, pkgs, nix-openclaw, system,  ... }: {
+          options.openBot.enable = lib.mkEnableOption "Enable openBot" // { default = false; };
+          config = lib.mkIf config.openBot.enable {
+            fileSystems."/var/lib/openclaw/workspace" = {
+              device = "192.168.0.100:/mnt/Svartalfheim/OpenClaw";
+              fsType = "nfs";
+              options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
+            };
+            users = {
+              groups.openclaw = {
+                gid = 18789;
+                name = "openclaw";
+              };
+              users.openclaw = {
+                createHome = true;
+                group = "openclaw";
+                home = "/var/lib/openclaw";
+                isSystemUser = true;
+                shell = "/run/current-system/sw/bin/bash";
+                uid = 18789;
+              };
+            };
+            systemd.services."openclaw-gateway" = {
+              description = "OpenClaw Gateway Daemon";
+              after = [ "network.target" "remote-fs.target" ];
+              wantedBy = [ "multi-user.target" ];
+              serviceConfig = {
+                User = "openclaw";
+                WorkingDirectory = "/var/lib/openclaw";
+                ExecStart = "${home-manager.outputs.packages.${system}.default}/bin/openclaw gateway --port 18789";
+                Restart = "always";
+                ProtectSystem = "strict";
+                ProtectHome = "read-only";
+                ReadOnlyPaths = [ "/etc" "/var/log/journal" ];
+                NoNewPrivileges = true;
+                PrivateTmp = true;
+                ProtectKernelTunables = true;
+                ProtectControlGroups = true;
+                RestrictNamespaces = true;
+                MemoryMax = "12G";
+              };
+            };
+            homeManager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              users.openclaw = { pkgs, ... }: {
+                imports = [ nix-openclaw.homeManagerModules.openclaw ];
+                programs.openclaw = {
+                  enable = true;
+                  package = pkgs.openclaw;  # or the latest from nix-openclaw
+                  config = {
+                    agent.model = "anthropic/claude-opus-4-5";  # or local ollama if you prefer
+                    tools = {
+                      profile = "minimal";           # only safe tools initially
+                      deny = [ "group:automation" "group:runtime" "group:fs:write" "rm" "sudo" "apt" "mv" "cp" ];
+                      exec = {
+                        security = "ask";           # forces confirmation for any exec
+                        safeBinProfiles = [ "read-only-diagnostics" ];
+                      };
+                    };
+                    agents.defaults.sandbox = {
+                      mode = "session";             # Docker-like isolation for non-main sessions
+                      workspaceAccess = "ro";       # start read-only
+                    };
+                    dmPolicy = "pairing";           # you must approve the first chat
+                  };
+                  documents = {
+                    "AGENTS.md" = pkgs.writeText "AGENTS.md" ''
+                      You are a read-only homelab diagnostic assistant.
+                      You have NO write or destructive permissions.
+                      If a command would fail due to permissions, respond with the EXACT command the human (root) should run.
+                      Never attempt rm, mv, apt, sudo, etc.
+                    '';
+                    "SOUL.md" = pkgs.writeText "SOUL.md" ''
+                      You are helpful but extremely cautious. Always prefer suggesting commands over executing.
+                    '';
+                  };
+                  instances.default = {
+                    enable = true;
+                    stateDir = "/var/lib/openclaw";
+                    workspaceDir = "/var/lib/openclaw/workspace";
+                  };
+                };
+              };
+            };
+          };
+        };
+        opensshServer = { config, lib, ... }: {
+          options.opensshServer.enable = lib.mkEnableOption "Enable OpenSSH server, and Mosh" // { default = true; };
+          config = lib.mkIf config.opensshServer.enable {
+            services.openssh = {
+              banner = "Welcome to... wherever you happen to be\n";
+              enable = true;
+              extraConfig ="";
+              openFirewall = true;
+              ports = [ 22 ];
+              settings = {
+                PasswordAuthentication = false;
+                PermitRootLogin = "prohibit-password";
+                PrintMotd = true;
+                StrictModes = true;
+                X11Forwarding = true;
+              };
+            };
+            programs.mosh.enable = true;
           };
         };
         jellyfinProxyHost = { config, lib, pkgs, ... }: {

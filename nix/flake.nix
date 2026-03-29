@@ -229,6 +229,35 @@
         
       };
       flakeModules = {
+        defaultNetworking = { config, lib, ... }: {
+          options.defaultNetworking = {
+            enable = lib.mkEnableOption "Default network settings" // { default = true; };
+            useIwd = lib.mkEnableOption "Enable IWD Wireless Client" // { default = true; };
+          };
+          config = lib.mkIf config.defaultNetworking.enable {
+            networking = {
+              networkmanager = {
+                enable = true;
+                wifi.backend = "iwd";
+              };
+              wireless.iwd = lib.mkIf config.defaultNetworking.useIwd {
+                enable = lib.mkDefault true;
+                settings = {
+                  General = {
+                    EnableNetworkConfiguration = true;
+                  };
+                  Network = {
+                    EnableIPv6 = true;
+                    RoutePriorityOffset = 300;
+                  };
+                  Settings = {
+                    AutoConnect = true;
+                  };
+                };
+              };
+            };
+          };
+        };
         desktopXFCE = { config, lib, pkgs, ... }: {
           options.desktopXFCE.enable = lib.mkEnableOption "XFCE Desktop" // { default = false; };
           config = lib.mkIf config.desktopXFCE.enable {

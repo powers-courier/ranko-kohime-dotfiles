@@ -875,22 +875,6 @@ flakeModules = {
   <<flake-module-configurations>>
 };
 #+end_src
-*** DONE Automatic module loader
-#+begin_src nix :noweb-ref modules-importer
-autoModules = let
-  dir = ./modules;
-  entries = builtins.readDir dir;
-  nixFiles = builtins.filter
-    (name: builtins.match ".*\\.nix" name != null)
-    (builtins.attrNames entries);
-in builtins.listToAttrs (builtins.map
-  (name: {
-    name = builtins.replaceStrings [".nix"] [""] name;  # e.g. "backupPackages"
-    value = import (dir + "/${name}");
-  })
-  nixFiles);
-#+end_src
-
 *** DONE Enabler
 Exposes custom modules under the standard name so other flakes / your hosts can discover them
 Not certain what how this is supposed to work.

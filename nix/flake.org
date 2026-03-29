@@ -1567,13 +1567,23 @@ cpuLimiterIntel = { config, lib, ... }: {
   config = lib.mkIf config.cpuLimiterIntel.enable {
     systemd.services.limit-cpu-max-perf = {
       description = "Limit CPU max performance percentage using intel_pstate";
+glancesServer = { config, lib, pkgs, ... }: {
+  options.glancesServer.enable = lib.mkEnableOption "Enable Glances service" // { default = true; };
+  config = lib.mkIf config.glancesServer.enable {
+    systemd.services.glances-server = {
+      description = "Glances server";
       wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" ];
       serviceConfig = {
         Type = "oneshot";
         ExecStart = ''
           /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
         '';
         RemainAfterExit = true;
+        Type = "simple";
+        ExecStart = "${pkgs.glances}/bin/glances -w";
+        RemainAfterExit = false;
+        Restart = "always";
       };
     };
   };

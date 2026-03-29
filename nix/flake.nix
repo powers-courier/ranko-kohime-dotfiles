@@ -445,6 +445,12 @@
             };
           };
         };
+        homeManager = { config, lib, ... }: {
+          options.homeManager.enable = lib.mkEnableOption "Enable Home Manager" // { default = false; };
+          config = lib.mkIf config.homeManager.enable {
+            
+          };
+        };
         defaultNanoRC = { config, lib, programs, ... }: {
           options.defaultNanoRC.enable = lib.mkEnableOption "Sane defaults for nanorc" // { default = true; };
           config = lib.mkIf config.defaultNanoRC.enable {

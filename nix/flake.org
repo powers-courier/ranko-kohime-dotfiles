@@ -1677,6 +1677,16 @@ in {
         in
           pkgs.writeShellScript "limit-cpu-perf.sh" script;
         RemainAfterExit = true;
+**** TODO Home Manager
+#+begin_src nix
+homeManager = { config, lib, ... }: {
+  options.homeManager.enable = lib.mkEnableOption "Enable Home Manager" // { default = false; };
+  config = lib.mkIf config.homeManager.enable {
+    
+  };
+};
+#+end_src
+
       };
     };
   };

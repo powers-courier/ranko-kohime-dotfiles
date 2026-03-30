@@ -952,6 +952,10 @@
             };
           };
         };
+        userRoot = { ... }: {
+          users.users.root.openssh.authorizedKeys.keys = [
+          ];
+        };
         zfsBootOptions = { config, lib, ... }: {
           options.zfsBootOptions.enable = lib.mkEnableOption "Boot settings for root on ZFS hosts" // { default = false; };
           config = lib.mkIf config.zfsBootOptions.enable {

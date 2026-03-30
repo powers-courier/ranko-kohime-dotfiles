@@ -3802,6 +3802,14 @@ userOpenClaw = { config, ... }: {
 };
 #+end_src
 
+***** TODO root
+#+begin_src nix
+userRoot = { ... }: {
+  users.users.root.openssh.authorizedKeys.keys = [
+  ];
+};
+#+end_src
+
 **** DONE 📁 ZFS [3/3]
 ***** DONE ZFS Boot Options
 #+begin_src nix

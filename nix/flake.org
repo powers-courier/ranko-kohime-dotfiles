@@ -68,7 +68,7 @@ outputs = { nixpkgs, self, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [96/162]
+* TODO Contents [97/162]
 ** TODO Inputs [4/9]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -871,7 +871,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [58/93]
+** TODO Modules [59/93]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -885,7 +885,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [56/90]
+*** TODO Modules [57/90]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1660,9 +1660,9 @@ fwupdFirmware = { config, lib, ... }: {
 };
 #+end_src
 
-**** TODO Garbage Collection
-#+begin_src nix :noweb-ref no
-{ config, lib, ... }:
+**** DONE Garbage Collection
+#+begin_src nix
+nixGarbageCollection = { config, lib, ... }:
 with lib;
 {
   options = {
@@ -1689,9 +1689,9 @@ with lib;
       options = config.services.nixGarbageCollection.options;
     };
   };
-}
-
+};
 #+end_src
+
 **** DONE Glances Server
 #+begin_src nix
 glancesServer = { config, lib, pkgs, ... }: {

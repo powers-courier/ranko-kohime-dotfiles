@@ -842,7 +842,7 @@
           };
         };
         smartCardKeys = { config, lib, pkgs, ... }: {
-          options.smartCardKeys.enable = lib.mkEnableOption "Enable settings for Smart Cards and Yubikeys" // { default = false; };
+          options.smartCardKeys.enable = lib.mkEnableOption "Enable settings for Smart Cards and Yubikeys" // { default = true; };
           config = lib.mkIf config.smartCardKeys.enable {
             boot.kernelModules = [ "uhid" "hid_goodix" ];
             environment.systemPackages = with pkgs; [
@@ -1104,11 +1104,14 @@
           modules = lib.flatten [
             hardwareConfigs.${hostname}
             platformModuleList
-            (builtins.attrValues flakeModules)
-            (builtins.attrValues autoModules)
             {
-              networking.hostName = hostname;
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+              };
             }
+            (builtins.attrValues flakeModules)
+            { networking.hostName = hostname; }
             (roleModules.${role} or (throw "No role module defined for '${role}'"))
           ] ++ extraModules;
         };
@@ -1134,7 +1137,8 @@
           system = "x86_64-linux";
           cpuVendor = "intel";
           extraModules = [
-            { flakey-router.enable = true; }
+            { system.stateVersion = "26.05"; }
+        #    { flakeyRouter.enable = true; }
           ];
         };
         main-host = mkHost {
@@ -1165,9 +1169,8 @@
           cpuVendor = "intel";
           role = "server";
           extraModules = [
-            { openBot.enable = true; }
+        #    { openBot.enable = true; }
           ];
-          specialArgs = { inherit (inputs) nix-openclaw; };
         };
       };
       images = {

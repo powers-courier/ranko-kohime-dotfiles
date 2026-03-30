@@ -3644,7 +3644,7 @@ cpu.cpufreq = {
 **** DONE Smart Cards / Yubikeys
 #+begin_src nix
 smartCardKeys = { config, lib, pkgs, ... }: {
-  options.smartCardKeys.enable = lib.mkEnableOption "Enable settings for Smart Cards and Yubikeys" // { default = false; };
+  options.smartCardKeys.enable = lib.mkEnableOption "Enable settings for Smart Cards and Yubikeys" // { default = true; };
   config = lib.mkIf config.smartCardKeys.enable {
     boot.kernelModules = [ "uhid" "hid_goodix" ];
     environment.systemPackages = with pkgs; [

@@ -928,11 +928,13 @@
             };
           };
         };
-        userRanko = { ... }: {
+        userRanko = { config, ... }: {
           users.users.ranko = {
             isNormalUser = true;
             description = "Ranko Kohime";
-            extraGroups = [ "jellyfin" "networkmanager" "video" "wheel" ];
+            extraGroups = [ "networkmanager" "video" "wheel" ]
+            ++ lib.optionals config.user.jellyfin.enable [ "jellyfin" ]
+            ++ lib.optionals (lib.attrByPath [ "virtualisation" "docker" "enable" ] false config) [ "docker" ];
             uid = 1000;
           };
         };

@@ -68,7 +68,7 @@ outputs = { nixpkgs, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [97/160]
+* TODO Contents [96/162]
 ** TODO Inputs [4/9]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -603,11 +603,11 @@ Always set hostname (can be overridden later)
 modules = lib.flatten [
   hardwareConfigs.${hostname}
   platformModuleList
-  (builtins.attrValues flakeModules)
-  (builtins.attrValues autoModules)
   {
     networking.hostName = hostname;
   }
+  (builtins.attrValues flakeModules)
+  { networking.hostName = hostname; }
   (roleModules.${role} or (throw "No role module defined for '${role}'"))
 ] ++ extraModules;
 #+end_src
@@ -811,7 +811,8 @@ router-ask = mkHost {
   system = "x86_64-linux";
   cpuVendor = "intel";
   extraModules = [
-    { flakey-router.enable = true; }
+    { system.stateVersion = "26.05"; }
+#    { flakeyRouter.enable = true; }
   ];
 };
 #+end_src
@@ -851,9 +852,8 @@ openclaw = mkHost {
   cpuVendor = "intel";
   role = "server";
   extraModules = [
-    { openBot.enable = true; }
+#    { openBot.enable = true; }
   ];
-  specialArgs = { inherit (inputs) nix-openclaw; };
 };
 #+end_src
 
@@ -868,7 +868,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [59/91]
+** TODO Modules [58/93]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -882,7 +882,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [56/87]
+*** TODO Modules [56/90]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1916,9 +1916,9 @@ fileSystems = {
 };
 #+end_src
 
-**** TODO openClaw [1/2]
-***** Module
-#+begin_src nix
+**** TODO openClaw [1/5]
+***** TODO Module
+#+begin_src nix :noweb-ref no
 openBot = { config, home-manager, lib, pkgs, nix-openclaw, system,  ... }: {
   options.openBot.enable = lib.mkEnableOption "Enable openBot" // { default = false; };
   config = lib.mkIf config.openBot.enable {
@@ -1930,7 +1930,7 @@ openBot = { config, home-manager, lib, pkgs, nix-openclaw, system,  ... }: {
 };
 #+end_src
 
-***** Home Manager
+***** TODO Home Manager
 #+begin_src nix :noweb-ref openBot-home-manager
 homeManager = {
   useGlobalPkgs = true;
@@ -2001,7 +2001,7 @@ fileSystems."/var/lib/openclaw/workspace" = {
 };
 #+end_src
 
-***** System Hardening
+***** TODO System Hardening
 #+begin_src nix :noweb-ref openBot-systemd-hardening
 systemd.services."openclaw-gateway" = {
   description = "OpenClaw Gateway Daemon";

@@ -936,6 +936,22 @@
             uid = 1000;
           };
         };
+        userOpenClaw = { config, ... }: {
+          users = {
+            groups.openclaw = {
+              gid = 18789;
+              name = "openclaw";
+            };
+            users.openclaw = {
+              createHome = true;
+              group = "openclaw";
+              home = "/var/lib/openclaw";
+              isSystemUser = true;
+              shell = "/run/current-system/sw/bin/bash";
+              uid = 18789;
+            };
+          };
+        };
         zfsBootOptions = { config, lib, ... }: {
           options.zfsBootOptions.enable = lib.mkEnableOption "Boot settings for root on ZFS hosts" // { default = false; };
           config = lib.mkIf config.zfsBootOptions.enable {

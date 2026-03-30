@@ -68,7 +68,7 @@ outputs = { nixpkgs, self, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [97/162]
+* TODO Contents [96/166]
 ** TODO Inputs [4/9]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -871,7 +871,7 @@ images = {
 };
 #+end_src
 
-** TODO Modules [59/93]
+** TODO Modules [58/97]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
@@ -885,7 +885,7 @@ Not certain what how this is supposed to work.
 nixosModules = flakeModules;
 #+end_src
 
-*** TODO Modules [57/90]
+*** TODO Modules [56/94]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
 :end:
@@ -1803,7 +1803,7 @@ lokale = { config, lib, ... }: {
 };
 #+end_src
 
-**** Modems
+**** TODO Modems
 #+begin_src nix :noweb-ref no
 { config, pkgs, ... }:
 {
@@ -1999,7 +1999,6 @@ openBot = { config, home-manager, lib, pkgs, nix-openclaw, system,  ... }: {
   options.openBot.enable = lib.mkEnableOption "Enable openBot" // { default = false; };
   config = lib.mkIf config.openBot.enable {
     <<openBot-workspace>>
-    <<openBot-user>>
     <<openBot-systemd-hardening>>
     <<openBot-home-manager>>
   };
@@ -2097,24 +2096,6 @@ systemd.services."openclaw-gateway" = {
     ProtectControlGroups = true;
     RestrictNamespaces = true;
     MemoryMax = "12G";
-  };
-};
-#+end_src
-
-***** DONE User
-#+begin_src nix :noweb-ref openBot-user
-users = {
-  groups.openclaw = {
-    gid = 18789;
-    name = "openclaw";
-  };
-  users.openclaw = {
-    createHome = true;
-    group = "openclaw";
-    home = "/var/lib/openclaw";
-    isSystemUser = true;
-    shell = "/run/current-system/sw/bin/bash";
-    uid = 18789;
   };
 };
 #+end_src
@@ -3769,7 +3750,7 @@ tailscaleVPN = { config, lib, ... }: {
 };
 #+end_src
 
-**** DONE 📁 Users [2/2]
+**** TODO 📁 Users [2/4]
 ***** DONE Jellyfin
 #+begin_src nix
 userJellyfin = { ... }: {
@@ -3797,6 +3778,26 @@ userRanko = { ... }: {
     description = "Ranko Kohime";
     extraGroups = [ "jellyfin" "networkmanager" "video" "wheel" ];
     uid = 1000;
+  };
+};
+#+end_src
+
+***** TODO openClaw
+#+begin_src nix
+userOpenClaw = { config, ... }: {
+  users = {
+    groups.openclaw = {
+      gid = 18789;
+      name = "openclaw";
+    };
+    users.openclaw = {
+      createHome = true;
+      group = "openclaw";
+      home = "/var/lib/openclaw";
+      isSystemUser = true;
+      shell = "/run/current-system/sw/bin/bash";
+      uid = 18789;
+    };
   };
 };
 #+end_src

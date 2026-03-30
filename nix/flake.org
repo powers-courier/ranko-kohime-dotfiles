@@ -2124,6 +2124,20 @@ opensshServer = { config, lib, ... }: {
 };
 #+end_src
 
+**** TODO Pass (Unix Password Manager)
+#+begin_src nix :noweb-ref no
+environment.systemPackages = with pkgs; [
+  pass
+  pinentry-curses
+];
+programs.gnupg.agent = {
+   enable = true;
+   pinentryPackage = pkgs.pinentry-curses;
+   enableSSHSupport = true;
+};
+services.pcscd.enable = true;
+#+end_src
+
 **** TODO 📁 Services [23/39]
 ***** TODO Docker
 #+begin_src nix :noweb-ref no

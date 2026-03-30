@@ -49,7 +49,7 @@ inputs = {
 
 ** DONE Outputs
 #+begin_src nix :noweb-ref outputs-preamble
-outputs = { nixpkgs, ... }@inputs:
+outputs = { nixpkgs, self, ... }@inputs:
   let
     inherit (nixpkgs) lib;
     <<flake-variables-preamble>>
@@ -569,7 +569,6 @@ mkHost = {
   in
   nixpkgs.lib.nixosSystem {
     inherit system;
-    specialArgs = args.specialArgs // { inherit vars; };
     <<mkhost-generator-modules>>
   };
 #+end_src
@@ -581,7 +580,6 @@ system ? "x86_64-linux",
 cpuVendor ? "generic",
 role ? "desktop",
 extraModules ? [],
-specialArgs ? {},
 #+end_src
 
 ****** DONE Platform Selector
@@ -592,6 +590,7 @@ selectedPlatformModules =
     (throw "Unsupported system: ${system}");
 platformModuleList = selectedPlatformModules {
   inherit system cpuVendor;
+  inherit inputs;
   inherit (args) hostname;   # if needed inside
 };
 #+end_src
@@ -603,8 +602,12 @@ Always set hostname (can be overridden later)
 modules = lib.flatten [
   hardwareConfigs.${hostname}
   platformModuleList
+  inputs.home-manager.nixosModules.home-manager
   {
-    networking.hostName = hostname;
+    home-manager = {
+      useGlobalPkgs = true;
+      useUserPackages = true;
+    };
   }
   (builtins.attrValues flakeModules)
   { networking.hostName = hostname; }

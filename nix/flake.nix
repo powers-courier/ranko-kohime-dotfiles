@@ -8,7 +8,7 @@
     nix-openclaw.url = "github:openclaw/nix-openclaw";
     nix-openclaw.inputs.nixpkgs.follows = "nixpkgs";
   };
-  outputs = { nixpkgs, ... }@inputs:
+  outputs = { nixpkgs, self, ... }@inputs:
     let
       inherit (nixpkgs) lib;
       vars = {
@@ -1039,7 +1039,6 @@
         cpuVendor ? "generic",
         role ? "desktop",
         extraModules ? [],
-        specialArgs ? {},
       } @ args:
         let
           selectedPlatformModules =
@@ -1047,6 +1046,7 @@
               (throw "Unsupported system: ${system}");
           platformModuleList = selectedPlatformModules {
             inherit system cpuVendor;
+            inherit inputs;
             inherit (args) hostname;   # if needed inside
           };
           roleModules = {
@@ -1100,10 +1100,10 @@
         in
         nixpkgs.lib.nixosSystem {
           inherit system;
-          specialArgs = args.specialArgs // { inherit vars; };
           modules = lib.flatten [
             hardwareConfigs.${hostname}
             platformModuleList
+            inputs.home-manager.nixosModules.home-manager
             {
               home-manager = {
                 useGlobalPkgs = true;

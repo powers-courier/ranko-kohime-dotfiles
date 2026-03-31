@@ -897,7 +897,7 @@
                 MemoryMax = "12G";
               };
             };
-            homeManager = {
+            home-manager = {
             #  useGlobalPkgs = true;
             #  useUserPackages = true;
               users.openclaw = { pkgs, ... }: {

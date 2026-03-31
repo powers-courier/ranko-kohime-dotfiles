@@ -3621,7 +3621,7 @@ openBot = { config, home-manager, lib, pkgs, nix-openclaw, system,  ... }: {
 
 ****** TODO Home Manager
 #+begin_src nix :noweb-ref openBot-home-manager
-homeManager = {
+home-manager = {
 #  useGlobalPkgs = true;
 #  useUserPackages = true;
   users.openclaw = { pkgs, ... }: {

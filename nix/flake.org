@@ -3821,7 +3821,7 @@ userOpenClaw = { config, ... }: {
 #+end_src
 
 ***** TODO root
-#+begin_src nix
+#+begin_src nix :noweb-ref no
 userRoot = { ... }: {
   users.users.root.openssh.authorizedKeys.keys = [
   ];

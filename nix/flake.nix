@@ -1000,6 +1000,8 @@
           specialArgs = { inherit vars; };
           modules = lib.flatten [
             hardwareConfigs.${name}
+            (builtins.attrValues autoModules)
+            (builtins.attrValues flakeModules)
             ({ ... }: {
               networking = {
                 hostName = name;

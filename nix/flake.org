@@ -429,6 +429,8 @@ jellyProxyHosts = lib.sort (a: b: a < b) (
 #+begin_src nix :noweb-ref proxy-host-generator-modules
 modules = lib.flatten [
   hardwareConfigs.${name}
+  (builtins.attrValues autoModules)
+  (builtins.attrValues flakeModules)
   ({ ... }: {
     networking = {
       hostName = name;

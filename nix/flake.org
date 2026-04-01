@@ -3767,7 +3767,7 @@ tailscaleVPN = { config, lib, ... }: {
 **** TODO 📁 Users [2/4]
 ***** DONE Jellyfin
 #+begin_src nix
-userJellyfin = { ... }: {
+userJellyfin = { config, ... }: {
   users = {
     groups.jellyfin = {
       gid = 8096;

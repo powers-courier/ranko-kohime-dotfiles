@@ -892,7 +892,7 @@
             };
           };
         };
-        userJellyfin = { ... }: {
+        userJellyfin = { config, ... }: {
           users = {
             groups.jellyfin = {
               gid = 8096;

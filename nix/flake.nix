@@ -192,7 +192,7 @@
             };
           };
         };
-        openclaw = {
+        howardbeale = {
           fileSystems = {
             "/" = {
               device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
@@ -1282,14 +1282,14 @@
             }
           ];
         };
-        openclaw = mkHost {
-          hostname = "openclaw";
+        howardbeale = mkHost {
+          hostname = "howardbeale";
           system = "x86_64-linux";
           cpuVendor = "intel";
           role = "server";
           extraModules = [
             { homeManager.enable = true; }
-            { openBot.enable = true; }
+        #    { openBot.enable = true; }
           ];
         };
       };

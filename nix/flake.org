@@ -539,7 +539,6 @@ jellyProxyHosts = lib.sort (a: b: a < b) (
 #+begin_src nix :noweb-ref proxy-host-generator-modules
 modules = lib.flatten [
   hardwareConfigs.${name}
-  (builtins.attrValues flakeModules)
   ({ ... }: {
     networking = {
       hostName = name;
@@ -609,6 +608,7 @@ modules = lib.flatten [
       useUserPackages = true;
     };
   }
+  (builtins.attrValues autoModules)
   (builtins.attrValues flakeModules)
   { networking.hostName = hostname; }
   (roleModules.${role} or (throw "No role module defined for '${role}'"))
@@ -879,9 +879,26 @@ flakeModules = {
   <<flake-module-configurations>>
 };
 #+end_src
+
+*** DONE Automatic module loader
+#+begin_src nix :noweb-ref modules-importer
+autoModules = let
+  dir = ./modules;
+  entries = builtins.readDir dir;
+  nixFiles = builtins.filter
+    (name: builtins.match ".*\\.nix" name != null)
+    (builtins.attrNames entries);
+in builtins.listToAttrs (builtins.map
+  (name: {
+    name = builtins.replaceStrings [".nix"] [""] name;  # e.g. "backupPackages"
+    value = import (dir + "/${name}");
+  })
+  nixFiles);
+#+end_src
+
 *** DONE Enabler
 Exposes custom modules under the standard name so other flakes / your hosts can discover them
-Not certain what how this is supposed to work.
+Not certain how this is supposed to work.
 #+begin_src nix :noweb-ref modules-enabler
 nixosModules = flakeModules;
 #+end_src

@@ -1070,8 +1070,20 @@
             };
           };
         };
+        
       };
-      
+      autoModules = let
+        dir = ./modules;
+        entries = builtins.readDir dir;
+        nixFiles = builtins.filter
+          (name: builtins.match ".*\\.nix" name != null)
+          (builtins.attrNames entries);
+      in builtins.listToAttrs (builtins.map
+        (name: {
+          name = builtins.replaceStrings [".nix"] [""] name;  # e.g. "backupPackages"
+          value = import (dir + "/${name}");
+        })
+        nixFiles);
       jellyProxyHosts = builtins.filter
         (name: lib.hasPrefix "jelly-proxy-" name)
         (lib.attrNames hardwareConfigs);
@@ -1082,7 +1094,6 @@
           specialArgs = { inherit vars; };
           modules = lib.flatten [
             hardwareConfigs.${name}
-            (builtins.attrValues flakeModules)
             ({ ... }: {
               networking = {
                 hostName = name;
@@ -1218,6 +1229,7 @@
                 useUserPackages = true;
               };
             }
+            (builtins.attrValues autoModules)
             (builtins.attrValues flakeModules)
             { networking.hostName = hostname; }
             (roleModules.${role} or (throw "No role module defined for '${role}'"))

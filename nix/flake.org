@@ -176,44 +176,6 @@ hardwareConfigs = {
 };
 #+end_src
 
-*** DONE framework-13
-#+begin_src nix
-framework-13 = {
-  fileSystems = {
-    "/" = {
-      device = "zroot/root";
-      fsType = "zfs";
-      options = [ "zfsutil" ];
-    };
-    "/boot" = {
-      device = "/dev/disk/by-uuid/F83E-8932";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
-    "/home" = {
-      device = "zroot/home";
-      fsType = "zfs";
-      options = [ "zfsutil" ];
-    };
-    "/nix" = {
-      device = "zroot/nix";
-      fsType = "zfs";
-      options = [ "zfsutil" ];
-    };
-    "/var" = {
-      device = "zroot/var";
-      fsType = "zfs";
-      options = [ "zfsutil" ];
-    };
-  };
-  networking = {
-    hostId = "af2f1b7f";
-  };
-  swapDevices = [ ];
-  system.stateVersion = "25.05";
-};
-#+end_src
-
 *** DONE jelly-proxy-01
 #+begin_src nix
 jelly-proxy-01 = {
@@ -333,43 +295,6 @@ jelly-proxy-07 = {
 };
 #+end_src
 
-*** DONE main-host
-#+begin_src nix
-main-host = {
-  fileSystems = {
-    "/" =
-    { device = "zroot/root";
-      fsType = "zfs";
-      options = [ "zfsutil" ];
-    };
-    "/nix" = {
-      device = "zroot/nix";
-      fsType = "zfs";
-      options = [ "zfsutil" ];
-    };
-    "/var" = {
-      device = "zroot/var";
-      fsType = "zfs";
-      options = [ "zfsutil" ];
-    };
-    "/home" = {
-      device = "zroot/home";
-      fsType = "zfs";
-      options = [ "zfsutil" ];
-    };
-    "/boot" = {
-      device = "/dev/disk/by-uuid/A0D5-9779";
-      fsType = "vfat";
-      options = [ "fmask=0022" "dmask=0022" ];
-    };
-  };
-  networking = {
-    hostId = "2b7f3c3a";
-  };
-  system.stateVersion = "25.05";
-};
-#+end_src
-
 *** DONE n100
 #+begin_src nix
 n100 = {
@@ -380,41 +305,6 @@ n100 = {
     };
     "/boot" = {
       device = "/dev/disk/by-uuid/9BBB-EE1C";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
-  };
-};
-#+end_src
-
-*** DONE Howard Beale
-#+begin_src nix
-howardbeale = {
-  fileSystems = {
-    "/" = {
-      device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
-      fsType = "ext4";
-    };
-    "/boot" = {
-      device = "/dev/disk/by-uuid/B830-073C";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
-  };
-  system.stateVersion = "25.05";
-};
-#+end_src
-
-*** DONE router-ask
-#+begin_src nix
-router-ask = {
-  fileSystems = {
-    "/" = {
-      device = "/dev/disk/by-uuid/3b3ab7cd-a88b-4023-ba13-b81e90ba7f99";
-      fsType = "ext4";
-    };
-    "/boot" = {
-      device = "/dev/disk/by-uuid/C515-66E7";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
@@ -599,7 +489,6 @@ Always set hostname (can be overridden later)
 
 #+begin_src nix :noweb-ref mkhost-generator-modules
 modules = lib.flatten [
-  hardwareConfigs.${hostname}
   platformModuleList
   inputs.home-manager.nixosModules.home-manager
   {
@@ -802,6 +691,40 @@ framework-13 = mkHost {
   extraModules = [
     { desktopXFCE.enable = true; }
     { zfsBootOptions.enable = true; }
+    {
+      fileSystems = {
+        "/" = {
+          device = "zroot/root";
+          fsType = "zfs";
+          options = [ "zfsutil" ];
+        };
+        "/boot" = {
+          device = "/dev/disk/by-uuid/F83E-8932";
+          fsType = "vfat";
+          options = [ "fmask=0077" "dmask=0077" ];
+        };
+        "/home" = {
+          device = "zroot/home";
+          fsType = "zfs";
+          options = [ "zfsutil" ];
+        };
+        "/nix" = {
+          device = "zroot/nix";
+          fsType = "zfs";
+          options = [ "zfsutil" ];
+        };
+        "/var" = {
+          device = "zroot/var";
+          fsType = "zfs";
+          options = [ "zfsutil" ];
+        };
+      };
+      networking = {
+        hostId = "af2f1b7f";
+      };
+      swapDevices = [ ];
+      system.stateVersion = "25.05";
+    }
   ];
 };
 #+end_src
@@ -816,6 +739,19 @@ router-ask = mkHost {
   extraModules = [
     { system.stateVersion = "26.05"; }
 #    { flakeyRouter.enable = true; }
+    {
+      fileSystems = {
+        "/" = {
+          device = "/dev/disk/by-uuid/3b3ab7cd-a88b-4023-ba13-b81e90ba7f99";
+          fsType = "ext4";
+        };
+        "/boot" = {
+          device = "/dev/disk/by-uuid/C515-66E7";
+          fsType = "vfat";
+          options = [ "fmask=0077" "dmask=0077" ];
+        };
+      };
+    }
   ];
 };
 #+end_src
@@ -831,7 +767,35 @@ main-host = mkHost {
     { jellyfinServer.enable = true; }
     { zfsBootOptions.enable = true; }
     {
+      fileSystems = {
+        "/" =
+        { device = "zroot/root";
+          fsType = "zfs";
+          options = [ "zfsutil" ];
+        };
+        "/nix" = {
+          device = "zroot/nix";
+          fsType = "zfs";
+          options = [ "zfsutil" ];
+        };
+        "/var" = {
+          device = "zroot/var";
+          fsType = "zfs";
+          options = [ "zfsutil" ];
+        };
+        "/home" = {
+          device = "zroot/home";
+          fsType = "zfs";
+          options = [ "zfsutil" ];
+        };
+        "/boot" = {
+          device = "/dev/disk/by-uuid/A0D5-9779";
+          fsType = "vfat";
+          options = [ "fmask=0022" "dmask=0022" ];
+        };
+      };
       networking = {
+        hostId = "2b7f3c3a";
         interfaces = {
           enp4s0 = {
             ipv4.addresses = [{
@@ -842,6 +806,7 @@ main-host = mkHost {
           };
         };
       };
+      system.stateVersion = "25.05";
     }
   ];
 };
@@ -857,6 +822,20 @@ howardbeale = mkHost {
   extraModules = [
     { homeManager.enable = true; }
 #    { openBot.enable = true; }
+    {
+      fileSystems = {
+        "/" = {
+          device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
+          fsType = "ext4";
+        };
+        "/boot" = {
+          device = "/dev/disk/by-uuid/B830-073C";
+          fsType = "vfat";
+          options = [ "fmask=0077" "dmask=0077" ];
+        };
+      };
+      system.stateVersion = "25.05";
+    }
   ];
 };
 #+end_src

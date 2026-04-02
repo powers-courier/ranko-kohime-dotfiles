@@ -873,7 +873,7 @@
             isNormalUser = true;
             description = "Ranko Kohime";
             extraGroups = [ "networkmanager" "video" "wheel" ]
-            ++ lib.optionals config.user.jellyfin.enable [ "jellyfin" ]
+            ++ lib.optionals config.users.users.jellyfin.enable [ "jellyfin" ]
             ++ lib.optionals (lib.attrByPath [ "virtualisation" "docker" "enable" ] false config) [ "docker" ];
             uid = 1000;
           };

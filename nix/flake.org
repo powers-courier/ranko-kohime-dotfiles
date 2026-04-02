@@ -1099,7 +1099,6 @@ defaultSettings = { config, lib, ... }: {
     hardware.enableRedistributableFirmware = true;
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
     nixpkgs.config.allowUnfree = true;
-    time.timeZone = lib.mkDefault "Etc/UTC";
   };
 };
 #+end_src

@@ -15,5 +15,6 @@
         LC_TIME = vars.loKale;
       };
     };
+    time.timeZone = lib.mkDefault "Etc/UTC";
   };
 }

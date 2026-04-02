@@ -931,29 +931,6 @@ backupPackages = { config, lib, pkgs, ... }: {
 };
 #+end_src
 
-**** DONE Base Packages
-#+begin_src nix
-basePackages = { config, lib, pkgs, ... }: {
-  options.basePackages.enable = lib.mkEnableOption "Install standard packages" // { default = true; };
-  config = lib.mkIf config.basePackages.enable {
-    environment.systemPackages = with pkgs; [
-      byobu
-      dmidecode
-      git
-      glances
-      linux-firmware
-      lm_sensors
-      neovim
-      socat
-      sshfs
-      tmux
-      tree
-      yazi
-    ];
-  };
-};
-#+end_src
-
 **** DONE Bootloader
 #+begin_src nix
 defaultBootloader = { config, lib, ... }: {

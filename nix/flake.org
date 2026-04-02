@@ -1570,23 +1570,6 @@ environment.systemPackages = with pkgs; [
   tcpdump
 ];
 #+end_src
-**** DONE fwupdFirmware
-#+begin_src nix
-fwupdFirmware = { config, lib, ... }: {
-  options.fwupdFirmware.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
-  config = lib.mkIf config.fwupdFirmware.enable {
-    services.fwupd = {
-      daemonSettings = {
-        IgnorePower = true;
-      };
-      enable = true;
-#      extraRemotes = [];
-#      uefiCapsuleSettings = {};
-    };
-  };
-};
-#+end_src
-
 **** DONE Garbage Collection
 #+begin_src nix
 nixGarbageCollection = { config, lib, ... }:

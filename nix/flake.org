@@ -1968,10 +1968,6 @@ fileSystems = {
 };
 #+end_src
 
-**** DONE OpenSSH Server
-#+begin_src nix
-#+end_src
-
 **** TODO Pass (Unix Password Manager)
 #+begin_src nix :noweb-ref no
 environment.systemPackages = with pkgs; [
@@ -3707,20 +3703,6 @@ smartCardKeys = { config, lib, pkgs, ... }: {
 };
 #+end_src
 
-**** DONE Tailscale VPN
-#+begin_src nix
-tailscaleVPN = { config, lib, ... }: {
-  options.tailscaleVPN.enable = lib.mkEnableOption "Enable Tailscale VPN" // { default = true; };
-  config = lib.mkIf config.tailscaleVPN.enable {
-    services.tailscale = {
-      enable = true;
-      openFirewall = true;
-      port = 0;
-    };
-  };
-};
-#+end_src
-
 **** TODO 📁 Users [2/4]
 ***** DONE Jellyfin
 #+begin_src nix
@@ -3837,9 +3819,5 @@ zfsOptions = { config, lib, ... }: {
     };
   };
 };
-#+end_src
-
-**** DONE ZRAM
-#+begin_src nix
 #+end_src
 

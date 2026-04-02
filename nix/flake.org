@@ -931,21 +931,6 @@ backupPackages = { config, lib, pkgs, ... }: {
 };
 #+end_src
 
-**** DONE Bootloader
-#+begin_src nix
-defaultBootloader = { config, lib, ... }: {
-  options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" // { default = true; };
-  config = lib.mkIf config.defaultBootloader.enable {
-    boot = {
-      initrd.availableKernelModules = [ "ahci" "nvme" "sd_mod" "thunderbolt" "usb_storage" "xhci_pci" ];
-      loader = {
-        efi.canTouchEfiVariables = true;
-        systemd-boot.enable = true;
-      };
-    };
-  };
-};
-#+end_src
 **** TODO CPU Limiter [1/2]
 ***** DONE Intel
 #+begin_src nix

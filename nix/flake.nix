@@ -141,14 +141,6 @@
             ];
           };
         };
-        defaultSettings = { config, lib, ... }: {
-          options.defaultSettings.enable = lib.mkEnableOption "Default system settings" // { default = true; };
-          config = lib.mkIf config.defaultSettings.enable {
-            hardware.enableRedistributableFirmware = true;
-            nix.settings.experimental-features = [ "nix-command" "flakes" ];
-            nixpkgs.config.allowUnfree = true;
-          };
-        };
         desktopXFCE = { config, lib, pkgs, ... }: {
           options.desktopXFCE.enable = lib.mkEnableOption "XFCE Desktop" // { default = false; };
           config = lib.mkIf config.desktopXFCE.enable {

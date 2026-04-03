@@ -1,4 +1,4 @@
-{ config, lib, vars, ... }:
+{ config, lib, ... }:
 let
 loKale = "en_US.UTF-8";
 in

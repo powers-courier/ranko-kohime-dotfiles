@@ -20,6 +20,7 @@ openssl enc -aes-256-cbc -salt -in ed25519_${SN}
 #+end_example
 + [[https://github.com/TamtamHero/fw-fanctrl][fw-fanctrl]]
 + pciutils and usbutils
++ Add cpuLimiter modules for non-Intel hardware
 
 * DONE Flake [3/3]
 ** DONE Contents
@@ -626,7 +627,7 @@ laptop = { pkgs, ... }: {
   environment.systemPackages = with pkgs; [
     byobu # Just to have non-empty list
   ];
-  laptopFixes.enable = true;
+  options.laptopFixes.enable = true;
 };
 #+end_src
 
@@ -868,7 +869,7 @@ in builtins.listToAttrs (builtins.map
 Exposes custom modules under the standard name so other flakes / your hosts can discover them
 Not certain how this is supposed to work.
 #+begin_src nix :noweb-ref modules-enabler
-nixosModules = flakeModules;
+nixosModules = autoModules // flakeModules ;
 #+end_src
 
 *** TODO Modules [56/94]

@@ -749,7 +749,7 @@
               environment.systemPackages = with pkgs; [
                 byobu # Just to have non-empty list
               ];
-              laptopFixes.enable = true;
+              options.laptopFixes.enable = true;
             };
             minimal = { ... }: {
               environment.systemPackages = lib.mkForce [];
@@ -787,7 +787,7 @@
         };
     in
     rec {
-      nixosModules = flakeModules;
+      nixosModules = autoModules // flakeModules ;
       homeConfigurations = {
         
       };

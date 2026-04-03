@@ -827,22 +827,14 @@
               # Common desktop packages
               environment.systemPackages = with pkgs; [
                 firefox libreoffice-fresh vlc
-                # ... your usual suspects
               ];
-            
-              # Power management suitable for laptops/desktops
-              powerManagement.enable = true;
-              services.tlp.enable = true;  # or auto-cpufreq, etc.
             };
             laptop = { pkgs, ... }: {
               imports = [ roleModules.desktop ];
               environment.systemPackages = with pkgs; [
                 byobu # Just to have non-empty list
               ];
-              powerManagement = {
-                cpuFreqGovernor = lib.mkDefault "powersave";
-                powertop.enable = true;
-              };
+              laptopFixes.enable = true;
             };
             minimal = { ... }: {
               environment.systemPackages = lib.mkForce [];

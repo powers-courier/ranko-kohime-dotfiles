@@ -1,18 +1,22 @@
-{ config, lib, vars, ... }: {
+{ config, lib, vars, ... }:
+let
+loKale = "en_US.UTF-8";
+in
+{
   options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
   config = lib.mkIf config.lokale.enable {
     i18n = {
-      defaultLocale = vars.loKale;
+      defaultLocale = loKale;
       extraLocaleSettings = {
-        LC_ADDRESS = vars.loKale;
-        LC_IDENTIFICATION = vars.loKale;
-        LC_MEASUREMENT = vars.loKale;
-        LC_MONETARY = vars.loKale;
-        LC_NAME = vars.loKale;
-        LC_NUMERIC = vars.loKale;
-        LC_PAPER = vars.loKale;
-        LC_TELEPHONE = vars.loKale;
-        LC_TIME = vars.loKale;
+        LC_ADDRESS = loKale;
+        LC_IDENTIFICATION = loKale;
+        LC_MEASUREMENT = loKale;
+        LC_MONETARY = loKale;
+        LC_NAME = loKale;
+        LC_NUMERIC = loKale;
+        LC_PAPER = loKale;
+        LC_TELEPHONE = loKale;
+        LC_TIME = loKale;
       };
     };
     time.timeZone = lib.mkDefault "Etc/UTC";

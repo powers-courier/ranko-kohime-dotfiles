@@ -406,22 +406,6 @@
             };
           };
         };
-        glancesServer = { config, lib, pkgs, ... }: {
-          options.glancesServer.enable = lib.mkEnableOption "Enable Glances service" // { default = true; };
-          config = lib.mkIf config.glancesServer.enable {
-            systemd.services.glances-server = {
-              description = "Glances server";
-              wantedBy = [ "multi-user.target" ];
-              after = [ "network.target" ];
-              serviceConfig = {
-                Type = "simple";
-                ExecStart = "${pkgs.glances}/bin/glances -w";
-                RemainAfterExit = false;
-                Restart = "always";
-              };
-            };
-          };
-        };
         cpuAmdOptimizations = { config, lib, pkgs, ... }: {
           options.cpuAmdOptimizations.enable = lib.mkEnableOption "Optimizations for AMD Hardware" // { default = false; };
           config = lib.mkIf config.cpuAmdOptimizations.enable {

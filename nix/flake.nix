@@ -628,47 +628,6 @@
             };
           };
         };
-        userJellyfin = { config, ... }: {
-          users = {
-            groups.jellyfin = {
-              gid = 8096;
-              name = "jellyfin";
-            };
-            users.jellyfin = {
-              extraGroups = [ "render" "video" ];
-              group = "jellyfin";
-              isNormalUser = true;
-              isSystemUser = lib.mkForce false;
-              uid = 8096;
-            };
-          };
-        };
-        userRanko = { config, ... }: {
-          users.users.ranko = {
-            isNormalUser = true;
-            description = "Ranko Kohime";
-            extraGroups = [ "networkmanager" "video" "wheel" ]
-            ++ lib.optionals config.users.users.jellyfin.enable [ "jellyfin" ]
-            ++ lib.optionals (lib.attrByPath [ "virtualisation" "docker" "enable" ] false config) [ "docker" ];
-            uid = 1000;
-          };
-        };
-        userOpenClaw = { config, ... }: {
-          users = {
-            groups.openclaw = {
-              gid = 18789;
-              name = "openclaw";
-            };
-            users.openclaw = {
-              createHome = true;
-              group = "openclaw";
-              home = "/var/lib/openclaw";
-              isSystemUser = true;
-              shell = "/run/current-system/sw/bin/bash";
-              uid = 18789;
-            };
-          };
-        };
       };
       autoModules = let
         dir = ./modules;

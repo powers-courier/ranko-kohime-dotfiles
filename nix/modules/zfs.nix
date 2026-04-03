@@ -3,17 +3,20 @@
     zfsBootOptions.enable = lib.mkEnableOption "Boot settings for root on ZFS hosts" // { default = false; };
     zfsOptions.enable = lib.mkEnableOption "Common settings for ZFS pools" // { default = false; };
     zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" // { default = false; };
-    config = lib.mkIf config.zfsBootOptions.enable {
-      boot = {
-        loader = {
-          grub.enable = false;
+  };
+  config = lib.mkMerge [
+      # When zfsBootOptions is enabled, force the others on
+      (lib.mkIf config.zfsBootOptions.enable {
+        zfsOptions.enable = true;
+        zfsSanoid.enable = true;
+
+        boot = {
+          loader.grub.enable = false;
+          supportedFilesystems = [ "zfs" ];
+          zfs.forceImportRoot = false;
         };
-        supportedFilesystems = [ "zfs" ];
-        zfs.forceImportRoot = false;
-      };
-      zfsOptions.enable = true;
-      zfsSanoid.enable = true;
-    lib.mkIf config.zfsSanoid.enable {
+      })
+    (lib.mkIf config.zfsSanoid.enable {
       services = {
         sanoid = {
           enable = true;
@@ -22,8 +25,8 @@
           enable = true;
         };
       };
-    };
-    lib.mkIf config.zfsOptions.enable {
+    })
+    (lib.mkIf config.zfsOptions.enable {
       boot.kernelParams = [ "zfs.zfs_arc_max=1073741824" ];
       services = {
         zfs = {
@@ -35,6 +38,6 @@
           trim.enable = true;
         };
       };
-    };
-  };
+    })
+  ];
 }

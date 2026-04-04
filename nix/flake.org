@@ -505,14 +505,13 @@ modules = lib.flatten [
 ***** DONE platformModules
 #+begin_src nix :noweb-ref mkhost-generator-platform
 platformModules = {
-  # Called with { system = "x86_64-linux"; cpuVendor = "intel"; } or similar
   x86_64-linux = { cpuVendor ? "generic", ... }: [
     ({ pkgs, lib, ... }: {
       # Base x86_64 settings everyone gets
       boot.kernelPackages = pkgs.linuxPackages_latest;
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
     })
-    <<platform-module-intel>>
+    (lib.mkIf (cpuVendor == "intel") { intel.enable = true; })
     <<platform-module-amd>>
   ];
   aarch64-linux = { cpuVendor ? "generic", ... }: [
@@ -535,7 +534,6 @@ platformModules = {
     kernelParams = [ "intel_iommu=on" ];
   };
   hardware = {
-    acpilight.enable = true;
     cpu.intel = {
       updateMicrocode = true;
     };

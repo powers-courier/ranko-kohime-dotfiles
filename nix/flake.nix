@@ -665,26 +665,13 @@
         };
       }) jellyProxyHosts);
       platformModules = {
-        # Called with { system = "x86_64-linux"; cpuVendor = "intel"; } or similar
         x86_64-linux = { cpuVendor ? "generic", ... }: [
           ({ pkgs, lib, ... }: {
             # Base x86_64 settings everyone gets
             boot.kernelPackages = pkgs.linuxPackages_latest;
             nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
           })
-          (lib.mkIf (cpuVendor == "intel") {
-            boot = {
-              kernelModules = [ "kvm-intel" ];
-              kernelParams = [ "intel_iommu=on" ];
-            };
-            hardware = {
-              acpilight.enable = true;
-              cpu.intel = {
-                updateMicrocode = true;
-              };
-              intel-gpu-tools.enable = true;
-            };
-          })
+          (lib.mkIf (cpuVendor == "intel") { intel.enable = true; })
           (lib.mkIf (cpuVendor == "amd") {
             cpuAmdOptimizations.enable = true;
             hardware.cpu.amd.updateMicrocode = true;

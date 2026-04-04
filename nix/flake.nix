@@ -671,7 +671,7 @@
             boot.kernelPackages = pkgs.linuxPackages_latest;
             nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
           })
-          (lib.mkIf (cpuVendor == "intel") { intel.enable = true; })
+          (lib.mkIf (cpuVendor == "intel") { platformModuleIntel.enable = true; })
           (lib.mkIf (cpuVendor == "amd") {
             cpuAmdOptimizations.enable = true;
             hardware.cpu.amd.updateMicrocode = true;

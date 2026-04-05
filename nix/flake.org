@@ -526,22 +526,6 @@ platformModules = {
 };
 #+end_src
 
-****** DONE Intel
-#+begin_src nix :noweb-ref platform-module-intel
-(lib.mkIf (cpuVendor == "intel") {
-  boot = {
-    kernelModules = [ "kvm-intel" ];
-    kernelParams = [ "intel_iommu=on" ];
-  };
-  hardware = {
-    cpu.intel = {
-      updateMicrocode = true;
-    };
-    intel-gpu-tools.enable = true;
-  };
-})
-#+end_src
-
 ****** DONE AMD
 #+begin_src nix :noweb-ref platform-module-amd
 (lib.mkIf (cpuVendor == "amd") {

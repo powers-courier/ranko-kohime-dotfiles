@@ -588,7 +588,7 @@
               environment.systemPackages = with pkgs; [
                 byobu # Just to have non-empty list
               ];
-              options.laptopFixes.enable = true;
+              laptopFixes.enable = true;
             };
             minimal = { ... }: {
               environment.systemPackages = lib.mkForce [];

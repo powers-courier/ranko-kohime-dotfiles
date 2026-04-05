@@ -587,6 +587,7 @@ roleModules = {
 desktop = { pkgs, ... }: {
   fancyKeyboards.enable = true;
   multimediaPackages.enable = true;
+  packagesPass.enable = true;
   # GUI, sound, printing, etc.
   services.xserver.enable = true;
   services.pulseaudio.enable = false;  # or pipewire
@@ -1583,20 +1584,6 @@ fileSystems = {
     options = [ <<nix-flake-nfs-common-mount>> ];
   };
 };
-#+end_src
-
-**** TODO Pass (Unix Password Manager)
-#+begin_src nix :noweb-ref no
-environment.systemPackages = with pkgs; [
-  pass
-  pinentry-curses
-];
-programs.gnupg.agent = {
-   enable = true;
-   pinentryPackage = pkgs.pinentry-curses;
-   enableSSHSupport = true;
-};
-services.pcscd.enable = true;
 #+end_src
 
 **** TODO 📁 Services [23/39]

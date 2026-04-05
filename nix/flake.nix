@@ -493,6 +493,7 @@
             desktop = { pkgs, ... }: {
               fancyKeyboards.enable = true;
               multimediaPackages.enable = true;
+              packagesPass.enable = true;
               # GUI, sound, printing, etc.
               services.xserver.enable = true;
               services.pulseaudio.enable = false;  # or pipewire

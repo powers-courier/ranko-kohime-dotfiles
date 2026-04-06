@@ -5,10 +5,10 @@
 #+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
 
 * To-Do
-+ Add [[https://github.com/DeterminateSystems/flake-checker][nix-flake-checker]]
-+ Use Determinate Systems installer for Steam Deck
-+ Generating keys:
-#+begin_example
+** Add [[https://github.com/DeterminateSystems/flake-checker][nix-flake-checker]]
+** Use Determinate Systems installer for Steam Deck
+** Generating keys:
+#+begin_example bash
 SN="31348676"
 
 ykman openpgp keys generate --algorithm ed25519 --touch-policy always
@@ -18,9 +18,18 @@ ssh-keygen -t ed25519 -f ed25519_${SN}
 yubico-piv-tool -s 9a -a import-key -i ed25519_${SN}
 openssl enc -aes-256-cbc -salt -in ed25519_${SN}
 #+end_example
-+ [[https://github.com/TamtamHero/fw-fanctrl][fw-fanctrl]]
-+ pciutils and usbutils
-+ Add cpuLimiter modules for non-Intel hardware
+
+** [[https://github.com/TamtamHero/fw-fanctrl][fw-fanctrl]]
+** pciutils and usbutils
+** Add cpuLimiter modules for non-Intel hardware
+** Change download-buffer-size
+#+begin_src nix
+{
+  nix.settings.download-buffer-size = 256 * 1024 * 1024;  # e.g., 256 MiB
+  # or
+  # nix.settings.download-buffer-size = 524288000;     # 500 MiB (common suggestion)
+}
+#+end_src
 
 * DONE Flake [3/3]
 ** DONE Contents

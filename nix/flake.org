@@ -187,6 +187,7 @@ jelly-proxy-01 = {
       options = [ "fmask=0077" "dmask=0077" ];
     };
   };
+  system.stateVersion = "25.05";
 };
 #+end_src
 
@@ -220,6 +221,7 @@ jelly-proxy-03 = {
       options = [ <<nix-flake-nfs-common-mount>> ];
     };
   };
+  system.stateVersion = "25.05";
 };
 #+end_src
 
@@ -237,6 +239,7 @@ jelly-proxy-04 = {
       options = [ "fmask=0077" "dmask=0077" ];
     };
   };
+  system.stateVersion = "25.05";
 };
 #+end_src
 
@@ -254,6 +257,7 @@ jelly-proxy-05 = {
       options = [ "fmask=0077" "dmask=0077" ];
     };
   };
+  system.stateVersion = "25.05";
 };
 #+end_src
 
@@ -271,6 +275,7 @@ jelly-proxy-06 = {
       options = [ "fmask=0077" "dmask=0077" ];
     };
   };
+  system.stateVersion = "25.05";
 };
 #+end_src
 
@@ -288,6 +293,7 @@ jelly-proxy-07 = {
       options = [ "fmask=0077" "dmask=0077" ];
     };
   };
+  system.stateVersion = "25.05";
 };
 #+end_src
 
@@ -305,6 +311,7 @@ n100 = {
       options = [ "fmask=0077" "dmask=0077" ];
     };
   };
+  system.stateVersion = "25.05";
 };
 #+end_src
 
@@ -420,7 +427,6 @@ Jelly-Proxy-Configs = lib.listToAttrs (map (name: {
     extraModules = [
       hardwareConfigs.${name}
       ({ ... }: {
-        system.stateVersion = "25.05";
         cpuLimiterIntel.enable = true;
         jellyfinProxyHost.enable = true;
       })

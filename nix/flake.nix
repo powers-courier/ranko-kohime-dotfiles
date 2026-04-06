@@ -29,6 +29,7 @@
               options = [ "fmask=0077" "dmask=0077" ];
             };
           };
+          system.stateVersion = "25.05";
         };
         jelly-proxy-03 = {
           fileSystems = {
@@ -58,6 +59,7 @@
               options = [ "nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576" ];
             };
           };
+          system.stateVersion = "25.05";
         };
         jelly-proxy-04 = {
           fileSystems = {
@@ -71,6 +73,7 @@
               options = [ "fmask=0077" "dmask=0077" ];
             };
           };
+          system.stateVersion = "25.05";
         };
         jelly-proxy-05 = {
           fileSystems = {
@@ -84,6 +87,7 @@
               options = [ "fmask=0077" "dmask=0077" ];
             };
           };
+          system.stateVersion = "25.05";
         };
         jelly-proxy-06 = {
           fileSystems = {
@@ -97,6 +101,7 @@
               options = [ "fmask=0077" "dmask=0077" ];
             };
           };
+          system.stateVersion = "25.05";
         };
         jelly-proxy-07 = {
           fileSystems = {
@@ -110,6 +115,7 @@
               options = [ "fmask=0077" "dmask=0077" ];
             };
           };
+          system.stateVersion = "25.05";
         };
         n100 = {
           fileSystems = {
@@ -123,6 +129,7 @@
               options = [ "fmask=0077" "dmask=0077" ];
             };
           };
+          system.stateVersion = "25.05";
         };
       };
       homeConfigurations = {
@@ -429,7 +436,6 @@
           extraModules = [
             hardwareConfigs.${name}
             ({ ... }: {
-              system.stateVersion = "25.05";
               cpuLimiterIntel.enable = true;
               jellyfinProxyHost.enable = true;
             })

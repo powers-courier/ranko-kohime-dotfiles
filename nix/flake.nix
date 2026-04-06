@@ -421,17 +421,14 @@
         (lib.attrNames hardwareConfigs);
       Jelly-Proxy-Configs = lib.listToAttrs (map (name: {
         inherit name;
-        value = nixpkgs.lib.nixosSystem {
+        value = mkHost {
+          hostname = name;
           system = "x86_64-linux";
-          specialArgs = { inherit vars; };
-          modules = lib.flatten [
+          cpuVendor = "intel";
+          role = "server";
+          extraModules = [
             hardwareConfigs.${name}
-            (builtins.attrValues autoModules)
-            (builtins.attrValues flakeModules)
             ({ ... }: {
-              networking = {
-                hostName = name;
-              };
               system.stateVersion = "25.05";
               cpuLimiterIntel.enable = true;
               jellyfinProxyHost.enable = true;

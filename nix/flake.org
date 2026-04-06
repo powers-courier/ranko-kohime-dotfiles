@@ -69,7 +69,7 @@ outputs = { nixpkgs, self, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [96/166]
+* TODO Contents [59/123]
 ** TODO Inputs [4/9]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -397,45 +397,36 @@ gtk = {
 };
 #+end_src
 
-** TODO Host Configurations [16/32]
-*** TODO Host Generators [11/22]
+** TODO Host Configurations [15/31]
+*** TODO Host Generators [10/21]
 **** DONE jelly-proxy Hosts Generator [2/2]
-***** DONE Code
+***** DONE Enumerator
 #+begin_src nix :noweb-ref proxy-host-generator
 jellyProxyHosts = builtins.filter
   (name: lib.hasPrefix "jelly-proxy-" name)
   (lib.attrNames hardwareConfigs);
+<<proxy-host-function>>
+#+end_src
+
+***** DONE Code
+#+begin_src nix :noweb-ref proxy-host-function
 Jelly-Proxy-Configs = lib.listToAttrs (map (name: {
   inherit name;
-  value = nixpkgs.lib.nixosSystem {
+  value = mkHost {
+    hostname = name;
     system = "x86_64-linux";
-    specialArgs = { inherit vars; };
-    <<proxy-host-generator-modules>>
+    cpuVendor = "intel";
+    role = "server";
+    extraModules = [
+      hardwareConfigs.${name}
+      ({ ... }: {
+        system.stateVersion = "25.05";
+        cpuLimiterIntel.enable = true;
+        jellyfinProxyHost.enable = true;
+      })
+    ];
   };
 }) jellyProxyHosts);
-#+end_src
-#+begin_example
-jellyProxyHosts = lib.sort (a: b: a < b) (
-  builtins.filter (name: lib.hasPrefix "jelly-proxy-" name)
-    (lib.attrNames hardwareConfigs)
-);
-#+end_example
-
-***** DONE Modules
-#+begin_src nix :noweb-ref proxy-host-generator-modules
-modules = lib.flatten [
-  hardwareConfigs.${name}
-  (builtins.attrValues autoModules)
-  (builtins.attrValues flakeModules)
-  ({ ... }: {
-    networking = {
-      hostName = name;
-    };
-    system.stateVersion = "25.05";
-    cpuLimiterIntel.enable = true;
-    jellyfinProxyHost.enable = true;
-  })
-];
 #+end_src
 
 **** TODO mkHost [8/18]

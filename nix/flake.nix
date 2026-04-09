@@ -601,13 +601,12 @@
             }
           ];
         };
-        howardbeale = mkHost {
-          hostname = "howardbeale";
+        tamagotchi = mkHost {
+          hostname = "tamagotchi";
           system = "x86_64-linux";
           cpuVendor = "intel";
           role = "server";
           extraModules = [
-            { homeManager.enable = true; }
         #    { openBot.enable = true; }
             {
               fileSystems = {

@@ -1,0 +1,84 @@
+#+title: Jellyfin Server Configuration
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
+
+* DONE Jellyfin Server [5/5]
+[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
+intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
+
+Jellyfin must be set to VAAPI for transcoding on modern Intel platforms as of 2025
+#+begin_src nix :tangle modules/jellyfinServer.nix
+{ config, lib, pkgs, ... }: {
+  options.jellyfinServer.enable = lib.mkEnableOption "Setup Jellyfin Server"
+    // { default = false; };
+  config = lib.mkIf config.jellyfinServer.enable {
+    boot.kernelParams = [ "i915.enable_guc=2" ];
+    nixpkgs.config.allowUnfree = true;
+    <<module-service-jellyfin-hardware>>
+    <<module-service-jellyfin-service>>
+    <<module-service-jellyfin-environment>>
+    <<module-service-jellyfin-cachedir>>
+    users.groups.jellyfin.members = [ "jellyfin" ];
+    <<module-service-jellyfin-systemd>>
+  };
+}
+#+end_src
+
+** DONE hardware
+#+begin_src nix :noweb-ref module-service-jellyfin-hardware
+hardware = {
+  enableAllFirmware = true;
+  graphics.enable = true;
+};
+#+end_src
+
+** DONE Jellyfin service
+#+begin_src nix :noweb-ref module-service-jellyfin-service
+services.jellyfin = {
+  enable = true;
+  group = "jellyfin";
+  openFirewall = true;
+  user = "jellyfin";
+  dataDir = "/var/lib/jellyfin"; # Default data directory
+  cacheDir = "/var/cache/jellyfin"; # Cache directory for transcoding
+};
+#+end_src
+
+** DONE environment
+#+begin_src nix :noweb-ref module-service-jellyfin-environment
+environment = {
+  sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
+  systemPackages = with pkgs; [
+    intel-compute-runtime
+    intel-gpu-tools
+    intel-media-driver
+    jellyfin-ffmpeg
+    libva
+    libva-utils
+    libvdpau-va-gl
+    vaapiVdpau
+    vpl-gpu-rt
+  ];
+};
+#+end_src
+
+** DONE cacheDir
+#+begin_src nix :noweb-ref module-service-jellyfin-cachedir
+systemd.tmpfiles.rules = [
+  "d ${config.services.jellyfin.cacheDir} 0750 jellyfin jellyfin - -"
+];
+#+end_src
+
+** DONE systemD service
+#+begin_src nix :noweb-ref module-service-jellyfin-systemd
+systemd.services.jellyfin = {
+  after = [ "network.target" ];
+  wantedBy = [ "multi-user.target" ];
+  serviceConfig = {
+    Restart = "on-failure";
+    RestartSec = 5;
+  };
+};
+#+end_src

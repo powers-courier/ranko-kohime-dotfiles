@@ -1,4 +1,4 @@
-jellyfinServer = { config, lib, pkgs, ... }: {
+{ config, lib, pkgs, ... }: {
   options.jellyfinServer.enable = lib.mkEnableOption "Setup Jellyfin Server"
     // { default = false; };
   config = lib.mkIf config.jellyfinServer.enable {
@@ -43,4 +43,4 @@ jellyfinServer = { config, lib, pkgs, ... }: {
       };
     };
   };
-};
+}

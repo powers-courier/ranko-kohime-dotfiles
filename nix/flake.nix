@@ -607,7 +607,7 @@
           cpuVendor = "intel";
           role = "server";
           extraModules = [
-        #    { openBot.enable = true; }
+            { openBot.enable = true; }
             {
               fileSystems = {
                 "/" = {

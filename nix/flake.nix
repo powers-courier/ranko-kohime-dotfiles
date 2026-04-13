@@ -556,6 +556,7 @@
           cpuVendor = "intel";
           extraModules = [
             { jellyfinServer.enable = true; }
+            { lubelogger.enable = true; }
             { zfsBootOptions.enable = true; }
             {
               fileSystems = {

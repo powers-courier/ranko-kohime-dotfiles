@@ -1,0 +1,122 @@
+#+title: LubeLogger Service
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
+
+* Module
+#+begin_src nix :tangle modules/LubeLogger.nix
+{ config, lib, pkgs, ... }: with lib;
+let
+  cfg = config.services.lubelogger;
+  dataDir = "${cfg.dataDir}/data";
+  keysDir = "${cfg.dataDir}/keys";
+in {
+  imports = [
+      ../lubelogger-apple-touch-overlay.nix   # ← temporary overlay
+    ];
+  options.services.lubelogger = {
+    enable = mkEnableOption "LubeLogger vehicle maintenance tracker";
+    <<LubeLogger-options-dataDir>>
+    <<LubeLogger-options-port>>
+    <<LubeLogger-options-image>>
+    <<LubeLogger-options-environment>>
+    <<LubeLogger-options-extraOptions>>
+  };
+
+  config = mkIf cfg.enable {
+    # Ensure the base directory exists with proper permissions
+    systemd.tmpfiles.rules = [
+      "d ${cfg.dataDir} 0755 root root -"
+      "d ${dataDir} 0755 root root -"
+      "d ${keysDir} 0755 root root -"
+    ];
+    <<LubeLogger-Container>>
+
+    networking.firewall.allowedTCPPorts = mkIf (cfg.port != 0) [ cfg.port ];
+
+    # Nice-to-have: create a helper script to view logs
+    environment.systemPackages = [
+      (pkgs.writeShellScriptBin "lubelogger-logs" ''
+        ${pkgs.docker}/bin/docker logs -f lubelogger
+      '')
+    ];
+
+    # Informational message
+    warnings = mkIf (cfg.environment ? POSTGRES_CONNECTION == false) [
+      "LubeLogger is using the built-in SQLite by default. For production, consider setting services.lubelogger.environment.POSTGRES_CONNECTION or adding a PostgreSQL service."
+    ];
+  };
+}
+#+end_src
+
+** DONE Options [5/5]
+*** DONE dataDir
+#+begin_src nix :noweb-ref LubeLogger-options-dataDir
+dataDir = mkOption {
+  type = types.str;
+  default = "/LubeLogger";
+  description = "Base directory for LubeLogger data (data and keys subdirs will be created).";
+};
+#+end_src
+
+*** DONE port
+#+begin_src nix :noweb-ref LubeLogger-options-port
+port = mkOption {
+  type = types.port;
+  default = 5000;
+  description = "Port the LubeLogger web UI listens on.";
+};
+#+end_src
+
+*** DONE image
+#+begin_src nix :noweb-ref LubeLogger-options-image
+image = mkOption {
+  type = types.str;
+  default = "ghcr.io/hargata/lubelogger:latest";
+  description = "Docker image to use for LubeLogger.";
+};
+#+end_src
+
+*** DONE environment
+#+begin_src nix :noweb-ref LubeLogger-options-environment
+environment = mkOption {
+  type = types.attrsOf types.str;
+  default = {};
+  description = ''
+    Additional environment variables passed to the container.
+    Use this for POSTGRES_CONNECTION, MailConfig_*, OpenIDConfig_*, EnableAuth, etc.
+    See: https://docs.lubelogger.com/Advanced/Environment%20Variables/
+  '';
+  example = {
+    POSTGRES_CONNECTION = "Host=localhost;Database=lubelogger;Username=lubelogger;Password=supersecret";
+    EnableAuth = "true";
+    LC_ALL = "en_US.UTF-8";
+  };
+};
+#+end_src
+
+*** DONE extraOptions
+#+begin_src nix :noweb-ref LubeLogger-options-extraOptions
+extraOptions = mkOption {
+  type = types.listOf types.str;
+  default = [];
+  description = "Extra flags passed to the Docker container (e.g. --network).";
+};
+#+end_src
+
+** Container
+#+begin_src nix :noweb-ref LubeLogger-Container
+virtualisation.oci-containers.containers.lubelogger = {
+  image = cfg.image;
+  autoStart = true;
+  ports = [ "${toString cfg.port}:5000" ];
+  volumes = [
+    "${dataDir}:/App/data"
+    "${keysDir}:/root/.aspnet/DataProtection-Keys"
+  ];
+  environment = cfg.environment;
+  extraOptions = cfg.extraOptions;
+  restartPolicy = "unless-stopped";
+};
+#+end_src

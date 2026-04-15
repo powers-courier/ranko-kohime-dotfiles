@@ -307,24 +307,6 @@ jelly-proxy-07 = {
 };
 #+end_src
 
-*** DONE n100
-#+begin_src nix
-n100 = {
-  fileSystems = {
-    "/" = {
-      device = "/dev/disk/by-uuid/3baf4636-0456-44fc-a48b-72fbb49cea3f";
-      fsType = "ext4";
-    };
-    "/boot" = {
-      device = "/dev/disk/by-uuid/9BBB-EE1C";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
-  };
-  system.stateVersion = "25.05";
-};
-#+end_src
-
 *** TODO sleipnir
 Asus G14 with Ryzen 7840HS and Nvidia 4060
 #+begin_example nix
@@ -747,8 +729,8 @@ router-ask = mkHost {
 };
 #+end_src
 
-**** TODO Servers [1/2]
-***** DONE main-host
+**** TODO Servers [0/3]
+***** TODO main-host
 #+begin_src nix
 main-host = mkHost {
   hostname = "main-host";
@@ -796,6 +778,31 @@ main-host = mkHost {
             }];
             mtu = 9000;
           };
+        };
+      };
+      system.stateVersion = "25.05";
+    }
+  ];
+};
+#+end_src
+
+***** TODO n100-1
+#+begin_src nix
+n100-1 = mkHost {
+  hostname = "n100-1";
+  system = "x86_64-linux";
+  cpuVendor = "intel";
+  extraModules = [
+    {
+      fileSystems = {
+        "/" = {
+          device = "/dev/disk/by-uuid/3baf4636-0456-44fc-a48b-72fbb49cea3f";
+          fsType = "ext4";
+        };
+        "/boot" = {
+          device = "/dev/disk/by-uuid/9BBB-EE1C";
+          fsType = "vfat";
+          options = [ "fmask=0077" "dmask=0077" ];
         };
       };
       system.stateVersion = "25.05";

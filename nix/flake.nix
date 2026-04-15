@@ -132,8 +132,6 @@
           system.stateVersion = "25.05";
         };
       };
-      homeConfigurations = {
-        
       };
       flakeModules = {
         flakeyRouter = { config, lib, pkgs, ... }:
@@ -329,12 +327,6 @@
             };
           };
         };
-        homeManager = { config, lib, ... }: {
-          options.homeManager.enable = lib.mkEnableOption "Enable Home Manager" // { default = false; };
-          config = lib.mkIf config.homeManager.enable {
-            
-          };
-        };
       };
       autoModules = let
         dir = ./modules;
@@ -477,12 +469,23 @@
             (roleModules.${role} or (throw "No role module defined for '${role}'"))
           ] ++ extraModules;
         };
+      home-manager-homeDir = ./home-manager/users;
+      home-manager-userFiles = builtins.attrNames (
+        nixpkgs.lib.filterAttrs (name: type:
+          type == "regular" &&
+          nixpkgs.lib.hasSuffix ".nix" name &&
+          name != "default.nix"
+        ) (builtins.readDir home-manager-homeDir)
+      );
+      home-manager-usernames = builtins.map (f: nixpkgs.lib.removeSuffix ".nix" f) home-manager-userFiles;
+      mkHome = username: home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        modules = [ (homeDir + "/${username}.nix") ];
+      };
     in
     rec {
       nixosModules = autoModules // flakeModules ;
-      homeConfigurations = {
-        
-      };
+      homeConfigurations = nixpkgs.lib.genAttrs usernames mkHome;
       nixosConfigurations = Jelly-Proxy-Configs // {
         framework-13 = mkHost {
           hostname = "framework-13";

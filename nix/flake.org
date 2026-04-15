@@ -69,16 +69,17 @@ outputs = { nixpkgs, self, ... }@inputs:
     <<modules-importer>>
     <<proxy-host-generator>>
     <<mkhost-generator>>
+    <<home-folder-configuration-generator>>
   in
   rec {
     <<modules-enabler>>
-    <<home-folder-configuration-preamble>>
+    homeConfigurations = nixpkgs.lib.genAttrs usernames mkHome;
     <<system-configuration-preamble>>
     <<images-preamble>>
   };
 #+end_src
 
-* TODO Contents [59/123]
+* TODO Contents [41/91]
 ** TODO Inputs [4/9]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -372,9 +373,19 @@ sleipnir = {
 
 ** TODO Home Configurations [2/5]
 *** DONE Preamble
-#+begin_src nix :noweb-ref home-folder-configuration-preamble
-homeConfigurations = {
-  <<home-configurations>>
+#+begin_src nix :noweb-ref home-folder-configuration-generator
+home-manager-homeDir = ./home-manager/users;
+home-manager-userFiles = builtins.attrNames (
+  nixpkgs.lib.filterAttrs (name: type:
+    type == "regular" &&
+    nixpkgs.lib.hasSuffix ".nix" name &&
+    name != "default.nix"
+  ) (builtins.readDir home-manager-homeDir)
+);
+home-manager-usernames = builtins.map (f: nixpkgs.lib.removeSuffix ".nix" f) home-manager-userFiles;
+mkHome = username: home-manager.lib.homeManagerConfiguration {
+  inherit pkgs;
+  modules = [ (home-manager-homeDir + "/${username}.nix") ];
 };
 #+end_src
 
@@ -413,7 +424,7 @@ gtk = {
 };
 #+end_src
 
-** TODO Host Configurations [15/31]
+** TODO Host Configurations [14/32]
 *** TODO Host Generators [10/21]
 **** DONE jelly-proxy Hosts Generator [2/2]
 ***** DONE Enumerator
@@ -1376,16 +1387,6 @@ auto-cpufreq = {
       energy_performance_preference = "performance";
       turbo = "always";
     };
-  };
-};
-#+end_src
-
-**** TODO 📁 Home Manager [0/0]
-#+begin_src nix
-homeManager = { config, lib, ... }: {
-  options.homeManager.enable = lib.mkEnableOption "Enable Home Manager" // { default = false; };
-  config = lib.mkIf config.homeManager.enable {
-    
   };
 };
 #+end_src

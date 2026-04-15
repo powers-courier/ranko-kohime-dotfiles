@@ -44,9 +44,7 @@ in {
       description = "Extra flags passed to the Docker container (e.g. --network).";
     };
   };
-
   config = mkIf cfg.enable {
-    # Ensure the base directory exists with proper permissions
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0755 root root -"
       "d ${dataDir} 0755 root root -"
@@ -64,17 +62,12 @@ in {
       extraOptions = cfg.extraOptions;
       restartPolicy = "unless-stopped";
     };
-
     networking.firewall.allowedTCPPorts = mkIf (cfg.port != 0) [ cfg.port ];
-
-    # Nice-to-have: create a helper script to view logs
     environment.systemPackages = [
       (pkgs.writeShellScriptBin "lubelogger-logs" ''
         ${pkgs.docker}/bin/docker logs -f lubelogger
       '')
     ];
-
-    # Informational message
     warnings = mkIf (cfg.environment ? POSTGRES_CONNECTION == false) [
       "LubeLogger is using the built-in SQLite by default. For production, consider setting services.lubelogger.environment.POSTGRES_CONNECTION or adding a PostgreSQL service."
     ];

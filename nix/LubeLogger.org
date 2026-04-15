@@ -23,29 +23,12 @@ in {
     <<LubeLogger-options-environment>>
     <<LubeLogger-options-extraOptions>>
   };
-
   config = mkIf cfg.enable {
-    # Ensure the base directory exists with proper permissions
-    systemd.tmpfiles.rules = [
-      "d ${cfg.dataDir} 0755 root root -"
-      "d ${dataDir} 0755 root root -"
-      "d ${keysDir} 0755 root root -"
-    ];
+    <<LubeLogger-Base-Directory>>
     <<LubeLogger-Container>>
-
     networking.firewall.allowedTCPPorts = mkIf (cfg.port != 0) [ cfg.port ];
-
-    # Nice-to-have: create a helper script to view logs
-    environment.systemPackages = [
-      (pkgs.writeShellScriptBin "lubelogger-logs" ''
-        ${pkgs.docker}/bin/docker logs -f lubelogger
-      '')
-    ];
-
-    # Informational message
-    warnings = mkIf (cfg.environment ? POSTGRES_CONNECTION == false) [
-      "LubeLogger is using the built-in SQLite by default. For production, consider setting services.lubelogger.environment.POSTGRES_CONNECTION or adding a PostgreSQL service."
-    ];
+    <<LubeLogger-Log-Viewer>>
+    <<LubeLogger-Message>>
   };
 }
 #+end_src
@@ -105,7 +88,19 @@ extraOptions = mkOption {
 };
 #+end_src
 
-** Container
+** DONE Config [4/4]
+*** DONE Base Directory
+Ensure the base directory exists with proper permissions
+
+#+begin_src nix :noweb-ref LubeLogger-Base-Directory
+systemd.tmpfiles.rules = [
+  "d ${cfg.dataDir} 0755 root root -"
+  "d ${dataDir} 0755 root root -"
+  "d ${keysDir} 0755 root root -"
+];
+#+end_src
+
+*** DONE Container
 #+begin_src nix :noweb-ref LubeLogger-Container
 virtualisation.oci-containers.containers.lubelogger = {
   image = cfg.image;
@@ -119,4 +114,20 @@ virtualisation.oci-containers.containers.lubelogger = {
   extraOptions = cfg.extraOptions;
   restartPolicy = "unless-stopped";
 };
+#+end_src
+
+*** DONE Log Viewer
+#+begin_src nix :noweb-ref LubeLogger-Log-Viewer
+environment.systemPackages = [
+  (pkgs.writeShellScriptBin "lubelogger-logs" ''
+    ${pkgs.docker}/bin/docker logs -f lubelogger
+  '')
+];
+#+end_src
+
+*** DONE Informational Message
+#+begin_src nix :noweb-ref LubeLogger-Message
+warnings = mkIf (cfg.environment ? POSTGRES_CONNECTION == false) [
+  "LubeLogger is using the built-in SQLite by default. For production, consider setting services.lubelogger.environment.POSTGRES_CONNECTION or adding a PostgreSQL service."
+];
 #+end_src

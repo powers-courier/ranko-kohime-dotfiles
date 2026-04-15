@@ -6,6 +6,8 @@
       fprintd
       libfido2
       pam_u2f
+      pass
+      pinentry-curses
       yubico-piv-tool
       yubikey-agent
       yubikey-manager
@@ -21,14 +23,22 @@
       # For i3lock or similar (if using)
 #      i3lock.fprintAuth = true;
     };
+    programs = {
+      gnupg.agent = {
+        enable = true;
+        pinentryPackage = pkgs.pinentry-curses;
+        enableSSHSupport = true;
+      };
+      yubikey-touch-detector.enable = true;
+    };
     services = {
       fprintd = {
         enable = true;
         tod.enable = true;
         tod.driver = pkgs.libfprint-2-tod1-goodix;  # Goodix MOC sensor – swap to libfprint-2-tod1-goodix-550a if issues
       };
+      pcscd.enable = true;
       yubikey-agent.enable = true;
     };
-    programs.yubikey-touch-detector.enable = true;
   };
 }

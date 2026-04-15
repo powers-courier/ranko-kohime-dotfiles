@@ -8,7 +8,7 @@
     nix-openclaw.url = "github:openclaw/nix-openclaw";
     nix-openclaw.inputs.nixpkgs.follows = "nixpkgs";
   };
-  outputs = { nixpkgs, self, ... }@inputs:
+  outputs = { nixpkgs, home-manager, nix-openclaw, self, ... }@inputs:
     let
       inherit (nixpkgs) lib;
       vars = {
@@ -464,14 +464,14 @@
         ) (builtins.readDir home-manager-homeDir)
       );
       home-manager-usernames = builtins.map (f: nixpkgs.lib.removeSuffix ".nix" f) home-manager-userFiles;
-      mkHome = username: home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        modules = [ (homeDir + "/${username}.nix") ];
+      mkHome = home-manager-username: home-manager.lib.homeManagerConfiguration {
+      #  inherit pkgs;
+        modules = [ (home-manager-homeDir + "/${home-manager-username}.nix") ];
       };
     in
     rec {
       nixosModules = autoModules // flakeModules ;
-      homeConfigurations = nixpkgs.lib.genAttrs usernames mkHome;
+      homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
       nixosConfigurations = Jelly-Proxy-Configs // {
         framework-13 = mkHost {
           hostname = "framework-13";
@@ -545,7 +545,7 @@
           cpuVendor = "intel";
           extraModules = [
             { jellyfinServer.enable = true; }
-            { lubelogger.enable = true; }
+        #    { lubelogger.enable = true; }
             { zfsBootOptions.enable = true; }
             {
               fileSystems = {

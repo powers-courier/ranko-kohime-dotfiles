@@ -8,7 +8,8 @@ in {
       ../lubelogger-apple-touch-overlay.nix   # ← temporary overlay
     ];
   options.services.lubelogger = {
-    enable = mkEnableOption "LubeLogger vehicle maintenance tracker";
+    enable = mkEnableOption "LubeLogger vehicle maintenance tracker"
+      // { default = false; };
     dataDir = mkOption {
       type = types.str;
       default = "/LubeLogger";

@@ -59,7 +59,7 @@ inputs = {
 
 ** DONE Outputs
 #+begin_src nix :noweb-ref outputs-preamble
-outputs = { nixpkgs, self, ... }@inputs:
+outputs = { nixpkgs, home-manager, nix-openclaw, self, ... }@inputs:
   let
     inherit (nixpkgs) lib;
     <<flake-variables-preamble>>
@@ -73,7 +73,7 @@ outputs = { nixpkgs, self, ... }@inputs:
   in
   rec {
     <<modules-enabler>>
-    homeConfigurations = nixpkgs.lib.genAttrs usernames mkHome;
+    homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
     <<system-configuration-preamble>>
     <<images-preamble>>
   };
@@ -365,9 +365,9 @@ home-manager-userFiles = builtins.attrNames (
   ) (builtins.readDir home-manager-homeDir)
 );
 home-manager-usernames = builtins.map (f: nixpkgs.lib.removeSuffix ".nix" f) home-manager-userFiles;
-mkHome = username: home-manager.lib.homeManagerConfiguration {
-  inherit pkgs;
-  modules = [ (home-manager-homeDir + "/${username}.nix") ];
+mkHome = home-manager-username: home-manager.lib.homeManagerConfiguration {
+#  inherit pkgs;
+  modules = [ (home-manager-homeDir + "/${home-manager-username}.nix") ];
 };
 #+end_src
 
@@ -738,7 +738,7 @@ main-host = mkHost {
   cpuVendor = "intel";
   extraModules = [
     { jellyfinServer.enable = true; }
-    { lubelogger.enable = true; }
+#    { lubelogger.enable = true; }
     { zfsBootOptions.enable = true; }
     {
       fileSystems = {

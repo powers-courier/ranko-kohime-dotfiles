@@ -8,25 +8,27 @@
 #+begin_src nix :tangle modules/LubeLogger.nix
 { config, lib, pkgs, ... }: with lib;
 let
-  cfg = config.services.lubelogger;
+  cfg = config.services.LubeLogger;
   dataDir = "${cfg.dataDir}/data";
   keysDir = "${cfg.dataDir}/keys";
 in {
   imports = [
       ../lubelogger-apple-touch-overlay.nix   # ← temporary overlay
     ];
-  options.services.lubelogger = {
+  options.services.LubeLogger = {
     enable = mkEnableOption "LubeLogger vehicle maintenance tracker"
       // { default = false; };
     <<LubeLogger-options-dataDir>>
     <<LubeLogger-options-port>>
     <<LubeLogger-options-image>>
     <<LubeLogger-options-environment>>
+    <<LubeLogger-options-openFirewall>>
     <<LubeLogger-options-extraOptions>>
   };
   config = mkIf cfg.enable {
     <<LubeLogger-Base-Directory>>
-    <<LubeLogger-Container>>
+#    <<LubeLogger-Container>>
+    <<LubeLogger-systemd-Service>>
     networking.firewall.allowedTCPPorts = mkIf (cfg.port != 0) [ cfg.port ];
     <<LubeLogger-Log-Viewer>>
     <<LubeLogger-Message>>
@@ -34,7 +36,7 @@ in {
 }
 #+end_src
 
-** DONE Options [5/5]
+** DONE Options [6/6]
 *** DONE dataDir
 #+begin_src nix :noweb-ref LubeLogger-options-dataDir
 dataDir = mkOption {
@@ -80,6 +82,15 @@ environment = mkOption {
 };
 #+end_src
 
+*** DONE openFirewall
+#+begin_src nix :noweb-ref LubeLogger-options-openFirewall
+openFirewall = lib.mkOption {
+  type = lib.types.bool;
+  default = false;
+  description = "Open the firewall port for the LubeLogger web interface.";
+};
+#+end_src
+
 *** DONE extraOptions
 #+begin_src nix :noweb-ref LubeLogger-options-extraOptions
 extraOptions = mkOption {
@@ -89,15 +100,13 @@ extraOptions = mkOption {
 };
 #+end_src
 
-** DONE Config [4/4]
+** DONE Config [5/5]
 *** DONE Base Directory
 Ensure the base directory exists with proper permissions
 
 #+begin_src nix :noweb-ref LubeLogger-Base-Directory
 systemd.tmpfiles.rules = [
-  "d ${cfg.dataDir} 0755 root root -"
-  "d ${dataDir} 0755 root root -"
-  "d ${keysDir} 0755 root root -"
+  "d ${cfg.dataDir} 0750 lubelogger lubelogger -"
 ];
 #+end_src
 
@@ -117,11 +126,37 @@ virtualisation.oci-containers.containers.lubelogger = {
 };
 #+end_src
 
+*** DONE systemd Service
+#+begin_src nix :noweb-ref LubeLogger-systemd-Service
+systemd.services.lubelogger = {
+  serviceConfig = {
+    NoNewPrivileges = true;
+    ProtectSystem = "strict";
+    ProtectHome = "read-only";
+    PrivateTmp = true;
+    PrivateDevices = true;
+    ProtectKernelTunables = true;
+    ProtectKernelModules = true;
+    ProtectControlGroups = true;
+    RestrictSUIDSGID = true;
+    RestrictNamespaces = true;
+    LockPersonality = true;
+    MemoryDenyWriteExecute = true;
+    RestrictRealtime = true;
+    SystemCallArchitectures = "native";
+    RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
+    CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
+    ReadWritePaths = [ cfg.dataDir ];
+    SystemCallFilter = [ "@system-service" "~@privileged" "~@resources" ];
+  };
+};
+#+end_src
+
 *** DONE Log Viewer
 #+begin_src nix :noweb-ref LubeLogger-Log-Viewer
 environment.systemPackages = [
   (pkgs.writeShellScriptBin "lubelogger-logs" ''
-    ${pkgs.docker}/bin/docker logs -f lubelogger
+    ${pkgs.systemd}/bin/journalctl -u lubelogger -f "$@"
   '')
 ];
 #+end_src
@@ -132,3 +167,37 @@ warnings = mkIf (cfg.environment ? POSTGRES_CONNECTION == false) [
   "LubeLogger is using the built-in SQLite by default. For production, consider setting services.lubelogger.environment.POSTGRES_CONNECTION or adding a PostgreSQL service."
 ];
 #+end_src
+
+* Alternate
+#+begin_example nix
+{ config, lib, pkgs, ... }:
+
+let
+  cfg = config.services.LubeLogger;
+in
+{
+  };
+  config = lib.mkIf cfg.enable {
+    # Delegate to the official nixpkgs module (native .NET service, no Docker)
+    services.lubelogger = {
+      enable = true;
+      inherit (cfg) port openFirewall;
+
+      # Map dataDir (official expects a name under /var/lib/)
+      dataDir = if lib.hasPrefix "/" cfg.dataDir
+        then lib.removePrefix "/var/lib/" (lib.removeSuffix "/" cfg.dataDir)
+        else cfg.dataDir;
+
+      # User's old "environment" maps directly to the official "settings"
+      settings = cfg.environment;
+    };
+
+    # Extra systemd hardening on top of the official module
+
+    # Ensure the data directory exists with correct permissions
+    # (the official module already creates /var/lib/${dataDir}, but this covers custom absolute paths)
+    # Optional: re-add your apple-touch overlay if you still need it
+    # imports = [ ../lubelogger-apple-touch-overlay.nix ];
+  };
+}
+#+end_example

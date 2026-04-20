@@ -8,7 +8,13 @@
     nix-openclaw.url = "github:openclaw/nix-openclaw";
     nix-openclaw.inputs.nixpkgs.follows = "nixpkgs";
   };
-  outputs = { nixpkgs, home-manager, nix-openclaw, self, ... }@inputs:
+  outputs = {
+  nixpkgs,
+  home-manager,
+  nix-openclaw,
+  self,
+  ...
+  }@inputs:
     let
       inherit (nixpkgs) lib;
       vars = {
@@ -399,7 +405,6 @@
             desktop = { pkgs, ... }: {
               fancyKeyboards.enable = true;
               multimediaPackages.enable = true;
-              packagesPass.enable = true;
               # GUI, sound, printing, etc.
               services.xserver.enable = true;
               services.pulseaudio.enable = false;  # or pipewire
@@ -545,7 +550,7 @@
           cpuVendor = "intel";
           extraModules = [
             { jellyfinServer.enable = true; }
-        #    { lubelogger.enable = true; }
+        #    { services.LubeLogger.enable = true; }
             { zfsBootOptions.enable = true; }
             {
               fileSystems = {

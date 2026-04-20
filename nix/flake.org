@@ -59,7 +59,9 @@ inputs = {
 
 ** DONE Outputs
 #+begin_src nix :noweb-ref outputs-preamble
-outputs = { nixpkgs, home-manager, nix-openclaw, self, ... }@inputs:
+outputs = {
+<<flake-output-preamble>>
+}@inputs:
   let
     inherit (nixpkgs) lib;
     <<flake-variables-preamble>>
@@ -79,7 +81,7 @@ outputs = { nixpkgs, home-manager, nix-openclaw, self, ... }@inputs:
   };
 #+end_src
 
-* TODO Contents [41/91]
+* TODO Contents [42/91]
 ** TODO Inputs [4/9]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -169,6 +171,15 @@ vars = {
 #+begin_src nix
 tailscale-fqdn = "manticore-elnath.ts.net";
 truenas-ip = "192.168.168.2";
+#+end_src
+
+** DONE Output Preamble
+#+begin_src nix :noweb-ref flake-output-preamble
+nixpkgs,
+home-manager,
+nix-openclaw,
+self,
+...
 #+end_src
 
 ** TODO Hardware Configs [12/13]
@@ -586,7 +597,6 @@ roleModules = {
 desktop = { pkgs, ... }: {
   fancyKeyboards.enable = true;
   multimediaPackages.enable = true;
-  packagesPass.enable = true;
   # GUI, sound, printing, etc.
   services.xserver.enable = true;
   services.pulseaudio.enable = false;  # or pipewire

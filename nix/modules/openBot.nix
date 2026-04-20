@@ -7,26 +7,26 @@
       fsType = "nfs";
       options = [  ];
     };
-#    systemd.services."openclaw-gateway" = {
-#      description = "OpenClaw Gateway Daemon";
-#      after = [ "network.target" "remote-fs.target" ];
-#      wantedBy = [ "multi-user.target" ];
-#      serviceConfig = {
-#        User = "openclaw";
-#        WorkingDirectory = "/var/lib/openclaw";
-#        ExecStart = "${home-manager.outputs.packages.${system}.default}/bin/openclaw gateway --port 18789";
-#        Restart = "always";
-#        ProtectSystem = "strict";
-#        ProtectHome = "read-only";
-#        ReadOnlyPaths = [ "/etc" "/var/log/journal" ];
-#        NoNewPrivileges = true;
-#        PrivateTmp = true;
-#        ProtectKernelTunables = true;
-#        ProtectControlGroups = true;
-#        RestrictNamespaces = true;
-#        MemoryMax = "12G";
-#      };
-#    };
+    systemd.services."openclaw-gateway" = {
+      description = "OpenClaw Gateway Daemon";
+      after = [ "network.target" "remote-fs.target" ];
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        User = "openclaw";
+        WorkingDirectory = "/var/lib/openclaw";
+        ExecStart = "${home-manager.outputs.packages.${system}.default}/bin/openclaw gateway --port 18789";
+        Restart = "always";
+        ProtectSystem = "strict";
+        ProtectHome = "read-only";
+        ReadOnlyPaths = [ "/etc" "/var/log/journal" ];
+        NoNewPrivileges = true;
+        PrivateTmp = true;
+        ProtectKernelTunables = true;
+        ProtectControlGroups = true;
+        RestrictNamespaces = true;
+        MemoryMax = "12G";
+      };
+    };
 #    home-manager = lib.mkIf config.homeManager.enable {
 #    #  useGlobalPkgs = true;
 #    #  useUserPackages = true;

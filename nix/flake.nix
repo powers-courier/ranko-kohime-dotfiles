@@ -21,12 +21,12 @@
         readLines = path:
           let
             content = builtins.readFile path;
-            lines = nixpkgs.lib.strings.splitString "\n" content;
+            lines = lib.strings.splitString "\n" content;
           in
-            nixpkgs.lib.filter
+            lib.filter
               (line:
-                let trimmed = nixpkgs.lib.strings.trim line;
-                in trimmed != "" && !(nixpkgs.lib.strings.hasPrefix "#" trimmed)
+                let trimmed = lib.strings.trim line;
+                in trimmed != "" && !(lib.strings.hasPrefix "#" trimmed)
               )
               lines;
       };
@@ -458,7 +458,9 @@
         in
         nixpkgs.lib.nixosSystem {
           inherit system;
-      #    inherit inputs;
+          specialArgs = {
+            inherit inputs;
+          };
           modules = lib.flatten [
             platformModuleList
             inputs.home-manager.nixosModules.home-manager

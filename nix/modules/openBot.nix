@@ -1,6 +1,6 @@
 { config, home-manager, lib, pkgs, nix-openclaw, system,  ... }:
 let
-  nfsCommonOptions = readFromFile.readLines ../settings/nfs-common-options.txt;
+  nfsCommonOptions = lib.readLines ../settings/nfs-common-options.txt;
 in
 {
   options.openBot.enable = lib.mkEnableOption "Enable openBot"

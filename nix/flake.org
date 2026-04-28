@@ -182,12 +182,12 @@ listFromFile = {
   readLines = path:
     let
       content = builtins.readFile path;
-      lines = nixpkgs.lib.strings.splitString "\n" content;
+      lines = lib.strings.splitString "\n" content;
     in
-      nixpkgs.lib.filter
+      lib.filter
         (line:
-          let trimmed = nixpkgs.lib.strings.trim line;
-          in trimmed != "" && !(nixpkgs.lib.strings.hasPrefix "#" trimmed)
+          let trimmed = lib.strings.trim line;
+          in trimmed != "" && !(lib.strings.hasPrefix "#" trimmed)
         )
         lines;
 };
@@ -486,7 +486,9 @@ mkHost = {
   in
   nixpkgs.lib.nixosSystem {
     inherit system;
-#    inherit inputs;
+    specialArgs = {
+      inherit inputs;
+    };
     <<mkhost-generator-modules>>
   };
 #+end_src

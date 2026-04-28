@@ -5,7 +5,7 @@
     fileSystems."/var/lib/openclaw/workspace" = {
       device = "192.168.0.100:/mnt/Svartalfheim/OpenClaw";
       fsType = "nfs";
-      options = [  ];
+      options = [ "hard" ];
     };
     systemd.services."openclaw-gateway" = {
       description = "OpenClaw Gateway Daemon";
@@ -14,7 +14,7 @@
       serviceConfig = {
         User = "openclaw";
         WorkingDirectory = "/var/lib/openclaw";
-        ExecStart = "${home-manager.outputs.packages.${system}.default}/bin/openclaw gateway --port 18789";
+        ExecStart = "${pkgs.openclaw}/bin/openclaw gateway --port 18789";
         Restart = "always";
         ProtectSystem = "strict";
         ProtectHome = "read-only";

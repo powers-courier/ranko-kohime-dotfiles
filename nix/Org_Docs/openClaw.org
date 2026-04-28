@@ -1,12 +1,22 @@
+#+title: AI Bot Module (OpenBot)
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
+
+* Todo
++ [[https://grok.com/share/bGVnYWN5_14b76bd5-6fec-4223-8178-8a4170405d3c][Host Monitor Skill]]
+
 * TODO openClaw [1/5]
 ** TODO Module
 #+begin_src nix :tangle modules/openBot.nix
 { config, home-manager, lib, pkgs, nix-openclaw, system,  ... }: {
-  options.openBot.enable = lib.mkEnableOption "Enable openBot" // { default = false; };
+  options.openBot.enable = lib.mkEnableOption "Enable openBot"
+    // { default = false; };
   config = lib.mkIf config.openBot.enable {
-    <<openBot-workspace>>
+    <<openBot-home-folder-nfs-share>>
     <<openBot-systemd-hardening>>
-    <<openBot-home-manager>>
+#    <<openBot-home-manager>>
   };
 }
 #+end_src
@@ -74,7 +84,7 @@ instances.default = {
 #+end_src
 
 ** WAIT NFS Share
-#+begin_src nix :noweb-ref openBot-workspace
+#+begin_src nix :noweb-ref openBot-home-folder-nfs-share
 fileSystems."/var/lib/openclaw/workspace" = {
   device = "192.168.0.100:/mnt/Svartalfheim/OpenClaw";
   fsType = "nfs";
@@ -91,7 +101,7 @@ systemd.services."openclaw-gateway" = {
   serviceConfig = {
     User = "openclaw";
     WorkingDirectory = "/var/lib/openclaw";
-    ExecStart = "${home-manager.outputs.packages.${system}.default}/bin/openclaw gateway --port 18789";
+    ExecStart = "${pkgs.openclaw}/bin/openclaw gateway --port 18789";
     Restart = "always";
     ProtectSystem = "strict";
     ProtectHome = "read-only";

@@ -74,6 +74,7 @@ outputs = {
     <<home-folder-configuration-generator>>
   in
   rec {
+    lib = listFromFile;
     <<modules-enabler>>
     homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
     <<system-configuration-preamble>>
@@ -156,12 +157,13 @@ quickemu.inputs.nixpkgs.follows = "nixpkgs";
 quickgui.url = "https://flakehub.com/f/quickemu-project/quickgui/*";
 quickgui.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
-** DONE Variables [4/4]
+** DONE Variables & Functions [3/3]
 :properties:
 :header-args+: :noweb-ref flake-variables
 :end:
 *** DONE Preamble
 #+begin_src nix :noweb-ref flake-variables-preamble
+<<list-generator>>
 vars = {
   <<flake-variables>>
 };
@@ -171,6 +173,24 @@ vars = {
 #+begin_src nix
 tailscale-fqdn = "manticore-elnath.ts.net";
 truenas-ip = "192.168.168.2";
+#+end_src
+
+*** DONE List Generator
+Reads a plain text file and returns a cleaned list of lines
+#+begin_src nix :noweb-ref list-generator
+listFromFile = {
+  readLines = path:
+    let
+      content = builtins.readFile path;
+      lines = nixpkgs.lib.strings.splitString "\n" content;
+    in
+      nixpkgs.lib.filter
+        (line:
+          let trimmed = nixpkgs.lib.strings.trim line;
+          in trimmed != "" && !(nixpkgs.lib.strings.hasPrefix "#" trimmed)
+        )
+        lines;
+};
 #+end_src
 
 ** DONE Output Preamble
@@ -466,6 +486,7 @@ mkHost = {
   in
   nixpkgs.lib.nixosSystem {
     inherit system;
+#    inherit inputs;
     <<mkhost-generator-modules>>
   };
 #+end_src

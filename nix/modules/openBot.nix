@@ -1,11 +1,15 @@
-{ config, home-manager, lib, pkgs, nix-openclaw, system,  ... }: {
+{ config, home-manager, lib, pkgs, nix-openclaw, system,  ... }:
+let
+  nfsCommonOptions = readFromFile.readLines ../settings/nfs-common-options.txt;
+in
+{
   options.openBot.enable = lib.mkEnableOption "Enable openBot"
     // { default = false; };
   config = lib.mkIf config.openBot.enable {
     fileSystems."/var/lib/openclaw/workspace" = {
       device = "192.168.0.100:/mnt/Svartalfheim/OpenClaw";
       fsType = "nfs";
-      options = [ "hard" ];
+      options = nfsCommonOptions;
     };
     systemd.services."openclaw-gateway" = {
       description = "OpenClaw Gateway Daemon";

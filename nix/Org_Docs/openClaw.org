@@ -9,8 +9,12 @@
 
 * TODO openClaw [1/5]
 ** TODO Module
-#+begin_src nix :tangle modules/openBot.nix
-{ config, home-manager, lib, pkgs, nix-openclaw, system,  ... }: {
+#+begin_src nix :tangle ../modules/openBot.nix
+{ config, home-manager, lib, pkgs, nix-openclaw, system,  ... }:
+let
+  nfsCommonOptions = readFromFile.readLines ../settings/nfs-common-options.txt;
+in
+{
   options.openBot.enable = lib.mkEnableOption "Enable openBot"
     // { default = false; };
   config = lib.mkIf config.openBot.enable {
@@ -88,7 +92,7 @@ instances.default = {
 fileSystems."/var/lib/openclaw/workspace" = {
   device = "192.168.0.100:/mnt/Svartalfheim/OpenClaw";
   fsType = "nfs";
-  options = [ <<nix-flake-nfs-common-mount>> ];
+  options = nfsCommonOptions;
 };
 #+end_src
 

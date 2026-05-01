@@ -32,7 +32,6 @@ openssl enc -aes-256-cbc -salt -in ed25519_${SN}
 #+end_src
 
 * DONE Flake [3/3]
-** DONE Contents
 Outputs:
 + "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 + "nixpkgs" references the inputs above
@@ -45,41 +44,31 @@ handles applying this function to the set of default systems that Nix supports."
 #+begin_src nix :tangle flake.nix
 {
   description = "Ranko Kohime's Flake v2";
-  <<inputs-preamble>>
-  <<outputs-preamble>>
-}
-#+end_src
-
-** DONE Inputs
-#+begin_src nix :noweb-ref inputs-preamble
-inputs = {
-  <<flake-inputs>>
-};
-#+end_src
-
-** DONE Outputs
-#+begin_src nix :noweb-ref outputs-preamble
-outputs = {
-<<flake-output-preamble>>
-}@inputs:
-  let
-    inherit (nixpkgs) lib;
-    <<flake-variables-preamble>>
-    <<hardware-configs-preamble>>
-    <<home-folder-configuration-preamble>>
-    <<modules-preamble>>
-    <<modules-importer>>
-    <<proxy-host-generator>>
-    <<mkhost-generator>>
-    <<home-folder-configuration-generator>>
-  in
-  rec {
-    lib = listFromFile;
-    <<modules-enabler>>
-    homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
-    <<system-configuration-preamble>>
-    <<images-preamble>>
+  inputs = {
+    <<flake-inputs>>
   };
+  outputs = {
+  <<flake-output-preamble>>
+  }@inputs:
+    let
+      inherit (nixpkgs) lib;
+      <<flake-variables-preamble>>
+      <<hardware-configs-preamble>>
+      <<home-folder-configuration-preamble>>
+      <<modules-preamble>>
+      <<modules-importer>>
+      <<proxy-host-generator>>
+      <<mkhost-generator>>
+      <<home-folder-configuration-generator>>
+    in
+    rec {
+      lib = listFromFile;
+      <<modules-enabler>>
+      homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
+      <<system-configuration-preamble>>
+      <<images-preamble>>
+    };
+}
 #+end_src
 
 * TODO Contents [42/91]

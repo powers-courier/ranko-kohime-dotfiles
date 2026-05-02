@@ -741,17 +741,18 @@ flakeModules = {
 *** DONE Automatic module loader
 #+begin_src nix :noweb-ref modules-importer
 autoModules = let
-  dir = ./modules;
-  entries = builtins.readDir dir;
-  nixFiles = builtins.filter
+  modulesDir = ./modules;
+  moduleEntries = builtins.readDir modulesDir;
+  nixModuleFiles = builtins.filter
     (name: builtins.match ".*\\.nix" name != null)
-    (builtins.attrNames entries);
+    (builtins.attrNames moduleEntries);
 in builtins.listToAttrs (builtins.map
   (name: {
-    name = builtins.replaceStrings [".nix"] [""] name;  # e.g. "backupPackages"
-    value = import (dir + "/${name}");
+    name = builtins.replaceStrings [".nix"] [""] name;
+    value = import (modulesDir + "/${name}");
   })
-  nixFiles);
+  nixModuleFiles);
+
 #+end_src
 
 *** DONE Enabler

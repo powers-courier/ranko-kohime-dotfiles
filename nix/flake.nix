@@ -337,17 +337,17 @@
         };
       };
       autoModules = let
-        dir = ./modules;
-        entries = builtins.readDir dir;
-        nixFiles = builtins.filter
+        modulesDir = ./modules;
+        moduleEntries = builtins.readDir modulesDir;
+        nixModuleFiles = builtins.filter
           (name: builtins.match ".*\\.nix" name != null)
-          (builtins.attrNames entries);
+          (builtins.attrNames moduleEntries);
       in builtins.listToAttrs (builtins.map
         (name: {
-          name = builtins.replaceStrings [".nix"] [""] name;  # e.g. "backupPackages"
-          value = import (dir + "/${name}");
+          name = builtins.replaceStrings [".nix"] [""] name;
+          value = import (modulesDir + "/${name}");
         })
-        nixFiles);
+        nixModuleFiles);
       jellyProxyHosts = builtins.filter
         (name: lib.hasPrefix "jelly-proxy-" name)
         (lib.attrNames hardwareConfigs);

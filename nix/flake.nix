@@ -351,7 +351,7 @@
       # ------
       autoDarwinHosts = let
         darwinHostsDir = ./darwin-hosts;
-        darwinHostEntries = builtins.readDir hostsDir;
+        darwinHostEntries = builtins.readDir darwinHostsDir;
         darwinHostNixFiles = builtins.filter
           (name: builtins.match ".*\\.nix" name != null)
           (builtins.attrNames darwinHostEntries);
@@ -359,11 +359,11 @@
         (name:
           let
             hostname = builtins.replaceStrings [".nix"] [""] name;
-            hostArgs = import (hostsDir + "/${name}");
+            hostArgs = import (darwinHostsDir + "/${name}");
           in
             {
               name = hostname;
-              value = mkHost (hostArgs // { inherit hostname; });
+              value = mkDarwin (hostArgs // { inherit hostname; });
             }
         )
         darwinHostNixFiles);
@@ -517,6 +517,19 @@
             (roleModules.${role} or (throw "No role module defined for '${role}'"))
           ] ++ extraModules;
         };
+      mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
+        inputs.nix-darwin.lib.darwinSystem {
+          inherit system;
+          specialArgs = { inherit inputs self; };  # same style as your mkHost probably uses
+          modules = [
+            # reuse your shared modules (adjust if some are Linux-only)
+            (builtins.attrValues autoModules)  # or your commonModules / platformModules
+            {
+              networking.hostName = hostname;
+              # any other universal Darwin defaults you want
+            }
+          ] ++ extraModules;
+        };
       home-manager-homeDir = ./home-manager/users;
       home-manager-userFiles = builtins.attrNames (
         nixpkgs.lib.filterAttrs (name: type:
@@ -534,6 +547,7 @@
     rec {
       lib = listFromFile;
       nixosModules = autoModules // flakeModules ;
+      darwinConfigurations = autoDarwinHosts;
       homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
       nixosConfigurations = Jelly-Proxy-Configs // {
         router-ask = mkHost {
@@ -562,5 +576,6 @@
       images = {
         
       };
+      nixosConfigurations = autoLinuxHosts // Jelly-Proxy-Configs;
     };
 }

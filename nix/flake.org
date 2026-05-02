@@ -59,6 +59,19 @@ handles applying this function to the set of default systems that Nix supports."
       <<modules-importer>>
       <<proxy-host-generator>>
       <<mkhost-generator>>
+      mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
+        inputs.nix-darwin.lib.darwinSystem {
+          inherit system;
+          specialArgs = { inherit inputs self; };  # same style as your mkHost probably uses
+          modules = [
+            # reuse your shared modules (adjust if some are Linux-only)
+            (builtins.attrValues autoModules)  # or your commonModules / platformModules
+            {
+              networking.hostName = hostname;
+              # any other universal Darwin defaults you want
+            }
+          ] ++ extraModules;
+        };
       <<home-folder-configuration-generator>>
     in
     rec {
@@ -744,7 +757,7 @@ in builtins.listToAttrs (builtins.map
 # ------
 autoDarwinHosts = let
   darwinHostsDir = ./darwin-hosts;
-  darwinHostEntries = builtins.readDir hostsDir;
+  darwinHostEntries = builtins.readDir darwinHostsDir;
   darwinHostNixFiles = builtins.filter
     (name: builtins.match ".*\\.nix" name != null)
     (builtins.attrNames darwinHostEntries);
@@ -752,11 +765,11 @@ in builtins.listToAttrs (builtins.map
   (name:
     let
       hostname = builtins.replaceStrings [".nix"] [""] name;
-      hostArgs = import (hostsDir + "/${name}");
+      hostArgs = import (darwinHostsDir + "/${name}");
     in
       {
         name = hostname;
-        value = mkHost (hostArgs // { inherit hostname; });
+        value = mkDarwin (hostArgs // { inherit hostname; });
       }
   )
   darwinHostNixFiles);

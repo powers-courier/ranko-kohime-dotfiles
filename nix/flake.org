@@ -489,16 +489,29 @@ mkHost = {
   <<mkhost-generator-options>>
 } @ args:
   let
+    isDarwin = platform == "darwin" || lib.hasSuffix "-darwin" system;
+    isNixOS  = !isDarwin;
     <<mkhost-generator-platform-selector>>
     <<mkhost-generator-role-modules>>
   in
-  nixpkgs.lib.nixosSystem {
-    inherit system;
-    specialArgs = {
-      inherit inputs;
+  if isDarwin then
+    inputs.nix-darwin.lib.darwinSystem {
+      inherit system;
+      specialArgs = { inherit inputs self; };
+      modules = lib.flatten [
+        (builtins.attrValues autoModules)
+        { networking.hostName = hostname; }
+        extraModules
+      ];
+    }
+  else
+    nixpkgs.lib.nixosSystem {
+      inherit system;
+      specialArgs = {
+        inherit inputs;
+      };
+      <<mkhost-generator-modules>>
     };
-    <<mkhost-generator-modules>>
-  };
 #+end_src
 
 ****** DONE Options
@@ -508,6 +521,7 @@ system ? "x86_64-linux",
 cpuVendor ? "generic",
 role ? "desktop",
 extraModules ? [],
+platform ? null,
 #+end_src
 
 ****** DONE Platform Selector

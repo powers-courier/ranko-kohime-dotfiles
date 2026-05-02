@@ -445,8 +445,11 @@
         cpuVendor ? "generic",
         role ? "desktop",
         extraModules ? [],
+        platform ? null,
       } @ args:
         let
+          isDarwin = platform == "darwin" || lib.hasSuffix "-darwin" system;
+          isNixOS  = !isDarwin;
           selectedPlatformModules =
             platformModules.${system} or
               (throw "Unsupported system: ${system}");
@@ -497,26 +500,37 @@
             # Future roles (placeholders)
           };
         in
-        nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = {
-            inherit inputs;
+        if isDarwin then
+          inputs.nix-darwin.lib.darwinSystem {
+            inherit system;
+            specialArgs = { inherit inputs self; };
+            modules = lib.flatten [
+              (builtins.attrValues autoModules)
+              { networking.hostName = hostname; }
+              extraModules
+            ];
+          }
+        else
+          nixpkgs.lib.nixosSystem {
+            inherit system;
+            specialArgs = {
+              inherit inputs;
+            };
+            modules = lib.flatten [
+              platformModuleList
+              inputs.home-manager.nixosModules.home-manager
+              {
+                home-manager = {
+                  useGlobalPkgs = true;
+                  useUserPackages = true;
+                };
+              }
+              (builtins.attrValues autoModules)
+              (builtins.attrValues flakeModules)
+              { networking.hostName = hostname; }
+              (roleModules.${role} or (throw "No role module defined for '${role}'"))
+            ] ++ extraModules;
           };
-          modules = lib.flatten [
-            platformModuleList
-            inputs.home-manager.nixosModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-              };
-            }
-            (builtins.attrValues autoModules)
-            (builtins.attrValues flakeModules)
-            { networking.hostName = hostname; }
-            (roleModules.${role} or (throw "No role module defined for '${role}'"))
-          ] ++ extraModules;
-        };
       mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
         inputs.nix-darwin.lib.darwinSystem {
           inherit system;

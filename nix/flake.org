@@ -71,8 +71,8 @@ handles applying this function to the set of default systems that Nix supports."
 }
 #+end_src
 
-* TODO Contents [42/91]
-** TODO Inputs [4/9]
+* TODO Contents [43/92]
+** TODO Inputs [5/10]
 :properties:
 :header-args: :noweb-ref flake-inputs
 :end:
@@ -97,6 +97,12 @@ home-manager.inputs.nixpkgs.follows = "nixpkgs";
 #+begin_src nix
 nix-openclaw.url = "github:openclaw/nix-openclaw";
 nix-openclaw.inputs.nixpkgs.follows = "nixpkgs";
+#+end_src
+
+*** DONE nix-darwin
+#+begin_src nix
+nix-darwin.url = "github:LnL7/nix-darwin";
+nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
 
 *** TODO sops-nix (Secrets)
@@ -186,6 +192,7 @@ listFromFile = {
 #+begin_src nix :noweb-ref flake-output-preamble
 nixpkgs,
 home-manager,
+nix-darwin,
 nix-openclaw,
 self,
 ...

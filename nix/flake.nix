@@ -7,10 +7,13 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nix-openclaw.url = "github:openclaw/nix-openclaw";
     nix-openclaw.inputs.nixpkgs.follows = "nixpkgs";
+    nix-darwin.url = "github:LnL7/nix-darwin";
+    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = {
   nixpkgs,
   home-manager,
+  nix-darwin,
   nix-openclaw,
   self,
   ...

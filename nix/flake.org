@@ -64,9 +64,12 @@ handles applying this function to the set of default systems that Nix supports."
     rec {
       lib = listFromFile;
       <<modules-enabler>>
+      darwinConfigurations = autoDarwinHosts;
       homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
-      <<system-configuration-preamble>>
-      <<images-preamble>>
+      images = {
+        <<flake-image-generators>>
+      };
+      nixosConfigurations = autoLinuxHosts // Jelly-Proxy-Configs;
     };
 }
 #+end_src
@@ -671,9 +674,6 @@ server = { lib, pkgs, ... }: {
 
 *** DONE Preamble
 #+begin_src nix :noweb-ref system-configuration-preamble
-nixosConfigurations = Jelly-Proxy-Configs // {
-  <<host-configurations>>
-};
 #+end_src
 
 *** DONE Hosts
@@ -719,17 +719,6 @@ router-ask = mkHost {
 };
 #+end_src
 
-** TODO Images [0/1]
-:properties:
-:header-args+: :noweb-ref flake-image-generators
-:end:
-*** WAIT Preamble
-#+begin_src nix :noweb-ref images-preamble
-images = {
-  <<flake-image-generators>>
-};
-#+end_src
-
 ** TODO Modules [58/97]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
@@ -752,7 +741,26 @@ in builtins.listToAttrs (builtins.map
     value = import (modulesDir + "/${name}");
   })
   nixModuleFiles);
-
+# ------
+autoDarwinHosts = let
+  darwinHostsDir = ./darwin-hosts;
+  darwinHostEntries = builtins.readDir hostsDir;
+  darwinHostNixFiles = builtins.filter
+    (name: builtins.match ".*\\.nix" name != null)
+    (builtins.attrNames darwinHostEntries);
+in builtins.listToAttrs (builtins.map
+  (name:
+    let
+      hostname = builtins.replaceStrings [".nix"] [""] name;
+      hostArgs = import (hostsDir + "/${name}");
+    in
+      {
+        name = hostname;
+        value = mkHost (hostArgs // { inherit hostname; });
+      }
+  )
+  darwinHostNixFiles);
+# ------
 autoLinuxHosts = let
   hostsDir = ./hosts;
   hostEntries = builtins.readDir hostsDir;

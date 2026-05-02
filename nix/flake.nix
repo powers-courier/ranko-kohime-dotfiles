@@ -348,6 +348,26 @@
           value = import (modulesDir + "/${name}");
         })
         nixModuleFiles);
+      # ------
+      autoDarwinHosts = let
+        darwinHostsDir = ./darwin-hosts;
+        darwinHostEntries = builtins.readDir hostsDir;
+        darwinHostNixFiles = builtins.filter
+          (name: builtins.match ".*\\.nix" name != null)
+          (builtins.attrNames darwinHostEntries);
+      in builtins.listToAttrs (builtins.map
+        (name:
+          let
+            hostname = builtins.replaceStrings [".nix"] [""] name;
+            hostArgs = import (hostsDir + "/${name}");
+          in
+            {
+              name = hostname;
+              value = mkHost (hostArgs // { inherit hostname; });
+            }
+        )
+        darwinHostNixFiles);
+      # ------
       autoLinuxHosts = let
         hostsDir = ./hosts;
         hostEntries = builtins.readDir hostsDir;

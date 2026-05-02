@@ -348,6 +348,24 @@
           value = import (modulesDir + "/${name}");
         })
         nixModuleFiles);
+      autoLinuxHosts = let
+        hostsDir = ./hosts;
+        hostEntries = builtins.readDir hostsDir;
+        hostNixFiles = builtins.filter
+          (name: builtins.match ".*\\.nix" name != null)
+          (builtins.attrNames hostEntries);
+      in builtins.listToAttrs (builtins.map
+        (name:
+          let
+            hostname = builtins.replaceStrings [".nix"] [""] name;
+            hostArgs = import (hostsDir + "/${name}");
+          in
+            {
+              name = hostname;
+              value = mkHost (hostArgs // { inherit hostname; });
+            }
+        )
+        hostNixFiles);
       jellyProxyHosts = builtins.filter
         (name: lib.hasPrefix "jelly-proxy-" name)
         (lib.attrNames hardwareConfigs);

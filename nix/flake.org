@@ -62,14 +62,10 @@ handles applying this function to the set of default systems that Nix supports."
       mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
         inputs.nix-darwin.lib.darwinSystem {
           inherit system;
-          specialArgs = { inherit inputs self; };  # same style as your mkHost probably uses
+          specialArgs = { inherit inputs self; };
           modules = [
-            # reuse your shared modules (adjust if some are Linux-only)
-            (builtins.attrValues autoModules)  # or your commonModules / platformModules
-            {
-              networking.hostName = hostname;
-              # any other universal Darwin defaults you want
-            }
+            (builtins.attrValues autoModules)
+            { networking.hostName = hostname; }
           ] ++ extraModules;
         };
       <<home-folder-configuration-generator>>

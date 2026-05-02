@@ -350,7 +350,7 @@
         nixModuleFiles);
       # ------
       autoDarwinHosts = let
-        darwinHostsDir = ./darwin-hosts;
+        darwinHostsDir = ./hosts/darwin;
         darwinHostEntries = builtins.readDir darwinHostsDir;
         darwinHostNixFiles = builtins.filter
           (name: builtins.match ".*\\.nix" name != null)

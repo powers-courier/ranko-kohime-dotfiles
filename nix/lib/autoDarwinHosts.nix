@@ -23,4 +23,4 @@ let
     darwinHostNixFiles);
 
 in
-{ inherit autoDarwinHosts; }
+autoDarwinHosts

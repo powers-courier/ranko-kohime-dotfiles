@@ -23,4 +23,4 @@ let
   }) jellyProxyHosts);
 
 in
-{ inherit jellyProxyGenerator; }
+  jellyProxyGenerator

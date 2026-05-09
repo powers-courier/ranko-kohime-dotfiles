@@ -24,4 +24,4 @@ let
     hostNixFiles);
 
 in
-{ inherit autoLinuxHosts; }
+  autoLinuxHosts

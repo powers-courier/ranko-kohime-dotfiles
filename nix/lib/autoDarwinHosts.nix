@@ -20,6 +20,6 @@ in builtins.listToAttrs (builtins.map
         value = mkHost (hostArgs // { inherit hostname; });
       }
   )
-  darwinHostNixFiles)
-;
+  darwinHostNixFiles);
+
 { inherit autoDarwinHosts; }

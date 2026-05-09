@@ -17,4 +17,4 @@ let
     nixModuleFiles);
 
 in
-  { inherit autoModules; }
+  autoModules

@@ -1,9 +1,9 @@
-{ inputs, lib, mkHost, jellyProxyGenerator ? {}, ... }@args:
+{  lib, mkHost, autoHardware, ... }:
 
 let
   jellyProxyHosts = builtins.filter
     (name: lib.hasPrefix "jelly-proxy-" name)
-    (lib.attrNames hardwareConfigs);
+    (lib.attrNames autoHardware);
 
   jellyProxyGenerator = lib.listToAttrs (map (name: {
     inherit name;
@@ -13,7 +13,7 @@ let
       cpuVendor = "intel";
       role = "server";
       extraModules = [
-        hardwareConfigs.${name}
+        autoHardware.${name}
         ({ ... }: {
           cpuLimiterIntel.enable = true;
           jellyfinProxyHost.enable = true;

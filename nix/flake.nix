@@ -20,19 +20,6 @@
   }@inputs:
     let
       inherit (nixpkgs) lib;
-      listFromFile = {
-        readLines = path:
-          let
-            content = builtins.readFile path;
-            lines = lib.strings.splitString "\n" content;
-          in
-            lib.filter
-              (line:
-                let trimmed = lib.strings.trim line;
-                in trimmed != "" && !(lib.strings.hasPrefix "#" trimmed)
-              )
-              lines;
-      };
       autoLib = import ./lib/autoLib.nix { inherit inputs lib; };
       inherit (autoLib)
         autoModules
@@ -516,13 +503,13 @@
       };
     in
     rec {
-      lib = listFromFile;
-      nixosModules = autoModules // flakeModules ;
+#      lib = listFromFile;
+      nixosModules = flakeModules ;
       darwinConfigurations = autoDarwinHosts;
       homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
       images = {
         
       };
-      nixosConfigurations = autoLinuxHosts // Jelly-Proxy-Configs;
+      nixosConfigurations = autoLinuxHosts // jellyProxyGenerator;
     };
 }

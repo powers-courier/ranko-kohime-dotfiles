@@ -69,7 +69,7 @@ handles applying this function to the set of default systems that Nix supports."
       <<home-folder-configuration-generator>>
     in
     rec {
-      lib = listFromFile;
+#      lib = listFromFile;
       <<modules-enabler>>
       darwinConfigurations = autoDarwinHosts;
       homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
@@ -189,24 +189,6 @@ inherit (autoLib)
 #+begin_src nix
 tailscale-fqdn = "manticore-elnath.ts.net";
 truenas-ip = "192.168.168.2";
-#+end_src
-
-*** DONE List Generator
-Reads a plain text file and returns a cleaned list of lines
-#+begin_src nix :noweb-ref list-generator
-listFromFile = {
-  readLines = path:
-    let
-      content = builtins.readFile path;
-      lines = lib.strings.splitString "\n" content;
-    in
-      lib.filter
-        (line:
-          let trimmed = lib.strings.trim line;
-          in trimmed != "" && !(lib.strings.hasPrefix "#" trimmed)
-        )
-        lines;
-};
 #+end_src
 
 ** DONE Output Preamble

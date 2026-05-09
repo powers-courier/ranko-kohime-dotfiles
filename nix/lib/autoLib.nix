@@ -1,4 +1,4 @@
-{ inputs, lib, mkHost, ... }@args:
+{ inputs, lib, mkHost, autoHardware, ... }@args:
 
 let
   libDir = ./.;
@@ -9,6 +9,8 @@ let
     (name:
       builtins.match ".*\\.nix" name != null
       && name != "autoLib.nix"
+                 # Auto loaded separately by the flake
+      && name != "autoHardware.nix"
     )
     (builtins.attrNames entries);
 

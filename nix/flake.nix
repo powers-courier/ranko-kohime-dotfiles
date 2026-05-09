@@ -20,9 +20,9 @@
   }@inputs:
     let
       inherit (nixpkgs) lib;
-      autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost; };
+      autoHardware = (import ./lib/autoHardware.nix {});
+      autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost autoHardware; };
       inherit (autoLib)
-        autoHardware
         autoModules
         autoLinuxHosts
         autoDarwinHosts

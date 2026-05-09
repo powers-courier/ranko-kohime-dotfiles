@@ -1,4 +1,4 @@
-{ inputs, lib, ... }@args:
+{ inputs, lib, mkHost, ... }@args:
 
 let
   libDir = ./.;

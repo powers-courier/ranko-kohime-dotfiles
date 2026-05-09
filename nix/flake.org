@@ -71,12 +71,12 @@ handles applying this function to the set of default systems that Nix supports."
     rec {
 #      lib = listFromFile;
       <<modules-enabler>>
-      darwinConfigurations = autoDarwinHosts;
+      darwinConfigurations = autoLib.autoDarwinHosts;
       homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
       images = {
         <<flake-image-generators>>
       };
-      nixosConfigurations = autoLinuxHosts // jellyProxyGenerator;
+      nixosConfigurations = autoLib.autoLinuxHosts // autoLib.jellyProxyGenerator;
     };
 }
 #+end_src
@@ -176,7 +176,7 @@ vars = {
 
 *** DONE Automatic function loader
 #+begin_src nix :noweb-ref flake-function-auto-loader
-autoLib = import ./lib/autoLib.nix { inherit inputs lib; };
+autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost; };
 inherit (autoLib)
   autoModules
   autoLinuxHosts

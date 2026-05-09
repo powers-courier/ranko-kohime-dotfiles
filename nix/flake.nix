@@ -20,7 +20,7 @@
   }@inputs:
     let
       inherit (nixpkgs) lib;
-      autoLib = import ./lib/autoLib.nix { inherit inputs lib; };
+      autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost; };
       inherit (autoLib)
         autoModules
         autoLinuxHosts
@@ -485,11 +485,11 @@
     rec {
 #      lib = listFromFile;
       nixosModules = flakeModules ;
-      darwinConfigurations = autoDarwinHosts;
+      darwinConfigurations = autoLib.autoDarwinHosts;
       homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
       images = {
         
       };
-      nixosConfigurations = autoLinuxHosts // jellyProxyGenerator;
+      nixosConfigurations = autoLib.autoLinuxHosts // autoLib.jellyProxyGenerator;
     };
 }

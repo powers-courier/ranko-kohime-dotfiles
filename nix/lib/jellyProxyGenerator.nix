@@ -4,6 +4,7 @@ let
   jellyProxyHosts = builtins.filter
     (name: lib.hasPrefix "jelly-proxy-" name)
     (lib.attrNames hardwareConfigs);
+
   jellyProxyGenerator = lib.listToAttrs (map (name: {
     inherit name;
     value = mkHost {
@@ -20,6 +21,6 @@ let
       ];
     };
   }) jellyProxyHosts);
-in
 
+in
 { inherit jellyProxyGenerator; }

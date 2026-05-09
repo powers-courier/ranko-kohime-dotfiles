@@ -23,4 +23,6 @@ let
   }) jellyProxyHosts);
 
 in
-  jellyProxyGenerator
+  if jellyProxyHosts == []
+    then builtins.trace "Warning: No jelly-proxy-* hardware files found!" {}
+    else jellyProxyGenerator

@@ -389,6 +389,7 @@
       images = {
         
       };
-      nixosConfigurations = autoLib.autoLinuxHosts // jellyProxyGenerator;
+      nixosConfigurations = autoLib.autoLinuxHosts //
+        (autoLib.jellyProxyGenerator.jellyProxyGenerator or autoLib.jellyProxyGenerator or {});
     };
 }

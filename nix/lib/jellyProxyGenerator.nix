@@ -1,4 +1,4 @@
-{  lib, mkHost, autoHardware, ... }:
+{ lib, mkHost, autoHardware, ... }:
 
 let
   jellyProxyHosts = builtins.filter

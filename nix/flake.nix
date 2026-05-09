@@ -330,26 +330,6 @@
           };
         };
       };
-      # ------
-      # ------
-      autoLinuxHosts = let
-        hostsDir = ./hosts;
-        hostEntries = builtins.readDir hostsDir;
-        hostNixFiles = builtins.filter
-          (name: builtins.match ".*\\.nix" name != null)
-          (builtins.attrNames hostEntries);
-      in builtins.listToAttrs (builtins.map
-        (name:
-          let
-            hostname = builtins.replaceStrings [".nix"] [""] name;
-            hostArgs = import (hostsDir + "/${name}");
-          in
-            {
-              name = hostname;
-              value = mkHost (hostArgs // { inherit hostname; });
-            }
-        )
-        hostNixFiles);
       platformModules = {
         x86_64-linux = { cpuVendor ? "generic", ... }: [
           ({ pkgs, lib, ... }: {

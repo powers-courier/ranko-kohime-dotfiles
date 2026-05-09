@@ -8,12 +8,13 @@ let
   nixModuleFiles = builtins.filter
     (name: builtins.match ".*\\.nix" name != null)
     (builtins.attrNames moduleEntries);
-in builtins.listToAttrs (builtins.map
-  (name: {
-    name = builtins.replaceStrings [".nix"] [""] name;
-    value = import (modulesDir + "/${name}");
-  })
-  nixModuleFiles);
-in
 
-{ inherit autoModules; }
+  autoModules =  builtins.listToAttrs (builtins.map
+    (name: {
+      name = builtins.replaceStrings [".nix"] [""] name;
+      value = import (modulesDir + "/${name}");
+    })
+    nixModuleFiles);
+
+in
+  { inherit autoModules; }

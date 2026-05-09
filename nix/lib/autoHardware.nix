@@ -20,4 +20,4 @@ let
       })
     nixFiles);
 in
-  { inherit autoHardware; }
+  autoHardware

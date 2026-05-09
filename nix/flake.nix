@@ -363,9 +363,6 @@
             }
         )
         hostNixFiles);
-      jellyProxyHosts = builtins.filter
-        (name: lib.hasPrefix "jelly-proxy-" name)
-        (lib.attrNames hardwareConfigs);
       platformModules = {
         x86_64-linux = { cpuVendor ? "generic", ... }: [
           ({ pkgs, lib, ... }: {

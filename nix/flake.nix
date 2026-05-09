@@ -22,6 +22,7 @@
       inherit (nixpkgs) lib;
       autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost; };
       inherit (autoLib)
+        autoHardware
         autoModules
         autoLinuxHosts
         autoDarwinHosts

@@ -177,6 +177,7 @@ vars = {
 #+begin_src nix :noweb-ref flake-function-auto-loader
 autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost; };
 inherit (autoLib)
+  autoHardware
   autoModules
   autoLinuxHosts
   autoDarwinHosts

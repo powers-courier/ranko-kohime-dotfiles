@@ -473,7 +473,10 @@
             
               # Common desktop packages
               environment.systemPackages = with pkgs; [
-                firefox libreoffice-fresh vlc
+                evince
+                firefox
+                libreoffice-fresh
+                vlc
               ];
             };
             laptop = { pkgs, ... }: {

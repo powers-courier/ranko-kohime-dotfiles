@@ -1,6 +1,7 @@
 {
   hostname = "Johns-MacBook-Neo";
   system = "aarch64-darwin";
+  platform = "darwin";
   modules = [
     {
       system.stateVersion = 5;

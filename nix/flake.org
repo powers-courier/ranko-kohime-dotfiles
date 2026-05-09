@@ -52,10 +52,10 @@ handles applying this function to the set of default systems that Nix supports."
   }@inputs:
     let
       inherit (nixpkgs) lib;
+      <<mkhost-generator>>
       <<flake-variables-preamble>>
       <<home-folder-configuration-preamble>>
       <<modules-preamble>>
-      <<mkhost-generator>>
       mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
         inputs.nix-darwin.lib.darwinSystem {
           inherit system;
@@ -380,6 +380,7 @@ modules = lib.flatten [
   (builtins.attrValues autoModules)
   (builtins.attrValues flakeModules)
   { networking.hostName = hostname; }
+  { nixpkgs.overlays = [ inputs.nix-openclaw.overlays.default ]; }
   (roleModules.${role} or (throw "No role module defined for '${role}'"))
 ] ++ extraModules;
 #+end_src

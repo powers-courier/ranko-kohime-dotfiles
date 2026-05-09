@@ -20,6 +20,136 @@
   }@inputs:
     let
       inherit (nixpkgs) lib;
+      platformModules = {
+        x86_64-linux = { cpuVendor ? "generic", ... }: [
+          ({ pkgs, lib, ... }: {
+            # Base x86_64 settings everyone gets
+            boot.kernelPackages = pkgs.linuxPackages_latest;
+            nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+          })
+          (lib.mkIf (cpuVendor == "intel") { platformModuleIntel.enable = true; })
+          (lib.mkIf (cpuVendor == "amd") {
+            cpuAmdOptimizations.enable = true;
+            hardware.cpu.amd.updateMicrocode = true;
+            boot = {
+              kernelModules = [ "kvm-amd" ];
+              kernelParams = [ "amd_iommu=on" ];
+            };
+          })
+        ];
+        aarch64-linux = { cpuVendor ? "generic", ... }: [
+          ({ pkgs, ... }: {
+            # Base arm64 settings
+            boot.kernelPackages = pkgs.linuxPackages_latest;
+            # e.g. better handling of big.LITTLE if needed, etc.
+          })
+          (lib.mkIf (cpuVendor == "apple") {
+            # Apple Silicon (asahi or similar)
+            hardware.asahi.enable = true;   # example
+            # or your custom apple tweaks
+          })
+          (lib.mkIf (cpuVendor == "rockchip") {
+            # e.g. RK3588, Orange Pi 5, etc.
+            boot.kernelParams = [ "coherent_pool=1M" ];
+          })
+        ];
+      };
+      mkHost = {
+        hostname,
+        system ? "x86_64-linux",
+        cpuVendor ? "generic",
+        role ? "desktop",
+        extraModules ? [],
+        platform ? null,
+      } @ args:
+        let
+          isDarwin = platform == "darwin" || lib.hasSuffix "-darwin" system;
+          isNixOS  = !isDarwin;
+          selectedPlatformModules =
+            platformModules.${system} or
+              (throw "Unsupported system: ${system}");
+          platformModuleList = selectedPlatformModules {
+            inherit system cpuVendor;
+            inherit inputs;
+            inherit (args) hostname;   # if needed inside
+          };
+          roleModules = {
+            desktop = { pkgs, ... }: {
+              fancyKeyboards.enable = true;
+              multimediaPackages.enable = true;
+              # GUI, sound, printing, etc.
+              services.xserver.enable = true;
+              services.pulseaudio.enable = false;  # or pipewire
+              services.pipewire = {
+                enable = true;
+                alsa.enable = true;
+                pulse.enable = true;
+              };
+            
+              # Common desktop packages
+              environment.systemPackages = with pkgs; [
+                evince
+                firefox
+                libreoffice-fresh
+                vlc
+              ];
+            };
+            laptop = { pkgs, ... }: {
+              imports = [ roleModules.desktop ];
+              environment.systemPackages = with pkgs; [
+                byobu # Just to have non-empty list
+              ];
+              laptopFixes.enable = true;
+            };
+            minimal = { ... }: {
+              environment.systemPackages = lib.mkForce [];
+            };
+            router = { ... }: {
+              my-router.enable = true;
+            };
+            server = { lib, pkgs, ... }: {
+              security.disableWireless.enable = true;
+              boot.kernelParams = [ "quiet" "splash" ];
+              services.xserver.enable = lib.mkForce false;
+              networking.firewall.enable = true;
+              services.printing.enable = lib.mkForce false;
+              networking.networkmanager.enable = lib.mkForce false;  # usually no NM on servers
+            };
+            # Future roles (placeholders)
+          };
+        in
+        if isDarwin then
+          inputs.nix-darwin.lib.darwinSystem {
+            inherit system;
+            specialArgs = { inherit inputs self; };
+            modules = lib.flatten [
+              (builtins.attrValues autoModules)
+              { networking.hostName = hostname; }
+              extraModules
+            ];
+          }
+        else
+          nixpkgs.lib.nixosSystem {
+            inherit system;
+            specialArgs = {
+              inherit inputs;
+            };
+            modules = lib.flatten [
+              platformModuleList
+              inputs.home-manager.nixosModules.home-manager
+              {
+                home-manager = {
+                  useGlobalPkgs = true;
+                  useUserPackages = true;
+                };
+              }
+              (builtins.attrValues autoModules)
+              (builtins.attrValues flakeModules)
+              { networking.hostName = hostname; }
+              { nixpkgs.overlays = [ inputs.nix-openclaw.overlays.default ]; }
+              (roleModules.${role} or (throw "No role module defined for '${role}'"))
+            ] ++ extraModules;
+          };
       autoHardware = (import ./lib/autoHardware.nix {});
       autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost autoHardware; };
       inherit (autoLib)
@@ -228,135 +358,6 @@
           };
         };
       };
-      platformModules = {
-        x86_64-linux = { cpuVendor ? "generic", ... }: [
-          ({ pkgs, lib, ... }: {
-            # Base x86_64 settings everyone gets
-            boot.kernelPackages = pkgs.linuxPackages_latest;
-            nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-          })
-          (lib.mkIf (cpuVendor == "intel") { platformModuleIntel.enable = true; })
-          (lib.mkIf (cpuVendor == "amd") {
-            cpuAmdOptimizations.enable = true;
-            hardware.cpu.amd.updateMicrocode = true;
-            boot = {
-              kernelModules = [ "kvm-amd" ];
-              kernelParams = [ "amd_iommu=on" ];
-            };
-          })
-        ];
-        aarch64-linux = { cpuVendor ? "generic", ... }: [
-          ({ pkgs, ... }: {
-            # Base arm64 settings
-            boot.kernelPackages = pkgs.linuxPackages_latest;
-            # e.g. better handling of big.LITTLE if needed, etc.
-          })
-          (lib.mkIf (cpuVendor == "apple") {
-            # Apple Silicon (asahi or similar)
-            hardware.asahi.enable = true;   # example
-            # or your custom apple tweaks
-          })
-          (lib.mkIf (cpuVendor == "rockchip") {
-            # e.g. RK3588, Orange Pi 5, etc.
-            boot.kernelParams = [ "coherent_pool=1M" ];
-          })
-        ];
-      };
-      mkHost = {
-        hostname,
-        system ? "x86_64-linux",
-        cpuVendor ? "generic",
-        role ? "desktop",
-        extraModules ? [],
-        platform ? null,
-      } @ args:
-        let
-          isDarwin = platform == "darwin" || lib.hasSuffix "-darwin" system;
-          isNixOS  = !isDarwin;
-          selectedPlatformModules =
-            platformModules.${system} or
-              (throw "Unsupported system: ${system}");
-          platformModuleList = selectedPlatformModules {
-            inherit system cpuVendor;
-            inherit inputs;
-            inherit (args) hostname;   # if needed inside
-          };
-          roleModules = {
-            desktop = { pkgs, ... }: {
-              fancyKeyboards.enable = true;
-              multimediaPackages.enable = true;
-              # GUI, sound, printing, etc.
-              services.xserver.enable = true;
-              services.pulseaudio.enable = false;  # or pipewire
-              services.pipewire = {
-                enable = true;
-                alsa.enable = true;
-                pulse.enable = true;
-              };
-            
-              # Common desktop packages
-              environment.systemPackages = with pkgs; [
-                evince
-                firefox
-                libreoffice-fresh
-                vlc
-              ];
-            };
-            laptop = { pkgs, ... }: {
-              imports = [ roleModules.desktop ];
-              environment.systemPackages = with pkgs; [
-                byobu # Just to have non-empty list
-              ];
-              laptopFixes.enable = true;
-            };
-            minimal = { ... }: {
-              environment.systemPackages = lib.mkForce [];
-            };
-            router = { ... }: {
-              my-router.enable = true;
-            };
-            server = { lib, pkgs, ... }: {
-              security.disableWireless.enable = true;
-              boot.kernelParams = [ "quiet" "splash" ];
-              services.xserver.enable = lib.mkForce false;
-              networking.firewall.enable = true;
-              services.printing.enable = lib.mkForce false;
-              networking.networkmanager.enable = lib.mkForce false;  # usually no NM on servers
-            };
-            # Future roles (placeholders)
-          };
-        in
-        if isDarwin then
-          inputs.nix-darwin.lib.darwinSystem {
-            inherit system;
-            specialArgs = { inherit inputs self; };
-            modules = lib.flatten [
-              (builtins.attrValues autoModules)
-              { networking.hostName = hostname; }
-              extraModules
-            ];
-          }
-        else
-          nixpkgs.lib.nixosSystem {
-            inherit system;
-            specialArgs = {
-              inherit inputs;
-            };
-            modules = lib.flatten [
-              platformModuleList
-              inputs.home-manager.nixosModules.home-manager
-              {
-                home-manager = {
-                  useGlobalPkgs = true;
-                  useUserPackages = true;
-                };
-              }
-              (builtins.attrValues autoModules)
-              (builtins.attrValues flakeModules)
-              { networking.hostName = hostname; }
-              (roleModules.${role} or (throw "No role module defined for '${role}'"))
-            ] ++ extraModules;
-          };
       mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
         inputs.nix-darwin.lib.darwinSystem {
           inherit system;

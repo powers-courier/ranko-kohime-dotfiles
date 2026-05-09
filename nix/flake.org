@@ -75,7 +75,7 @@ handles applying this function to the set of default systems that Nix supports."
       images = {
         <<flake-image-generators>>
       };
-      nixosConfigurations = autoLib.autoLinuxHosts // autoLib.jellyProxyGenerator;
+      nixosConfigurations = autoLib.autoLinuxHosts // jellyProxyGenerator;
     };
 }
 #+end_src

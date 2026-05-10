@@ -1,4 +1,4 @@
-{ inputs, lib, mkHost, ... }@args:
+{ mkHost, ... }:
 
 let
   darwinHostsDir = ./../hosts/darwin;

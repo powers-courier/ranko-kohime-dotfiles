@@ -1,4 +1,4 @@
-{ inputs, lib, mkHost, listFromFile ? {}, ... }@args:
+{ lib, ... }:
 
 let
   listFromFile = {

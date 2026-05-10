@@ -15,7 +15,23 @@
           options = [ "fmask=0077" "dmask=0077" ];
         };
       };
-      system.stateVersion = "25.05";
+      networking = {
+        firewall = {
+          enable = true;
+          allowedTCPPorts = [ 5120 ];
+        };
+        hostName = "n100-1";
+        interfaces = {
+          enp2s0 = {
+            ipv4.addresses = [{
+              address = "192.168.168.20";
+              prefixLength = 24;
+            }];
+            mtu = 9000;
+          };
+        };
+      };
+      system.stateVersion = "24.11";
     }
   ];
 }

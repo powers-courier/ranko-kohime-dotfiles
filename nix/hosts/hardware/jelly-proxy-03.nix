@@ -1,3 +1,9 @@
+{ listFromFile, ... }:
+
+let
+  nfsCommonOptions = listFromFile.readLines ./../../settings/nfs-common-options.txt;
+in
+
 {
   fileSystems = {
     "/" = {
@@ -13,17 +19,17 @@
     "/Mounts/Music" = {
       device = "192.168.1.22:/mnt/tank2/Snapshotted/Music";
       fsType = "nfs";
-      options = [ <<nix-flake-nfs-common-mount>> ];
+      options = nfsCommonOptions;
     };
     "/Mounts/Videos" = {
       device = "192.168.1.22:/mnt/tank2/Snapshotted/Videos";
       fsType = "nfs";
-      options = [ <<nix-flake-nfs-common-mount>> ];
+      options = nfsCommonOptions;
     };
     "/Mounts/youtube-dl" = {
       device = "192.168.0.2:/mnt/youtube-dl/youtube-dl";
       fsType = "nfs";
-      options = [ <<nix-flake-nfs-common-mount>> ];
+      options = nfsCommonOptions;
     };
   };
   system.stateVersion = "25.05";

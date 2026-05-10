@@ -1078,10 +1078,6 @@ services = {
   rpcbind.enable = true;
 };
 #+end_src
-***** DONE Common NFS Mount Options
-#+begin_src nix :noweb-ref nix-flake-nfs-common-mount
-"nfsvers=4" "hard" "users" "rw" "exec" "rsize=1048576" "wsize=1048576"
-#+end_src
 ***** DONE Documents et al
 #+begin_src nix :noweb-ref nix-flake-nfs-documents
 fileSystems = {

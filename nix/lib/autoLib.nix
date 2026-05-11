@@ -12,6 +12,7 @@ let
                  # Auto loaded separately by the flake
       && name != "autoHardware.nix"
       && name != "mkHost.nix"
+      && name != "platformModules.nix"
     )
     (builtins.attrNames entries);
 

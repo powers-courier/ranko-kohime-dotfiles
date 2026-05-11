@@ -8,4 +8,4 @@
   (lib.mkIf (cpuVendor == "rockchip") {
     boot.kernelParams = [ "coherent_pool=1M" ];
   })
-];
+]

@@ -11,6 +11,7 @@ let
       && name != "autoLib.nix"
                  # Auto loaded separately by the flake
       && name != "autoHardware.nix"
+      && name != "mkHost.nix"
     )
     (builtins.attrNames entries);
 

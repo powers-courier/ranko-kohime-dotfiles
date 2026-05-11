@@ -1,0 +1,170 @@
+#+title: mkHost generator
+#+author: Ranko Kohime
+#+email: ranko.kohime@runbox.com
+#+startup: content
+#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
+
+* TODO mkHost [7/17]
+** DONE Preamble
+#+begin_src nix :tangle ../lib/mkHost.nix
+mkHost = {
+  <<mkhost-generator-options>>
+} @ args:
+  let
+    isDarwin = platform == "darwin" || lib.hasSuffix "-darwin" system;
+    isNixOS  = !isDarwin;
+    <<mkhost-generator-platform-selector>>
+    <<mkhost-generator-role-modules>>
+  in
+  if isDarwin then
+    inputs.nix-darwin.lib.darwinSystem {
+      inherit system;
+      specialArgs = { inherit inputs self; };
+      modules = lib.flatten [
+        (builtins.attrValues autoModules)
+        { networking.hostName = hostname; }
+        extraModules
+      ];
+    }
+  else
+    nixpkgs.lib.nixosSystem {
+      inherit system;
+      specialArgs = {
+        inherit inputs;
+      };
+      <<mkhost-generator-modules>>
+    };
+#+end_src
+
+** DONE Options
+#+begin_src nix :noweb-ref mkhost-generator-options
+hostname,
+system ? "x86_64-linux",
+cpuVendor ? "generic",
+role ? "desktop",
+extraModules ? [],
+platform ? null,
+#+end_src
+
+** DONE Platform Selector
+Select the right platform-specific module list
+#+begin_src nix :noweb-ref mkhost-generator-platform-selector
+selectedPlatformModules =
+  platformModules.${system} or
+    (throw "Unsupported system: ${system}");
+platformModuleList = selectedPlatformModules {
+  inherit system cpuVendor;
+  inherit inputs;
+  inherit (args) hostname;   # if needed inside
+};
+#+end_src
+
+** DONE Modules
+Always set hostname (can be overridden later)
+
+#+begin_src nix :noweb-ref mkhost-generator-modules
+modules = lib.flatten [
+  platformModuleList
+  inputs.home-manager.nixosModules.home-manager
+  {
+    home-manager = {
+      useGlobalPkgs = true;
+      useUserPackages = true;
+    };
+  }
+  (builtins.attrValues autoModules)
+  (builtins.attrValues flakeModules)
+  { networking.hostName = hostname; }
+  { nixpkgs.overlays = [ inputs.nix-openclaw.overlays.default ]; }
+  (roleModules.${role} or (throw "No role module defined for '${role}'"))
+] ++ extraModules;
+#+end_src
+
+** TODO Roles [0/7]
+*** WAIT Validate roles
+#+begin_src nix :noweb-ref mkhost-generator-role-validator
+validRoles = [
+  "desktop"
+  "laptop"
+  "minimal"
+  "router"
+  "server"
+];
+  _ = if builtins.elem role validRoles
+    then null
+    else throw "Invalid role '${role}' for host '${hostname}'. Valid: ${toString validRoles}";
+#+end_src
+
+*** TODO roleModules [0/5]
+#+begin_src nix :noweb-ref mkhost-generator-role-modules
+roleModules = {
+  <<mkhost-generator-role-module-desktop>>
+  <<mkhost-generator-role-module-laptop>>
+  <<mkhost-generator-role-module-minimal>>
+  <<mkhost-generator-role-module-router>>
+  <<mkhost-generator-role-module-server>>
+  # Future roles (placeholders)
+};
+#+end_src
+
+**** TODO Desktop
+#+begin_src nix :noweb-ref mkhost-generator-role-module-desktop
+desktop = { pkgs, ... }: {
+  fancyKeyboards.enable = true;
+  multimediaPackages.enable = true;
+  # GUI, sound, printing, etc.
+  services.xserver.enable = true;
+  services.pulseaudio.enable = false;  # or pipewire
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    pulse.enable = true;
+  };
+
+  # Common desktop packages
+  environment.systemPackages = with pkgs; [
+    evince
+    firefox
+    libreoffice-fresh
+    vlc
+  ];
+};
+#+end_src
+
+**** TODO Laptop
+#+begin_src nix :noweb-ref mkhost-generator-role-module-laptop
+laptop = { pkgs, ... }: {
+  imports = [ roleModules.desktop ];
+  environment.systemPackages = with pkgs; [
+    byobu # Just to have non-empty list
+  ];
+  laptopFixes.enable = true;
+};
+#+end_src
+
+**** TODO Minimal
+#+begin_src nix :noweb-ref mkhost-generator-role-module-minimal
+minimal = { ... }: {
+  environment.systemPackages = lib.mkForce [];
+};
+#+end_src
+
+**** TODO Router
+#+begin_src nix :noweb-ref mkhost-generator-role-module-router
+router = { ... }: {
+  my-router.enable = true;
+};
+#+end_src
+
+**** TODO Server
+#+begin_src nix :noweb-ref mkhost-generator-role-module-server
+server = { lib, pkgs, ... }: {
+  security.disableWireless.enable = true;
+  boot.kernelParams = [ "quiet" "splash" ];
+  services.xserver.enable = lib.mkForce false;
+  networking.firewall.enable = true;
+  services.printing.enable = lib.mkForce false;
+  networking.networkmanager.enable = lib.mkForce false;  # usually no NM on servers
+};
+#+end_src
+

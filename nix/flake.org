@@ -31,7 +31,7 @@ openssl enc -aes-256-cbc -salt -in ed25519_${SN}
 }
 #+end_src
 
-* DONE Flake [3/3]
+* DONE Flake
 Outputs:
 + "self" references the directory of the flake file, in this case ~/Dotfiles/nix/
 + "nixpkgs" references the inputs above
@@ -52,6 +52,8 @@ handles applying this function to the set of default systems that Nix supports."
   }@inputs:
     let
       inherit (nixpkgs) lib;
+      platformModules = import ./lib/platformModules.nix { inherit lib; };
+      mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules flakeModules platformModules nixpkgs; };
       <<mkhost-generator>>
       <<flake-variables-preamble>>
       <<home-folder-configuration-preamble>>
@@ -68,8 +70,7 @@ handles applying this function to the set of default systems that Nix supports."
       <<home-folder-configuration-generator>>
     in
     rec {
-#      lib = listFromFile;
-      <<modules-enabler>>
+      nixosModules = flakeModules;
       darwinConfigurations = autoLib.autoDarwinHosts;
       homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
       images = {
@@ -81,7 +82,7 @@ handles applying this function to the set of default systems that Nix supports."
 }
 #+end_src
 
-* TODO Contents [28/69]
+* TODO Contents [20/50]
 ** TODO Inputs [5/10]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -302,244 +303,12 @@ gtk = {
 };
 #+end_src
 
-** TODO Host Configurations [13/33]
-*** TODO Host Generators [10/21]
-**** TODO mkHost [8/18]
-***** DONE Preamble
-#+begin_src nix :noweb-ref mkhost-generator
-<<mkhost-generator-platform>>
-<<mkhost-generator-function>>
-#+end_src
-
-***** DONE Function [4/4]
-#+begin_src nix :noweb-ref mkhost-generator-function
-mkHost = {
-  <<mkhost-generator-options>>
-} @ args:
-  let
-    isDarwin = platform == "darwin" || lib.hasSuffix "-darwin" system;
-    isNixOS  = !isDarwin;
-    <<mkhost-generator-platform-selector>>
-    <<mkhost-generator-role-modules>>
-  in
-  if isDarwin then
-    inputs.nix-darwin.lib.darwinSystem {
-      inherit system;
-      specialArgs = { inherit inputs self; };
-      modules = lib.flatten [
-        (builtins.attrValues autoModules)
-        { networking.hostName = hostname; }
-        extraModules
-      ];
-    }
-  else
-    nixpkgs.lib.nixosSystem {
-      inherit system;
-      specialArgs = {
-        inherit inputs;
-      };
-      <<mkhost-generator-modules>>
-    };
-#+end_src
-
-****** DONE Options
-#+begin_src nix :noweb-ref mkhost-generator-options
-hostname,
-system ? "x86_64-linux",
-cpuVendor ? "generic",
-role ? "desktop",
-extraModules ? [],
-platform ? null,
-#+end_src
-
-****** DONE Platform Selector
-Select the right platform-specific module list
-#+begin_src nix :noweb-ref mkhost-generator-platform-selector
-selectedPlatformModules =
-  platformModules.${system} or
-    (throw "Unsupported system: ${system}");
-platformModuleList = selectedPlatformModules {
-  inherit system cpuVendor;
-  inherit inputs;
-  inherit (args) hostname;   # if needed inside
-};
-#+end_src
-
-****** DONE Modules
-Always set hostname (can be overridden later)
-
-#+begin_src nix :noweb-ref mkhost-generator-modules
-modules = lib.flatten [
-  platformModuleList
-  inputs.home-manager.nixosModules.home-manager
-  {
-    home-manager = {
-      useGlobalPkgs = true;
-      useUserPackages = true;
-    };
-  }
-  (builtins.attrValues autoModules)
-  (builtins.attrValues flakeModules)
-  { networking.hostName = hostname; }
-  { nixpkgs.overlays = [ inputs.nix-openclaw.overlays.default ]; }
-  (roleModules.${role} or (throw "No role module defined for '${role}'"))
-] ++ extraModules;
-#+end_src
-
-***** DONE platformModules
-#+begin_src nix :noweb-ref mkhost-generator-platform
-platformModules = {
-  x86_64-linux = { cpuVendor ? "generic", ... }: [
-    ({ pkgs, lib, ... }: {
-      # Base x86_64 settings everyone gets
-      boot.kernelPackages = pkgs.linuxPackages_latest;
-      nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-    })
-    (lib.mkIf (cpuVendor == "intel") { platformModuleIntel.enable = true; })
-    <<platform-module-amd>>
-  ];
-  aarch64-linux = { cpuVendor ? "generic", ... }: [
-    ({ pkgs, ... }: {
-      # Base arm64 settings
-      boot.kernelPackages = pkgs.linuxPackages_latest;
-      # e.g. better handling of big.LITTLE if needed, etc.
-    })
-    <<platform-module-apple>>
-    <<platform-module-rockchip>>
-  ];
-};
-#+end_src
-
-****** DONE AMD
-#+begin_src nix :noweb-ref platform-module-amd
-(lib.mkIf (cpuVendor == "amd") {
-  cpuAmdOptimizations.enable = true;
-  hardware.cpu.amd.updateMicrocode = true;
-  boot = {
-    kernelModules = [ "kvm-amd" ];
-    kernelParams = [ "amd_iommu=on" ];
-  };
-})
-#+end_src
-
-****** TODO Apple
-#+begin_src nix :noweb-ref platform-module-apple
-(lib.mkIf (cpuVendor == "apple") {
-  # Apple Silicon (asahi or similar)
-  hardware.asahi.enable = true;   # example
-  # or your custom apple tweaks
-})
-#+end_src
-
-****** TODO Rockchip
-#+begin_src nix :noweb-ref platform-module-rockchip
-(lib.mkIf (cpuVendor == "rockchip") {
-  # e.g. RK3588, Orange Pi 5, etc.
-  boot.kernelParams = [ "coherent_pool=1M" ];
-})
-#+end_src
-
-***** TODO Roles [0/7]
-****** WAIT Validate roles
-#+begin_src nix :noweb-ref mkhost-generator-role-validator
-validRoles = [
-  "desktop"
-  "laptop"
-  "minimal"
-  "router"
-  "server"
-];
-  _ = if builtins.elem role validRoles
-    then null
-    else throw "Invalid role '${role}' for host '${hostname}'. Valid: ${toString validRoles}";
-#+end_src
-
-****** TODO roleModules [0/5]
-#+begin_src nix :noweb-ref mkhost-generator-role-modules
-roleModules = {
-  <<mkhost-generator-role-module-desktop>>
-  <<mkhost-generator-role-module-laptop>>
-  <<mkhost-generator-role-module-minimal>>
-  <<mkhost-generator-role-module-router>>
-  <<mkhost-generator-role-module-server>>
-  # Future roles (placeholders)
-};
-#+end_src
-
-******* TODO Desktop
-#+begin_src nix :noweb-ref mkhost-generator-role-module-desktop
-desktop = { pkgs, ... }: {
-  fancyKeyboards.enable = true;
-  multimediaPackages.enable = true;
-  # GUI, sound, printing, etc.
-  services.xserver.enable = true;
-  services.pulseaudio.enable = false;  # or pipewire
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    pulse.enable = true;
-  };
-
-  # Common desktop packages
-  environment.systemPackages = with pkgs; [
-    evince
-    firefox
-    libreoffice-fresh
-    vlc
-  ];
-};
-#+end_src
-
-******* TODO Laptop
-#+begin_src nix :noweb-ref mkhost-generator-role-module-laptop
-laptop = { pkgs, ... }: {
-  imports = [ roleModules.desktop ];
-  environment.systemPackages = with pkgs; [
-    byobu # Just to have non-empty list
-  ];
-  laptopFixes.enable = true;
-};
-#+end_src
-
-******* TODO Minimal
-#+begin_src nix :noweb-ref mkhost-generator-role-module-minimal
-minimal = { ... }: {
-  environment.systemPackages = lib.mkForce [];
-};
-#+end_src
-
-******* TODO Router
-#+begin_src nix :noweb-ref mkhost-generator-role-module-router
-router = { ... }: {
-  my-router.enable = true;
-};
-#+end_src
-
-******* TODO Server
-#+begin_src nix :noweb-ref mkhost-generator-role-module-server
-server = { lib, pkgs, ... }: {
-  security.disableWireless.enable = true;
-  boot.kernelParams = [ "quiet" "splash" ];
-  services.xserver.enable = lib.mkForce false;
-  networking.firewall.enable = true;
-  services.printing.enable = lib.mkForce false;
-  networking.networkmanager.enable = lib.mkForce false;  # usually no NM on servers
-};
-#+end_src
-
 ** TODO Modules [58/97]
 *** DONE Preamble
 #+begin_src nix :noweb-ref modules-preamble
 flakeModules = {
   <<flake-module-configurations>>
 };
-#+end_src
-
-*** DONE Enabler
-Exposes custom modules under the standard name so other flakes / your hosts can discover them
-Not certain how this is supposed to work.
-#+begin_src nix :noweb-ref modules-enabler
-nixosModules = flakeModules ;
 #+end_src
 
 *** TODO Modules [56/94]

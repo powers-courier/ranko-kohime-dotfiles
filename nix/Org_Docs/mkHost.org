@@ -7,7 +7,8 @@
 * TODO mkHost [7/17]
 ** DONE Preamble
 #+begin_src nix :tangle ../lib/mkHost.nix
-mkHost = {
+{ inputs, lib, autoModules, flakeModules, platformModules, nixpkgs, ... }:
+{
   <<mkhost-generator-options>>
 } @ args:
   let
@@ -103,7 +104,6 @@ roleModules = {
   <<mkhost-generator-role-module-minimal>>
   <<mkhost-generator-role-module-router>>
   <<mkhost-generator-role-module-server>>
-  # Future roles (placeholders)
 };
 #+end_src
 

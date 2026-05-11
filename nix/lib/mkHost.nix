@@ -1,4 +1,5 @@
-mkHost = {
+{ inputs, lib, autoModules, flakeModules, platformModules, nixpkgs, ... }:
+{
   hostname,
   system ? "x86_64-linux",
   cpuVendor ? "generic",
@@ -59,7 +60,6 @@ mkHost = {
         services.printing.enable = lib.mkForce false;
         networking.networkmanager.enable = lib.mkForce false;  # usually no NM on servers
       };
-      # Future roles (placeholders)
     };
   in
   if isDarwin then

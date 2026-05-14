@@ -75,9 +75,7 @@
   else
     nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = {
-        inherit inputs;
-      };
+      specialArgs = { inherit inputs; };
       modules = lib.flatten [
         platformModuleList
         inputs.home-manager.nixosModules.home-manager

@@ -53,11 +53,10 @@ handles applying this function to the set of default systems that Nix supports."
     let
       inherit (nixpkgs) lib;
       platformModules = import ./lib/platformModules.nix { inherit lib; };
-      mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules flakeModules platformModules nixpkgs; };
+      mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules platformModules nixpkgs; };
       <<mkhost-generator>>
       <<flake-variables-preamble>>
       <<home-folder-configuration-preamble>>
-      <<modules-preamble>>
       mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
         inputs.nix-darwin.lib.darwinSystem {
           inherit system;
@@ -70,7 +69,6 @@ handles applying this function to the set of default systems that Nix supports."
       <<home-folder-configuration-generator>>
     in
     rec {
-      nixosModules = flakeModules;
       darwinConfigurations = autoLib.autoDarwinHosts;
       homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
       images = {
@@ -82,7 +80,7 @@ handles applying this function to the set of default systems that Nix supports."
 }
 #+end_src
 
-* TODO Contents [20/50]
+* TODO Contents [19/45]
 ** TODO Inputs [5/10]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -303,14 +301,7 @@ gtk = {
 };
 #+end_src
 
-** TODO Modules [8/24]
-*** DONE Preamble
-#+begin_src nix :noweb-ref modules-preamble
-flakeModules = {
-  <<flake-module-configurations>>
-};
-#+end_src
-
+** TODO Modules [7/21]
 *** TODO Modules [7/22]
 :properties:
 :header-args+: :noweb-ref flake-module-configurations
@@ -773,9 +764,6 @@ environment.systemPackages = with pkgs; [
 #+end_src
 **** DONE 📁 Hardware Enablement [1/1]
 ***** DONE AMD
-#+begin_src nix
-#+end_src
-
 #+begin_src nix :noweb-ref cpu-amd-auto-cpufreq-service
 auto-cpufreq = {
   enable = true;

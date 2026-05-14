@@ -76,18 +76,12 @@ handles applying this function to the set of default systems that Nix supports."
       <<home-folder-configuration-generator>>
     in
     rec {
-      darwinConfigurations = autoLib.autoDarwinHosts;
-      homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
-      images = {
-        <<flake-image-generators>>
-      };
-      nixosConfigurations = autoLib.autoLinuxHosts //
-        (autoLib.jellyProxyGenerator.jellyProxyGenerator or autoLib.jellyProxyGenerator or {});
+      <<flake-output-configurations>>
     };
 }
 #+end_src
 
-* TODO Contents [19/45]
+* TODO Contents [20/46]
 ** TODO Inputs [5/10]
 :properties:
 :header-args: :noweb-ref flake-inputs
@@ -180,17 +174,14 @@ vars = {
 };
 #+end_src
 
-*** DONE Automatic function loader
-#+begin_src nix :noweb-ref flake-function-auto-loader
-#+end_src
-
 *** DONE Host IPs and FQDN
 #+begin_src nix
 tailscale-fqdn = "manticore-elnath.ts.net";
 truenas-ip = "192.168.168.2";
 #+end_src
 
-** DONE Output Preamble
+** DONE Output [2/2]
+*** DONE Preamble
 #+begin_src nix :noweb-ref flake-output-preamble
 nixpkgs,
 home-manager,
@@ -198,6 +189,15 @@ nix-darwin,
 nix-openclaw,
 self,
 ...
+#+end_src
+
+*** DONE Configurations
+#+begin_src nix :noweb-ref flake-output-configurations
+darwinConfigurations = autoLib.autoDarwinHosts;
+homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
+#images = autoLib.Images;
+nixosConfigurations = autoLib.autoLinuxHosts //
+  (autoLib.jellyProxyGenerator.jellyProxyGenerator or autoLib.jellyProxyGenerator or {});
 #+end_src
 
 ** TODO Hardware Configs [0/1]

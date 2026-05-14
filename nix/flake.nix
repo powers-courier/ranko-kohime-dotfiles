@@ -57,9 +57,7 @@
     rec {
       darwinConfigurations = autoLib.autoDarwinHosts;
       homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
-      images = {
-        
-      };
+      #images = autoLib.Images;
       nixosConfigurations = autoLib.autoLinuxHosts //
         (autoLib.jellyProxyGenerator.jellyProxyGenerator or autoLib.jellyProxyGenerator or {});
     };

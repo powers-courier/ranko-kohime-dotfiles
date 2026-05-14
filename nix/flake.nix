@@ -22,7 +22,6 @@
       inherit (nixpkgs) lib;
       platformModules = import ./lib/platformModules.nix { inherit lib; };
       mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules platformModules nixpkgs; };
-      
       autoHardware = (import ./lib/autoHardware.nix {});
       autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost autoHardware; };
       inherit (autoLib)
@@ -31,10 +30,6 @@
         autoDarwinHosts
         jellyProxyGenerator
       ;
-      vars = {
-        tailscale-fqdn = "manticore-elnath.ts.net";
-        truenas-ip = "192.168.168.2";
-      };
       
       mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
         inputs.nix-darwin.lib.darwinSystem {

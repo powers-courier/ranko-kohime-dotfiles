@@ -40,6 +40,7 @@ Gippity Says:
 across different system architectures. Instead of defining each possible system configuration manually, you define a
 single function that describes how to build the system configuration for any given system type. flake-utils then
 handles applying this function to the set of default systems that Nix supports."
++ Add [[https://blog.zsa.io/introducing-zapp/?mc_cid=3a64d87ab7&mc_eid=516f2146bb][ZSA Zapp]] to fancyKeyboards when available
 
 #+begin_src nix :tangle flake.nix
 {
@@ -54,8 +55,14 @@ handles applying this function to the set of default systems that Nix supports."
       inherit (nixpkgs) lib;
       platformModules = import ./lib/platformModules.nix { inherit lib; };
       mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules platformModules nixpkgs; };
-      <<mkhost-generator>>
-      <<flake-variables-preamble>>
+      autoHardware = (import ./lib/autoHardware.nix {});
+      autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost autoHardware; };
+      inherit (autoLib)
+        autoModules
+        autoLinuxHosts
+        autoDarwinHosts
+        jellyProxyGenerator
+      ;
       <<home-folder-configuration-preamble>>
       mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
         inputs.nix-darwin.lib.darwinSystem {
@@ -175,14 +182,6 @@ vars = {
 
 *** DONE Automatic function loader
 #+begin_src nix :noweb-ref flake-function-auto-loader
-autoHardware = (import ./lib/autoHardware.nix {});
-autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost autoHardware; };
-inherit (autoLib)
-  autoModules
-  autoLinuxHosts
-  autoDarwinHosts
-  jellyProxyGenerator
-;
 #+end_src
 
 *** DONE Host IPs and FQDN

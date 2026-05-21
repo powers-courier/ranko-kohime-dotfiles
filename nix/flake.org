@@ -54,17 +54,19 @@ handles applying this function to the set of default systems that Nix supports."
     let
       inherit (nixpkgs) lib;
       platformModules = import ./lib/platformModules.nix { inherit lib; };
-      roleModules = import ./lib/roles/default.nix { inherit lib; };
+      roleModules = import ./lib/mkHost/roles { inherit lib; };
 #      mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules platformModules nixpkgs; };
       autoHardware = (import ./lib/autoHardware.nix {});
-      autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost autoHardware; };
+      autoLib = import ./lib/autoLib.nix { inherit inputs lib autoHardware; };
       inherit (autoLib)
         autoModules
         autoLinuxHosts
         autoDarwinHosts
         jellyProxyGenerator
       ;
-      <<mkHost>>
+      mkHostAuto = rec {
+        <<mkHost>>
+      };
       <<home-folder-configuration-preamble>>
       mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
         inputs.nix-darwin.lib.darwinSystem {

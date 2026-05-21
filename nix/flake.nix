@@ -21,7 +21,16 @@
     let
       inherit (nixpkgs) lib;
       platformModules = import ./lib/platformModules.nix { inherit lib; };
+      roleModules = import ./lib/roles/default.nix { inherit lib; };
 #      mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules platformModules nixpkgs; };
+      autoHardware = (import ./lib/autoHardware.nix {});
+      autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost autoHardware; };
+      inherit (autoLib)
+        autoModules
+        autoLinuxHosts
+        autoDarwinHosts
+        jellyProxyGenerator
+      ;
       mkHost = {
         hostname,
         system ? "x86_64-linux",
@@ -71,14 +80,6 @@
               (roleModules.${role} or (throw "No role module defined for '${role}'"))
             ] ++ extraModules;
           };
-      autoHardware = (import ./lib/autoHardware.nix {});
-      autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost autoHardware; };
-      inherit (autoLib)
-        autoModules
-        autoLinuxHosts
-        autoDarwinHosts
-        jellyProxyGenerator
-      ;
       
       mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
         inputs.nix-darwin.lib.darwinSystem {

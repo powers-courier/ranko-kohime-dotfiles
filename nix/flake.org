@@ -54,7 +54,8 @@ handles applying this function to the set of default systems that Nix supports."
     let
       inherit (nixpkgs) lib;
       platformModules = import ./lib/platformModules.nix { inherit lib; };
-      mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules platformModules nixpkgs; };
+#      mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules platformModules nixpkgs; };
+      <<mkHost>>
       autoHardware = (import ./lib/autoHardware.nix {});
       autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost autoHardware; };
       inherit (autoLib)
@@ -891,5 +892,91 @@ services.gitlab = {
 services.nextcloud = {
   enable = true;
 };
+#+end_src
+
+* TODO mkHost [7/17]
+** DONE Preamble
+#+begin_src nix :noweb-ref mkHost
+mkHost = {
+  <<mkhost-generator-options>>
+} @ args:
+  let
+    isDarwin = platform == "darwin" || lib.hasSuffix "-darwin" system;
+    isNixOS  = !isDarwin;
+    <<mkhost-generator-platform-selector>>
+  in
+  if isDarwin then
+    inputs.nix-darwin.lib.darwinSystem {
+      inherit system;
+      specialArgs = { inherit inputs; };
+      modules = lib.flatten [
+        (builtins.attrValues autoModules)
+        { networking.hostName = hostname; }
+        extraModules
+      ];
+    }
+  else
+    nixpkgs.lib.nixosSystem {
+      inherit system;
+      specialArgs = { inherit inputs; };
+      <<mkhost-generator-modules>>
+    };
+#+end_src
+
+** DONE Options
+#+begin_src nix :noweb-ref mkhost-generator-options
+hostname,
+system ? "x86_64-linux",
+cpuVendor ? "generic",
+role ? "desktop",
+extraModules ? [],
+platform ? null,
+#+end_src
+
+** DONE Platform Selector
+Select the right platform-specific module list
+#+begin_src nix :noweb-ref mkhost-generator-platform-selector
+selectedPlatformModules =
+  platformModules.${system} or
+    (throw "Unsupported system: ${system}");
+platformModuleList = selectedPlatformModules {
+  inherit system cpuVendor;
+  inherit inputs;
+  inherit (args) hostname;   # if needed inside
+};
+#+end_src
+
+** DONE Modules
+Always set hostname (can be overridden later)
+
+#+begin_src nix :noweb-ref mkhost-generator-modules
+modules = lib.flatten [
+  platformModuleList
+  inputs.home-manager.nixosModules.home-manager
+  {
+    home-manager = {
+      useGlobalPkgs = true;
+      useUserPackages = true;
+    };
+  }
+  (builtins.attrValues autoModules)
+  { networking.hostName = hostname; }
+  { nixpkgs.overlays = [ inputs.nix-openclaw.overlays.default ]; }
+  (roleModules.${role} or (throw "No role module defined for '${role}'"))
+] ++ extraModules;
+#+end_src
+
+** WAIT Validate roles
+#+begin_src nix :noweb-ref mkhost-generator-role-validator
+validRoles = [
+  "desktop"
+  "laptop"
+  "minimal"
+  "router"
+  "server"
+];
+  _ = if builtins.elem role validRoles
+    then null
+    else throw "Invalid role '${role}' for host '${hostname}'. Valid: ${toString validRoles}";
 #+end_src
 

@@ -21,7 +21,56 @@
     let
       inherit (nixpkgs) lib;
       platformModules = import ./lib/platformModules.nix { inherit lib; };
-      mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules platformModules nixpkgs; };
+#      mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules platformModules nixpkgs; };
+      mkHost = {
+        hostname,
+        system ? "x86_64-linux",
+        cpuVendor ? "generic",
+        role ? "desktop",
+        extraModules ? [],
+        platform ? null,
+      } @ args:
+        let
+          isDarwin = platform == "darwin" || lib.hasSuffix "-darwin" system;
+          isNixOS  = !isDarwin;
+          selectedPlatformModules =
+            platformModules.${system} or
+              (throw "Unsupported system: ${system}");
+          platformModuleList = selectedPlatformModules {
+            inherit system cpuVendor;
+            inherit inputs;
+            inherit (args) hostname;   # if needed inside
+          };
+        in
+        if isDarwin then
+          inputs.nix-darwin.lib.darwinSystem {
+            inherit system;
+            specialArgs = { inherit inputs; };
+            modules = lib.flatten [
+              (builtins.attrValues autoModules)
+              { networking.hostName = hostname; }
+              extraModules
+            ];
+          }
+        else
+          nixpkgs.lib.nixosSystem {
+            inherit system;
+            specialArgs = { inherit inputs; };
+            modules = lib.flatten [
+              platformModuleList
+              inputs.home-manager.nixosModules.home-manager
+              {
+                home-manager = {
+                  useGlobalPkgs = true;
+                  useUserPackages = true;
+                };
+              }
+              (builtins.attrValues autoModules)
+              { networking.hostName = hostname; }
+              { nixpkgs.overlays = [ inputs.nix-openclaw.overlays.default ]; }
+              (roleModules.${role} or (throw "No role module defined for '${role}'"))
+            ] ++ extraModules;
+          };
       autoHardware = (import ./lib/autoHardware.nix {});
       autoLib = import ./lib/autoLib.nix { inherit inputs lib mkHost autoHardware; };
       inherit (autoLib)

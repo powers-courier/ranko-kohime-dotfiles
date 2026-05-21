@@ -1,0 +1,4 @@
+{ ... }:
+{
+  my-router.enable = true;
+}

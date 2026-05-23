@@ -49,7 +49,7 @@
             platformModuleList = selectedPlatformModules {
               inherit system cpuVendor;
               inherit inputs;
-              inherit (args) hostname;   # if needed inside
+              inherit (args) hostname;
             };
           in
           if isDarwin then

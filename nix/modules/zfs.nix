@@ -1,8 +1,11 @@
 { config, lib, ... }: {
   options = {
-    zfsBootOptions.enable = lib.mkEnableOption "Boot settings for root on ZFS hosts" // { default = false; };
-    zfsOptions.enable = lib.mkEnableOption "Common settings for ZFS pools" // { default = false; };
-    zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" // { default = false; };
+    zfsBootOptions.enable = lib.mkEnableOption "Boot settings for root on ZFS hosts" //
+      { default = false; };
+    zfsOptions.enable = lib.mkEnableOption "Common settings for ZFS pools" //
+      { default = false; };
+    zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" //
+      { default = false; };
   };
   config = lib.mkMerge [
       # When zfsBootOptions is enabled, force the others on

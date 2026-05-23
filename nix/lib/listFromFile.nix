@@ -1,5 +1,4 @@
 { lib, ... }:
-
 let
   listFromFile = {
     readLines = path:
@@ -15,5 +14,4 @@ let
           lines;
   };
 in
-
 { inherit listFromFile; }

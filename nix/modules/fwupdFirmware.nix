@@ -1,5 +1,6 @@
 { config, lib, ... }: {
-  options.fwupdFirmware.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" // { default = true; };
+  options.fwupdFirmware.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" //
+    { default = true; };
   config = lib.mkIf config.fwupdFirmware.enable {
     services.fwupd = {
       daemonSettings = {

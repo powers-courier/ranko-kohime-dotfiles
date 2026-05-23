@@ -1,9 +1,6 @@
-# python3.12-musicbrainzngs is a dependency of Ex Falso
-# Quod Libet brings in Ex Falso
-
 { config, lib, pkgs, ... }: {
-  options.multimediaPackages.enable = lib.mkEnableOption "Install multimedia packages"
-  // { default = false; };
+  options.multimediaPackages.enable = lib.mkEnableOption "Install multimedia packages" //
+    { default = false; };
   config = lib.mkIf config.multimediaPackages.enable {
     environment.systemPackages = with pkgs; [
       flac

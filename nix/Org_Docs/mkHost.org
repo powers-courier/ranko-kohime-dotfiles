@@ -1,6 +1,0 @@
-#+title: mkHost generator
-#+author: Ranko Kohime
-#+email: ranko.kohime@runbox.com
-#+startup: content
-#+property: header-args :mkdirp yes :tangle-mode (identity #o444) :comments no :padline no :noweb yes
-

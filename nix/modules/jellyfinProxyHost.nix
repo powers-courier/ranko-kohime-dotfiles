@@ -1,5 +1,6 @@
 { config, lib, pkgs, ... }: let vars = { tailscale-fqdn = "manticore-elnath.ts.net"; }; in {
-  options.jellyfinProxyHost.enable = lib.mkEnableOption "Enable proxy hosting for Jellyfin server" // { default = false; };
+  options.jellyfinProxyHost.enable = lib.mkEnableOption "Enable proxy hosting for Jellyfin server" //
+    { default = false; };
   config = lib.mkIf config.jellyfinProxyHost.enable {
     networking = {
       firewall = {

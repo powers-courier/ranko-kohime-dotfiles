@@ -1,14 +1,10 @@
 { mkHost, ... }:
-
 let
   darwinHostsDir = ./../hosts/darwin;
-
   darwinHostEntries = builtins.readDir darwinHostsDir;
-
   darwinHostNixFiles = builtins.filter
     (name: builtins.match ".*\\.nix" name != null)
     (builtins.attrNames darwinHostEntries);
-
   autoDarwinHosts = builtins.listToAttrs (builtins.map
     (name:
       let
@@ -21,6 +17,5 @@ let
         }
     )
     darwinHostNixFiles);
-
 in
 autoDarwinHosts

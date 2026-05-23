@@ -1,7 +1,9 @@
 { config, lib, ... }: {
   options.defaultNetworking = {
-    enable = lib.mkEnableOption "Default network settings" // { default = true; };
-    useIwd = lib.mkEnableOption "Enable IWD Wireless Client" // { default = true; };
+    enable = lib.mkEnableOption "Default network settings" //
+      { default = true; };
+    useIwd = lib.mkEnableOption "Enable IWD Wireless Client" //
+      { default = true; };
   };
   config = lib.mkIf config.defaultNetworking.enable {
     networking = {

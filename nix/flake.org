@@ -1016,7 +1016,7 @@ in
 #+end_src
 
 ** DONE jellyProxyGenerator.nix
-#+begin_src nix :tangle jellyProxyGenerator.nix
+#+begin_src nix :tangle lib/jellyProxyGenerator.nix
 { lib, mkHost, autoHardware, ... }:
 let
   jellyProxyHosts = builtins.filter
@@ -1273,7 +1273,7 @@ in
 #+end_src
 
 **** DONE x86_64-linux
-#+begin_src nix :tangle lib/platformModules/aarch64-linux.nix
+#+begin_src nix :tangle lib/platformModules/x86_64-linux.nix
 { cpuVendor ? "generic", lib, ... }:
 [
   ({ pkgs, lib, ... }: {
@@ -1302,7 +1302,7 @@ in
 ]
 #+end_src
 
-* DONE Modules [6/6]
+* TODO Modules [52/53]
 ** DONE backupPackages.nix
 These packages are for file/disk backups, and disk archiving
 https://github.com/animetosho/par2cmdline-turbo
@@ -1384,7 +1384,7 @@ http://dar.linux.free.fr/home.html
 #+end_src
 
 ** DONE defaultBootLoader.nix
-#+begin_src nix :tangle modules/defaultBootLoader.nix
+#+begin_src nix :tangle modules/defaultBootloader.nix
 { config, lib, ... }: {
   options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" //
     { default = true; };
@@ -1400,16 +1400,312 @@ http://dar.linux.free.fr/home.html
 }
 #+end_src
 
+** DONE defaultNanoRC.nix
+#+begin_src nix :tangle modules/defaultNanoRC.nix
+{ config, lib, programs, ... }: {
+  options.defaultNanoRC.enable = lib.mkEnableOption "Sane defaults for nanorc" //
+{ default = true; };
+  config = lib.mkIf config.defaultNanoRC.enable {
+    programs.nano = lib.mkForce {
+      enable = true;
+      nanorc = ''
+        set autoindent
+        set boldtext
+        set constantshow
+        set linenumbers
+        set nowrap
+        set smarthome
+        set tabsize 2
+        set tabstospaces
+      '';
+    };
+  };
+}
+#+end_src
+
+** DONE defaultNetworking.nix
+#+begin_src nix :tangle modules/defaultNetworking.nix
+{ config, lib, ... }: {
+  options.defaultNetworking = {
+    enable = lib.mkEnableOption "Default network settings" //
+      { default = true; };
+    useIwd = lib.mkEnableOption "Enable IWD Wireless Client" //
+      { default = true; };
+  };
+  config = lib.mkIf config.defaultNetworking.enable {
+    networking = {
+      networkmanager = {
+        enable = true;
+        wifi.backend = "iwd";
+      };
+      wireless.iwd = lib.mkIf config.defaultNetworking.useIwd {
+        enable = lib.mkDefault true;
+        settings = {
+          General = {
+            EnableNetworkConfiguration = true;
+          };
+          Network = {
+            EnableIPv6 = true;
+            RoutePriorityOffset = 300;
+          };
+          Settings = {
+            AutoConnect = true;
+          };
+        };
+      };
+    };
+  };
+}
+#+end_src
+
+** DONE defaultSettings.nix
+#+begin_src nix :tangle modules/defaultSettings.nix
+{ config, lib, ... }: {
+  options.defaultSettings.enable = lib.mkEnableOption "Default system settings" //
+    { default = true; };
+  config = lib.mkIf config.defaultSettings.enable {
+    hardware.enableRedistributableFirmware = true;
+    nix.settings.experimental-features = [ "nix-command" "flakes" ];
+    nixpkgs.config.allowUnfree = true;
+  };
+}
+#+end_src
+
+** DONE desktopXFCE.nix
+#+begin_src nix :tangle modules/desktopXFCE.nix
+{ config, lib, pkgs, ... }: {
+  options.desktopXFCE.enable = lib.mkEnableOption "XFCE Desktop" //
+    { default = false; };
+  config = lib.mkIf config.desktopXFCE.enable {
+    environment.systemPackages = with pkgs; [
+      thunar-volman
+      ulauncher
+    ];
+    programs.firefox.enable = true;
+    services = {
+      displayManager = {
+        autoLogin = {
+          enable = true;
+          user = "ranko";
+        };
+        defaultSession = "xfce";
+      };
+      xserver = {
+        displayManager = {
+          lightdm.enable = true;
+        };
+        desktopManager.xfce.enable = true;
+        enable = true;
+        xkb = {
+          layout = "us";
+          variant = "";
+        };
+      };
+    };
+  };
+}
+#+end_src
+
+** DONE disableWireless.nix [7/7]
+#+begin_src nix :tangle modules/disableWireless.nix
+{ config, lib, pkgs, ... }:
+let
+  cfg = config.security.disableWireless;
+in
+{
+  options.security.disableWireless = with lib; {
+    enable = mkEnableOption "forcibly disable all wireless connectivity (Wi-Fi, Bluetooth, WWAN, etc.)"
+      // { default = false; };
+  };
+  config = lib.mkIf cfg.enable {
+    <<wifiKill-networkManager>>
+    <<wifiKill-supplicants>>
+    <<wifiKill-bluetooth>>
+    networking.modemmanager.enable = lib.mkForce false;
+    <<wifiKill-rfkill>>
+    <<wifiKill-blacklistModules>>
+     # This option does not exist
+#    boot.initrd.blacklistedKernelModules = config.boot.blacklistedKernelModules;
+    <<wifiKill-packages>>
+    <<wifiKill-logMessage>>
+  };
+}
+#+end_src
+
+*** DONE Network Manager
+#+begin_src nix :noweb-ref wifiKill-networkManager
+networking.networkmanager = {
+  enable = lib.mkDefault true;  # keep NM if used for wired, but kill wireless
+  wifi.backend = lib.mkForce "none";
+  wifi.scanRandMacAddress = false;
+  wifi.powersave = false;
+};
+#+end_src
+
+*** DONE Disable supplicants
+#+begin_src nix :noweb-ref wifiKill-supplicants
+networking.wireless = {
+  enable = lib.mkForce false;
+  iwd.enable = lib.mkForce false;
+};
+#+end_src
+
+*** DONE Disable Bluetooth
+#+begin_src nix :noweb-ref wifiKill-bluetooth
+hardware.bluetooth = {
+  enable = lib.mkForce false;
+  powerOnBoot = lib.mkForce false;
+};
+services.blueman.enable = lib.mkForce false;
+#+end_src
+
+*** DONE rfkill
+Block all wireless devices at rfkill level (hardware radio kill switch)
+#+begin_src nix :noweb-ref wifiKill-rfkill
+services.udev.extraRules = ''
+  ACTION=="add", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="1", RUN+="${pkgs.util-linux}/bin/rfkill block all"
+  ACTION=="change", SUBSYSTEM=="rfkill", ATTR{type}=="0|1|2", ATTR{soft}="0", RUN+="${pkgs.util-linux}/bin/rfkill block all"
+'';
+#+end_src
+
+*** DONE Blacklist kernel modules
+#+begin_src nix :noweb-ref wifiKill-blacklistModules
+boot.blacklistedKernelModules = [
+  "ath10k_core"
+  "ath10k_pci"
+  "ath9k"
+  "ath9k_htc"
+  "b43"
+  "bcma"
+  "bluetooth"
+  "brcmfmac"
+  "brcmsmac"
+  "btbcm"
+  "btintel"
+  "btrtl"
+  "btusb"
+  "cdc_mbim"
+  "cdc_ncm"
+  "iwlmvm"
+  "iwlwifi"
+  "iwlwifi_opregion"
+  "mt7601u"
+  "mt76x0u"
+  "mt76x2u"
+  "mt7921_common"
+  "mt7921e"
+  "mt7921u"
+  "option"
+  "qmi_wwan"
+  "rtlwifi"
+  "rtw88_core"
+  "rtw88_pci"
+  "usbserial"
+];
+#+end_src
+
+*** DONE Packages
+#+begin_src nix :noweb-ref wifiKill-packages
+environment.systemPackages = with pkgs; [
+  bluez-tools  # even though bluetooth is off, useful for debugging
+  iw
+  util-linux   # for rfkill
+];
+#+end_src
+
+*** DONE Log Message
+#+begin_src nix :noweb-ref wifiKill-logMessage
+environment.etc."motd".text = lib.mkAfter ''
+  NOTICE: Wireless (Wi-Fi / Bluetooth / WWAN) is forcibly disabled on this system.
+'';
+#+end_src
+
+** DONE fancyKeyboards.nix
+#+begin_src nix :tangle modules/fancyKeyboards.nix
+{ config, lib, pkgs, ... }: {
+  options.fancyKeyboards.enable = lib.mkEnableOption "Configuration for fancy keyboards" //
+    { default = false; };
+  config = lib.mkIf config.fancyKeyboards.enable {
+    environment.systemPackages = with pkgs; [
+      system76-keyboard-configurator
+    ];
+    hardware.keyboard.zsa.enable = true;
+  };
+}
+#+end_src
+
+** DONE fwupdFirmware.nix
+#+begin_src nix :tangle modules/fwupdFirmware.nix
+{ config, lib, ... }: {
+  options.fwupdFirmware.enable = lib.mkEnableOption "Enable Firmware update daemon (fwupd)" //
+    { default = true; };
+  config = lib.mkIf config.fwupdFirmware.enable {
+    services.fwupd = {
+      daemonSettings = {
+        IgnorePower = true;
+      };
+      enable = true;
+#      extraRemotes = [];
+#      uefiCapsuleSettings = {};
+    };
+  };
+}
+#+end_src
+
+** DONE Hardware Enablement [2/2]
+*** DONE AMD [1/1]
+#+begin_src nix :tangle modules/hardwareEnablementAMD.nix
+{ config, lib, pkgs, ... }: {
+  options.cpuAmdOptimizations.enable = lib.mkEnableOption "Optimizations for AMD Hardware" //
+    { default = false; };
+  config = lib.mkIf config.cpuAmdOptimizations.enable {
+    boot = {
+      extraModprobeConfig = ''
+        options iwlwifi power_save=1
+      '';
+      kernelParams = [
+        <<hardware-enablement-amd-kernelParams>>
+      ];
+    };
+    environment.systemPackages = with pkgs; [
+      brightnessctl
+    ];
+    powerManagement.powertop.enable = true;
+    services = {
+      power-profiles-daemon.enable = true;
+      tlp.enable = false;
+    };
+    systemd.settings.Manager = {
+      DefaultTimeoutStopSec = "90s";
+    };
+  };
+}
+#+end_src
+**** DONE kernelParams
+#+begin_src nix :noweb-ref hardware-enablement-amd-kernelParams
+"acpi_backlight=vendor"
+"acpi_osi=!"
+"amd_pstate=guided"
+"amdgpu.abmlevel=0"
+"amdgpu.backlight=0"
+"amdgpu.dcdebugmask=0x10"
+"amdgpu.runpm=1"
+"mem_sleep_default=s2idle"
+"nvme.noacpi=1"
+"nvme_core.default_ps_max_latency_us=0"
+"pcie_aspm.policy=powersave"
+#+end_src
+
 ** DONE Jellyfin Remote access proxy nodes [8/8]
 *** Host list
 01. Jeff & Jackie O'Connell
-02. Suzie?
+02. (Repurposed)
 03. John & Darlene Powers
 04. Max & Alyssa O'Connell
 05. Ken & Stacy O'Connell ?
 06. Joeseph O'Connell
 07. Don & Gabby O'Connell
-08. ?
+08. (Repurposed)
 
 *** DONE Preamble
 #+begin_src nix :tangle modules/jellyfinProxyHost.nix
@@ -1528,6 +1824,391 @@ environment.systemPackages = with pkgs; [
 ];
 #+end_src
 
+** DONE Jellyfin Server [5/5]
+[[https://wiki.archlinux.org/title/Intel_graphics][Intel graphics - Arch Wiki]]
+intel-compute-runtime is OpenCL filter support (for hardware tonemapping and subtitle burn-in)
+
+Jellyfin must be set to VAAPI for transcoding on modern Intel platforms as of 2025
+#+begin_src nix :tangle modules/jellyfinServer.nix
+{ config, lib, pkgs, ... }: {
+  options.jellyfinServer.enable = lib.mkEnableOption "Setup Jellyfin Server"
+    // { default = false; };
+  config = lib.mkIf config.jellyfinServer.enable {
+    boot.kernelParams = [ "i915.enable_guc=2" ];
+    nixpkgs.config.allowUnfree = true;
+    <<module-service-jellyfin-hardware>>
+    <<module-service-jellyfin-service>>
+    <<module-service-jellyfin-environment>>
+    <<module-service-jellyfin-cachedir>>
+    users.groups.jellyfin.members = [ "jellyfin" ];
+    <<module-service-jellyfin-systemd>>
+  };
+}
+#+end_src
+
+*** DONE hardware
+#+begin_src nix :noweb-ref module-service-jellyfin-hardware
+hardware = {
+  enableAllFirmware = true;
+  graphics.enable = true;
+};
+#+end_src
+
+*** DONE Jellyfin service
+#+begin_src nix :noweb-ref module-service-jellyfin-service
+services.jellyfin = {
+  enable = true;
+  group = "jellyfin";
+  openFirewall = true;
+  user = "jellyfin";
+  dataDir = "/var/lib/jellyfin"; # Default data directory
+  cacheDir = "/var/cache/jellyfin"; # Cache directory for transcoding
+};
+#+end_src
+
+*** DONE environment
+#+begin_src nix :noweb-ref module-service-jellyfin-environment
+environment = {
+  sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
+  systemPackages = with pkgs; [
+    intel-compute-runtime
+    intel-gpu-tools
+    intel-media-driver
+    jellyfin-ffmpeg
+    libva
+    libva-utils
+    libvdpau-va-gl
+    vaapiVdpau
+    vpl-gpu-rt
+  ];
+};
+#+end_src
+
+*** DONE cacheDir
+#+begin_src nix :noweb-ref module-service-jellyfin-cachedir
+systemd.tmpfiles.rules = [
+  "d ${config.services.jellyfin.cacheDir} 0750 jellyfin jellyfin - -"
+];
+#+end_src
+
+*** DONE systemD service
+#+begin_src nix :noweb-ref module-service-jellyfin-systemd
+systemd.services.jellyfin = {
+  after = [ "network.target" ];
+  wantedBy = [ "multi-user.target" ];
+  serviceConfig = {
+    Restart = "on-failure";
+    RestartSec = 5;
+  };
+};
+#+end_src
+** DONE laptopFixes.nix
+#+begin_src nix :tangle modules/laptopFixes.nix
+{ config, lib, ... }: {
+  options.laptopFixes.enable = lib.mkEnableOption "Enable fixes for laptops"
+    // { default = false; };
+  config = lib.mkIf config.laptopFixes.enable {
+    boot.kernelParams = [ "mem_sleep_default=deep" ];
+    hardware.acpilight.enable = true;
+    powerManagement = {
+      cpuFreqGovernor = lib.mkDefault "powersave";
+      enable = true;
+      powertop.enable = true;
+    };
+    services.tlp.enable = true;
+  };
+}
+#+end_src
+
+** DONE lokale.nix
+#+begin_src nix :tangle modules/lokale.nix
+{ config, lib, ... }:
+let
+loKale = "en_US.UTF-8";
+in
+{
+  options.lokale.enable = lib.mkEnableOption "Set Locale" //
+    { default = true; };
+  config = lib.mkIf config.lokale.enable {
+    i18n = {
+      defaultLocale = loKale;
+      extraLocaleSettings = {
+        LC_ADDRESS = loKale;
+        LC_IDENTIFICATION = loKale;
+        LC_MEASUREMENT = loKale;
+        LC_MONETARY = loKale;
+        LC_NAME = loKale;
+        LC_NUMERIC = loKale;
+        LC_PAPER = loKale;
+        LC_TELEPHONE = loKale;
+        LC_TIME = loKale;
+      };
+    };
+    time.timeZone = lib.mkDefault "Etc/UTC";
+  };
+}
+#+end_src
+
+** DONE multimediaPackages.nix
+python3.12-musicbrainzngs is a dependency of Ex Falso
+Quod Libet brings in Ex Falso
+
+#+begin_src nix :tangle modules/multimediaPackages.nix
+{ config, lib, pkgs, ... }: {
+  options.multimediaPackages.enable = lib.mkEnableOption "Install multimedia packages" //
+    { default = false; };
+  config = lib.mkIf config.multimediaPackages.enable {
+    environment.systemPackages = with pkgs; [
+      flac
+      gimp3-with-plugins
+      handbrake
+      mediainfo
+      mkvtoolnix
+      mpv
+      mpvc
+      python312Packages.musicbrainzngs
+      quodlibet
+      vorbisgain
+      vorbis-tools
+    ];
+  };
+}
+#+end_src
+
+** DONE nixGarbageCollection.nix
+#+begin_src nix :tangle modules/nixGarbageCollection.nix
+{ config, lib, ... }:
+with lib;
+{
+  options = {
+    services.nixGarbageCollection = {
+      enable = mkEnableOption "automatic Nix garbage collection" // {
+        default = true;
+      };
+      dates = mkOption {
+        type = types.str;
+        default = "monthly";
+        description = "How often to run garbage collection";
+      };
+      options = mkOption {
+        type = types.str;
+        default = "--delete-older-than 365d";
+        description = "Options to pass to nix-collect-garbage";
+      };
+    };
+  };
+  config = mkIf config.services.nixGarbageCollection.enable {
+    nix.gc = {
+      automatic = true;
+      dates = config.services.nixGarbageCollection.dates;
+      options = config.services.nixGarbageCollection.options;
+    };
+  };
+}
+#+end_src
+
+** DONE smartCardKeys.nix [6/6]
+#+begin_src nix :tangle modules/smartCardKeys.nix
+{ config, lib, pkgs, ... }: {
+  options.smartCardKeys.enable = lib.mkEnableOption "Enable settings for Smart Cards and Yubikeys" //
+    { default = true; };
+  config = lib.mkIf config.smartCardKeys.enable {
+    boot.kernelModules = [ "uhid" "hid_goodix" ];
+    <<smartCardKeys-environment.systemPackages>>
+    <<smartCardsKeys-security.pam.services>>
+    <<smartCardsKeys-programs>>
+    <<smartCardsKeys-services>>
+  };
+}
+#+end_src
+*** DONE environment.systemPackages
+#+begin_src nix :noweb-ref smartCardKeys-environment.systemPackages
+environment.systemPackages = with pkgs; [
+  fprintd
+  libfido2
+  pam_u2f
+  pass
+  pinentry-curses
+  yubico-piv-tool
+  yubikey-agent
+  yubikey-manager
+  yubikey-personalization
+  yubikey-touch-detector
+];
+#+end_src
+*** DONE fprintd
+Goodix MOC sensor – swap to libfprint-2-tod1-goodix-550a if issues
+#+begin_src nix :noweb-ref smartCardsKeys-fprintd
+fprintd = {
+  enable = true;
+  tod.enable = true;
+  tod.driver = pkgs.libfprint-2-tod1-goodix;
+};
+#+end_src
+*** DONE gnupg.agent
+#+begin_src nix :noweb-ref smartCardsKeys-gnupg.agent
+gnupg.agent = {
+  enable = true;
+  pinentryPackage = pkgs.pinentry-curses;
+  enableSSHSupport = true;
+};
+#+end_src
+*** DONE programs
+#+begin_src nix :noweb-ref smartCardsKeys-programs
+programs = {
+  <<smartCardsKeys-gnupg.agent>>
+  yubikey-touch-detector.enable = true;
+};
+#+end_src
+*** DONE security.pam.services
+#+begin_src nix :noweb-ref smartCardsKeys-security.pam.services
+security.pam.services = {
+  login.fprintAuth = true;
+  sudo.fprintAuth = true;
+    # For GNOME/KDE lockscreen (if using)
+# gdm.fprintAuth = true;  # GNOME
+# sddm.fprintAuth = true; # KDE/Sway/etc.
+    # For i3lock or similar (if using)
+# i3lock.fprintAuth = true;
+};
+#+end_src
+*** DONE services
+#+begin_src nix :noweb-ref smartCardsKeys-services
+services = {
+  <<smartCardsKeys-fprintd>>
+  pcscd.enable = true;
+  yubikey-agent.enable = true;
+};
+#+end_src
+** DONE opensshServer.nix
+#+begin_src nix :tangle modules/opensshServer.nix
+{ config, lib, ... }: {
+  options.opensshServer.enable = lib.mkEnableOption "Enable OpenSSH server, and Mosh" //
+    { default = true; };
+  config = lib.mkIf config.opensshServer.enable {
+    services.openssh = {
+      banner = "Welcome to... wherever you happen to be\n";
+      enable = true;
+      extraConfig ="";
+      openFirewall = true;
+      ports = [ 22 ];
+      settings = {
+        PasswordAuthentication = false;
+        PermitRootLogin = "prohibit-password";
+        PrintMotd = true;
+        StrictModes = true;
+        X11Forwarding = true;
+      };
+    };
+    programs.mosh.enable = true;
+  };
+}
+#+end_src
+
+** DONE tailscaleVPN.nix
+#+begin_src nix :tangle modules/tailscaleVPN.nix
+{ config, lib, ... }: {
+  options.tailscaleVPN.enable = lib.mkEnableOption "Enable Tailscale VPN" //
+    { default = true; };
+  config = lib.mkIf config.tailscaleVPN.enable {
+    services.tailscale = {
+      enable = true;
+      openFirewall = true;
+      port = 0;
+    };
+  };
+}
+#+end_src
+
+** TODO Users
+#+begin_src nix :tangle modules/users.nix
+{ config, lib, ... }:
+let
+  cfg = config.users;
+
+  # List of all users you want to manage with toggles
+  userNames = [ "jellyfin" "ranko" "openclaw" ];
+
+  # Helper to create per-user options
+  userOption = name: {
+    enable = lib.mkEnableOption "User ${name}" // {
+      default = true;
+    };
+  };
+
+in
+{
+  options.users = {
+    enable = lib.mkEnableOption "User management module" // {
+      default = true;
+    };
+
+    # Per-user toggles
+    ranko = userOption "ranko";
+    jellyfin = userOption "jellyfin";
+    openclaw = userOption "openclaw";
+  };
+  config = lib.mkIf cfg.enable {
+    users = lib.mkMerge [
+      <<user-jellyfin>>
+      <<user-openclaw>>
+      <<user-ranko>>
+      <<user-root>>
+    ];
+  };
+}
+#+end_src
+
+** DONE zfs.nix
+#+begin_src nix :tangle modules/zfs.nix
+{ config, lib, ... }: {
+  options = {
+    zfsBootOptions.enable = lib.mkEnableOption "Boot settings for root on ZFS hosts" //
+      { default = false; };
+    zfsOptions.enable = lib.mkEnableOption "Common settings for ZFS pools" //
+      { default = false; };
+    zfsSanoid.enable = lib.mkEnableOption "Enable Sanoid/Syncoid for ZFS" //
+      { default = false; };
+  };
+  config = lib.mkMerge [
+      # When zfsBootOptions is enabled, force the others on
+      (lib.mkIf config.zfsBootOptions.enable {
+        zfsOptions.enable = true;
+        zfsSanoid.enable = true;
+
+        boot = {
+          loader.grub.enable = false;
+          supportedFilesystems = [ "zfs" ];
+          zfs.forceImportRoot = false;
+        };
+      })
+    (lib.mkIf config.zfsSanoid.enable {
+      services = {
+        sanoid = {
+          enable = true;
+        };
+        syncoid = {
+          enable = true;
+        };
+      };
+    })
+    (lib.mkIf config.zfsOptions.enable {
+      boot.kernelParams = [ "zfs.zfs_arc_max=1073741824" ];
+      services = {
+        zfs = {
+          autoScrub = {
+            enable = true;
+            interval = "monthly";
+            pools = [ "zroot" ];
+          };
+          trim.enable = true;
+        };
+      };
+    })
+  ];
+}
+#+end_src
+
 * DONE Settings [1/1]
 ** DONE nfs-common-options.txt
 #+begin_src txt :tangle settings/nfs-common-options.txt
@@ -1538,4 +2219,70 @@ environment.systemPackages = with pkgs; [
 "exec"
 "rsize=1048576"
 "wsize=1048576"
+#+end_src
+* TODO Users [2/4]
+** DONE Jellyfin
+#+begin_src nix :tangle users/jellyfin.nix
+(lib.mkIf cfg.jellyfin.enable {
+  groups.jellyfin = {
+    gid = 8096;
+    name = "jellyfin";
+  };
+  users.jellyfin = {
+    extraGroups = [
+      "render"
+      "video"
+    ];
+    group = "jellyfin";
+    isNormalUser = true;
+    isSystemUser = lib.mkForce false;
+    uid = 8096;
+  };
+})
+#+end_src
+
+** TODO OpenClaw
+#+begin_src nix :tangle users/openclaw.nix
+(lib.mkIf cfg.openclaw.enable {
+  groups.openclaw = {
+    gid = 18789;
+    name = "openclaw";
+  };
+  users.openclaw = {
+    createHome = true;
+    group = "openclaw";
+    home = "/var/lib/openclaw";
+    isSystemUser = true;
+    shell = "/run/current-system/sw/bin/bash";
+    uid = 18789;
+  };
+})
+#+end_src
+
+** DONE Ranko Kohime
+#+begin_src nix :tangle users/ranko.nix
+(lib.mkIf cfg.ranko.enable {
+  users.ranko = {
+    isNormalUser = true;
+    description = "Ranko Kohime";
+    extraGroups = [
+      "networkmanager"
+      "video"
+      "wheel"
+    ]
+      ++ lib.optionals cfg.jellyfin.enable [ "jellyfin" ]
+      ++ lib.optionals (lib.attrByPath [ "virtualisation" "docker" "enable" ] false config) [ "docker" ];
+    uid = 1000;
+  };
+})
+#+end_src
+
+** TODO root
+#+begin_src nix :tangle users/root.nix
+(lib.mkIf cfg.root.enable {
+  users.root = {
+    openssh.authorizedKeys.keys = [
+    ];
+  };
+})
 #+end_src

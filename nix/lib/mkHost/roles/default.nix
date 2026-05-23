@@ -1,5 +1,4 @@
 { lib, ... }:
-
 let
   rolePaths = [
     ./desktop.nix

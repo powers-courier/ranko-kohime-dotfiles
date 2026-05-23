@@ -1,5 +1,6 @@
 { config, lib, ... }: {
-  options.cpuLimiterIntel.enable = lib.mkEnableOption "Set CPU Limiter on boot for Intel" // { default = false; };
+  options.cpuLimiterIntel.enable = lib.mkEnableOption "Set CPU Limiter on boot for Intel" //
+    { default = false; };
   config = lib.mkIf config.cpuLimiterIntel.enable {
     systemd.services.limit-cpu-max-perf = {
       description = "Limit CPU max performance percentage using intel_pstate";

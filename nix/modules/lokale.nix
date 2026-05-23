@@ -3,7 +3,8 @@ let
 loKale = "en_US.UTF-8";
 in
 {
-  options.lokale.enable = lib.mkEnableOption "Set Locale" // { default = true; };
+  options.lokale.enable = lib.mkEnableOption "Set Locale" //
+    { default = true; };
   config = lib.mkIf config.lokale.enable {
     i18n = {
       defaultLocale = loKale;

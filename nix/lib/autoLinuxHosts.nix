@@ -1,15 +1,10 @@
 { mkHost, ... }:
-
 let
-
     hostsDir = ./../hosts;
-
     hostEntries = builtins.readDir hostsDir;
-
     hostNixFiles = builtins.filter
       (name: builtins.match ".*\\.nix" name != null)
       (builtins.attrNames hostEntries);
-
   autoLinuxHosts =  builtins.listToAttrs (builtins.map
     (name:
       let
@@ -22,6 +17,5 @@ let
         }
     )
     hostNixFiles);
-
 in
   autoLinuxHosts

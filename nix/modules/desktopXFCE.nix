@@ -1,5 +1,6 @@
 { config, lib, pkgs, ... }: {
-  options.desktopXFCE.enable = lib.mkEnableOption "XFCE Desktop" // { default = false; };
+  options.desktopXFCE.enable = lib.mkEnableOption "XFCE Desktop" //
+    { default = false; };
   config = lib.mkIf config.desktopXFCE.enable {
     environment.systemPackages = with pkgs; [
       thunar-volman

@@ -1,16 +1,12 @@
 { lib, ... }:
-
 let
-  dir = ./platformModules;
-
+  dir = ./mkHost/platformModules;
   entries = builtins.readDir dir;
-
   nixFiles = builtins.filter
     (name:
       builtins.match ".*\\.nix" name != null
     )
     (builtins.attrNames entries);
-
   loaded = builtins.listToAttrs (builtins.map
     (name:
       let

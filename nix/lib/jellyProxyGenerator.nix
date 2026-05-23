@@ -1,10 +1,8 @@
 { lib, mkHost, autoHardware, ... }:
-
 let
   jellyProxyHosts = builtins.filter
     (name: lib.hasPrefix "jelly-proxy-" name)
     (lib.attrNames autoHardware);
-
   jellyProxyGenerator = lib.listToAttrs (map (name: {
     inherit name;
     value = mkHost {
@@ -21,7 +19,6 @@ let
       ];
     };
   }) jellyProxyHosts);
-
 in
   if jellyProxyHosts == []
     then builtins.trace "Warning: No jelly-proxy-* hardware files found!" {}

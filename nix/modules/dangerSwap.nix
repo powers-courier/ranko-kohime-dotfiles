@@ -1,5 +1,6 @@
 { config, lib, ... }: {
-  options.dangerSwap.enable = lib.mkEnableOption "Enable zram compressed swap" // { default = true; };
+  options.dangerSwap.enable = lib.mkEnableOption "Enable zram compressed swap" //
+    { default = true; };
   config = lib.mkIf config.dangerSwap.enable {
     zramSwap = {
       enable = true;

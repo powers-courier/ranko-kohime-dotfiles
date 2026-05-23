@@ -1,5 +1,6 @@
 { config, lib, programs, ... }: {
-  options.defaultNanoRC.enable = lib.mkEnableOption "Sane defaults for nanorc" // { default = true; };
+  options.defaultNanoRC.enable = lib.mkEnableOption "Sane defaults for nanorc" //
+{ default = true; };
   config = lib.mkIf config.defaultNanoRC.enable {
     programs.nano = lib.mkForce {
       enable = true;

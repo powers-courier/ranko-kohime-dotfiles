@@ -197,7 +197,7 @@ self,
 
 *** DONE Configurations
 #+begin_src nix :noweb-ref flake-output-configurations
-darwinConfigurations = autoLib.autoDarwinHosts;
+#darwinConfigurations = autoLib.autoDarwinHosts;
 homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
 #images = autoLib.Images;
 nixosConfigurations = autoLib.autoLinuxHosts //
@@ -891,10 +891,58 @@ services.nextcloud = {
 };
 #+end_src
 
-* TODO Lib [5/7]
+* TODO Lib [21/23]
+** DONE autoDarwinHosts.nix
+#+begin_src nix :tangle lib/autoDarwinHosts.nix
+{ mkHost, ... }:
+let
+  darwinHostsDir = ./../hosts/darwin;
+  darwinHostEntries = builtins.readDir darwinHostsDir;
+  darwinHostNixFiles = builtins.filter
+    (name: builtins.match ".*\\.nix" name != null)
+    (builtins.attrNames darwinHostEntries);
+  autoDarwinHosts = builtins.listToAttrs (builtins.map
+    (name:
+      let
+        hostname = builtins.replaceStrings [".nix"] [""] name;
+        hostArgs = import (darwinHostsDir + "/${name}");
+      in
+        {
+          name = hostname;
+          value = mkHost (hostArgs // { inherit hostname; });
+        }
+    )
+    darwinHostNixFiles);
+in
+autoDarwinHosts
+#+end_src
+
+** DONE autoHardware.nix
+#+begin_src nix :tangle lib/autoHardware.nix
+{ ... }:
+let
+  hardwareDir = ./../hosts/hardware;
+  entries = builtins.readDir hardwareDir;
+  nixFiles = builtins.filter
+    (name: builtins.match ".*\\.nix" name != null)
+    (builtins.attrNames entries);
+  autoHardware = builtins.listToAttrs (builtins.map
+    (name:
+      let
+        hostName = builtins.replaceStrings [".nix"] [""] name;
+      in
+      {
+        name = hostName;
+        value = import (hardwareDir + "/${name}");
+      })
+    nixFiles);
+in
+  autoHardware
+#+end_src
+
 ** DONE autoLib.nix
 #+begin_src nix :tangle lib/autoLib.nix
-{ inputs, lib, mkHost, autoHardware, ... }@args:
+{ inputs, lib, autoHardware, ... }@args:
 let
   libDir = ./.;
   entries = builtins.readDir libDir;
@@ -923,7 +971,101 @@ in
   importedLibs
 #+end_src
 
-** TODO mkHost [7/17]
+** DONE autoLinuxHosts.nix
+#+begin_src nix :tangle lib/autoLinuxHosts.nix
+{ mkHost, ... }:
+let
+    hostsDir = ./../hosts;
+    hostEntries = builtins.readDir hostsDir;
+    hostNixFiles = builtins.filter
+      (name: builtins.match ".*\\.nix" name != null)
+      (builtins.attrNames hostEntries);
+  autoLinuxHosts =  builtins.listToAttrs (builtins.map
+    (name:
+      let
+        hostname = builtins.replaceStrings [".nix"] [""] name;
+        hostArgs = import (hostsDir + "/${name}");
+      in
+        {
+          name = hostname;
+          value = mkHost (hostArgs // { inherit hostname; });
+        }
+    )
+    hostNixFiles);
+in
+  autoLinuxHosts
+#+end_src
+
+** DONE autoModules.nix
+#+begin_src nix :tangle lib/autoModules.nix
+{ ... }:
+let
+  modulesDir = ./../modules;
+  moduleEntries = builtins.readDir modulesDir;
+  nixModuleFiles = builtins.filter
+    (name: builtins.match ".*\\.nix" name != null)
+    (builtins.attrNames moduleEntries);
+  autoModules =  builtins.listToAttrs (builtins.map
+    (name: {
+      name = builtins.replaceStrings [".nix"] [""] name;
+      value = import (modulesDir + "/${name}");
+    })
+    nixModuleFiles);
+in
+  autoModules
+#+end_src
+
+** DONE jellyProxyGenerator.nix
+#+begin_src nix :tangle jellyProxyGenerator.nix
+{ lib, mkHost, autoHardware, ... }:
+let
+  jellyProxyHosts = builtins.filter
+    (name: lib.hasPrefix "jelly-proxy-" name)
+    (lib.attrNames autoHardware);
+  jellyProxyGenerator = lib.listToAttrs (map (name: {
+    inherit name;
+    value = mkHost {
+      hostname = name;
+      system = "x86_64-linux";
+      cpuVendor = "intel";
+      role = "server";
+      extraModules = [
+        autoHardware.${name}
+        ({ ... }: {
+          cpuLimiterIntel.enable = true;
+          jellyfinProxyHost.enable = true;
+        })
+      ];
+    };
+  }) jellyProxyHosts);
+in
+  if jellyProxyHosts == []
+    then builtins.trace "Warning: No jelly-proxy-* hardware files found!" {}
+    else jellyProxyGenerator
+#+end_src
+
+** DONE listFromFile.nix
+#+begin_src nix :tangle lib/listFromFile.nix
+{ lib, ... }:
+let
+  listFromFile = {
+    readLines = path:
+      let
+        content = builtins.readFile path;
+        lines = lib.strings.splitString "\n" content;
+      in
+        lib.filter
+          (line:
+            let trimmed = lib.strings.trim line;
+            in trimmed != "" && !(lib.strings.hasPrefix "#" trimmed)
+          )
+          lines;
+  };
+in
+{ inherit listFromFile; }
+#+end_src
+
+** TODO mkHost [14/15]
 *** DONE Preamble
 #+begin_src nix :noweb-ref mkHost
 mkHost = {
@@ -971,7 +1113,7 @@ selectedPlatformModules =
 platformModuleList = selectedPlatformModules {
   inherit system cpuVendor;
   inherit inputs;
-  inherit (args) hostname;   # if needed inside
+  inherit (args) hostname;
 };
 #+end_src
 
@@ -995,6 +1137,86 @@ modules = lib.flatten [
 ] ++ extraModules;
 #+end_src
 
+*** DONE Roles [6/6]
+**** DONE default.nix
+#+begin_src nix :tangle lib/mkHost/roles/default.nix
+{ lib, ... }:
+let
+  rolePaths = [
+    ./desktop.nix
+    ./laptop.nix
+    ./minimal.nix
+    ./router.nix
+    ./server.nix
+  ];
+in
+lib.genAttrs
+  (map (p: lib.removeSuffix ".nix" (builtins.baseNameOf p)) rolePaths)
+  (name: import (./. + "/${name}.nix") { inherit lib; })
+#+end_src
+
+**** DONE desktop.nix
+#+begin_src nix :tangle lib/mkHost/roles/desktop.nix
+{ pkgs, ... }:
+{
+  fancyKeyboards.enable = true;
+  multimediaPackages.enable = true;
+  services.xserver.enable = true;
+  services.pulseaudio.enable = false;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    pulse.enable = true;
+  };
+  environment.systemPackages = with pkgs; [
+    evince
+    firefox
+    libreoffice-fresh
+    vlc
+  ];
+}
+#+end_src
+
+**** DONE laptop.nix
+#+begin_src nix :tangle lib/mkHost/roles/laptop.nix
+{ pkgs, ... }: {
+  imports = [ ./desktop.nix ];
+  environment.systemPackages = with pkgs; [
+    byobu # Just to have non-empty list
+  ];
+  laptopFixes.enable = true;
+}
+#+end_src
+
+**** DONE minimal.nix
+#+begin_src nix :tangle lib/mkHost/roles/minimal.nix
+{ lib, ... }:
+{
+  environment.systemPackages = lib.mkForce [];
+}
+#+end_src
+
+**** DONE router.nix
+#+begin_src nix :tangle lib/mkHost/roles/router.nix
+{ ... }:
+{
+  my-router.enable = true;
+}
+#+end_src
+
+**** DONE server.nix
+#+begin_src nix :tangle lib/mkHost/roles/server.nix
+{ lib, pkgs, ... }:
+{
+  boot.kernelParams = [ "quiet" "splash" ];
+  networking.firewall.enable = true;
+  networking.networkmanager.enable = lib.mkForce false;
+  security.disableWireless.enable = true;
+  services.printing.enable = lib.mkForce false;
+  services.xserver.enable = lib.mkDefault false;
+}
+#+end_src
+
 *** WAIT Validate roles
 #+begin_src nix :noweb-ref mkhost-generator-role-validator
 validRoles = [
@@ -1009,14 +1231,86 @@ validRoles = [
     else throw "Invalid role '${role}' for host '${hostname}'. Valid: ${toString validRoles}";
 #+end_src
 
-* Modules
-** backupPackages.nix
+*** DONE platformModules.nix [2/2]
+Part of mkHost
+#+begin_src nix :tangle lib/platformModules.nix
+{ lib, ... }:
+let
+  dir = ./mkHost/platformModules;
+  entries = builtins.readDir dir;
+  nixFiles = builtins.filter
+    (name:
+      builtins.match ".*\\.nix" name != null
+    )
+    (builtins.attrNames entries);
+  loaded = builtins.listToAttrs (builtins.map
+    (name:
+      let
+        platform = builtins.replaceStrings [".nix"] [""] name;
+      in
+      {
+        name = platform;
+        value = import (dir + "/${name}");
+      })
+    nixFiles);
+in
+  loaded
+#+end_src
+
+**** DONE aarch64-linux
+#+begin_src nix :tangle lib/platformModules/aarch64-linux.nix
+{ cpuVendor ? "generic", lib, ... }: [
+  ({ pkgs, ... }: {
+    boot.kernelPackages = pkgs.linuxPackages_latest;
+  })
+  (lib.mkIf (cpuVendor == "apple") {
+    hardware.asahi.enable = true;
+  })
+  (lib.mkIf (cpuVendor == "rockchip") {
+    boot.kernelParams = [ "coherent_pool=1M" ];
+  })
+]
+#+end_src
+
+**** DONE x86_64-linux
+#+begin_src nix :tangle lib/platformModules/aarch64-linux.nix
+{ cpuVendor ? "generic", lib, ... }:
+[
+  ({ pkgs, lib, ... }: {
+    # Base x86_64 settings everyone gets
+    boot.kernelPackages = pkgs.linuxPackages_latest;
+    nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  })
+  (lib.mkIf (cpuVendor == "intel") {
+    boot = {
+      kernelModules = [ "kvm-intel" ];
+      kernelParams = [ "intel_iommu=on" ];
+    };
+    hardware = {
+      cpu.intel.updateMicrocode = true;
+      intel-gpu-tools.enable = true;
+    };
+  })
+  (lib.mkIf (cpuVendor == "amd") {
+    cpuAmdOptimizations.enable = true;
+    hardware.cpu.amd.updateMicrocode = true;
+    boot = {
+      kernelModules = [ "kvm-amd" ];
+      kernelParams = [ "amd_iommu=on" ];
+    };
+  })
+]
+#+end_src
+
+* DONE Modules [6/6]
+** DONE backupPackages.nix
 These packages are for file/disk backups, and disk archiving
 https://github.com/animetosho/par2cmdline-turbo
 http://dar.linux.free.fr/home.html
 #+begin_src nix :tangle modules/backupPackages.nix
 { config, lib, pkgs, ... }: {
-  options.backupPackages.enable = lib.mkEnableOption "Install backup packages" // { default = true; };
+  options.backupPackages.enable = lib.mkEnableOption "Install backup packages" //
+    { default = true; };
   config = lib.mkIf config.backupPackages.enable {
     environment.systemPackages = with pkgs; [
       dar
@@ -1028,4 +1322,220 @@ http://dar.linux.free.fr/home.html
 }
 #+end_src
 
-* Settings
+** DONE basePackages.nix
+#+begin_src nix :tangle modules/basePackages.nix
+{ config, lib, pkgs, ... }: {
+  options.basePackages.enable = lib.mkEnableOption "Install standard packages" //
+    { default = true; };
+  config = lib.mkIf config.basePackages.enable {
+    environment.systemPackages = with pkgs; [
+      byobu
+      dmidecode
+      git
+      glances
+      linux-firmware
+      lm_sensors
+      neovim
+      socat
+      sshfs
+      tmux
+      tree
+    ];
+  };
+}
+#+end_src
+
+** DONE cpuLimiter [1/1]
+*** DONE Intel
+#+begin_src nix :tangle modules/cpuLimiterIntel.nix
+{ config, lib, ... }: {
+  options.cpuLimiterIntel.enable = lib.mkEnableOption "Set CPU Limiter on boot for Intel" //
+    { default = false; };
+  config = lib.mkIf config.cpuLimiterIntel.enable {
+    systemd.services.limit-cpu-max-perf = {
+      description = "Limit CPU max performance percentage using intel_pstate";
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = ''
+          /run/current-system/sw/bin/sh -c "echo 1 > /sys/devices/system/cpu/intel_pstate/max_perf_pct"
+        '';
+        RemainAfterExit = true;
+      };
+    };
+  };
+}
+#+end_src
+
+** DONE dangerSwap.nix
+#+begin_src nix :tangle modules/dangerSwap.nix
+{ config, lib, ... }: {
+  options.dangerSwap.enable = lib.mkEnableOption "Enable zram compressed swap" //
+    { default = true; };
+  config = lib.mkIf config.dangerSwap.enable {
+    zramSwap = {
+      enable = true;
+      priority = 1;
+      memoryPercent = 100;
+      swapDevices = 1;
+    };
+  };
+}
+#+end_src
+
+** DONE defaultBootLoader.nix
+#+begin_src nix :tangle modules/defaultBootLoader.nix
+{ config, lib, ... }: {
+  options.defaultBootloader.enable = lib.mkEnableOption "Set default bootloader" //
+    { default = true; };
+  config = lib.mkIf config.defaultBootloader.enable {
+    boot = {
+      initrd.availableKernelModules = [ "ahci" "nvme" "sd_mod" "thunderbolt" "usb_storage" "xhci_pci" ];
+      loader = {
+        efi.canTouchEfiVariables = true;
+        systemd-boot.enable = true;
+      };
+    };
+  };
+}
+#+end_src
+
+** DONE Jellyfin Remote access proxy nodes [8/8]
+*** Host list
+01. Jeff & Jackie O'Connell
+02. Suzie?
+03. John & Darlene Powers
+04. Max & Alyssa O'Connell
+05. Ken & Stacy O'Connell ?
+06. Joeseph O'Connell
+07. Don & Gabby O'Connell
+08. ?
+
+*** DONE Preamble
+#+begin_src nix :tangle modules/jellyfinProxyHost.nix
+{ config, lib, pkgs, ... }: let vars = { tailscale-fqdn = "manticore-elnath.ts.net"; }; in {
+  options.jellyfinProxyHost.enable = lib.mkEnableOption "Enable proxy hosting for Jellyfin server" //
+    { default = false; };
+  config = lib.mkIf config.jellyfinProxyHost.enable {
+    <<jelly-proxy-networking-firewall>>
+    <<jelly-proxy-networking-subnet>>
+    <<jelly-proxy-networking-tailscale>>
+    <<jelly-proxy-nginx>>
+    <<jelly-proxy-mdns-avahi>>
+    <<jelly-proxy-packages>>
+  };
+}
+#+end_src
+
+*** DONE Networking [3/3]
+**** DONE Firewall
+Nginx listens on TCP 8096
+Avahi listens on UDP 5353
+#+begin_src nix :noweb-ref jelly-proxy-networking-firewall
+networking = {
+  firewall = {
+    enable = true;
+    allowedTCPPorts = [ 8096 ];
+    allowedUDPPorts = [ 5353 ];
+  };
+};
+#+end_src
+
+**** DONE Settings for Tailscale subnet routing
+#+begin_src nix :noweb-ref jelly-proxy-networking-subnet
+boot.kernel.sysctl = {
+  "net.ipv4.ip_forward" = 1;
+  "net.ipv6.conf.all.forwarding" = 1;
+};
+services.networkd-dispatcher = {
+  enable = true;
+  rules."50-tailscale" = {
+    onState = [ "routable" ];
+    script = ''
+      #!/usr/bin/env bash
+      ${pkgs.ethtool}/bin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
+    '';
+  };
+};
+#+end_src
+
+**** DONE Tailscale
+Requires manual setup to add to Tailnet
+#+begin_src nix :noweb-ref jelly-proxy-networking-tailscale
+services.tailscale = {
+  enable = true;
+  openFirewall = true;
+};
+#+end_src
+
+*** DONE Nginx
+#+begin_src nix :noweb-ref jelly-proxy-nginx
+services.nginx = {
+  enable = true;
+  virtualHosts."default" = {
+    default = true;
+    listen = [ { addr = "0.0.0.0"; port = 8096; } ];
+    locations."/" = {
+      proxyPass = "http://main-host.${vars.tailscale-fqdn}:8096/";
+      extraConfig = ''
+        proxy_http_version 1.1;
+        proxy_set_header Host "main-host.${vars.tailscale-fqdn}";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      '';
+    };
+  };
+};
+#+end_src
+
+*** DONE mDNS with Avahi
+nssmdns4 = Enable mDNS for IPv4 name resolution
+
+#+begin_src nix :noweb-ref jelly-proxy-mdns-avahi
+services.avahi = {
+  enable = true;
+  nssmdns4 = true;
+  publish = {
+    enable = true;
+    addresses = true;
+    userServices = true;
+  };
+};
+environment.etc."avahi/services/jellyfin.service".text = ''
+  <?xml version="1.0" standalone='no'?>
+  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+  <service-group>
+    <name>Jellyfin Proxy</name>
+    <service>
+      <type>_http._tcp</type>
+      <port>8096</port>
+      <txt-record>description=Jellyfin Media Server Proxy</txt-record>
+    </service>
+  </service-group>
+'';
+#+end_src
+
+*** DONE Packages
+#+begin_src nix :noweb-ref jelly-proxy-packages
+environment.systemPackages = with pkgs; [
+  avahi
+  ethtool
+  nginx
+  tailscale
+];
+#+end_src
+
+* DONE Settings [1/1]
+** DONE nfs-common-options.txt
+#+begin_src txt :tangle settings/nfs-common-options.txt
+"nfsvers=4"
+"hard"
+"users"
+"rw"
+"exec"
+"rsize=1048576"
+"wsize=1048576"
+#+end_src

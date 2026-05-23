@@ -107,7 +107,7 @@
       };
     in
     rec {
-      darwinConfigurations = autoLib.autoDarwinHosts;
+      #darwinConfigurations = autoLib.autoDarwinHosts;
       homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
       #images = autoLib.Images;
       nixosConfigurations = autoLib.autoLinuxHosts //

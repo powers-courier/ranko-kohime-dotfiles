@@ -891,8 +891,40 @@ services.nextcloud = {
 };
 #+end_src
 
-* TODO mkHost [7/17]
-** DONE Preamble
+* TODO Lib [5/7]
+** DONE autoLib.nix
+#+begin_src nix :tangle lib/autoLib.nix
+{ inputs, lib, mkHost, autoHardware, ... }@args:
+let
+  libDir = ./.;
+  entries = builtins.readDir libDir;
+  nixFiles = builtins.filter
+    (name:
+      builtins.match ".*\\.nix" name != null
+      && name != "autoLib.nix"
+                 # Auto loaded separately by the flake
+      && name != "autoHardware.nix"
+      && name != "mkHost.nix"
+      && name != "platformModules.nix"
+    )
+    (builtins.attrNames entries);
+  importedLibs = builtins.listToAttrs (builtins.map
+    (name:
+      let
+        baseName = builtins.replaceStrings [".nix"] [""] name;
+        imported = import (libDir + "/${name}") args;
+      in
+      {
+        name = baseName;
+        value = imported;
+      })
+    nixFiles);
+in
+  importedLibs
+#+end_src
+
+** TODO mkHost [7/17]
+*** DONE Preamble
 #+begin_src nix :noweb-ref mkHost
 mkHost = {
   <<mkhost-generator-options>>
@@ -920,7 +952,7 @@ mkHost = {
     };
 #+end_src
 
-** DONE Options
+*** DONE Options
 #+begin_src nix :noweb-ref mkhost-generator-options
 hostname,
 system ? "x86_64-linux",
@@ -930,7 +962,7 @@ extraModules ? [],
 platform ? null,
 #+end_src
 
-** DONE Platform Selector
+*** DONE Platform Selector
 Select the right platform-specific module list
 #+begin_src nix :noweb-ref mkhost-generator-platform-selector
 selectedPlatformModules =
@@ -943,7 +975,7 @@ platformModuleList = selectedPlatformModules {
 };
 #+end_src
 
-** DONE Modules
+*** DONE Modules
 Always set hostname (can be overridden later)
 
 #+begin_src nix :noweb-ref mkhost-generator-modules
@@ -963,7 +995,7 @@ modules = lib.flatten [
 ] ++ extraModules;
 #+end_src
 
-** WAIT Validate roles
+*** WAIT Validate roles
 #+begin_src nix :noweb-ref mkhost-generator-role-validator
 validRoles = [
   "desktop"
@@ -977,3 +1009,23 @@ validRoles = [
     else throw "Invalid role '${role}' for host '${hostname}'. Valid: ${toString validRoles}";
 #+end_src
 
+* Modules
+** backupPackages.nix
+These packages are for file/disk backups, and disk archiving
+https://github.com/animetosho/par2cmdline-turbo
+http://dar.linux.free.fr/home.html
+#+begin_src nix :tangle modules/backupPackages.nix
+{ config, lib, pkgs, ... }: {
+  options.backupPackages.enable = lib.mkEnableOption "Install backup packages" // { default = true; };
+  config = lib.mkIf config.backupPackages.enable {
+    environment.systemPackages = with pkgs; [
+      dar
+      ddrescue
+      par2cmdline
+      unison
+    ];
+  };
+}
+#+end_src
+
+* Settings

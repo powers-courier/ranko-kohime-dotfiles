@@ -1,10 +1,7 @@
 { inputs, lib, mkHost, autoHardware, ... }@args:
-
 let
   libDir = ./.;
-
   entries = builtins.readDir libDir;
-
   nixFiles = builtins.filter
     (name:
       builtins.match ".*\\.nix" name != null
@@ -15,7 +12,6 @@ let
       && name != "platformModules.nix"
     )
     (builtins.attrNames entries);
-
   importedLibs = builtins.listToAttrs (builtins.map
     (name:
       let

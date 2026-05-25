@@ -96,6 +96,12 @@ handles applying this function to the set of default systems that Nix supports."
 nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 #+end_src
 
+*** TODO Disko
+#+begin_src nix
+disko.url = "github:nix-community/disko";
+disko.inputs.nixpkgs.follows = "nixpkgs";
+#+end_src
+
 *** DONE Hardware
 #+begin_src nix
 hardware.url = "github:nixos/nixos-hardware";
@@ -124,12 +130,6 @@ nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 sops-nix.url = "github:Mic92/sops-nix";
 sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 #+end_src
-*** TODO Disko
-#+begin_src nix :noweb-ref no
-disko.url = "github:nix-community/disko";
-disko.inputs.nixpkgs.follows = "nixpkgs";
-#+end_src
-
 *** TODO Flake Utils
 #+begin_src nix :noweb-ref no
 flake-utils.url = "github:numtide/flake-utils";
@@ -889,6 +889,154 @@ services.gitlab = {
 services.nextcloud = {
   enable = true;
 };
+#+end_src
+* Hosts
+** Jelly Proxies
+*** DONE 01
+#+begin_src nix :tangle hosts/hardware/jelly-proxy-01.nix
+{
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/5803de2e-1612-469e-862f-acd51884606e";
+      fsType = "ext4";
+      options = [ "defaults" ];
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/7655-7B22";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
+  };
+  system.stateVersion = "25.05";
+}
+#+end_src
+
+*** DONE 02
+#+begin_src nix :tangle hosts/hardware/jelly-proxy-02.nix
+{
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/e2feb3c4-8705-40f5-a21b-91429d3e1bcd";
+      fsType = "ext4";
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/B830-073C";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
+  };
+  system.stateVersion = "25.05";
+}
+#+end_src
+
+*** DONE 03
+#+begin_src nix :tangle hosts/hardware/jelly-proxy-03.nix
+{ listFromFile, ... }:
+let
+  nfsCommonOptions = listFromFile.readLines ./../../settings/nfs-common-options.txt;
+in
+{
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/c1de1e73-2138-4286-888b-ef9b5d5b2eae";
+      fsType = "ext4";
+      options = [ "defaults" ];
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/5320-4C3E";
+      fsType = "vfat";
+      options = [ "fmask=0022" "dmask=0022" ];
+    };
+    "/Mounts/Music" = {
+      device = "192.168.1.22:/mnt/tank2/Snapshotted/Music";
+      fsType = "nfs";
+      options = nfsCommonOptions;
+    };
+    "/Mounts/Videos" = {
+      device = "192.168.1.22:/mnt/tank2/Snapshotted/Videos";
+      fsType = "nfs";
+      options = nfsCommonOptions;
+    };
+    "/Mounts/youtube-dl" = {
+      device = "192.168.0.2:/mnt/youtube-dl/youtube-dl";
+      fsType = "nfs";
+      options = nfsCommonOptions;
+    };
+  };
+  system.stateVersion = "25.05";
+}
+#+end_src
+
+*** DONE 04
+#+begin_src nix :tangle hosts/hardware/jelly-proxy-04.nix
+{
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/8bfa1c39-f4c5-4b66-8a9e-db7b7b7cbb72";
+      fsType = "ext4";
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/19A8-4887";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
+  };
+  system.stateVersion = "25.05";
+}
+#+end_src
+
+*** DONE 05
+#+begin_src nix :tangle hosts/hardware/jelly-proxy-05.nix
+{
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/f97df9e0-b2ac-4e29-84ba-12f27bd54b07";
+      fsType = "ext4";
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/0283-E117";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
+  };
+  system.stateVersion = "25.05";
+}
+#+end_src
+
+*** DONE 06
+#+begin_src nix :tangle hosts/hardware/jelly-proxy-06.nix
+{
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/5395506b-3569-4992-8d36-bcbeee416cbd";
+      fsType = "ext4";
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/2069-81C4";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
+  };
+  system.stateVersion = "25.05";
+}
+#+end_src
+
+*** DONE 07
+#+begin_src nix :tangle hosts/hardware/jelly-proxy-07.nix
+{
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/18687194-1d96-47af-b2ed-3bab9f7bf253";
+      fsType = "ext4";
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/DFE8-3B70";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
+  };
+  system.stateVersion = "25.05";
+}
 #+end_src
 
 * TODO Lib [21/23]

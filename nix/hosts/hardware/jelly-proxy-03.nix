@@ -1,9 +1,7 @@
 { listFromFile, ... }:
-
 let
   nfsCommonOptions = listFromFile.readLines ./../../settings/nfs-common-options.txt;
 in
-
 {
   fileSystems = {
     "/" = {

@@ -1451,7 +1451,7 @@ in
 ]
 #+end_src
 
-* TODO Modules [74/80]
+* TODO Modules [74/81]
 ** DONE backupPackages.nix
 These packages are for file/disk backups, and disk archiving
 https://github.com/animetosho/par2cmdline-turbo
@@ -1801,7 +1801,7 @@ environment.etc."motd".text = lib.mkAfter ''
 }
 #+end_src
 
-** Glances
+** TODO Glances
 *** TODO Nix Module
 #+begin_src nix :tangle modules/glancesServer.nix
 { config, lib, pkgs, ... }:
@@ -3281,24 +3281,6 @@ in
 })
 #+end_src
 
-** TODO OpenClaw
-#+begin_src nix :tangle users/openclaw.nix
-(lib.mkIf cfg.openclaw.enable {
-  groups.openclaw = {
-    gid = 18789;
-    name = "openclaw";
-  };
-  users.openclaw = {
-    createHome = true;
-    group = "openclaw";
-    home = "/var/lib/openclaw";
-    isSystemUser = true;
-    shell = "/run/current-system/sw/bin/bash";
-    uid = 18789;
-  };
-})
-#+end_src
-
 ** DONE Ranko Kohime
 #+begin_src nix :tangle users/ranko.nix
 (lib.mkIf cfg.ranko.enable {
@@ -3326,3 +3308,21 @@ in
   };
 })
 #+end_src
+** TODO Tamagotchi
+#+begin_src nix :tangle users/tamagotchi.nix
+(lib.mkIf cfg.tamagotchi.enable {
+  groups.tamagotchi = {
+    gid = 18789;
+    name = "tamagotchi";
+  };
+  users.tamagotchi = {
+    createHome = true;
+    group = "tamagotchi";
+    home = "/var/lib/tamagotchi";
+    isSystemUser = true;
+    shell = "/run/current-system/sw/bin/bash";
+    uid = 18789;
+  };
+})
+#+end_src
+

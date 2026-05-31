@@ -1,6 +1,4 @@
-# modules/users.nix  (or inline in your flake as a flakeModule)
 { config, lib, ... }:
-
 let
   cfg = config.users;
 

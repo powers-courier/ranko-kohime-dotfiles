@@ -1185,6 +1185,21 @@ in
 }
 #+end_src
 
+** TODO tamagotchi
+hosts/tamagotchi.nix
+#+begin_src nix :tangle no
+{
+  hostname = "tamagotchi";
+  system = "x86_64-linux";
+  cpuVendor = "intel";
+  role = "server";
+  extraModules = [
+    { nixpkgs.config.permittedInsecurePackages = [ "openclaw-2026.3.12" ]; }
+    { openBot.enable = true; }
+  ];
+}
+#+end_src
+
 * TODO Lib [21/23]
 ** DONE autoDarwinHosts.nix
 #+begin_src nix :tangle lib/autoDarwinHosts.nix
@@ -1596,7 +1611,7 @@ in
 ]
 #+end_src
 
-* TODO Modules [74/81]
+* TODO Modules [76/83]
 ** DONE backupPackages.nix
 These packages are for file/disk backups, and disk archiving
 https://github.com/animetosho/par2cmdline-turbo
@@ -3310,38 +3325,41 @@ services = {
 { config, lib, ... }:
 let
   cfg = config.users;
-
-  # List of all users you want to manage with toggles
-  userNames = [ "jellyfin" "ranko" "openclaw" ];
-
-  # Helper to create per-user options
-  userOption = name: {
-    enable = lib.mkEnableOption "User ${name}" // {
-      default = true;
-    };
-  };
-
+  <<modules-users-autoload>>
+  <<modules-users-peruser>>
 in
 {
   options.users = {
     enable = lib.mkEnableOption "User management module" // {
       default = true;
     };
-
-    # Per-user toggles
-    ranko = userOption "ranko";
-    jellyfin = userOption "jellyfin";
-    openclaw = userOption "openclaw";
-  };
+    } // lib.genAttrs (map (f: lib.removeSuffix ".nix" f) userFiles) userOption;
+    imports = userModules;
   config = lib.mkIf cfg.enable {
-    users = lib.mkMerge [
-      <<user-jellyfin>>
-      <<user-openclaw>>
-      <<user-ranko>>
-      <<user-root>>
-    ];
+    users = lib.mkMerge [ ];
   };
 }
+#+end_src
+
+*** DONE Load all users from discrete files
+#+begin_src nix  :noweb-ref modules-users-autoload
+userDir = ./users;
+userFiles = builtins.attrNames (
+  lib.filterAttrs (name: type:
+    type == "regular" && lib.hasSuffix ".nix" name
+  ) (builtins.readDir userDir)
+);
+userModules = map (f: userDir + "/${f}") userFiles;
+#+end_src
+
+*** DONE Per-user options
+Helper to create per-user options
+#+begin_src nix :noweb-ref modules-users-peruser
+userOption = name: {
+  enable = lib.mkEnableOption "User ${name}" // {
+    default = true;
+  };
+};
 #+end_src
 
 ** DONE zfs.nix
@@ -3408,66 +3426,90 @@ in
 * TODO Users [2/4]
 ** DONE Jellyfin
 #+begin_src nix :tangle users/jellyfin.nix
-(lib.mkIf cfg.jellyfin.enable {
-  groups.jellyfin = {
-    gid = 8096;
-    name = "jellyfin";
+{ config, lib, ... }:
+let
+  cfg = config.users;
+in
+{
+  config = lib.mkIf cfg.jellyfin.enable {
+    groups.jellyfin = {
+      gid = 8096;
+      name = "jellyfin";
+    };
+    users.jellyfin = {
+      extraGroups = [
+        "render"
+        "video"
+      ];
+      group = "jellyfin";
+      isNormalUser = true;
+      isSystemUser = lib.mkForce false;
+      uid = 8096;
+    };
   };
-  users.jellyfin = {
-    extraGroups = [
-      "render"
-      "video"
-    ];
-    group = "jellyfin";
-    isNormalUser = true;
-    isSystemUser = lib.mkForce false;
-    uid = 8096;
-  };
-})
+}
 #+end_src
 
 ** DONE Ranko Kohime
 #+begin_src nix :tangle users/ranko.nix
-(lib.mkIf cfg.ranko.enable {
-  users.ranko = {
-    isNormalUser = true;
-    description = "Ranko Kohime";
-    extraGroups = [
-      "networkmanager"
-      "video"
-      "wheel"
-    ]
-      ++ lib.optionals cfg.jellyfin.enable [ "jellyfin" ]
-      ++ lib.optionals (lib.attrByPath [ "virtualisation" "docker" "enable" ] false config) [ "docker" ];
-    uid = 1000;
+{ config, lib, ... }:
+let
+  cfg = config.users;
+in
+{
+  config = lib.mkIf cfg.ranko.enable {
+    users.ranko = {
+      isNormalUser = true;
+      description = "Ranko Kohime";
+      extraGroups = [
+        "networkmanager"
+        "video"
+        "wheel"
+      ]
+        ++ lib.optionals cfg.jellyfin.enable [ "jellyfin" ]
+        ++ lib.optionals (lib.attrByPath [ "virtualisation" "docker" "enable" ] false config) [ "docker" ];
+      uid = 1000;
+    };
   };
-})
+}
 #+end_src
 
 ** TODO root
 #+begin_src nix :tangle users/root.nix
-(lib.mkIf cfg.root.enable {
-  users.root = {
-    openssh.authorizedKeys.keys = [
-    ];
+{ config, lib, ... }:
+let
+  cfg = config.users;
+in
+{
+  config = lib.mkIf cfg.root.enable {
+    users.root = {
+      openssh.authorizedKeys.keys = [
+      ];
+    };
   };
-})
+}
 #+end_src
 ** TODO Tamagotchi
 #+begin_src nix :tangle users/tamagotchi.nix
-(lib.mkIf cfg.tamagotchi.enable {
-  groups.tamagotchi = {
-    gid = 18789;
-    name = "tamagotchi";
+{ config, lib, ... }:
+let
+  cfg = config.users;
+in
+{
+  config = lib.mkIf cfg.tamagotchi.enable {
+    groups.tamagotchi = {
+      gid = 18789;
+      name = "tamagotchi";
+    };
+    users.tamagotchi = {
+      createHome = true;
+      group = "tamagotchi";
+      home = "/var/lib/tamagotchi";
+      isSystemUser = true;
+      shell = "/run/current-system/sw/bin/bash";
+      uid = 18789;
+    };
   };
-  users.tamagotchi = {
-    createHome = true;
-    group = "tamagotchi";
-    home = "/var/lib/tamagotchi";
-    isSystemUser = true;
-    shell = "/run/current-system/sw/bin/bash";
-    uid = 18789;
-  };
-})
+}
 #+end_src
 

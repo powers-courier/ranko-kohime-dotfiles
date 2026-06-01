@@ -1,18 +1,19 @@
 { pkgs, ... }:
 {
-  fancyKeyboards.enable = true;
-  multimediaPackages.enable = true;
-  services.xserver.enable = true;
-  services.pulseaudio.enable = false;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    pulse.enable = true;
-  };
   environment.systemPackages = with pkgs; [
-    evince
     firefox
-    libreoffice-fresh
-    vlc
   ];
+  fancyKeyboards.enable = true;
+  packagesMultimedia.enable = true;
+  packagesOffice.enable = true;
+  programs.wireshark.enable = true;
+  services = {
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      pulse.enable = true;
+    };
+    pulseaudio.enable = false;
+    xserver.enable = true;
+  };
 }

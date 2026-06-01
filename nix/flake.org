@@ -1481,7 +1481,6 @@ lib.genAttrs
     evince
     firefox
     libreoffice-fresh
-    vlc
   ];
 }
 #+end_src
@@ -3149,10 +3148,10 @@ in
 }
 #+end_src
 
-** DONE multimediaPackages.nix
 ** TODO lubeLogger.nix
 *** TODO Module
-#+begin_src nix :tangle modules/lubeLogger.nix
+modules/lubeLogger.nix
+#+begin_src nix :tangle no
 { config, lib, pkgs, ... }: with lib;
 let
   cfg = config.services.LubeLogger;
@@ -3348,14 +3347,15 @@ in
   };
 }
 #+end_example
+** DONE packagesMultimedia.nix
 python3.12-musicbrainzngs is a dependency of Ex Falso
 Quod Libet brings in Ex Falso
 
-#+begin_src nix :tangle modules/multimediaPackages.nix
+#+begin_src nix :tangle modules/packagesMultimedia.nix
 { config, lib, pkgs, ... }: {
-  options.multimediaPackages.enable = lib.mkEnableOption "Install multimedia packages" //
+  options.packagesMultimedia.enable = lib.mkEnableOption "Install multimedia packages" //
     { default = false; };
-  config = lib.mkIf config.multimediaPackages.enable {
+  config = lib.mkIf config.packagesMultimedia.enable {
     environment.systemPackages = with pkgs; [
       flac
       gimp3-with-plugins
@@ -3366,6 +3366,7 @@ Quod Libet brings in Ex Falso
       mpvc
       python312Packages.musicbrainzngs
       quodlibet
+      vlc
       vorbisgain
       vorbis-tools
     ];

@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }: {
-  options.multimediaPackages.enable = lib.mkEnableOption "Install multimedia packages" //
+  options.packagesMultimedia.enable = lib.mkEnableOption "Install multimedia packages" //
     { default = false; };
-  config = lib.mkIf config.multimediaPackages.enable {
+  config = lib.mkIf config.packagesMultimedia.enable {
     environment.systemPackages = with pkgs; [
       flac
       gimp3-with-plugins
@@ -12,6 +12,7 @@
       mpvc
       python312Packages.musicbrainzngs
       quodlibet
+      vlc
       vorbisgain
       vorbis-tools
     ];

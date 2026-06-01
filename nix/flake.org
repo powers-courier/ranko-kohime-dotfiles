@@ -3641,7 +3641,7 @@ userOption = name: {
 "rsize=1048576"
 "wsize=1048576"
 #+end_src
-* TODO Users [2/4]
+* TODO Users [3/5]
 ** DONE Jellyfin
 #+begin_src nix :tangle users/jellyfin.nix
 { config, lib, ... }:
@@ -3680,8 +3680,12 @@ in
       isNormalUser = true;
       description = "Ranko Kohime";
       extraGroups = [
-        "networkmanager"
-        "video"
+        <<users-ranko-groups-audio>>
+        <<users-ranko-groups-disk>>
+        <<users-ranko-groups-hacking>>
+        <<users-ranko-groups-networking>>
+        <<users-ranko-groups-video>>
+        <<users-ranko-groups-virtualization>>
         "wheel"
       ]
         ++ lib.optionals cfg.jellyfin.enable [ "jellyfin" ]
@@ -3690,6 +3694,37 @@ in
     };
   };
 }
+#+end_src
+
+*** DONE Groups
+Audio
+#+begin_src nix :noweb-ref users-ranko-groups-audio
+"audio" "pipewire"
+#+end_src
+
+Disks
+#+begin_src nix :noweb-ref users-ranko-groups-disk
+"cdrom" "disk" "floppy" "tape"
+#+end_src
+
+Hacking
+#+begin_src nix :noweb-ref users-ranko-groups-hacking
+"adbusers" "dialout" "input" "uucp"
+#+end_src
+
+Networking
+#+begin_src nix :noweb-ref users-ranko-groups-networking
+"networkmanager" "wireshark"
+#+end_src
+
+Video
+#+begin_src nix :noweb-ref users-ranko-groups-video
+"render" "video"
+#+end_src
+
+Virtualization
+#+begin_src nix :noweb-ref users-ranko-groups-virtualization
+"kvm" "libvirtd"
 #+end_src
 
 ** TODO root

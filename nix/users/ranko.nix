@@ -8,8 +8,12 @@ in
       isNormalUser = true;
       description = "Ranko Kohime";
       extraGroups = [
-        "networkmanager"
-        "video"
+        "audio" "pipewire"
+        "cdrom" "disk" "floppy" "tape"
+        "adbusers" "dialout" "input" "uucp"
+        "networkmanager" "wireshark"
+        "render" "video"
+        "kvm" "libvirtd"
         "wheel"
       ]
         ++ lib.optionals cfg.jellyfin.enable [ "jellyfin" ]

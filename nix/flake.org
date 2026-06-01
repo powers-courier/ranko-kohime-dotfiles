@@ -3374,6 +3374,23 @@ Quod Libet brings in Ex Falso
 }
 #+end_src
 
+** DONE packagesOffice.nix
+evince is a PDF reader
+
+#+begin_src nix :tangle modules/packagesOffice.nix
+{ config, lib, pkgs, ... }: {
+  options.packagesOffice.enable = lib.mkEnableOption "Install Office packages" //
+    { default = false; };
+  config = lib.mkIf config.packagesOffice.enable {
+    environment.systemPackages = with pkgs; [
+      evince
+      gnucash
+      libreoffice-fresh
+    ];
+  };
+}
+#+end_src
+
 ** DONE nixGarbageCollection.nix
 #+begin_src nix :tangle modules/nixGarbageCollection.nix
 { config, lib, ... }:

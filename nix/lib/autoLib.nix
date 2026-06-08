@@ -1,4 +1,4 @@
-{ inputs, lib, mkHost, autoHardware, ... }@args:
+{ inputs, lib, autoHardware, ... }@args:
 let
   libDir = ./.;
   entries = builtins.readDir libDir;

@@ -6,6 +6,7 @@
       evince
       gnucash
       libreoffice-fresh
+      pdflatex
     ];
   };
 }

@@ -50,51 +50,23 @@ handles applying this function to the set of default systems that Nix supports."
 #+begin_src nix :tangle flake.nix
 {
   description = "Ranko Kohime's Flake v2";
-  inputs = {
-    <<flake-inputs>>
-  };
-  outputs = {
-  <<flake-output-preamble>>
-  }@inputs:
-    let
-      inherit (nixpkgs) lib;
-      platformModules = import ./lib/platformModules.nix { inherit lib; };
-      roleModules = import ./lib/mkHost/roles { inherit lib; };
-#      mkHost = import ./lib/mkHost.nix { inherit inputs lib autoModules platformModules nixpkgs; };
-      autoHardware = (import ./lib/autoHardware.nix {});
-      autoLib = import ./lib/autoLib.nix { inherit inputs lib autoHardware; };
-      inherit (autoLib)
-        autoModules
-        autoLinuxHosts
-        autoDarwinHosts
-        jellyProxyGenerator
-      ;
-      mkHostAuto = rec {
-        <<mkHost>>
-      };
-      <<home-folder-configuration-preamble>>
-      mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
-        inputs.nix-darwin.lib.darwinSystem {
-          inherit system;
-          specialArgs = { inherit inputs self; };
-          modules = [
-            (builtins.attrValues autoModules)
-            { networking.hostName = hostname; }
-          ] ++ extraModules;
-        };
-      <<home-folder-configuration-generator>>
-    in
-    rec {
-      <<flake-output-configurations>>
-    };
+  <<flake-inputs-preamble>>
+  <<flake-outputs-preamble>>
 }
 #+end_src
 
-* TODO Contents [21/46]
-** TODO Inputs [6/10]
+* TODO Contents [22/50]
+** TODO Inputs [7/11]
 :properties:
 :header-args: :noweb-ref flake-inputs
 :end:
+
+*** DONE Preamble
+#+begin_src nix :noweb-ref flake-inputs-preamble
+inputs = {
+  <<flake-inputs>>
+};
+#+end_src
 
 *** DONE Nixpkgs (unstable)
 #+begin_src nix
@@ -189,9 +161,24 @@ tailscale-fqdn = "manticore-elnath.ts.net";
 truenas-ip = "192.168.168.2";
 #+end_src
 
-** DONE Output [2/2]
+** TODO Output [3/5]
 *** DONE Preamble
-#+begin_src nix :noweb-ref flake-output-preamble
+#+begin_src nix :noweb-ref flake-outputs-preamble
+outputs = {
+<<flake-outputs-options>>
+}@inputs:
+  let
+    <<flake-outputs-lib>>
+    <<home-folder-configuration-preamble>>
+    <<home-folder-configuration-generator>>
+  in
+  rec {
+    <<flake-output-configurations>>
+  };
+#+end_src
+
+*** DONE Options
+#+begin_src nix :noweb-ref flake-outputs-options
 nixpkgs,
 home-manager,
 nix-darwin,
@@ -200,13 +187,32 @@ self,
 ...
 #+end_src
 
+*** TODO Lib
+#+begin_src nix :noweb-ref flake-outputs-lib
+inherit (nixpkgs) lib;
+listFromFile = import ./lib/listFromFile.nix { inherit lib; };
+#+end_src
+
+*** TODO mkDarwin
+#+begin_src nix
+mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
+  inputs.nix-darwin.lib.darwinSystem {
+    inherit system;
+    specialArgs = { inherit inputs self; };
+    modules = [
+      (builtins.attrValues autoModules)
+      { networking.hostName = hostname; }
+    ] ++ extraModules;
+  };
+#+end_src
+
 *** DONE Configurations
 #+begin_src nix :noweb-ref flake-output-configurations
 #darwinConfigurations = autoLib.autoDarwinHosts;
-homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
+#homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
 #images = autoLib.Images;
-nixosConfigurations = autoLib.autoLinuxHosts //
-  (autoLib.jellyProxyGenerator.jellyProxyGenerator or autoLib.jellyProxyGenerator or {});
+#nixosConfigurations = autoLib.autoLinuxHosts //
+#  (autoLib.jellyProxyGenerator.jellyProxyGenerator or autoLib.jellyProxyGenerator or {});
 #+end_src
 
 ** TODO Hardware Configs [0/1]
@@ -1256,7 +1262,7 @@ in
 
 ** DONE autoLib.nix
 #+begin_src nix :tangle lib/autoLib.nix
-{ inputs, lib, autoHardware, ... }@args:
+{ inputs, lib, autoHardware, mkHost, ... }@args:
 let
   libDir = ./.;
   entries = builtins.readDir libDir;

@@ -35,6 +35,7 @@ https://github.com/clarkm/dupepad
 https://atpm.com/10.11/frogpad.shtml
 ** self-hosted password management
 ** [[https://github.com/benbjohnson/litestream][Litestream]] for backing up Jellyfin local database?
+
 * DONE Flake
 Outputs:
 + "self" references the directory of the flake file, in this case ~/Dotfiles/nix/

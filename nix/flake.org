@@ -190,7 +190,28 @@ self,
 *** TODO Lib
 #+begin_src nix :noweb-ref flake-outputs-lib
 inherit (nixpkgs) lib;
-listFromFile = import ./lib/listFromFile.nix { inherit lib; };
+
+# Low-dependency pieces (no dependency on mkHost)
+platformModules = import ./lib/platformModules.nix { inherit lib; };
+roleModules = import ./lib/mkHost/roles { inherit lib; };
+autoModules = (import ./lib/autoModules.nix {});
+autoHardware = (import ./lib/autoHardware.nix {});
+
+# Discrete mkHost (receives exactly the pieces it closes over)
+mkHost = import ./lib/mkHost.nix {
+  inherit inputs lib nixpkgs platformModules roleModules autoModules;
+};
+
+# Automatic host *loading* (discovery from hosts/ + mkHost application)
+autoDarwinHosts = import ./lib/autoDarwinHosts.nix { inherit mkHost; };
+autoLinuxHosts = import ./lib/autoLinuxHosts.nix { inherit mkHost; };
+
+# Automatic host *generation* (synthesized hosts, e.g. the jelly proxies)
+jellyProxyGenerator = import ./lib/jellyProxyGenerator.nix {
+  inherit lib mkHost autoHardware;
+};
+
+listFromFile = (import ./lib/listFromFile.nix { inherit lib; }).listFromFile;
 #+end_src
 
 *** TODO mkDarwin
@@ -208,11 +229,12 @@ mkDarwin = { hostname, system ? "aarch64-darwin", extraModules ? [] }@args:
 
 *** DONE Configurations
 #+begin_src nix :noweb-ref flake-output-configurations
-#darwinConfigurations = autoLib.autoDarwinHosts;
+# Full automatic host loading/generation is now available directly
+# after the explicit loads in <<flake-outputs-lib>> (no more autoLib).
+darwinConfigurations = autoDarwinHosts;
 #homeConfigurations = nixpkgs.lib.genAttrs home-manager-usernames mkHome;
-#images = autoLib.Images;
-#nixosConfigurations = autoLib.autoLinuxHosts //
-#  (autoLib.jellyProxyGenerator.jellyProxyGenerator or autoLib.jellyProxyGenerator or {});
+#images = ...;
+nixosConfigurations = autoLinuxHosts // jellyProxyGenerator;
 #+end_src
 
 ** TODO Hardware Configs [0/1]
@@ -1211,7 +1233,7 @@ hosts/tamagotchi.nix
 }
 #+end_src
 
-* TODO Lib [21/23]
+* TODO Lib [20/22]
 ** DONE autoDarwinHosts.nix
 #+begin_src nix :tangle lib/autoDarwinHosts.nix
 { mkHost, ... }:
@@ -1258,37 +1280,6 @@ let
     nixFiles);
 in
   autoHardware
-#+end_src
-
-** DONE autoLib.nix
-#+begin_src nix :tangle lib/autoLib.nix
-{ inputs, lib, autoHardware, mkHost, ... }@args:
-let
-  libDir = ./.;
-  entries = builtins.readDir libDir;
-  nixFiles = builtins.filter
-    (name:
-      builtins.match ".*\\.nix" name != null
-      && name != "autoLib.nix"
-                 # Auto loaded separately by the flake
-      && name != "autoHardware.nix"
-      && name != "mkHost.nix"
-      && name != "platformModules.nix"
-    )
-    (builtins.attrNames entries);
-  importedLibs = builtins.listToAttrs (builtins.map
-    (name:
-      let
-        baseName = builtins.replaceStrings [".nix"] [""] name;
-        imported = import (libDir + "/${name}") args;
-      in
-      {
-        name = baseName;
-        value = imported;
-      })
-    nixFiles);
-in
-  importedLibs
 #+end_src
 
 ** DONE autoLinuxHosts.nix
@@ -1385,34 +1376,49 @@ in
 { inherit listFromFile; }
 #+end_src
 
-** TODO mkHost [14/15]
-*** DONE Preamble
-#+begin_src nix :noweb-ref mkHost
-mkHost = {
-  <<mkhost-generator-options>>
-} @ args:
-  let
-    isDarwin = platform == "darwin" || lib.hasSuffix "-darwin" system;
-    isNixOS  = !isDarwin;
-    <<mkhost-generator-platform-selector>>
-  in
-  if isDarwin then
-    inputs.nix-darwin.lib.darwinSystem {
-      inherit system;
-      specialArgs = { inherit inputs; };
-      modules = lib.flatten [
-        (builtins.attrValues autoModules)
-        { networking.hostName = hostname; }
-        extraModules
-      ];
-    }
-  else
-    nixpkgs.lib.nixosSystem {
-      inherit system;
-      specialArgs = { inherit inputs; };
-      <<mkhost-generator-modules>>
-    };
+** DONE mkHost.nix
+#+begin_src nix :tangle lib/mkHost.nix
+{ inputs, lib, nixpkgs, platformModules, roleModules, autoModules, ... }:
+
+let
+  # The mkHost function.  Callers (auto*Hosts, jellyProxyGenerator, ad-hoc)
+  # pass a small attrset; mkHost fills in the rest via the role + platform
+  # machinery below.
+  mkHost = {
+    <<mkhost-generator-options>>
+  } @ args:
+    let
+      isDarwin = platform == "darwin" || lib.hasSuffix "-darwin" system;
+      isNixOS  = !isDarwin;
+      <<mkhost-generator-platform-selector>>
+      <<mkhost-generator-role-validator>>
+    in
+    if isDarwin then
+      inputs.nix-darwin.lib.darwinSystem {
+        inherit system;
+        specialArgs = { inherit inputs; };
+        modules = lib.flatten [
+          (builtins.attrValues autoModules)
+          { networking.hostName = hostname; }
+          extraModules
+        ];
+      }
+    else
+      nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = { inherit inputs; };
+        <<mkhost-generator-modules>>
+      };
+in
+mkHost
 #+end_src
+
+This file is now a first-class, explicitly imported library.  It receives
+only the things it actually closes over (no more big @args from autoLib).
+Automatic host loading/generation is performed by the small dedicated
+auto*.nix and jellyProxyGenerator.nix files (imported after mkHost in the
+flake outputs let-block).  This eliminates the ordering/race issues that
+occurred when autoLib tried to dynamically pull in everything at once.
 
 *** DONE Options
 #+begin_src nix :noweb-ref mkhost-generator-options
@@ -1538,7 +1544,7 @@ lib.genAttrs
 }
 #+end_src
 
-*** WAIT Validate roles
+*** DONE Validate roles (now included in mkHost.nix)
 #+begin_src nix :noweb-ref mkhost-generator-role-validator
 validRoles = [
   "desktop"
